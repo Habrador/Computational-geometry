@@ -193,7 +193,7 @@ namespace Habrador_Computational_Geometry
         //From http://totologic.blogspot.se/2014/01/accurate-point-in-triangle-test.html
         //p is the testpoint, and the other points are corners in the triangle
         //-1 if outside, 0 if on the border, 1 if inside the triangle
-        public static bool IsPointInTriangle(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p, bool includeBorder)
+        public static bool IsPointInTriangle(Triangle2D t, Vector2 p, bool includeBorder)
         {
             //To avoid floating point precision issues we can add a small value
             float epsilon = MathUtility.EPSILON;
@@ -202,10 +202,10 @@ namespace Habrador_Computational_Geometry
             float one = 1f + epsilon;
 
             //Based on Barycentric coordinates
-            float denominator = ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
+            float denominator = ((t.p2.y - t.p3.y) * (t.p1.x - t.p3.x) + (t.p3.x - t.p2.x) * (t.p1.y - t.p3.y));
 
-            float a = ((p2.y - p3.y) * (p.x - p3.x) + (p3.x - p2.x) * (p.y - p3.y)) / denominator;
-            float b = ((p3.y - p1.y) * (p.x - p3.x) + (p1.x - p3.x) * (p.y - p3.y)) / denominator;
+            float a = ((t.p2.y - t.p3.y) * (p.x - t.p3.x) + (t.p3.x - t.p2.x) * (p.y - t.p3.y)) / denominator;
+            float b = ((t.p3.y - t.p1.y) * (p.x - t.p3.x) + (t.p1.x - t.p3.x) * (p.y - t.p3.y)) / denominator;
             float c = 1 - a - b;
 
             bool isWithinTriangle = false;
@@ -268,16 +268,14 @@ namespace Habrador_Computational_Geometry
         // Is a triangle inside a triangle
         //
         //Is triangle 1 inside triangle 2?
-        public static bool IsTriangleInsideTriangle(
-            Vector2 t1_p1, Vector2 t1_p2, Vector2 t1_p3,
-            Vector2 t2_p1, Vector2 t2_p2, Vector2 t2_p3)
+        public static bool IsTriangleInsideTriangle(Triangle2D t1, Triangle2D t2)
         {
             bool isWithin = false;
 
             if (
-                IsPointInTriangle(t2_p1, t2_p2, t2_p3, t1_p1, false) &&
-                IsPointInTriangle(t2_p1, t2_p2, t2_p3, t1_p2, false) &&
-                IsPointInTriangle(t2_p1, t2_p2, t2_p3, t1_p3, false))
+                IsPointInTriangle(t2, t1.p1, false) &&
+                IsPointInTriangle(t2, t1.p2, false) &&
+                IsPointInTriangle(t2, t1.p3, false))
             {
                 isWithin = true;
             }
@@ -341,7 +339,7 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-            //The point should be outside so just pick a number to make it outside
+            //The point should be outside so just pick a number to move it outside
             Vector2 pointOutside = maxXPosVertex + new Vector2(10f, 0f);
 
 
@@ -385,43 +383,28 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Are two triangles intersecting
+        // Are two triangles intersecting in 2d space
         //
-        //Assume xz space is 2d
-        public static bool AreTrianglesIntersecting(Triangle t1, Triangle t2, bool do_AABB_test)
-        {
-            Vector2 t1_p1 = t1.p1.XZ();
-            Vector2 t1_p2 = t1.p2.XZ();
-            Vector2 t1_p3 = t1.p3.XZ();
-
-            Vector2 t2_p1 = t2.p1.XZ();
-            Vector2 t2_p2 = t2.p2.XZ();
-            Vector2 t2_p3 = t2.p3.XZ();
-
-            return AreTrianglesIntersecting(t1_p1, t1_p2, t1_p3, t2_p1, t2_p2, t2_p3, do_AABB_test);
-        }
-
-
-
-        public static bool AreTrianglesIntersecting(
-            Vector2 t1_p1, Vector2 t1_p2, Vector2 t1_p3, Vector2 t2_p1, Vector2 t2_p2, Vector2 t2_p3, bool do_AABB_test)
+        public static bool AreTrianglesIntersecting2D(Triangle2D t1, Triangle2D t2, bool do_AABB_test)
         {
             bool isIntersecting = false;
 
-            //AABB intersection which may speed up the algorithm if the triangles are far apart
+            //Step 0. AABB intersection which may speed up the algorithm if the triangles are far apart
             if (do_AABB_test)
             {
-                float r1_minX = Mathf.Min(t1_p1.x, Mathf.Min(t1_p2.x, t1_p3.x));
-                float r1_maxX = Mathf.Max(t1_p1.x, Mathf.Max(t1_p2.x, t1_p3.x));
+                //Rectangle that covers t1 
+                float r1_minX = Mathf.Min(t1.p1.x, Mathf.Min(t1.p2.x, t1.p3.x));
+                float r1_maxX = Mathf.Max(t1.p1.x, Mathf.Max(t1.p2.x, t1.p3.x));
 
-                float r1_minY = Mathf.Min(t1_p1.y, Mathf.Min(t1_p2.y, t1_p3.y));
-                float r1_maxY = Mathf.Max(t1_p1.y, Mathf.Max(t1_p2.y, t1_p3.y));
+                float r1_minY = Mathf.Min(t1.p1.y, Mathf.Min(t1.p2.y, t1.p3.y));
+                float r1_maxY = Mathf.Max(t1.p1.y, Mathf.Max(t1.p2.y, t1.p3.y));
 
-                float r2_minX = Mathf.Min(t2_p1.x, Mathf.Min(t2_p2.x, t2_p3.x));
-                float r2_maxX = Mathf.Max(t2_p1.x, Mathf.Max(t2_p2.x, t2_p3.x));
+                //Rectangle that covers t2
+                float r2_minX = Mathf.Min(t2.p1.x, Mathf.Min(t2.p2.x, t2.p3.x));
+                float r2_maxX = Mathf.Max(t2.p1.x, Mathf.Max(t2.p2.x, t2.p3.x));
 
-                float r2_minY = Mathf.Min(t2_p1.y, Mathf.Min(t2_p2.y, t2_p3.y));
-                float r2_maxY = Mathf.Max(t2_p1.y, Mathf.Max(t2_p2.y, t2_p3.y));
+                float r2_minY = Mathf.Min(t2.p1.y, Mathf.Min(t2.p2.y, t2.p3.y));
+                float r2_maxY = Mathf.Max(t2.p1.y, Mathf.Max(t2.p2.y, t2.p3.y));
 
                 if (!AreAABBIntersecting(r1_minX, r1_maxX, r1_minY, r1_maxY, r2_minX, r2_maxX, r2_minY, r2_maxY))
                 {
@@ -429,31 +412,32 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
+
             //Step 1. Line-line instersection
 
             //Line 1 of t1 against all lines of t2
             if (
-                AreLinesIntersecting(t1_p1, t1_p2, t2_p1, t2_p2, true) ||
-                AreLinesIntersecting(t1_p1, t1_p2, t2_p2, t2_p3, true) ||
-                AreLinesIntersecting(t1_p1, t1_p2, t2_p3, t2_p1, true)
+                AreLinesIntersecting(t1.p1, t1.p2, t2.p1, t2.p2, true) ||
+                AreLinesIntersecting(t1.p1, t1.p2, t2.p2, t2.p3, true) ||
+                AreLinesIntersecting(t1.p1, t1.p2, t2.p3, t2.p1, true)
             )
             {
                 isIntersecting = true;
             }
             //Line 2 of t1 against all lines of t2
             else if (
-                AreLinesIntersecting(t1_p2, t1_p3, t2_p1, t2_p2, true) ||
-                AreLinesIntersecting(t1_p2, t1_p3, t2_p2, t2_p3, true) ||
-                AreLinesIntersecting(t1_p2, t1_p3, t2_p3, t2_p1, true)
+                AreLinesIntersecting(t1.p2, t1.p3, t2.p1, t2.p2, true) ||
+                AreLinesIntersecting(t1.p2, t1.p3, t2.p2, t2.p3, true) ||
+                AreLinesIntersecting(t1.p2, t1.p3, t2.p3, t2.p1, true)
             )
             {
                 isIntersecting = true;
             }
             //Line 3 of t1 against all lines of t2
             else if (
-                AreLinesIntersecting(t1_p3, t1_p1, t2_p1, t2_p2, true) ||
-                AreLinesIntersecting(t1_p3, t1_p1, t2_p2, t2_p3, true) ||
-                AreLinesIntersecting(t1_p3, t1_p1, t2_p3, t2_p1, true)
+                AreLinesIntersecting(t1.p3, t1.p1, t2.p1, t2.p2, true) ||
+                AreLinesIntersecting(t1.p3, t1.p1, t2.p2, t2.p3, true) ||
+                AreLinesIntersecting(t1.p3, t1.p1, t2.p3, t2.p1, true)
             )
             {
                 isIntersecting = true;
@@ -466,11 +450,11 @@ namespace Habrador_Computational_Geometry
             }
 
 
-
             //Step 2. Point-in-triangle intersection
-            //Test if all points of one triangle is inside the other - and the opposite
-            //We only need to test one corner from each triangle because the other cases were covered by line-line intersections
-            if (IsPointInTriangle(t2_p1, t2_p2, t2_p3, t1_p1, true) || IsPointInTriangle(t1_p1, t1_p2, t1_p3, t2_p1, true))
+            //We only need to test one corner from each triangle
+            //If this point is not in the triangle, then the other points can't be in the triangle, because if this point is outside
+            //and another point is inside, then the line between them would have been covered by step 1: line-line intersections test
+            if (IsPointInTriangle(t2, t1.p1, true) || IsPointInTriangle(t1, t2.p1, true))
             {
                 isIntersecting = true;
             }

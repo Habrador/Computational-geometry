@@ -19,15 +19,16 @@ public class HullController : MonoBehaviour
     private void OnDrawGizmos()
     {    
         //
-        //Generate the points we are going to find the convex hull from
+        // Generate the points we are going to find the convex hull from
         //
+
         //Random points
-        //List<Vector3> points = GenerateRandomPoints(seed);
+        //List<Vector3> points = GenerateRandomPoints(seed, mapSize, numberOfPoints);
 
         //Points from a plane mesh
         HashSet<Vector3> points = GeneratePointsFromPlane(planeTrans);
 
-        //Need to cope the points to its own list because some will be removed when generating the hull
+        //Need to move the points to its own list because some will be removed when generating the hull
         //and we want to display both the points and the hull
         HashSet<Vector3> pointsCopy = new HashSet<Vector3>(points);
 
@@ -39,11 +40,8 @@ public class HullController : MonoBehaviour
         //From 3d to 2d
         HashSet<Vector2> pointsCopy_2d = HelpMethods.ConvertListFrom3DTo2D(pointsCopy);
 
-        //Algorithm 1
+        //Algorithm 1. Jarvis March - slow but simple
         List<Vector2> pointsOnConvexHull_2d = _ConvexHull.JarvisMarch(pointsCopy_2d);
-
-        //Algorithm 2 - BROKEN
-        //List<Vertex> pointsOnConvexHull = HullAlgorithms.GrahamScan(pointsCopy);
 
         if (pointsOnConvexHull_2d == null)
         {
@@ -51,13 +49,11 @@ public class HullController : MonoBehaviour
         }
 
         
-
-
-
-
         //
-        //Display the hull and points 
+        // Display 
         //
+
+        //Display points on the hull and lines between the points
         if (pointsOnConvexHull_2d != null)
         {
             //From 2d to 3d
@@ -75,11 +71,12 @@ public class HullController : MonoBehaviour
             {
                 Gizmos.DrawWireSphere(pointsOnConvexHull[i], size);
 
+                //So we can see in which order they were added
                 size += 0.01f;
             }
         }
 
-        //Display the points
+        //Display all the original points
         foreach (Vector3 p in pointsCopy)
         {
             Gizmos.DrawSphere(p, 0.1f);
@@ -88,17 +85,18 @@ public class HullController : MonoBehaviour
 
 
 
-    private List<Vector3> GenerateRandomPoints(int seed)
+    //Generate random points within a specified square size
+    private List<Vector3> GenerateRandomPoints(int seed, float squareSize, int totalPoints)
     {
         List<Vector3> randomPoints = new List<Vector3>();
 
         //Generate random numbers with a seed
         Random.InitState(seed);
 
-        float max = mapSize;
-        float min = -mapSize;
+        float max = squareSize;
+        float min = -squareSize;
 
-        for (int i = 0; i < numberOfPoints; i++)
+        for (int i = 0; i < totalPoints; i++)
         {
             float randomX = Random.Range(min, max);
             float randomZ = Random.Range(min, max);
@@ -111,6 +109,7 @@ public class HullController : MonoBehaviour
 
 
 
+    //Find all vertices of a plane
     private HashSet<Vector3> GeneratePointsFromPlane(Transform planeTrans)
     {
         HashSet<Vector3> points = new HashSet<Vector3>();

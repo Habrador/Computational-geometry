@@ -150,7 +150,11 @@ public class IntersectionController : MonoBehaviour
         Triangle t1 = new Triangle(t1_p1_trans.position, t1_p2_trans.position, t1_p3_trans.position);
         Triangle t2 = new Triangle(t2_p1_trans.position, t2_p2_trans.position, t2_p3_trans.position);
 
-        bool isIntersecting = Intersections.AreTrianglesIntersecting(t1, t2, false);
+        //3d to 2d
+        Triangle2D t1_2d = new Triangle2D(t1.p1.XZ(), t1.p2.XZ(), t1.p3.XZ());
+        Triangle2D t2_2d = new Triangle2D(t2.p1.XZ(), t2.p2.XZ(), t2.p3.XZ());
+
+        bool isIntersecting = Intersections.AreTrianglesIntersecting2D(t1_2d, t2_2d, false);
 
 
 

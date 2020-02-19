@@ -61,6 +61,7 @@ public class PolygonClippingController : MonoBehaviour
     {
         //In this case we can get back multiple parts of the polygon because one of the 
         //polygons doesnt have to be convex
+        //If you pick boolean operation: intersection you should get the same result as with the Sutherland-Hodgman
         List<List<Vector2>> finalPolygon = GreinerHormann.ClipPolygons(poly, clipPoly, BooleanOperation.Intersection);
 
         for (int i = 0; i < finalPolygon.Count; i++)

@@ -45,7 +45,9 @@ namespace Habrador_Computational_Geometry
                     //And most points are not on edges anyway
                     //But if it is very close to the edge, we will still get the correct edge structure when we have run this 
                     //triangulation through a delaunay triangulation algorithm, so the end result will be the same
-                    if (Intersections.IsPointInTriangle(t.p1.XZ(), t.p2.XZ(), t.p3.XZ(), currentPoint.XZ(), true))
+                    Triangle2D t_2D = new Triangle2D(t.p1.XZ(), t.p2.XZ(), t.p3.XZ());
+
+                    if (Intersections.IsPointInTriangle(t_2D, currentPoint.XZ(), true))
                     {
                         //Split the triangle into three new triangles
 
