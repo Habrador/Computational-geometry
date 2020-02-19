@@ -4,24 +4,21 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
-    //TODO
-    //- Do we need to reset the .nextpoly of the clipping polygon?
-
-
+    //Can do boolean operations on all types polygons
     //From the report "Efficient clipping of arbitrary polygons"
     //Assumes there are no degeneracies (each vertex of one polygon does not lie on an edge of the other polygon)
     public static class GreinerHormann
     {
-        public static List<List<Vector2>> ClipPolygons(List<Vector2> polyVector, List<Vector2> clipPolyVector, BooleanOperation booleanOperation)
+        public static List<List<Vector2>> ClipPolygons(List<Vector2> polyVector2, List<Vector2> clipPolyVector2, BooleanOperation booleanOperation)
         {
             List<List<Vector2>> finalPoly = new List<List<Vector2>>();
 
 
 
             //Step 0. Create the data structure needed
-            List<ClipVertex> poly = InitDataStructure(polyVector);
+            List<ClipVertex> poly = InitDataStructure(polyVector2);
 
-            List<ClipVertex> clipPoly = InitDataStructure(clipPolyVector);
+            List<ClipVertex> clipPoly = InitDataStructure(clipPolyVector2);
 
 
 
@@ -92,9 +89,9 @@ namespace Habrador_Computational_Geometry
             if (hasFoundIntersection)
             {
                 //Step 2. Trace each polygon and mark entry and exit points to the other polygon's interior
-                MarkEntryExit(poly, clipPolyVector);
+                MarkEntryExit(poly, clipPolyVector2);
 
-                MarkEntryExit(clipPoly, polyVector);
+                MarkEntryExit(clipPoly, polyVector2);
 
                 //Debug entry exit points
                 DebugEntryExit(poly);
@@ -163,11 +160,11 @@ namespace Habrador_Computational_Geometry
             {
                 //Is the polygon inside the clip polygon?
                 //Depending on the type of boolean operation, we might get a hole
-                if (IsPolygonInsidePolygon(polyVector, clipPolyVector))
+                if (IsPolygonInsidePolygon(polyVector2, clipPolyVector2))
                 {
                     Debug.Log("Poly is inside clip poly");
                 }
-                else if (IsPolygonInsidePolygon(clipPolyVector, polyVector))
+                else if (IsPolygonInsidePolygon(clipPolyVector2, polyVector2))
                 {
                     Debug.Log("Clip poly is inside poly");
                 }

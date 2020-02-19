@@ -9,7 +9,7 @@ namespace Habrador_Computational_Geometry
         //Generate a square grid where each cell has two triangles
         public static Mesh GenerateGrid(float width, int cells)
         {
-            Mesh grid = Grid.GenerateGrid(width, cells);
+            Mesh grid = GridMesh.GenerateGrid(width, cells);
 
             return grid;
         }

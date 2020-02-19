@@ -70,3 +70,5 @@ This library consists of two folders. The idea is that one is for testing purpos
 * Marching cubes
 * Cut 3d mesh with plane
 * Metaballs
+* Voronoi with Fortune's algorithm
+* Triangulation by ear clipping
