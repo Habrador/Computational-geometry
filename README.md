@@ -33,12 +33,13 @@ This library consists of two folders. The idea is that one is for testing purpos
 ### 4. Triangulation
 
 * Triangulate convex polygon
-* Triangulate convex random points with "visible edge" and "point-by-point" algorithms
+* Triangulate points with "visible edge" and "point-by-point" algorithms
 * Triangulate with marching squares
 
 #### Delaunay triangulation
-* Triangulate convex random points with delaunay triangulation - "point-by-point"
-* Triangulate convex random points with delaunay triangulation - "triangulate and then flip all edges"
+
+* Triangulate points with delaunay triangulation - "point-by-point"
+* Triangulate points with delaunay triangulation - "triangulate and then flip all edges"
 * Constrained delaunay triangulation
 
 
@@ -50,11 +51,10 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 ## TODO
 
-* Constrained dynamic delaunay triangulation
+* Dynamic constrained delaunay triangulation
 * Convex hull: Quick Hull from the Valve paper on Hull
 * Convex hull: Gift wrapping
 * 3d voronoi
 * Marching cubes
-* Voronoi - incremental 
 * Cut 3d mesh with plane
 * Metaballs
