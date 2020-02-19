@@ -36,7 +36,11 @@ This library consists of two folders. The idea is that one is for testing purpos
 * Triangulate points with "visible edge" and "point-by-point" algorithms
 * Triangulate with marching squares
 
+<<<<<<< HEAD
 #### 4.1 Delaunay triangulation
+=======
+#### Delaunay triangulation
+>>>>>>> b6ffd0144a8e27e2a4615d7f4847fdbdc1f9bf7e
 
 * Triangulate points with delaunay triangulation - "point-by-point"
 * Triangulate points with delaunay triangulation - "triangulate and then flip all edges"
@@ -57,4 +61,8 @@ This library consists of two folders. The idea is that one is for testing purpos
 * 3d voronoi
 * Marching cubes
 * Cut 3d mesh with plane
+<<<<<<< HEAD
 * Metaballs
+=======
+* Metaballs
+>>>>>>> b6ffd0144a8e27e2a4615d7f4847fdbdc1f9bf7e
