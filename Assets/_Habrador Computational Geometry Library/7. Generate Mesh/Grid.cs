@@ -4,17 +4,19 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
-    public static class Chunk
+    //Generate a square grid where each cell consists of two triangles
+    //The coordinate system starts in the middle
+    public static class Grid
     {
-        //The chunk is always a square
+        //The grid is always a square
         //witdh - the width of the entire chunk
         //cells - the number of cells in one row
-        public static Mesh GenerateChunk(float width, int cells)
+        public static Mesh GenerateGrid(float width, int cells)
         {
-            //We cant have a chunk with 0 cells
+            //We cant have a grid with 0 cells
             if (cells <= 0)
             {
-                Debug.Log("The chunk needs at least one cell");
+                Debug.Log("The grid needs at least one cell");
             
                 return null;
             }
@@ -22,7 +24,7 @@ namespace Habrador_Computational_Geometry
             //The width has to be greater than 0
             if (width <= 0f)
             {
-                Debug.Log("The chunk needs a positive width");
+                Debug.Log("The grid needs a positive width");
 
                 return null;
             }
@@ -35,7 +37,7 @@ namespace Habrador_Computational_Geometry
             //The width of one cell
             float cellWidth = width / (float)cells;
 
-            //What's the half width of the chunk?
+            //What's the half width of the grid?
             float halfWidth = width * 0.5f;
 
             //Generate vertices
@@ -89,7 +91,7 @@ namespace Habrador_Computational_Geometry
             //Generate the mesh
             Mesh mesh = new Mesh();
 
-            mesh.name = "Chunk";
+            mesh.name = "Grid";
 
             mesh.vertices = vertices.ToArray();
             mesh.triangles = triangles.ToArray();

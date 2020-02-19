@@ -51,7 +51,7 @@ public class ConstrainedDelaunayController : MonoBehaviour
     {
         if (triangulatedMesh != null)
         {
-            DebugResults.DisplayMesh(triangulatedMesh, true, seed, Color.black);
+            DebugResults.DisplayMesh(triangulatedMesh, seed);
         }
 
 

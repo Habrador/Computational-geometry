@@ -2,10 +2,11 @@
 
 This library consists of two folders. The idea is that one is for testing purposes and the other folder is the folder you drag into your project. 
 
+
 ## Finished
 
 
-### 1. Test
+### 1. Geometry test
 
 * Is a triangle oriented clockwise?
 * Is a point left, on, or right of vector?
@@ -38,8 +39,8 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 #### 4.1 Delaunay triangulation
 
-* Triangulate points with delaunay triangulation - "point-by-point"
-* Triangulate points with delaunay triangulation - "triangulate and then flip all edges"
+* Delaunay triangulation - "point-by-point"
+* Delaunay triangulation - "triangulate and then flip all edges"
 * Constrained delaunay triangulation
 
 
@@ -47,6 +48,17 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 * Voronoi point-by-point (suffers from floating point precision issues)
 * Voronoi from delaunay
+
+
+### 6. Polygon clipping
+
+* Greiner-Hormann
+* Sutherland-Hodgman
+
+
+### 7. Generate mesh
+
+* Grid mesh
 
 
 ## TODO
@@ -57,8 +69,4 @@ This library consists of two folders. The idea is that one is for testing purpos
 * 3d voronoi
 * Marching cubes
 * Cut 3d mesh with plane
-<<<<<<< HEAD
 * Metaballs
-=======
-* Metaballs
->>>>>>> b6ffd0144a8e27e2a4615d7f4847fdbdc1f9bf7e

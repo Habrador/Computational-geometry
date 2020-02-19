@@ -27,10 +27,12 @@ public static class DebugResults
 
 
     //Display some mesh where each triangle could have a random color
-    public static void DisplayMesh(Mesh mesh, bool useRandomColor, int seed, Color meshColor)
+    private static void DisplayMesh(Mesh mesh, bool useRandomColor, int seed, Color meshColor)
     {
         if (mesh == null)
         {
+            Debug.Log("Cant display the mesh because there's no mesh!");
+        
             return;
         }
     
@@ -67,6 +69,18 @@ public static class DebugResults
 
             Gizmos.DrawMesh(triangleMesh);
         }
+    }
+
+    //Just one color
+    public static void DisplayMesh(Mesh mesh, int seed, Color meshColor)
+    {
+        DisplayMesh(mesh, false, seed, meshColor);
+    }
+
+    //Random color
+    public static void DisplayMesh(Mesh mesh, int seed)
+    {
+        DisplayMesh(mesh, true, seed, Color.black);
     }
 
 

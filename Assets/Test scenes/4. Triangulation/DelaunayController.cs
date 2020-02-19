@@ -56,7 +56,7 @@ public class DelaunayController : MonoBehaviour
     private void OnDrawGizmos()
     {
         //Display the triangulation with random colors
-        DebugResults.DisplayMesh(triangulatedMesh, true, seed, Color.black);
+        DebugResults.DisplayMesh(triangulatedMesh, seed);
 
         //Display the points
         if (displayVertices)
