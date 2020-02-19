@@ -66,9 +66,8 @@ This library consists of two folders. The idea is that one is for testing purpos
 * Dynamic constrained delaunay triangulation
 * Convex hull: Quick Hull from the Valve paper on Hull
 * Convex hull: Gift wrapping
-* 3d voronoi
 * Marching cubes
 * Cut 3d mesh with plane
 * Metaballs
 * Voronoi with Fortune's algorithm
-* Triangulation by ear clipping
+* Triangulation concave polygon by ear clipping
