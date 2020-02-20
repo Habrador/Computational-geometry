@@ -9,55 +9,17 @@ public class UtilityController : MonoBehaviour
     public Transform pointBTrans;
     public Transform pointCTrans;
     public Transform pointDTrans;
-
-
-    void Start() 
-	{
-	    
-	}
 	
 	
 	
 	void OnDrawGizmos() 
 	{
-        Vector2 a = new Vector2(pointATrans.position.x, pointATrans.position.z);
-        Vector2 b = new Vector2(pointBTrans.position.x, pointBTrans.position.z);
-        Vector2 c = new Vector2(pointCTrans.position.x, pointCTrans.position.z);
-        Vector2 d = new Vector2(pointDTrans.position.x, pointDTrans.position.z);
+        Vector2 a = pointATrans.position.XZ();
+        Vector2 b = pointBTrans.position.XZ();
+        Vector2 c = pointCTrans.position.XZ();
+        Vector2 d = pointDTrans.position.XZ();
 
-
-        //Is a point to the left or to the right of a vector
-        //bool isToLeft = Orientations.IsAPointLeftOfVector(a, b, c);
-
-
-        //Is a point in a circle determines by three other points
-        //float isPointInCircle = Orientations.IsPointInsideOutsideOrOnCircle(a, b, c, d);
-
-        //print(isPointInCircle);
-
-        //Vector2 centerOfCicle = Geometry.CarculateCircleCenter(a, b, c);
-
-        //float radius = Vector2.Distance(centerOfCicle, a);
-
-        //Gizmos.DrawWireSphere(new Vector3(centerOfCicle.x, 0f, centerOfCicle.y), radius);
-
-
-        //Line-line intersection
-        //Gizmos.DrawLine(pointATrans.position, pointBTrans.position);
-        //Gizmos.DrawLine(pointCTrans.position, pointDTrans.position);
-
-        //if (Intersections.AreLinesIntersecting(a, b, c, d, false))
-        //{
-        //    //Vector2 intersectionPoint = Intersections.GetIntersectionCoordinate(a, b, c, d);
-
-        //    //Gizmos.DrawWireSphere(new Vector3(intersectionPoint.x, 0f, intersectionPoint.y), 0.5f);
-
-        //    print("Are intersecting");
-        //}
-        //else
-        //{
-        //    print("Are not intersecting");
-        //}
+        PointInRelationToVector(a, b, c , d);
 
 
         //point in triangle
@@ -147,5 +109,13 @@ public class UtilityController : MonoBehaviour
         //float angle = Vector3.SignedAngle(from, to, Vector3.up);
 
         Debug.Log(angle);
+    }
+
+
+
+    //Is a point to the left or to the right of a vector
+    private void PointInRelationToVector(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
+    {
+        //bool isToLeft = Geometry.IsAPointLeftOfVector(a, b, c);
     }
 }

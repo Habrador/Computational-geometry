@@ -721,7 +721,7 @@ namespace Habrador_Computational_Geometry
             }
 
             //Then check if the lines are intersecting
-            if (!Intersections.AreLinesIntersecting(e1_p1.XZ(), e1_p2.XZ(), e2_p1.XZ(), e2_p2.XZ(), false))
+            if (!Intersections.LineLine(e1_p1.XZ(), e1_p2.XZ(), e2_p1.XZ(), e2_p2.XZ(), false))
             {
                 return false;
             }

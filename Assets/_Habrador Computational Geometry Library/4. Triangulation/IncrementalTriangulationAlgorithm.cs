@@ -103,7 +103,7 @@ namespace Habrador_Computational_Geometry
             Vector2 l2_p1 = edge2.p1.XZ();
             Vector2 l2_p2 = edge2.p2.XZ();
 
-            bool isIntersecting = Intersections.AreLinesIntersecting(l1_p1, l1_p2, l2_p1, l2_p2, true);
+            bool isIntersecting = Intersections.LineLine(l1_p1, l1_p2, l2_p1, l2_p2, true);
 
             return isIntersecting;
         }

@@ -11,19 +11,20 @@ This library consists of two folders. The idea is that one is for testing purpos
 * Is a triangle oriented clockwise?
 * Is a point left, on, or right of vector?
 * Is a point left, on, or right of a plane?
-* Is a point inside or outside a circle?
 * Is a quadrilateral convex?
 
 
 ### 2. Intersection
 
-* Point in triangle
-* Point in polygon
-* Triangle-triangle
-* AABB
-* Rectangle intersection with Separating Axis Theorem (SAT)
-* Line-line
-* Ray-plane
+2d-space:
+* Point-triangle				CHECK
+* Point-polygon (suffers from floating point precision issues)				CHECK
+* Triangle-triangle				CHECK
+* AABB-AABB 						CHECK
+* Line-line 						CHECK
+* Ray-plane						CHECK
+* Line-plane					CHECK
+* Point-circle 					CHECK
 
 
 ### 3. Convex Hull
@@ -40,25 +41,24 @@ This library consists of two folders. The idea is that one is for testing purpos
 #### 4.1 Delaunay triangulation
 
 * Delaunay triangulation - "point-by-point"
-* Delaunay triangulation - "triangulate and then flip all edges"
+* Delaunay triangulation - "triangulate and then flip edges"
 * Constrained delaunay triangulation
 
 
 ### 5. Voronoi diagram
 
-* Voronoi point-by-point (suffers from floating point precision issues)
 * Voronoi from delaunay
 
 
 ### 6. Polygon clipping
 
-* Greiner-Hormann
-* Sutherland-Hodgman
+* Greiner-Hormann	CHECK
+* Sutherland-Hodgman	CHECK
 
 
 ### 7. Generate mesh
 
-* Grid mesh
+* Grid mesh	CHECK
 
 
 ## TODO
@@ -70,4 +70,12 @@ This library consists of two folders. The idea is that one is for testing purpos
 * Cut 3d mesh with plane
 * Metaballs
 * Voronoi with Fortune's algorithm
+* Voronoi point-by-point (suffers from floating point precision issues)
 * Triangulation concave polygon by ear clipping
+* Make sure all algorithms that are in 2d are using 2d data and not 3d to avoid confusion
+* Rectangle-rectangle with SAT
+
+
+## Socials
+
+Follow me on Twitter for more Unity stuff: https://twitter.com/eriknordeus

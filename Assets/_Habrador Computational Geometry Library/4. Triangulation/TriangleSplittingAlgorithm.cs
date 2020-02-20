@@ -47,7 +47,7 @@ namespace Habrador_Computational_Geometry
                     //triangulation through a delaunay triangulation algorithm, so the end result will be the same
                     Triangle2D t_2D = new Triangle2D(t.p1.XZ(), t.p2.XZ(), t.p3.XZ());
 
-                    if (Intersections.IsPointInTriangle(t_2D, currentPoint.XZ(), true))
+                    if (Intersections.PointTriangle(t_2D, currentPoint.XZ(), true))
                     {
                         //Split the triangle into three new triangles
 

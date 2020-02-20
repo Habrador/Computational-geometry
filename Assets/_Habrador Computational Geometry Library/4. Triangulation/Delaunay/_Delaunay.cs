@@ -85,7 +85,7 @@ namespace Habrador_Computational_Geometry
 
             //Use the circle test to test if we need to flip this edge
             //We should flip if d is inside a circle formed by a, b, c
-            float circleTestValue = Geometry.IsPointInsideOutsideOrOnCircle(a, b, c, d);
+            float circleTestValue = Intersections.PointCircle(a, b, c, d);
 
             if (circleTestValue < 0f)
             {
@@ -94,7 +94,7 @@ namespace Habrador_Computational_Geometry
                 {
                     //If the new triangle after a flip is not better, then dont flip
                     //This will also stop the algoritm from ending up in an endless loop
-                    if (Geometry.IsPointInsideOutsideOrOnCircle(b, c, d, a) <= circleTestValue)
+                    if (Intersections.PointCircle(b, c, d, a) <= circleTestValue)
                     {
                         shouldFlipEdge = false;
                     }

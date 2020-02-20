@@ -50,7 +50,7 @@ namespace Habrador_Computational_Geometry
                     Vector2 d = clipPoly[jPlusOne].coordinate;
 
                     //Are these lines intersecting?
-                    if (Intersections.AreLinesIntersecting(a, b, c, d, true))
+                    if (Intersections.LineLine(a, b, c, d, true))
                     {
                         hasFoundIntersection = true;
 
@@ -425,7 +425,7 @@ namespace Habrador_Computational_Geometry
 
             for (int i = 0; i < polyOne.Count; i++)
             {
-                if (Intersections.IsPointInPolygon(polyTwo, polyOne[i]))
+                if (Intersections.PointPolygon(polyTwo, polyOne[i]))
                 {
                     //Is inside if at least one point is inside the polygon. We run this method after we have tested
                     //if the polygons are intersecting
@@ -568,7 +568,7 @@ namespace Habrador_Computational_Geometry
         private static void MarkEntryExit(List<ClipVertex> poly, List<Vector2> clipPolyVector)
         {
             //First see if the first vertex starts inside or outside (we can use the original list)
-            bool isInside = Intersections.IsPointInPolygon(clipPolyVector, poly[0].coordinate);
+            bool isInside = Intersections.PointPolygon(clipPolyVector, poly[0].coordinate);
 
             //Debug.Log(isInside);
 

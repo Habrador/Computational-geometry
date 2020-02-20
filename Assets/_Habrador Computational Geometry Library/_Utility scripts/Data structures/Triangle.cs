@@ -54,5 +54,26 @@ namespace Habrador_Computational_Geometry
 
             this.p2 = temp;
         }
+
+        //Find the max and min coordinates, which is useful when doing AABB intersections
+        public float MinX()
+        {
+            return Mathf.Min(p1.x, Mathf.Min(p2.x, p3.x));
+        }
+
+        public float MaxX()
+        {
+            return Mathf.Max(p1.x, Mathf.Max(p2.x, p3.x));
+        }
+
+        public float MinY()
+        {
+            return Mathf.Min(p1.y, Mathf.Min(p2.y, p3.y));
+        }
+
+        public float MaxY()
+        {
+            return Mathf.Max(p1.y, Mathf.Max(p2.y, p3.y));
+        }
     }
 }

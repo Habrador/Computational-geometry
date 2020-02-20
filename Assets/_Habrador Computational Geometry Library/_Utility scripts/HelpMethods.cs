@@ -8,6 +8,17 @@ namespace Habrador_Computational_Geometry
     public static class HelpMethods
     {
         //Orient triangles so they have the correct orientation
+        public static void OrientTrianglesClockwise(HashSet<Triangle2D> triangles)
+        {
+            foreach (Triangle2D t in triangles)
+            {
+                if (!Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3))
+                {
+                    t.ChangeOrientation();
+                }
+            }
+        }
+        //TODO REMOVE THIS AND MAKE ALL IN 2D
         public static void OrientTrianglesClockwise(HashSet<Triangle> triangles)
         {
             foreach (Triangle t in triangles)

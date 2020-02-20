@@ -10,14 +10,14 @@ namespace Habrador_Computational_Geometry
         //http://paulbourke.net/geometry/circlesphere/
         public static Vector2 CalculateCircleCenter(Vector2 p1, Vector2 p2, Vector2 p3)
         {
-            Vector2 center = new Vector2();
-
             float ma = (p2.y - p1.y) / (p2.x - p1.x);
             float mb = (p3.y - p2.y) / (p3.x - p2.x);
 
-            center.x = (ma * mb * (p1.y - p3.y) + mb * (p1.x + p2.x) - ma * (p2.x + p3.x)) / (2 * (mb - ma));
+            float centerX = (ma * mb * (p1.y - p3.y) + mb * (p1.x + p2.x) - ma * (p2.x + p3.x)) / (2 * (mb - ma));
 
-            center.y = (-1 / ma) * (center.x - (p1.x + p2.x) / 2) + (p1.y + p2.y) / 2;
+            float centerY = (-1 / ma) * (centerX - (p1.x + p2.x) / 2) + (p1.y + p2.y) / 2;
+
+            Vector2 center = new Vector2(centerX, centerY);
 
             return center;
         }
@@ -123,35 +123,7 @@ namespace Habrador_Computational_Geometry
             float distance = Vector2.Dot(planeNormal, pointPos - planePos);
 
             return distance;
-        }
-
-
-
-        //Is a point d inside, outside or on the same circle as a, b, c
-        //https://gamedev.stackexchange.com/questions/71328/how-can-i-add-and-subtract-convex-polygons
-        //Returns positive if inside, negative if outside, and 0 if on the circle
-        public static float IsPointInsideOutsideOrOnCircle(Vector2 aVec, Vector2 bVec, Vector2 cVec, Vector2 dVec)
-        {
-            //This first part will simplify how we calculate the determinant
-            float a = aVec.x - dVec.x;
-            float d = bVec.x - dVec.x;
-            float g = cVec.x - dVec.x;
-
-            float b = aVec.y - dVec.y;
-            float e = bVec.y - dVec.y;
-            float h = cVec.y - dVec.y;
-
-            float c = a * a + b * b;
-            float f = d * d + e * e;
-            float i = g * g + h * h;
-
-            float determinant = (a * e * i) + (b * f * g) + (c * d * h) - (g * e * c) - (h * f * a) - (i * d * b);
-
-            return determinant;
-        }
-
-
-        
+        }        
 
 
 
