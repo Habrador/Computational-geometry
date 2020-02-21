@@ -36,19 +36,42 @@ public class DelaunayController : MonoBehaviour
             randomPoints.Add(randomPos);
         }
 
+
         //Generate the triangulation
+
+        //From 3d to 2d
+        HashSet<MyVector2> randomPoints_2d = new HashSet<MyVector2>();
+
+        foreach (Vector3 v in randomPoints)
+        {
+            randomPoints_2d.Add(v.ToMyVector2());
+        }
+
+
         //Algorithm 1
         //HalfEdgeData triangleData = _Delaunay.TriangulateByFlippingEdges(randomPoints);
 
         //Algorithm 2
-        HalfEdgeData triangleData = _Delaunay.TriangulatePointByPoint(randomPoints, new HalfEdgeData());
+        HalfEdgeData2 triangleData = _Delaunay.TriangulatePointByPoint(randomPoints_2d, new HalfEdgeData2());
 
 
         //From half-edge to triangle
-        HashSet<Triangle> triangulation = TransformBetweenDataStructures.TransformFromHalfEdgeToTriangle(triangleData);
+        HashSet<Triangle2> triangles_2d = TransformBetweenDataStructures.TransformFromHalfEdgeToTriangle(triangleData);
 
         //Convert to mesh
-        triangulatedMesh = TransformBetweenDataStructures.ConvertFromTriangleToMeshCompressed(triangulation, true);
+
+        //Make sure the triangles have the correct orientation
+        HelpMethods.OrientTrianglesClockwise(triangles_2d);
+
+        //From 2d to 3d
+        HashSet<Triangle3> triangulation_3d = new HashSet<Triangle3>();
+
+        foreach (Triangle2 t in triangles_2d)
+        {
+            triangulation_3d.Add(new Triangle3(t.p1.ToMyVector3(), t.p2.ToMyVector3(), t.p3.ToMyVector3()));
+        }
+
+        triangulatedMesh = TransformBetweenDataStructures.ConvertFromTriangleToMeshCompressed(triangulation_3d);
     }
 
 

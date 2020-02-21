@@ -156,7 +156,7 @@ namespace Habrador_Computational_Geometry
 
         //Version 1. Check that each vertex exists only once in the final mesh
         //Make sure the triangles have the correct orientation
-        public static Mesh ConvertFromTriangleToMeshCompressed(HashSet<Triangle3> triangles, bool checkTriangleOrientation)
+        public static Mesh ConvertFromTriangleToMeshCompressed(HashSet<Triangle3> triangles)
         {
             if (triangles == null)
             {
@@ -238,7 +238,7 @@ namespace Habrador_Computational_Geometry
 
         //Version 2. Don't check for duplicate vertices, which can be good if we want a low-poly style mesh
         //Make sure the triangles have the correct orientation
-        public static Mesh ConvertFromTriangleToMesh(HashSet<Triangle3> triangles, bool checkTriangleOrientation)
+        public static Mesh ConvertFromTriangleToMesh(HashSet<Triangle3> triangles)
         {
             //Create the list with all vertices and triangles
             List<MyVector3> meshVertices = new List<MyVector3>();

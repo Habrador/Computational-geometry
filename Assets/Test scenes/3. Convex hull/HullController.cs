@@ -30,7 +30,7 @@ public class HullController : MonoBehaviour
 
         //Need to move the points to its own list because some will be removed when generating the hull
         //and we want to display both the points and the hull
-        HashSet<Vector3> pointsCopy = new HashSet<Vector3>(points);
+        //HashSet<Vector3> pointsCopy = new HashSet<Vector3>(points);
 
 
         //
@@ -38,10 +38,15 @@ public class HullController : MonoBehaviour
         //
 
         //From 3d to 2d
-        HashSet<Vector2> pointsCopy_2d = HelpMethods.ConvertListFrom3DTo2D(pointsCopy);
+        HashSet<MyVector2> points_2d = new HashSet<MyVector2>();
+
+        foreach (Vector3 v in points)
+        {
+            points_2d.Add(v.ToMyVector2());
+        }
 
         //Algorithm 1. Jarvis March - slow but simple
-        List<Vector2> pointsOnConvexHull_2d = _ConvexHull.JarvisMarch(pointsCopy_2d);
+        List<MyVector2> pointsOnConvexHull_2d = _ConvexHull.JarvisMarch(points_2d);
 
         if (pointsOnConvexHull_2d == null)
         {
@@ -57,7 +62,12 @@ public class HullController : MonoBehaviour
         if (pointsOnConvexHull_2d != null)
         {
             //From 2d to 3d
-            List<Vector3> pointsOnConvexHull = HelpMethods.ConvertListFrom2DTo3D(pointsOnConvexHull_2d);
+            List<Vector3> pointsOnConvexHull = new List<Vector3>();
+
+            foreach (MyVector2 v in pointsOnConvexHull_2d)
+            {
+                pointsOnConvexHull.Add(v.ToVector3());
+            }
 
             //print(pointsOnConvexHull.Count);
 
@@ -77,7 +87,7 @@ public class HullController : MonoBehaviour
         }
 
         //Display all the original points
-        foreach (Vector3 p in pointsCopy)
+        foreach (Vector3 p in points)
         {
             Gizmos.DrawSphere(p, 0.1f);
         }

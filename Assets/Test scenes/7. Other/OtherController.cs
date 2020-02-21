@@ -89,7 +89,7 @@ public class OtherController : MonoBehaviour
         Gizmos.DrawRay((A + B) * 0.5f, normal_1);
         Gizmos.DrawRay((B + C) * 0.5f, normal_2);
 
-        float angle = Geometry.CalculateAngleBetweenVectors(a, b, c);
+        //float angle = Geometry.CalculateAngleBetweenVectors(a, b, c);
 
         //Vector2 vec1 = a - b;
         //Vector2 vec2 = c - b;
@@ -108,7 +108,7 @@ public class OtherController : MonoBehaviour
 
         //float angle = Vector3.SignedAngle(from, to, Vector3.up);
 
-        Debug.Log(angle);
+        //Debug.Log(angle);
     }
 
 

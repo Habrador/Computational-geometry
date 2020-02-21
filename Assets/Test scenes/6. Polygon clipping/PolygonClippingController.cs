@@ -19,8 +19,19 @@ public class PolygonClippingController : MonoBehaviour
         List<Vector3> polygonB = GetVerticesFromParent(polyBParent);
 
         //3d to 2d
-        List<Vector2> polygonA_2D = HelpMethods.ConvertListFrom3DTo2D(polygonA);
-        List<Vector2> polygonB_2D = HelpMethods.ConvertListFrom3DTo2D(polygonB);
+        List<MyVector2> polygonA_2D = new List<MyVector2>();
+        List<MyVector2> polygonB_2D = new List<MyVector2>();
+
+        foreach (Vector3 v in polygonA)
+        {
+            polygonA_2D.Add(v.ToMyVector2());
+        }
+
+        foreach (Vector3 v in polygonB)
+        {
+            polygonB_2D.Add(v.ToMyVector2());
+        }
+
 
         //Display the original polygons
         DisplayPolygon(polygonA, Color.white);
@@ -28,8 +39,8 @@ public class PolygonClippingController : MonoBehaviour
 
 
 
-        List<Vector2> poly = polygonB_2D;
-        List<Vector2> clipPoly = polygonA_2D;
+        List<MyVector2> poly = polygonB_2D;
+        List<MyVector2> clipPoly = polygonA_2D;
 
         //Clipping algortihms
         //Algortihm 1.Sutherland-Hodgman will return the intersection of the polygons
@@ -45,31 +56,43 @@ public class PolygonClippingController : MonoBehaviour
 
 
 
-    private void TestSutherlandHodgman(List<Vector2> poly, List<Vector2> clipPoly)
+    private void TestSutherlandHodgman(List<MyVector2> poly, List<MyVector2> clipPoly)
     {
-        List<Vector2> polygonAfterClipping = SutherlandHodgman.ClipPolygon(poly, clipPoly);
+        List<MyVector2> polygonAfterClipping = SutherlandHodgman.ClipPolygon(poly, clipPoly);
 
         //2d to 3d
-        List<Vector3> polygonAfterClipping3D = HelpMethods.ConvertListFrom2DTo3D(polygonAfterClipping);
+        List<Vector3> polygonAfterClipping3D = new List<Vector3>();
+
+        foreach (MyVector2 v in polygonAfterClipping)
+        {
+            polygonAfterClipping3D.Add(v.ToVector3());
+        }
 
         DisplayPolygon(polygonAfterClipping3D, Color.red);
     }
 
 
 
-    private void TestGreinerHormann(List<Vector2> poly, List<Vector2> clipPoly)
+    private void TestGreinerHormann(List<MyVector2> poly, List<MyVector2> clipPoly)
     {
         //In this case we can get back multiple parts of the polygon because one of the 
         //polygons doesnt have to be convex
         //If you pick boolean operation: intersection you should get the same result as with the Sutherland-Hodgman
-        List<List<Vector2>> finalPolygon = GreinerHormann.ClipPolygons(poly, clipPoly, BooleanOperation.Intersection);
+        List<List<MyVector2>> finalPolygon = GreinerHormann.ClipPolygons(poly, clipPoly, BooleanOperation.Intersection);
 
         for (int i = 0; i < finalPolygon.Count; i++)
         {
-            //2d to 3d
-            List<Vector3> polygonAfterClipping3D = HelpMethods.ConvertListFrom2DTo3D(finalPolygon[i]);
+            List<MyVector2> thisPolygon = finalPolygon[i];
 
-            DisplayPolygon(polygonAfterClipping3D, Color.red);
+            //2d to 3d
+            List<Vector3> polygonAfterClipping3D = new List<Vector3>();
+
+            foreach (MyVector2 v in thisPolygon)
+            {
+                polygonAfterClipping3D.Add(v.ToVector3());
+
+                DisplayPolygon(polygonAfterClipping3D, Color.red);
+            }
         }
     }
 

@@ -43,17 +43,26 @@ public class TriangulatePointsController : MonoBehaviour
 
 
         //Triangulate
+
+        //3d to 2d
+        HashSet<MyVector2> points_2d = new HashSet<MyVector2>();
+
+        foreach (Vector3 v in originalPoints)
+        {
+            points_2d.Add(v.ToMyVector2());
+        }
+
         //List<Triangle> triangles = null;
 
 
         //Alt 1 - sort the points and then add triangles by checking which edge is visible to that point
-        //List<Triangle> triangles = _TriangulatePoints.IncrementalTriangulation(points);
+        //List<Triangle2> triangles_2d = _TriangulatePoints.IncrementalTriangulation(points_2d);
 
         //Alt 2 - triangulate the convex polygon, and the add points by splitting the triangles into 3 new triangles
-        HashSet<Triangle> triangles = _TriangulatePoints.TriangleSplitting(points);
+        HashSet<Triangle2> triangles_2d = _TriangulatePoints.TriangleSplitting(points_2d);
 
         //Alt 3 - triangulate the convex hull of the algorithm
-        //List<Triangle> triangles = TriangulatePointsAlgorithms.TriangulateConvexHull(points);
+        //List<Triangle2> triangles_2d = TriangulatePointsAlgorithms.TriangulateConvexHull(points_2d);
 
 
         //List<Vector3> hull = HullAlgorithms.JarvisMarch(points);
@@ -72,12 +81,20 @@ public class TriangulatePointsController : MonoBehaviour
 
 
         
-        if (triangles != null)
+        if (triangles_2d != null)
         {
             //Make sure the triangles have the correct orientation
-            HelpMethods.OrientTrianglesClockwise(triangles);
+            HelpMethods.OrientTrianglesClockwise(triangles_2d);
 
-            triangulatedMesh = TransformBetweenDataStructures.ConvertFromTriangleToMeshCompressed(triangles, true);
+            //From 2d to 3d
+            HashSet<Triangle3> triangles_3d = new HashSet<Triangle3>();
+
+            foreach (Triangle2 t in triangles_2d)
+            {
+                triangles_3d.Add(new Triangle3(t.p1.ToMyVector3(), t.p2.ToMyVector3(), t.p3.ToMyVector3()));
+            }
+
+            triangulatedMesh = TransformBetweenDataStructures.ConvertFromTriangleToMeshCompressed(triangles_3d);
         }
     }
 

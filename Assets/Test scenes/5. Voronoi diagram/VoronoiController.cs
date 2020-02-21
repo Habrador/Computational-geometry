@@ -49,7 +49,16 @@ public class VoronoiController : MonoBehaviour
         //
         // Generate the delaunay for comparison
         //
-        HalfEdgeData triangleData = _Delaunay.TriangulateByFlippingEdges(randomSites, new HalfEdgeData());
+
+        //3d to 2d
+        HashSet<MyVector2> randomSites_2d = new HashSet<MyVector2>();
+
+        foreach (Vector3 v in randomSites)
+        {
+            randomSites_2d.Add(v.ToMyVector2());
+        }
+
+        HalfEdgeData2 triangleData = _Delaunay.TriangulateByFlippingEdges(randomSites_2d, new HalfEdgeData2());
 
         //From halfedge to triangle
         //HashSet<Triangle> triangles = TransformBetweenDataStructures.TransformFromHalfEdgeToTriangle(triangleData);
@@ -61,7 +70,7 @@ public class VoronoiController : MonoBehaviour
         //
         // Generate the voronoi diagram
         //
-        List<VoronoiCell2> cells = DelaunayToVoronoi.GenerateVoronoiDiagram(randomSites);
+        List<VoronoiCell2> cells = DelaunayToVoronoi.GenerateVoronoiDiagram(randomSites_2d);
 
 
 
@@ -89,7 +98,7 @@ public class VoronoiController : MonoBehaviour
         {
             VoronoiCell2 c = cells[i];
 
-            Vector3 p1 = c.sitePos;
+            Vector3 p1 = c.sitePos.ToVector3();
 
             Gizmos.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
 
@@ -101,8 +110,8 @@ public class VoronoiController : MonoBehaviour
 
             for (int j = 0; j < c.edges.Count; j++)
             {
-                Vector3 p3 = c.edges[j].v1;
-                Vector3 p2 = c.edges[j].v2;
+                Vector3 p3 = c.edges[j].p1.ToVector3();
+                Vector3 p2 = c.edges[j].p2.ToVector3();
 
                 vertices.Add(p2);
                 vertices.Add(p3);
