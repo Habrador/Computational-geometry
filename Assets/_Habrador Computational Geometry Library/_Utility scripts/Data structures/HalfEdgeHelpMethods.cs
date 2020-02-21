@@ -8,44 +8,44 @@ namespace Habrador_Computational_Geometry
     {
         //Flip triangle edge
         //So the edge shared by two triangles is going between the two other vertices originally not part of the edge
-        public static void FlipTriangleEdge(HalfEdge e)
+        public static void FlipTriangleEdge(HalfEdge2 e)
         {
             //The data we need
             //This edge's triangle edges
-            HalfEdge e_1 = e;
-            HalfEdge e_2 = e_1.nextEdge;
-            HalfEdge e_3 = e_1.prevEdge;
+            HalfEdge2 e_1 = e;
+            HalfEdge2 e_2 = e_1.nextEdge;
+            HalfEdge2 e_3 = e_1.prevEdge;
             //The opposite edge's triangle edges
-            HalfEdge e_4 = e_1.oppositeEdge;
-            HalfEdge e_5 = e_4.nextEdge;
-            HalfEdge e_6 = e_4.prevEdge;
+            HalfEdge2 e_4 = e_1.oppositeEdge;
+            HalfEdge2 e_5 = e_4.nextEdge;
+            HalfEdge2 e_6 = e_4.prevEdge;
             //The 4 vertex positions
-            Vector3 aPos = e_1.v.position;
-            Vector3 bPos = e_2.v.position;
-            Vector3 cPos = e_3.v.position;
-            Vector3 dPos = e_5.v.position;
+            MyVector2 aPos = e_1.v.position;
+            MyVector2 bPos = e_2.v.position;
+            MyVector2 cPos = e_3.v.position;
+            MyVector2 dPos = e_5.v.position;
 
             //The 6 old vertices, we can use
-            HalfEdgeVertex a_old = e_1.v;
-            HalfEdgeVertex b_old = e_1.nextEdge.v;
-            HalfEdgeVertex c_old = e_1.prevEdge.v;
-            HalfEdgeVertex a_opposite_old = e_4.prevEdge.v;
-            HalfEdgeVertex c_opposite_old = e_4.v;
-            HalfEdgeVertex d_old = e_4.nextEdge.v;
+            HalfEdgeVertex2 a_old = e_1.v;
+            HalfEdgeVertex2 b_old = e_1.nextEdge.v;
+            HalfEdgeVertex2 c_old = e_1.prevEdge.v;
+            HalfEdgeVertex2 a_opposite_old = e_4.prevEdge.v;
+            HalfEdgeVertex2 c_opposite_old = e_4.v;
+            HalfEdgeVertex2 d_old = e_4.nextEdge.v;
 
             //Flip
 
             //Vertices
             //Triangle 1: b-c-d
-            HalfEdgeVertex b = b_old;
-            HalfEdgeVertex c = c_old;
-            HalfEdgeVertex d = d_old;
+            HalfEdgeVertex2 b = b_old;
+            HalfEdgeVertex2 c = c_old;
+            HalfEdgeVertex2 d = d_old;
             //Triangle 1: b-d-a
-            HalfEdgeVertex b_opposite = a_opposite_old;
+            HalfEdgeVertex2 b_opposite = a_opposite_old;
             b_opposite.position = bPos;
-            HalfEdgeVertex d_opposite = c_opposite_old;
+            HalfEdgeVertex2 d_opposite = c_opposite_old;
             d_opposite.position = dPos;
-            HalfEdgeVertex a = a_old;
+            HalfEdgeVertex2 a = a_old;
 
 
             //Change half-edge - half-edge connections
@@ -76,8 +76,8 @@ namespace Habrador_Computational_Geometry
             e_6.v = a;
 
             //Half-edge - face connection
-            HalfEdgeFace f1 = e_1.face;
-            HalfEdgeFace f2 = e_4.face;
+            HalfEdgeFace2 f1 = e_1.face;
+            HalfEdgeFace2 f2 = e_4.face;
 
             e_1.face = f1;
             e_3.face = f1;
@@ -117,17 +117,17 @@ namespace Habrador_Computational_Geometry
 
 
         //Split triangle face
-        //Split a face (which we know is a triangle) at a point to create three new triangles whiel removing the old triangle
+        //Split a face (which we know is a triangle) at a point to create three new triangles while removing the old triangle
         //Could maybe make it more general so we can split a face, which consists of n edges
-        public static void SplitTriangleFace(HalfEdgeFace f, Vector3 splitPosition, HalfEdgeData data)
+        public static void SplitTriangleFace(HalfEdgeFace2 f, MyVector2 splitPosition, HalfEdgeData2 data)
         {
             //The edges that belongs to this face
-            HalfEdge e_1 = f.edge;
-            HalfEdge e_2 = e_1.nextEdge;
-            HalfEdge e_3 = e_2.nextEdge;
+            HalfEdge2 e_1 = f.edge;
+            HalfEdge2 e_2 = e_1.nextEdge;
+            HalfEdge2 e_3 = e_2.nextEdge;
 
             //A list with new edges so we can connect the new edges with an edge on the opposite side
-            HashSet<HalfEdge> newEdges = new HashSet<HalfEdge>();
+            HashSet<HalfEdge2> newEdges = new HashSet<HalfEdge2>();
 
             CreateNewFace(e_1, splitPosition, data, newEdges);
             CreateNewFace(e_2, splitPosition, data, newEdges);
@@ -136,7 +136,7 @@ namespace Habrador_Computational_Geometry
             //Debug.Log("New edges " + newEdges.Count);
 
             //Find the opposite connections
-            foreach (HalfEdge e in newEdges)
+            foreach (HalfEdge2 e in newEdges)
             {
                 //If we have already found a opposite
                 if (e.oppositeEdge != null)
@@ -144,20 +144,20 @@ namespace Habrador_Computational_Geometry
                     continue;
                 }
 
-                Vector3 eGoingTo = e.v.position;
-                Vector3 eGoingFrom = e.prevEdge.v.position;
+                MyVector2 eGoingTo = e.v.position;
+                MyVector2 eGoingFrom = e.prevEdge.v.position;
             
-                foreach (HalfEdge eOpposite in newEdges)
+                foreach (HalfEdge2 eOpposite in newEdges)
                 {
                     if (e == eOpposite || eOpposite.oppositeEdge != null)
                     {
                         continue;
                     }
 
-                    Vector3 eGoingTo_Other = eOpposite.v.position;
-                    Vector3 eGoingFrom_Other = eOpposite.prevEdge.v.position;
+                    MyVector2 eGoingTo_Other = eOpposite.v.position;
+                    MyVector2 eGoingFrom_Other = eOpposite.prevEdge.v.position;
 
-                    if (eGoingTo == eGoingFrom_Other && eGoingFrom == eGoingTo_Other)
+                    if (eGoingTo.Equals(eGoingFrom_Other) && eGoingFrom.Equals(eGoingTo_Other))
                     {
                         e.oppositeEdge = eOpposite;
                         //Might as well connect it from the other way as well
@@ -175,25 +175,25 @@ namespace Habrador_Computational_Geometry
 
 
         //Create a new triangle face
-        private static void CreateNewFace(HalfEdge e_old, Vector3 splitPosition, HalfEdgeData data, HashSet<HalfEdge> newEdges)
+        private static void CreateNewFace(HalfEdge2 e_old, MyVector2 splitPosition, HalfEdgeData2 data, HashSet<HalfEdge2> newEdges)
         {
             //This triangle has the following positons
-            Vector3 p_split = splitPosition;
-            Vector3 p_next = e_old.prevEdge.v.position;
-            Vector3 p_prev = e_old.v.position;
+            MyVector2 p_split = splitPosition;
+            MyVector2 p_next = e_old.prevEdge.v.position;
+            MyVector2 p_prev = e_old.v.position;
 
             //Create the new stuff
-            HalfEdgeVertex v_split = new HalfEdgeVertex(p_split);
-            HalfEdgeVertex v_next = new HalfEdgeVertex(p_next);
-            HalfEdgeVertex v_prev = new HalfEdgeVertex(p_prev);
+            HalfEdgeVertex2 v_split = new HalfEdgeVertex2(p_split);
+            HalfEdgeVertex2 v_next = new HalfEdgeVertex2(p_next);
+            HalfEdgeVertex2 v_prev = new HalfEdgeVertex2(p_prev);
 
             //This is the edge that has the same position as the old edge 
-            HalfEdge e_1 = new HalfEdge(v_prev);
-            HalfEdge e_2 = new HalfEdge(v_split);
-            HalfEdge e_3 = new HalfEdge(v_next);
+            HalfEdge2 e_1 = new HalfEdge2(v_prev);
+            HalfEdge2 e_2 = new HalfEdge2(v_split);
+            HalfEdge2 e_3 = new HalfEdge2(v_next);
 
             //The new face
-            HalfEdgeFace f = new HalfEdgeFace(e_1);
+            HalfEdgeFace2 f = new HalfEdgeFace2(e_1);
 
 
             //Create the connections
@@ -244,14 +244,14 @@ namespace Habrador_Computational_Geometry
 
 
         //Delete a triangle from the data structure
-        public static void DeleteTriangle(HalfEdgeFace t, HalfEdgeData data, bool shouldSetOppositeToNull)
+        public static void DeleteTriangle(HalfEdgeFace2 t, HalfEdgeData2 data, bool shouldSetOppositeToNull)
         {
             //Update the data structure
             //In the half-edge data structure there's an edge going in the opposite direction
             //on the other side of this triangle with a reference to this edge, so we have to set these to null
-            HalfEdge t_e1 = t.edge;
-            HalfEdge t_e2 = t_e1.nextEdge;
-            HalfEdge t_e3 = t_e2.nextEdge;
+            HalfEdge2 t_e1 = t.edge;
+            HalfEdge2 t_e2 = t_e1.nextEdge;
+            HalfEdge2 t_e3 = t_e2.nextEdge;
 
             //If we want to remove the triangle and create a hole
             //But sometimes we have created a new triangle and then we cant set the opposite to null

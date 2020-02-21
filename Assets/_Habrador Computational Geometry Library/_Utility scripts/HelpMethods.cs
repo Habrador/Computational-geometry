@@ -8,22 +8,11 @@ namespace Habrador_Computational_Geometry
     public static class HelpMethods
     {
         //Orient triangles so they have the correct orientation
-        public static void OrientTrianglesClockwise(HashSet<Triangle2D> triangles)
+        public static void OrientTrianglesClockwise(HashSet<Triangle2> triangles)
         {
-            foreach (Triangle2D t in triangles)
+            foreach (Triangle2 t in triangles)
             {
                 if (!Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3))
-                {
-                    t.ChangeOrientation();
-                }
-            }
-        }
-        //TODO REMOVE THIS AND MAKE ALL IN 2D
-        public static void OrientTrianglesClockwise(HashSet<Triangle> triangles)
-        {
-            foreach (Triangle t in triangles)
-            {
-                if (!Geometry.IsTriangleOrientedClockwise(t.p1.XZ(), t.p2.XZ(), t.p3.XZ()))
                 {
                     t.ChangeOrientation();
                 }
@@ -33,7 +22,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Calculate the AABB of a set of points
-        public static AABB GetAABB(List<Vector2> points)
+        public static AABB GetAABB(List<MyVector2> points)
         {
             float minX = float.MaxValue;
             float maxX = float.MinValue;
@@ -42,7 +31,7 @@ namespace Habrador_Computational_Geometry
 
             for (int i = 0; i < points.Count; i++)
             {
-                Vector2 p = points[i];
+                MyVector2 p = points[i];
 
                 if (p.x < minX)
                 {

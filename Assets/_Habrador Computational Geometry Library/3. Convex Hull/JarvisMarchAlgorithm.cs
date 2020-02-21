@@ -13,9 +13,9 @@ namespace Habrador_Computational_Geometry
     //Is more robust than other algorithms because it will handle colinear points with ease
     public static class JarvisMarchAlgorithm
     {
-        public static List<Vector2> GetConvexHull(HashSet<Vector2> inputPoints)
+        public static List<MyVector2> GenerateConvexHull(HashSet<MyVector2> inputPoints)
         {
-            List<Vector2> points = new List<Vector2>(inputPoints);
+            List<MyVector2> points = new List<MyVector2>(inputPoints);
         
             //If fewer points, then we cant create a convex hull
             if (points.Count < 3)
@@ -42,18 +42,18 @@ namespace Habrador_Computational_Geometry
             //HashSet<Vector2> points = new HashSet<Vector2>(pointsList);
 
             //The list with points on the convex hull
-            List<Vector2> convexHull = new List<Vector2>();
+            List<MyVector2> convexHull = new List<MyVector2>();
 
             //Step 1. Find the vertex with the smallest x coordinate
             //If several have the same x coordinate, find the one with the smallest z
-            Vector2 startPos = points[0];
+            MyVector2 startPos = points[0];
 
             for (int i = 1; i < points.Count; i++)
             {
-                Vector2 testPos = points[i];
+                MyVector2 testPos = points[i];
 
                 //Because of precision issues, we use Mathf.Approximately to test if the x positions are the same
-                if (testPos.x < startPos.x || (testPos.x == startPos.x && testPos.y < startPos.y))
+                if (testPos.x < startPos.x || (Mathf.Approximately(testPos.x, startPos.x) && testPos.y < startPos.y))
                 {
                     startPos = points[i];
                 }
@@ -68,22 +68,22 @@ namespace Habrador_Computational_Geometry
 
 
             //Step 2. Loop to generate the convex hull
-            Vector2 currentPoint = convexHull[0];
+            MyVector2 currentPoint = convexHull[0];
 
             int counter = 0;
 
             while (true)
             {
                 //We might have colinear points, so we need a list to save all points added this iteration
-                List<Vector2> pointsToAddToTheHull = new List<Vector2>();
+                List<MyVector2> pointsToAddToTheHull = new List<MyVector2>();
 
 
                 //Pick next point randomly
-                Vector2 nextPoint = points[Random.Range(0, points.Count)];
+                MyVector2 nextPoint = points[Random.Range(0, points.Count)];
 
                 //If we are coming from the first point on the convex hull
                 //then we are not allowed to pick it as next point, so we have to try again
-                if (nextPoint == convexHull[0] && currentPoint == convexHull[0])
+                if (nextPoint.Equals(convexHull[0]) && currentPoint.Equals(convexHull[0]))
                 {
                     counter += 1;
                 
@@ -98,18 +98,18 @@ namespace Habrador_Computational_Geometry
                 //We also have to check if this point has colinear points
                 for (int i = 0; i < points.Count; i++)
                 {
-                    Vector2 point = points[i];
+                    MyVector2 point = points[i];
                 
                     //Dont test the point we picked randomly
                     //Or the point we are coming from which might happen when we move from the first point on the hull
-                    if (point == nextPoint || point == currentPoint)
+                    if (point.Equals(nextPoint) || point.Equals(currentPoint))
                     {
                         //counter += 1;    
 
                         continue;
                     }
                    
-                    Vector2 testPoint = point;
+                    MyVector2 testPoint = point;
 
                     //Where is the test point in relation to the line a-b
                     //  1 -> to the right
@@ -138,7 +138,7 @@ namespace Habrador_Computational_Geometry
 
 
                 //Sort this list, so we can add the colinear points in correct order
-                pointsToAddToTheHull = pointsToAddToTheHull.OrderBy(n => Vector2.SqrMagnitude(n - currentPoint)).ToList();
+                pointsToAddToTheHull = pointsToAddToTheHull.OrderBy(n => MyVector2.SqrMagnitude(n - currentPoint)).ToList();
 
                 convexHull.AddRange(pointsToAddToTheHull);
 

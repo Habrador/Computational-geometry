@@ -10,7 +10,7 @@ namespace Habrador_Computational_Geometry
         //
         // From triangle to half-edge
         //
-        public static HalfEdgeData TransformFromTriangleToHalfEdge(HashSet<Triangle> triangles, HalfEdgeData data)
+        public static HalfEdgeData2 TransformFromTriangleToHalfEdge(HashSet<Triangle2> triangles, HalfEdgeData2 data)
         {
             //Step1. Make sure the triangles have the same orientation, which is clockwise
             HelpMethods.OrientTrianglesClockwise(triangles);
@@ -21,16 +21,16 @@ namespace Habrador_Computational_Geometry
 
 
             //Step3. Fill the data structure
-            foreach (Triangle t in triangles)
+            foreach (Triangle2 t in triangles)
             {
-                HalfEdgeVertex v1 = new HalfEdgeVertex(t.p1);
-                HalfEdgeVertex v2 = new HalfEdgeVertex(t.p2);
-                HalfEdgeVertex v3 = new HalfEdgeVertex(t.p3);
+                HalfEdgeVertex2 v1 = new HalfEdgeVertex2(t.p1);
+                HalfEdgeVertex2 v2 = new HalfEdgeVertex2(t.p2);
+                HalfEdgeVertex2 v3 = new HalfEdgeVertex2(t.p3);
 
                 //The vertices the edge points to
-                HalfEdge he1 = new HalfEdge(v1);
-                HalfEdge he2 = new HalfEdge(v2);
-                HalfEdge he3 = new HalfEdge(v3);
+                HalfEdge2 he1 = new HalfEdge2(v1);
+                HalfEdge2 he2 = new HalfEdge2(v2);
+                HalfEdge2 he3 = new HalfEdge2(v3);
 
                 he1.nextEdge = he2;
                 he2.nextEdge = he3;
@@ -46,7 +46,7 @@ namespace Habrador_Computational_Geometry
                 v3.edge = he1;
 
                 //The face the half-edge is connected to
-                HalfEdgeFace face = new HalfEdgeFace(he1);
+                HalfEdgeFace2 face = new HalfEdgeFace2(he1);
 
                 //Each edge needs to know of the face connected to this edge
                 he1.face = face;
@@ -69,12 +69,12 @@ namespace Habrador_Computational_Geometry
 
             //Step 4. Find the half-edges going in the opposite direction of each edge we have 
             //Is there a faster way to do this because this is the bottleneck?
-            foreach (HalfEdge e in data.edges)
+            foreach (HalfEdge2 e in data.edges)
             {
-                HalfEdgeVertex goingToVertex = e.v;
-                HalfEdgeVertex goingFromVertex = e.prevEdge.v;
+                HalfEdgeVertex2 goingToVertex = e.v;
+                HalfEdgeVertex2 goingFromVertex = e.prevEdge.v;
 
-                foreach (HalfEdge eOther in data.edges)
+                foreach (HalfEdge2 eOther in data.edges)
                 {
                     //Dont compare with itself
                     if (e == eOther)
@@ -83,8 +83,7 @@ namespace Habrador_Computational_Geometry
                     }
 
                     //Is this edge going between the vertices in the opposite direction
-                    //== returns true if two vectors are approximately equal, so dont worry about floating point precision
-                    if (goingFromVertex.position == eOther.v.position && goingToVertex.position == eOther.prevEdge.v.position)
+                    if (goingFromVertex.position.Equals(eOther.v.position) && goingToVertex.position.Equals(eOther.prevEdge.v.position))
                     {
                         e.oppositeEdge = eOther;
 
@@ -102,22 +101,22 @@ namespace Habrador_Computational_Geometry
         //
         // From half-edge to triangle if we know the half-edge consists of triangles
         //
-        public static HashSet<Triangle> TransformFromHalfEdgeToTriangle(HalfEdgeData data)
+        public static HashSet<Triangle2> TransformFromHalfEdgeToTriangle(HalfEdgeData2 data)
         {
             if (data == null)
             {
                 return null;
             }
         
-            HashSet<Triangle> triangles = new HashSet<Triangle>();
+            HashSet<Triangle2> triangles = new HashSet<Triangle2>();
 
-            foreach (HalfEdgeFace face in data.faces)
+            foreach (HalfEdgeFace2 face in data.faces)
             {
-                Vector3 p1 = face.edge.v.position;
-                Vector3 p2 = face.edge.nextEdge.v.position;
-                Vector3 p3 = face.edge.nextEdge.nextEdge.v.position;
+                MyVector2 p1 = face.edge.v.position;
+                MyVector2 p2 = face.edge.nextEdge.v.position;
+                MyVector2 p3 = face.edge.nextEdge.nextEdge.v.position;
 
-                Triangle t = new Triangle(p1, p2, p3);
+                Triangle2 t = new Triangle2(p1, p2, p3);
 
                 triangles.Add(t);
             }
@@ -130,21 +129,18 @@ namespace Habrador_Computational_Geometry
         //
         // From mesh to triangle
         //
-        public static HashSet<Triangle> ConvertFromMeshToTriangle(Mesh mesh)
+        //The vertices and triangles are the same as in Unitys built-in Mesh, but in 2d space
+        public static HashSet<Triangle2> ConvertFromMeshToTriangle2D(Vector2[] meshVertices, int[] meshTriangles)
         {
-            HashSet<Triangle> triangles = new HashSet<Triangle>();
-
-            Vector3[] meshVertices = mesh.vertices;
-
-            int[] meshTriangles = mesh.triangles;
+            HashSet<Triangle2> triangles = new HashSet<Triangle2>();
 
             for (int i = 0; i < meshTriangles.Length; i += 3)
             {
-                Vector3 v1 = meshVertices[meshTriangles[i + 0]];
-                Vector3 v2 = meshVertices[meshTriangles[i + 1]];
-                Vector3 v3 = meshVertices[meshTriangles[i + 2]];
+                MyVector2 v1 = new MyVector2(meshVertices[meshTriangles[i + 0]].x, meshVertices[meshTriangles[i + 0]].y);
+                MyVector2 v2 = new MyVector2(meshVertices[meshTriangles[i + 1]].x, meshVertices[meshTriangles[i + 1]].y);
+                MyVector2 v3 = new MyVector2(meshVertices[meshTriangles[i + 2]].x, meshVertices[meshTriangles[i + 2]].y);
 
-                Triangle t = new Triangle(v1, v2, v3);
+                Triangle2 t = new Triangle2(v1, v2, v3);
 
                 triangles.Add(t);
             }
@@ -159,29 +155,24 @@ namespace Habrador_Computational_Geometry
         //
 
         //Version 1. Check that each vertex exists only once in the final mesh
-        public static Mesh ConvertFromTriangleToMeshCompressed(HashSet<Triangle> triangles, bool checkTriangleOrientation)
+        //Make sure the triangles have the correct orientation
+        public static Mesh ConvertFromTriangleToMeshCompressed(HashSet<Triangle3> triangles, bool checkTriangleOrientation)
         {
             if (triangles == null)
             {
                 return null;
             }
-        
-            //Step1. Make sure the triangles have the same orientation, which is clockwise
-            if (checkTriangleOrientation)
-            {
-                HelpMethods.OrientTrianglesClockwise(triangles);
-            }
-            
+                    
 
             //Step 2. Create the list with unique vertices
             //A hashset will make it fast to check if a vertex already exists in the collection
-            HashSet<Vector3> uniqueVertices = new HashSet<Vector3>();
+            HashSet<MyVector3> uniqueVertices = new HashSet<MyVector3>();
 
-            foreach (Triangle t in triangles)
+            foreach (Triangle3 t in triangles)
             {
-                Vector3 v1 = t.p1;
-                Vector3 v2 = t.p2;
-                Vector3 v3 = t.p3;
+                MyVector3 v1 = t.p1;
+                MyVector3 v2 = t.p2;
+                MyVector3 v3 = t.p3;
 
                 if (!uniqueVertices.Contains(v1))
                 {
@@ -198,36 +189,46 @@ namespace Habrador_Computational_Geometry
             }
 
             //Create the list with all vertices
-            List<Vector3> meshVertices = new List<Vector3>(uniqueVertices);
+            List<MyVector3> meshVertices = new List<MyVector3>(uniqueVertices);
 
 
             //Step3. Create the list with all triangles by using the unique vertices
             List<int> meshTriangles = new List<int>();
 
             //Use a dictionay to quickly find which positon in the list a Vector3 has
-            Dictionary<Vector3, int> vector3Positons = new Dictionary<Vector3, int>();
+            Dictionary<MyVector3, int> vector2Positons = new Dictionary<MyVector3, int>();
 
             for (int i = 0; i < meshVertices.Count; i++)
             {
-                vector3Positons.Add(meshVertices[i], i);
+                vector2Positons.Add(meshVertices[i], i);
             }
 
-            foreach (Triangle t in triangles)
+            foreach (Triangle3 t in triangles)
             {
-                Vector3 v1 = t.p1;
-                Vector3 v2 = t.p2;
-                Vector3 v3 = t.p3;
+                MyVector3 v1 = t.p1;
+                MyVector3 v2 = t.p2;
+                MyVector3 v3 = t.p3;
 
-                meshTriangles.Add(vector3Positons[v1]);
-                meshTriangles.Add(vector3Positons[v2]);
-                meshTriangles.Add(vector3Positons[v3]);
+                meshTriangles.Add(vector2Positons[v1]);
+                meshTriangles.Add(vector2Positons[v2]);
+                meshTriangles.Add(vector2Positons[v3]);
             }
 
 
             //Step4. Create the final mesh
             Mesh mesh = new Mesh();
 
-            mesh.vertices = meshVertices.ToArray();
+            //From MyVector3 to Vector3
+            Vector3[] meshVerticesArray = new Vector3[meshVertices.Count];
+
+            for (int i = 0; i < meshVerticesArray.Length; i++)
+            {
+                MyVector3 v = meshVertices[i];
+
+                meshVerticesArray[i] = new Vector3(v.x, v.y, v.z);
+            }
+
+            mesh.vertices = meshVerticesArray;
             mesh.triangles = meshTriangles.ToArray();
 
             return mesh;
@@ -236,27 +237,22 @@ namespace Habrador_Computational_Geometry
 
 
         //Version 2. Don't check for duplicate vertices, which can be good if we want a low-poly style mesh
-        public static Mesh ConvertFromTriangleToMesh(HashSet<Triangle> triangles, bool checkTriangleOrientation)
+        //Make sure the triangles have the correct orientation
+        public static Mesh ConvertFromTriangleToMesh(HashSet<Triangle3> triangles, bool checkTriangleOrientation)
         {
-            //Step1. Make sure the triangles have the same orientation, which is clockwise
-            if (checkTriangleOrientation)
-            {
-                HelpMethods.OrientTrianglesClockwise(triangles);
-            }
-
             //Create the list with all vertices and triangles
-            List<Vector3> meshVertices = new List<Vector3>();
+            List<MyVector3> meshVertices = new List<MyVector3>();
 
             //Create the list with all triangles
             List<int> meshTriangles = new List<int>();
 
             int arrayPos = 0;
 
-            foreach (Triangle t in triangles)
+            foreach (Triangle3 t in triangles)
             {
-                Vector3 v1 = t.p1;
-                Vector3 v2 = t.p2;
-                Vector3 v3 = t.p3;
+                MyVector3 v1 = t.p1;
+                MyVector3 v2 = t.p2;
+                MyVector3 v3 = t.p3;
 
                 meshVertices.Add(v1);
                 meshVertices.Add(v2);
@@ -272,7 +268,17 @@ namespace Habrador_Computational_Geometry
             //Create the final mesh
             Mesh mesh = new Mesh();
 
-            mesh.vertices = meshVertices.ToArray();
+            //From MyVector3 to Vector3
+            Vector3[] meshVerticesArray = new Vector3[meshVertices.Count];
+
+            for (int i = 0; i < meshVerticesArray.Length; i++)
+            {
+                MyVector3 v = meshVertices[i];
+
+                meshVerticesArray[i] = new Vector3(v.x, v.y, v.z);
+            }
+
+            mesh.vertices = meshVerticesArray;
             mesh.triangles = meshTriangles.ToArray();
 
             return mesh;

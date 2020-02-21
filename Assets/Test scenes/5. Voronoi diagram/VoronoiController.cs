@@ -61,7 +61,7 @@ public class VoronoiController : MonoBehaviour
         //
         // Generate the voronoi diagram
         //
-        List<VoronoiCell> cells = DelaunayToVoronoi.GenerateVoronoiDiagram(randomSites);
+        List<VoronoiCell2> cells = DelaunayToVoronoi.GenerateVoronoiDiagram(randomSites);
 
 
 
@@ -81,13 +81,13 @@ public class VoronoiController : MonoBehaviour
 
 
     //Display the voronoi diagram with mesh
-    private void DisplayVoronoiCells(List<VoronoiCell> cells)
+    private void DisplayVoronoiCells(List<VoronoiCell2> cells)
     {
         Random.InitState(seed);
 
         for (int i = 0; i < cells.Count; i++)
         {
-            VoronoiCell c = cells[i];
+            VoronoiCell2 c = cells[i];
 
             Vector3 p1 = c.sitePos;
 

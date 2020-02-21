@@ -12,30 +12,30 @@ namespace Habrador_Computational_Geometry
         //poly is the polygon we want to cut
         //Assumes the polygon we want to remove from the other polygon is convex, so clipPolygon has to be convex
         //We will end up with the !intersection of the polygons
-        public static List<List<Vector2>> ClipPolygonInverted(List<Vector2> poly, List<Plane2D> clippingPlanes)
+        public static List<List<MyVector2>> ClipPolygonInverted(List<MyVector2> poly, List<Plane2> clippingPlanes)
         {
             //The result may be more than one polygons
-            List<List<Vector2>> finalPolygons = new List<List<Vector2>>();
+            List<List<MyVector2>> finalPolygons = new List<List<MyVector2>>();
 
-            List<Vector2> vertices = new List<Vector2>(poly);
+            List<MyVector2> vertices = new List<MyVector2>(poly);
 
             //The remaining polygon after each cut
-            List<Vector2> vertices_tmp = new List<Vector2>();
+            List<MyVector2> vertices_tmp = new List<MyVector2>();
 
             //Clip the polygon
             for (int i = 0; i < clippingPlanes.Count; i++)
             {
-                Plane2D plane = clippingPlanes[i];
+                Plane2 plane = clippingPlanes[i];
 
                 //A new polygon which is the part of the polygon which is outside of this plane
-                List<Vector2> outsidePolygon = new List<Vector2>();
+                List<MyVector2> outsidePolygon = new List<MyVector2>();
 
                 for (int j = 0; j < vertices.Count; j++)
                 {
                     int jPlusOne = MathUtility.ClampListIndex(j + 1, vertices.Count);
 
-                    Vector2 v1 = vertices[j];
-                    Vector2 v2 = vertices[jPlusOne];
+                    MyVector2 v1 = vertices[j];
+                    MyVector2 v2 = vertices[jPlusOne];
 
                     //Calculate the distance to the plane from each vertex
                     //This is how we will know if they are inside or outside
@@ -58,9 +58,9 @@ namespace Habrador_Computational_Geometry
                     //Case 3. Outside -> Inside, save intersection point
                     else if (dist_to_v1 < 0f && dist_to_v2 >= 0f)
                     {
-                        Vector2 rayDir = (v2 - v1).normalized;
+                        MyVector2 rayDir = MyVector2.Normalize(v2 - v1);
 
-                        Vector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(plane.pos, plane.normal, v1, rayDir);
+                        MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(plane.pos, plane.normal, v1, rayDir);
 
                         outsidePolygon.Add(intersectionPoint);
 
@@ -71,9 +71,9 @@ namespace Habrador_Computational_Geometry
                     //Case 4. Inside -> Outside, save intersection point and v2
                     else if (dist_to_v1 >= 0f && dist_to_v2 < 0f)
                     {
-                        Vector2 rayDir = (v2 - v1).normalized;
+                        MyVector2 rayDir = MyVector2.Normalize(v2 - v1);
 
-                        Vector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(plane.pos, plane.normal, v1, rayDir);
+                        MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(plane.pos, plane.normal, v1, rayDir);
 
                         outsidePolygon.Add(intersectionPoint);
 
@@ -108,9 +108,9 @@ namespace Habrador_Computational_Geometry
 
         //Assumes both polygons are convex unless you want the intersection, then only the clipping polygon
         //needs to be convex
-        public static List<List<Vector2>> BooleanOperations(List<Vector2> poly, List<Vector2> clipPoly, BooleanOperation booleanOperation)
+        public static List<List<MyVector2>> BooleanOperations(List<MyVector2> poly, List<MyVector2> clipPoly, BooleanOperation booleanOperation)
         {
-            List<List<Vector2>> finalPolygon = new List<List<Vector2>>();
+            List<List<MyVector2>> finalPolygon = new List<List<MyVector2>>();
 
             //First check if the polygons are intersecting
             //One way to do this is to get the intersection between the polygons
@@ -120,7 +120,7 @@ namespace Habrador_Computational_Geometry
             //Intersection - Remove everything except where both A and B intersect
             if (booleanOperation == BooleanOperation.Intersection)
             {
-                List<Vector2> intersectionPolygon = SutherlandHodgman.ClipPolygon(poly, clipPoly);
+                List<MyVector2> intersectionPolygon = SutherlandHodgman.ClipPolygon(poly, clipPoly);
 
                 finalPolygon.Add(intersectionPolygon);
 
@@ -129,7 +129,7 @@ namespace Habrador_Computational_Geometry
             //Difference - Remove from A where B intersect with A. Remove everything from B
             else if (booleanOperation == BooleanOperation.Difference)
             {
-                List<Plane2D> clippingPlanes = SutherlandHodgman.GetClippingPlanes(clipPoly);
+                List<Plane2> clippingPlanes = SutherlandHodgman.GetClippingPlanes(clipPoly);
 
                 finalPolygon = ClipPolygonInverted(poly, clippingPlanes);
             }
@@ -137,7 +137,7 @@ namespace Habrador_Computational_Geometry
             else if (booleanOperation == BooleanOperation.ExclusiveOr)
             {
                 //A not B
-                List<Plane2D> clippingPlanes = SutherlandHodgman.GetClippingPlanes(clipPoly);
+                List<Plane2> clippingPlanes = SutherlandHodgman.GetClippingPlanes(clipPoly);
 
                 finalPolygon = ClipPolygonInverted(poly, clippingPlanes);
 
@@ -150,7 +150,7 @@ namespace Habrador_Computational_Geometry
             else if (booleanOperation == BooleanOperation.Union)
             {
                 //A not B
-                List<Plane2D> clippingPlanes = SutherlandHodgman.GetClippingPlanes(clipPoly);
+                List<Plane2> clippingPlanes = SutherlandHodgman.GetClippingPlanes(clipPoly);
 
                 finalPolygon = ClipPolygonInverted(poly, clippingPlanes);
 
@@ -160,7 +160,7 @@ namespace Habrador_Computational_Geometry
                 finalPolygon.AddRange(ClipPolygonInverted(clipPoly, clippingPlanes));
 
                 //A and B
-                List<Vector2> intersectionPolygon = SutherlandHodgman.ClipPolygon(poly, clipPoly);
+                List<MyVector2> intersectionPolygon = SutherlandHodgman.ClipPolygon(poly, clipPoly);
 
                 finalPolygon.Add(intersectionPolygon);
             }

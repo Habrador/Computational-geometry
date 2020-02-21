@@ -12,7 +12,7 @@ namespace Habrador_Computational_Geometry
     // - bins
     public static class DelaunayIncrementalSloan
     {
-        public static HalfEdgeData GenerateTriangulation(HashSet<Vector3> inputPoints, HalfEdgeData triangulationData)
+        public static HalfEdgeData2 GenerateTriangulation(HashSet<MyVector2> inputPoints, HalfEdgeData2 triangulationData)
         {
             //We need more than 1 point to normalize
             if (inputPoints.Count < 2)
@@ -27,18 +27,18 @@ namespace Habrador_Computational_Geometry
             //Step 1.Normalize the points to the range(0 - 1), which assumes we have more than 1 point
             //This will lower the floating point precision when unnormalizing again, so we might have to go through
             //all points in the end and make sure they have the correct coordinate
-            AABB boundingBox = HelpMethods.GetAABB(new List<Vector2>(HelpMethods.ConvertListFrom3DTo2D(inputPoints)));
+            AABB boundingBox = HelpMethods.GetAABB(new List<MyVector2>(inputPoints));
 
             float d_max = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
 
-            HashSet<Vector3> points = new HashSet<Vector3>();
+            HashSet<MyVector2> points = new HashSet<MyVector2>();
 
-            foreach (Vector3 p in inputPoints)
+            foreach (MyVector2 p in inputPoints)
             {
-                Vector3 pNormalized = Vector3.zero;
+                float x = (p.x - boundingBox.minX) / d_max;
+                float y = (p.y - boundingBox.minY) / d_max;
 
-                pNormalized.x = (p.x - boundingBox.minX) / d_max;
-                pNormalized.z = (p.z - boundingBox.minY) / d_max;
+                MyVector2 pNormalized = new MyVector2(x, y);
 
                 points.Add(pNormalized);
             }
@@ -56,10 +56,10 @@ namespace Habrador_Computational_Geometry
             //The report argues that the supertriangle should be at (-100, 100) which is way
             //outside of the points which are in the range(0, 1)
             //It's important to save this triangle so we can delete it when we are done
-            Triangle superTriangle = new Triangle(new Vector3(-100f, 0f, -100f), new Vector3(100f, 0f, -100f), new Vector3(0f, 0f, 100f));
+            Triangle2 superTriangle = new Triangle2(new MyVector2(-100f, -100f), new MyVector2(100f, -100f), new MyVector2(0f, 100f));
 
             //Create the triangulation data with the only triangle we have
-            HashSet<Triangle> triangles = new HashSet<Triangle>();
+            HashSet<Triangle2> triangles = new HashSet<Triangle2>();
 
             triangles.Add(superTriangle);
 
@@ -71,7 +71,7 @@ namespace Habrador_Computational_Geometry
             int missedPoints = 0;
             int flippedEdges = 0;
 
-            foreach (Vector3 p in points)
+            foreach (MyVector2 p in points)
             {
                 //Step 5. Insert the new point in the triangulation
                 triangulationData = InsertNewPointInTriangulation(p, triangulationData, ref missedPoints, ref flippedEdges);
@@ -85,12 +85,12 @@ namespace Habrador_Computational_Geometry
 
 
             //Step 9.Reset the coordinates to their original values because they are currently in the range (0,1)
-            foreach (HalfEdgeVertex v in triangulationData.vertices)
+            foreach (HalfEdgeVertex2 v in triangulationData.vertices)
             {
                 float xUnNormalized = (v.position.x * d_max) + boundingBox.minX;
-                float zUnNormalized = (v.position.z * d_max) + boundingBox.minY;
+                float yUnNormalized = (v.position.y * d_max) + boundingBox.minY;
 
-                v.position = new Vector3(xUnNormalized, 0f, zUnNormalized);
+                v.position = new MyVector2(xUnNormalized, yUnNormalized);
             }
 
 
@@ -113,10 +113,10 @@ namespace Habrador_Computational_Geometry
         //Insert a new point in the triangulation
         //Can be used by other methods
         //Assumes all points are within the existing triangulation
-        public static HalfEdgeData InsertNewPointInTriangulation(Vector3 p, HalfEdgeData triangulationData, ref int missedPoints, ref int flippedEdges)
+        public static HalfEdgeData2 InsertNewPointInTriangulation(MyVector2 p, HalfEdgeData2 triangulationData, ref int missedPoints, ref int flippedEdges)
         {
             //Find an existing triangle which encloses p
-            HalfEdgeFace f = FindWhichTriangleAPointIsIn(p, null, triangulationData);
+            HalfEdgeFace2 f = FindWhichTriangleAPointIsIn(p, null, triangulationData);
 
             //We couldnt find a triangle maybe because of floating point precision issues
             if (f == null)
@@ -132,7 +132,7 @@ namespace Habrador_Computational_Geometry
 
             //Step 6. Initialize stack. Place all triangles which are adjacent to the edges opposite p on a LIFO stack
             //The report says we should place triangles, but it's easier to place edges with our data structure 
-            Stack<HalfEdge> trianglesToInvestigate = new Stack<HalfEdge>();
+            Stack<HalfEdge2> trianglesToInvestigate = new Stack<HalfEdge2>();
 
             AddTrianglesOppositePToStack(p, trianglesToInvestigate, triangulationData);
 
@@ -153,17 +153,17 @@ namespace Habrador_Computational_Geometry
                 }
 
                 //Step 7.1. Remove a triangle from the stack
-                HalfEdge edgeToTest = trianglesToInvestigate.Pop();
+                HalfEdge2 edgeToTest = trianglesToInvestigate.Pop();
 
                 //Step 7.2. 
                 //If p is outside or on the circumcircle for this triangle, we have a delaunay triangle and can return to next loop
-                Vector2 a = edgeToTest.v.position.XZ();
-                Vector2 b = edgeToTest.prevEdge.v.position.XZ();
-                Vector2 c = edgeToTest.nextEdge.v.position.XZ();
-                Vector2 p_2d = p.XZ();
+                MyVector2 a = edgeToTest.v.position;
+                MyVector2 b = edgeToTest.prevEdge.v.position;
+                MyVector2 c = edgeToTest.nextEdge.v.position;
+                
 
                 //abc are here counter-clockwise
-                if (_Delaunay.ShouldFlipEdgeStable(a, b, c, p_2d))
+                if (_Delaunay.ShouldFlipEdgeStable(a, b, c, p))
                 {
                     HalfEdgeHelpMethods.FlipTriangleEdge(edgeToTest);
 
@@ -180,9 +180,9 @@ namespace Habrador_Computational_Geometry
 
 
         //Different methods to find out in which traingle a point is in
-        private static HalfEdgeFace FindWhichTriangleAPointIsIn(Vector3 p, HalfEdgeFace startTriangle, HalfEdgeData triangulationData)
+        private static HalfEdgeFace2 FindWhichTriangleAPointIsIn(MyVector2 p, HalfEdgeFace2 startTriangle, HalfEdgeData2 triangulationData)
         {
-            HalfEdgeFace intersectingTriangle = null;
+            HalfEdgeFace2 intersectingTriangle = null;
 
             //Alternative 1. Search through all triangles and use point-in-triangle
             //foreach (HalfEdgeFace f in triangulationData.faces)
@@ -204,7 +204,7 @@ namespace Habrador_Computational_Geometry
 
             //Alternative 2. Use a triangulation walk
             //Start at the triangle which was most recently created - this is why we should group the points into bins
-            HalfEdgeFace currentTriangle = null;
+            HalfEdgeFace2 currentTriangle = null;
 
             //We can feed it a start triangle to sometimes make the algorithm faster
             if (startTriangle != null)
@@ -218,7 +218,7 @@ namespace Habrador_Computational_Geometry
 
                 int i = 0;
 
-                foreach (HalfEdgeFace f in triangulationData.faces)
+                foreach (HalfEdgeFace2 f in triangulationData.faces)
                 {
                     if (i == randomPos)
                     {
@@ -256,17 +256,17 @@ namespace Habrador_Computational_Geometry
                 //Is the point intersecting with the current triangle?
                 //We need to do 3 tests where each test is using the triangles edges
                 //If the point is to the right of all edges, then it's inside the triangle
-                HalfEdge e1 = currentTriangle.edge;
-                HalfEdge e2 = e1.nextEdge;
-                HalfEdge e3 = e2.nextEdge;
+                HalfEdge2 e1 = currentTriangle.edge;
+                HalfEdge2 e2 = e1.nextEdge;
+                HalfEdge2 e3 = e2.nextEdge;
 
                 //Check if the point is to the right or on the border of its edges, if so we know its inside this triangle
                 //We treat the on-the-border case as if it is inside because the end result is the same
-                if (IsPointToTheRightOrOnLine(e1.prevEdge.v.position.XZ(), e1.v.position.XZ(), p.XZ()))
+                if (IsPointToTheRightOrOnLine(e1.prevEdge.v.position, e1.v.position, p))
                 {
-                    if (IsPointToTheRightOrOnLine(e2.prevEdge.v.position.XZ(), e2.v.position.XZ(), p.XZ()))
+                    if (IsPointToTheRightOrOnLine(e2.prevEdge.v.position, e2.v.position, p))
                     {
-                        if (IsPointToTheRightOrOnLine(e3.prevEdge.v.position.XZ(), e3.v.position.XZ(), p.XZ()))
+                        if (IsPointToTheRightOrOnLine(e3.prevEdge.v.position, e3.v.position, p))
                         {
                             //We have found the triangle the point is in
                             intersectingTriangle = currentTriangle;
@@ -297,7 +297,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Is a point to the right or on the line a-b?
-        private static bool IsPointToTheRightOrOnLine(Vector2 a, Vector2 b, Vector2 p)
+        private static bool IsPointToTheRightOrOnLine(MyVector2 a, MyVector2 b, MyVector2 p)
         {
             bool isToTheRight = false;
 
@@ -314,7 +314,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Find all triangles opposite of p
-        private static void AddTrianglesOppositePToStack(Vector3 p, Stack<HalfEdge> trianglesToInvestigate, HalfEdgeData triangulationData)
+        private static void AddTrianglesOppositePToStack(MyVector2 p, Stack<HalfEdge2> trianglesToInvestigate, HalfEdgeData2 triangulationData)
         {
             //There might be a better way to do this
             //foreach (HalfEdgeVertex v in triangulationData.vertices)
@@ -334,20 +334,20 @@ namespace Habrador_Computational_Geometry
             //}
 
             //Find a vertex at position p and then rotate around it to find all opposite edges
-            HalfEdgeVertex rotateAroundThis = null;
+            HalfEdgeVertex2 rotateAroundThis = null;
 
-            foreach (HalfEdgeVertex v in triangulationData.vertices)
+            foreach (HalfEdgeVertex2 v in triangulationData.vertices)
             {
-                if (v.position == p)
+                if (v.position.Equals(p))
                 {
                     rotateAroundThis = v;
                 }
             }
 
             //Which triangle is this vertex a part of, so we know when we have rotated all the way around
-            HalfEdgeFace tStart = rotateAroundThis.edge.face;
+            HalfEdgeFace2 tStart = rotateAroundThis.edge.face;
 
-            HalfEdgeFace tCurrent = null;
+            HalfEdgeFace2 tCurrent = null;
 
             int safety = 0;
 
@@ -363,7 +363,7 @@ namespace Habrador_Computational_Geometry
                 }
 
                 //Try add the edge thats opposite to p if it doesn't exist
-                HalfEdge edgeOppositeRotateVertex = rotateAroundThis.edge.nextEdge.oppositeEdge;
+                HalfEdge2 edgeOppositeRotateVertex = rotateAroundThis.edge.nextEdge.oppositeEdge;
 
                 //Null might happen if we are at the border
                 //A stack might include duplicates so we have to check for that as well
@@ -385,21 +385,21 @@ namespace Habrador_Computational_Geometry
 
 
         //Remove the supertriangle
-        private static void RemoveSupertriangle(Triangle superTriangle, HalfEdgeData triangulationData)
+        private static void RemoveSupertriangle(Triangle2 superTriangle, HalfEdgeData2 triangulationData)
         {
-            HashSet<HalfEdgeFace> trianglesToDelete = new HashSet<HalfEdgeFace>();
+            HashSet<HalfEdgeFace2> trianglesToDelete = new HashSet<HalfEdgeFace2>();
 
-            foreach (HalfEdgeVertex v in triangulationData.vertices)
+            foreach (HalfEdgeVertex2 v in triangulationData.vertices)
             {
                 //If the face attached to this vertex already exists, we dont need to check it again
                 if (trianglesToDelete.Contains(v.edge.face))
                 {
                     continue;
                 }
-            
-                Vector3 v1 = v.position;
 
-                if (v1 == superTriangle.p1 || v1 == superTriangle.p2 || v1 == superTriangle.p3)
+                MyVector2 v1 = v.position;
+
+                if (v1.Equals(superTriangle.p1) || v1.Equals(superTriangle.p2) || v1.Equals(superTriangle.p3))
                 {
                     trianglesToDelete.Add(v.edge.face);
                 }
@@ -407,7 +407,7 @@ namespace Habrador_Computational_Geometry
 
             //Debug.Log("Triangles to delete: " + trianglesToDelete.Count);
 
-            foreach (HalfEdgeFace t in trianglesToDelete)
+            foreach (HalfEdgeFace2 t in trianglesToDelete)
             {
                 HalfEdgeHelpMethods.DeleteTriangle(t, triangulationData, true);
             }

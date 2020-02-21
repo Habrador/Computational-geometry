@@ -11,12 +11,12 @@ namespace Habrador_Computational_Geometry
     {
         //Sometimes its more efficient to calculate the planes once before we call the method
         //if we want to cut several polygons with the same planes
-        public static List<Vector2> ClipPolygon(List<Vector2> poly, List<Vector2> clipPoly)
+        public static List<MyVector2> ClipPolygon(List<MyVector2> poly, List<MyVector2> clipPoly)
         {
             //Calculate the clipping planes
-            List<Plane2D> clippingPlanes = GetClippingPlanes(clipPoly);
+            List<Plane2> clippingPlanes = GetClippingPlanes(clipPoly);
 
-            List<Vector2> vertices = ClipPolygon(poly, clippingPlanes);
+            List<MyVector2> vertices = ClipPolygon(poly, clippingPlanes);
 
             return vertices;
         }
@@ -27,25 +27,25 @@ namespace Habrador_Computational_Geometry
         //poly is the polygon we want to cut
         //Assumes the polygon we want to remove from the other polygon is convex, so clipPolygon has to be convex
         //We will end up with the intersection of the polygons
-        public static List<Vector2> ClipPolygon(List<Vector2> poly, List<Plane2D> clippingPlanes)
+        public static List<MyVector2> ClipPolygon(List<MyVector2> poly, List<Plane2> clippingPlanes)
         {
             //Clone the vertices because we will remove vertices from this list
-            List<Vector2> vertices = new List<Vector2>(poly);
+            List<MyVector2> vertices = new List<MyVector2>(poly);
 
             //Save the new vertices temporarily in this list before transfering them to vertices
-            List<Vector2> vertices_tmp = new List<Vector2>();
+            List<MyVector2> vertices_tmp = new List<MyVector2>();
 
             //Clip the polygon
             for (int i = 0; i < clippingPlanes.Count; i++)
             {
-                Plane2D plane = clippingPlanes[i];
+                Plane2 plane = clippingPlanes[i];
 
                 for (int j = 0; j < vertices.Count; j++)
                 {
                     int jPlusOne = MathUtility.ClampListIndex(j + 1, vertices.Count);
 
-                    Vector2 v1 = vertices[j];
-                    Vector2 v2 = vertices[jPlusOne];
+                    MyVector2 v1 = vertices[j];
+                    MyVector2 v2 = vertices[jPlusOne];
 
                     //Calculate the distance to the plane from each vertex
                     //This is how we will know if they are inside or outside
@@ -65,9 +65,9 @@ namespace Habrador_Computational_Geometry
                     //Case 3. Outside -> Inside, save intersection point and v2
                     else if (dist_to_v1 < 0f && dist_to_v2 >= 0f)
                     {
-                        Vector2 rayDir = (v2 - v1).normalized;
+                        MyVector2 rayDir = MyVector2.Normalize(v2 - v1);
 
-                        Vector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(plane.pos, plane.normal, v1, rayDir);
+                        MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(plane.pos, plane.normal, v1, rayDir);
 
                         vertices_tmp.Add(intersectionPoint);
 
@@ -76,9 +76,9 @@ namespace Habrador_Computational_Geometry
                     //Case 4. Inside -> Outside, save intersection point
                     else if (dist_to_v1 >= 0f && dist_to_v2 < 0f)
                     {
-                        Vector2 rayDir = (v2 - v1).normalized;
+                        MyVector2 rayDir = MyVector2.Normalize(v2 - v1);
 
-                        Vector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(plane.pos, plane.normal, v1, rayDir);
+                        MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(plane.pos, plane.normal, v1, rayDir);
 
                         vertices_tmp.Add(intersectionPoint);
                     }
@@ -98,29 +98,29 @@ namespace Habrador_Computational_Geometry
 
 
         //Get the clipping planes
-        public static List<Plane2D> GetClippingPlanes(List<Vector2> clipPoly)
+        public static List<Plane2> GetClippingPlanes(List<MyVector2> clipPoly)
         {
             //Calculate the clipping planes
-            List<Plane2D> clippingPlanes = new List<Plane2D>();
+            List<Plane2> clippingPlanes = new List<Plane2>();
 
             for (int i = 0; i < clipPoly.Count; i++)
             {
                 int iPlusOne = MathUtility.ClampListIndex(i + 1, clipPoly.Count);
 
-                Vector2 v1 = clipPoly[i];
-                Vector2 v2 = clipPoly[iPlusOne];
+                MyVector2 v1 = clipPoly[i];
+                MyVector2 v2 = clipPoly[iPlusOne];
 
                 //Doesnt have to be center but easier to debug
-                Vector2 planePos = (v1 + v2) * 0.5f;
+                MyVector2 planePos = (v1 + v2) * 0.5f;
 
-                Vector2 planeDir = v2 - v1;
+                MyVector2 planeDir = v2 - v1;
 
                 //Should point inwards - do we need to normalize???
-                Vector2 planeNormal = new Vector2(-planeDir.y, planeDir.x);
+                MyVector2 planeNormal = new MyVector2(-planeDir.y, planeDir.x);
 
                 //Gizmos.DrawRay(planePos, planeNormal.normalized * 0.1f);
 
-                clippingPlanes.Add(new Plane2D(planePos, planeNormal));
+                clippingPlanes.Add(new Plane2(planePos, planeNormal));
             }
 
             return clippingPlanes;

@@ -52,24 +52,24 @@ public class IntersectionController : MonoBehaviour
     //Is a point intersecting with a triangle?
     private void PointTriangle()
     {
-        Vector2 p = pointTrans.position.XZ();
+        MyVector2 p = pointTrans.position.ToMyVector2();
 
-        Vector2 t_p1 = t1_p1_trans.position.XZ();
-        Vector2 t_p2 = t1_p2_trans.position.XZ();
-        Vector2 t_p3 = t1_p3_trans.position.XZ();
+        MyVector2 t_p1 = t1_p1_trans.position.ToMyVector2();
+        MyVector2 t_p2 = t1_p2_trans.position.ToMyVector2();
+        MyVector2 t_p3 = t1_p3_trans.position.ToMyVector2();
 
-        Triangle2D t = new Triangle2D(t_p1, t_p2, t_p3);
+        Triangle2 t = new Triangle2(t_p1, t_p2, t_p3);
 
         bool isIntersecting = Intersections.PointTriangle(t, p, includeBorder: true);
 
         //Display
         Gizmos.color = isIntersecting ? Color.red : Color.white;
 
-        Gizmos.DrawWireSphere(p.XYZ(), 0.1f);
+        Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
 
-        Gizmos.DrawLine(t.p1.XYZ(), t.p2.XYZ());
-        Gizmos.DrawLine(t.p2.XYZ(), t.p3.XYZ());
-        Gizmos.DrawLine(t.p3.XYZ(), t.p1.XYZ());
+        Gizmos.DrawLine(t.p1.ToVector3(), t.p2.ToVector3());
+        Gizmos.DrawLine(t.p2.ToVector3(), t.p3.ToVector3());
+        Gizmos.DrawLine(t.p3.ToVector3(), t.p1.ToVector3());
     }
 
 
@@ -77,26 +77,26 @@ public class IntersectionController : MonoBehaviour
     //Are two lines intersecting?
     private void LineLine()
     {
-        Vector2 l1_p1 = t1_p1_trans.position.XZ();
-        Vector2 l1_p2 = t1_p2_trans.position.XZ();
+        MyVector2 l1_p1 = t1_p1_trans.position.ToMyVector2();
+        MyVector2 l1_p2 = t1_p2_trans.position.ToMyVector2();
 
-        Vector2 l2_p1 = t2_p1_trans.position.XZ();
-        Vector2 l2_p2 = t2_p2_trans.position.XZ();
+        MyVector2 l2_p1 = t2_p1_trans.position.ToMyVector2();
+        MyVector2 l2_p2 = t2_p2_trans.position.ToMyVector2();
 
         bool isIntersecting = Intersections.LineLine(l1_p1, l1_p2, l2_p1, l2_p2, shouldIncludeEndPoints: true);
 
         //Display
         Gizmos.color = isIntersecting ? Color.red : Color.white;
 
-        Gizmos.DrawLine(l1_p1.XYZ(), l1_p2.XYZ());
-        Gizmos.DrawLine(l2_p1.XYZ(), l2_p2.XYZ());
+        Gizmos.DrawLine(l1_p1.ToVector3(), l1_p2.ToVector3());
+        Gizmos.DrawLine(l2_p1.ToVector3(), l2_p2.ToVector3());
 
         //If they are intersecting we can also get the intersection point
         if (isIntersecting)
         {
-            Vector2 intersectionPoint = Intersections.GetLineLineIntersectionPoint(l1_p1, l1_p2, l2_p1, l2_p2);
+            MyVector2 intersectionPoint = Intersections.GetLineLineIntersectionPoint(l1_p1, l1_p2, l2_p1, l2_p2);
 
-            Gizmos.DrawWireSphere(intersectionPoint.XYZ(), 0.1f);
+            Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.1f);
         }
     }
 
@@ -105,16 +105,16 @@ public class IntersectionController : MonoBehaviour
     //Are two AABB intersecting?
     private void AABB_AABB()
     {
-        Vector2 t1_p1 = t1_p1_trans.position.XZ();
-        Vector2 t1_p2 = t1_p2_trans.position.XZ();
-        Vector2 t1_p3 = t1_p3_trans.position.XZ();
+        MyVector2 t1_p1 = t1_p1_trans.position.ToMyVector2();
+        MyVector2 t1_p2 = t1_p2_trans.position.ToMyVector2();
+        MyVector2 t1_p3 = t1_p3_trans.position.ToMyVector2();
 
-        Vector2 t2_p1 = t2_p1_trans.position.XZ();
-        Vector2 t2_p2 = t2_p2_trans.position.XZ();
-        Vector2 t2_p3 = t2_p3_trans.position.XZ();
+        MyVector2 t2_p1 = t2_p1_trans.position.ToMyVector2();
+        MyVector2 t2_p2 = t2_p2_trans.position.ToMyVector2();
+        MyVector2 t2_p3 = t2_p3_trans.position.ToMyVector2();
 
-        Triangle2D t1 = new Triangle2D(t1_p1, t1_p2, t1_p3);
-        Triangle2D t2 = new Triangle2D(t2_p1, t2_p2, t2_p3);
+        Triangle2 t1 = new Triangle2(t1_p1, t1_p2, t1_p3);
+        Triangle2 t2 = new Triangle2(t2_p1, t2_p2, t2_p3);
 
         bool isIntersecting = Intersections.AABB_AABB_2D(
             t1.MinX(), t1.MaxX(), t1.MinY(), t1.MaxY(),
@@ -135,17 +135,17 @@ public class IntersectionController : MonoBehaviour
 
         float r = 0.01f;
 
-        Gizmos.DrawWireSphere(t1_p1.XYZ(), r);
-        Gizmos.DrawWireSphere(t1_p2.XYZ(), r);
-        Gizmos.DrawWireSphere(t1_p3.XYZ(), r);
+        Gizmos.DrawWireSphere(t1_p1.ToVector3(), r);
+        Gizmos.DrawWireSphere(t1_p2.ToVector3(), r);
+        Gizmos.DrawWireSphere(t1_p3.ToVector3(), r);
 
         Gizmos.color = Color.blue;
 
         Gizmos.DrawWireCube(r2_center, r2_size);
 
-        Gizmos.DrawWireSphere(t2_p1.XYZ(), r);
-        Gizmos.DrawWireSphere(t2_p2.XYZ(), r);
-        Gizmos.DrawWireSphere(t2_p3.XYZ(), r);
+        Gizmos.DrawWireSphere(t2_p1.ToVector3(), r);
+        Gizmos.DrawWireSphere(t2_p2.ToVector3(), r);
+        Gizmos.DrawWireSphere(t2_p3.ToVector3(), r);
     }
 
 
@@ -153,11 +153,11 @@ public class IntersectionController : MonoBehaviour
     //Is a point intersecting with a circle?
     private void PointCircle()
     {
-        Vector2 testPoint = pointTrans.position.XZ();
+        MyVector2 testPoint = pointTrans.position.ToMyVector2();
 
-        Vector2 circlePointA = t1_p1_trans.position.XZ();
-        Vector2 circlePointB = t1_p2_trans.position.XZ();
-        Vector2 circlePointC = t1_p3_trans.position.XZ();
+        MyVector2 circlePointA = t1_p1_trans.position.ToMyVector2();
+        MyVector2 circlePointB = t1_p2_trans.position.ToMyVector2();
+        MyVector2 circlePointC = t1_p3_trans.position.ToMyVector2();
 
         //Is a point in a circle determines by three other points
         float isPointInCircle = Intersections.PointCircle(circlePointA, circlePointB, circlePointC, testPoint);
@@ -168,11 +168,11 @@ public class IntersectionController : MonoBehaviour
         //Display the circle
         Gizmos.color = Color.white;
         
-        Vector2 centerOfCicle = Geometry.CalculateCircleCenter(circlePointA, circlePointB, circlePointC);
+        MyVector2 centerOfCicle = Geometry.CalculateCircleCenter(circlePointA, circlePointB, circlePointC);
 
-        float radius = Vector2.Distance(centerOfCicle, circlePointA);
+        float radius = MyVector2.Distance(centerOfCicle, circlePointA);
 
-        Gizmos.DrawWireSphere(new Vector3(centerOfCicle.x, 0f, centerOfCicle.y), radius);
+        Gizmos.DrawWireSphere(centerOfCicle.ToVector3(), radius);
 
         //Display the points
         float pointRadius = 0.2f;
@@ -203,13 +203,13 @@ public class IntersectionController : MonoBehaviour
 
 
         //2d space
-        Vector2 planeNormal_2d = planeNormal.XZ();
+        MyVector2 planeNormal_2d = planeNormal.ToMyVector2();
 
-        Vector2 planePos_2d = planePos.XZ();
+        MyVector2 planePos_2d = planePos.ToMyVector2();
 
-        Vector3 line_p1_2d = line_p1.XZ();
+        MyVector2 line_p1_2d = line_p1.ToMyVector2();
 
-        Vector3 line_p2_2d = line_p2.XZ();
+        MyVector2 line_p2_2d = line_p2.ToMyVector2();
 
 
         bool isIntersecting = Intersections.LinePlane(planePos_2d, planeNormal_2d, line_p1_2d, line_p2_2d);
@@ -240,9 +240,9 @@ public class IntersectionController : MonoBehaviour
         {
             Gizmos.color = Color.red;
 
-            Vector2 intersectionPoint = Intersections.GetLinePlaneIntersectionCoordinate(planePos_2d, planeNormal_2d, line_p1_2d, line_p2_2d);
+            MyVector2 intersectionPoint = Intersections.GetLinePlaneIntersectionCoordinate(planePos_2d, planeNormal_2d, line_p1_2d, line_p2_2d);
 
-            Gizmos.DrawWireSphere(intersectionPoint.XYZ(), 0.2f);
+            Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
         }
 
         Gizmos.DrawLine(line_p1, line_p2);
@@ -263,13 +263,13 @@ public class IntersectionController : MonoBehaviour
 
 
         //2d space
-        Vector2 planeNormal_2d = planeNormal.XZ();
+        MyVector2 planeNormal_2d = planeNormal.ToMyVector2();
 
-        Vector2 planePos_2d = planePos.XZ();
+        MyVector2 planePos_2d = planePos.ToMyVector2();
 
-        Vector2 rayPos_2d = rayPos.XZ();
+        MyVector2 rayPos_2d = rayPos.ToMyVector2();
 
-        Vector2 rayDir_2d = rayDir.XZ();
+        MyVector2 rayDir_2d = rayDir.ToMyVector2();
 
 
         //Might as well test the distance from the point to the plane as well
@@ -304,9 +304,9 @@ public class IntersectionController : MonoBehaviour
         {
             Gizmos.color = Color.red;
 
-            Vector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(planePos_2d, planeNormal_2d, rayPos_2d, rayDir_2d);
+            MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(planePos_2d, planeNormal_2d, rayPos_2d, rayDir_2d);
 
-            Gizmos.DrawWireSphere(intersectionPoint.XYZ(), 0.2f);
+            Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
         }
 
         Gizmos.DrawRay(rayPos, rayDir * infinite);
@@ -317,14 +317,18 @@ public class IntersectionController : MonoBehaviour
     //Is a triangle intersecting with a triangle?
     private void TriangleTriangle()
     {
-        Triangle t1 = new Triangle(t1_p1_trans.position, t1_p2_trans.position, t1_p3_trans.position);
-        Triangle t2 = new Triangle(t2_p1_trans.position, t2_p2_trans.position, t2_p3_trans.position);
-
         //3d to 2d
-        Triangle2D t1_2d = new Triangle2D(t1.p1.XZ(), t1.p2.XZ(), t1.p3.XZ());
-        Triangle2D t2_2d = new Triangle2D(t2.p1.XZ(), t2.p2.XZ(), t2.p3.XZ());
+        Triangle2 t1 = new Triangle2(
+            t1_p1_trans.transform.position.ToMyVector2(), 
+            t1_p2_trans.transform.position.ToMyVector2(), 
+            t1_p3_trans.transform.position.ToMyVector2());
+        
+        Triangle2 t2 = new Triangle2(
+            t2_p1_trans.transform.position.ToMyVector2(), 
+            t2_p2_trans.transform.position.ToMyVector2(), 
+            t2_p3_trans.transform.position.ToMyVector2());
 
-        bool isIntersecting = Intersections.TriangleTriangle2D(t1_2d, t2_2d, do_AABB_test: false);
+        bool isIntersecting = Intersections.TriangleTriangle2D(t1, t2, do_AABB_test: false);
 
 
 
@@ -336,13 +340,13 @@ public class IntersectionController : MonoBehaviour
             Gizmos.color = Color.red;
         }
 
-        Gizmos.DrawLine(t1.p1, t1.p2);
-        Gizmos.DrawLine(t1.p2, t1.p3);
-        Gizmos.DrawLine(t1.p3, t1.p1);
+        Gizmos.DrawLine(t1.p1.ToVector3(), t1.p2.ToVector3());
+        Gizmos.DrawLine(t1.p2.ToVector3(), t1.p3.ToVector3());
+        Gizmos.DrawLine(t1.p3.ToVector3(), t1.p1.ToVector3());
 
-        Gizmos.DrawLine(t2.p1, t2.p2);
-        Gizmos.DrawLine(t2.p2, t2.p3);
-        Gizmos.DrawLine(t2.p3, t2.p1);
+        Gizmos.DrawLine(t2.p1.ToVector3(), t2.p2.ToVector3());
+        Gizmos.DrawLine(t2.p2.ToVector3(), t2.p3.ToVector3());
+        Gizmos.DrawLine(t2.p3.ToVector3(), t2.p1.ToVector3());
     }
 
 
@@ -353,17 +357,17 @@ public class IntersectionController : MonoBehaviour
         List<Vector3> polygonPoints = GetVerticesFromParent(polygonPointsParentTrans);
 
         //To 2d
-        List<Vector2> polygonPoints_2d = new List<Vector2>();
+        List<MyVector2> polygonPoints_2d = new List<MyVector2>();
 
         for (int i = 0; i < polygonPoints.Count; i++)
         {
-            polygonPoints_2d.Add(polygonPoints[i].XZ());
+            polygonPoints_2d.Add(polygonPoints[i].ToMyVector2());
         }
 
-        Vector2 testPoint = pointTrans.position.XZ();
+        Vector3 testPoint = pointTrans.position;
 
         //Is the point inside the polygon
-        bool isIntersecting = Intersections.PointPolygon(polygonPoints_2d, testPoint);
+        bool isIntersecting = Intersections.PointPolygon(polygonPoints_2d, testPoint.ToMyVector2());
 
         //Display
         Gizmos.color = isIntersecting ? Color.red : Color.white;
@@ -375,7 +379,7 @@ public class IntersectionController : MonoBehaviour
             Gizmos.DrawLine(polygonPoints[i], polygonPoints[iPlusOne]);
         }
 
-        Gizmos.DrawWireSphere(testPoint.XYZ(), 0.1f);
+        Gizmos.DrawWireSphere(testPoint, 0.1f);
     }
 
 

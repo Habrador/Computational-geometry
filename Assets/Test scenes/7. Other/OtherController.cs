@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Habrador_Computational_Geometry;
 
-public class UtilityController : MonoBehaviour 
+public class OtherController : MonoBehaviour 
 {
     public Transform pointATrans;
     public Transform pointBTrans;

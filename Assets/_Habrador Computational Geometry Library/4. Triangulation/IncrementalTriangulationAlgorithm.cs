@@ -10,43 +10,43 @@ namespace Habrador_Computational_Geometry
     //We assume an edge is visible if the center of the edge is visible to the point.
     public static class IncrementalTriangulationAlgorithm
     {
-        public static List<Triangle> TriangulatePoints(List<Vector3> points)
+        public static List<Triangle2> TriangulatePoints(List<MyVector2> points)
         {
-            List<Triangle> triangles = new List<Triangle>();
+            List<Triangle2> triangles = new List<Triangle2>();
 
             //Sort the points along x-axis
             //OrderBy is always soring in ascending order - use OrderByDescending to get in the other order
             points = points.OrderBy(n => n.x).ToList();
 
             //The first 3 vertices are always forming a triangle
-            Triangle newTriangle = new Triangle(points[0], points[1], points[2]);
+            Triangle2 newTriangle = new Triangle2(points[0], points[1], points[2]);
 
             triangles.Add(newTriangle);
 
             //All edges that form the triangles, so we have something to test against
-            List<Edge> edges = new List<Edge>();
+            List<Edge2> edges = new List<Edge2>();
 
-            edges.Add(new Edge(newTriangle.p1, newTriangle.p2));
-            edges.Add(new Edge(newTriangle.p2, newTriangle.p3));
-            edges.Add(new Edge(newTriangle.p3, newTriangle.p1));
+            edges.Add(new Edge2(newTriangle.p1, newTriangle.p2));
+            edges.Add(new Edge2(newTriangle.p2, newTriangle.p3));
+            edges.Add(new Edge2(newTriangle.p3, newTriangle.p1));
 
             //Add the other triangles one by one
             //Starts at 3 because we have already added 0,1,2
             for (int i = 3; i < points.Count; i++)
             {
-                Vector3 currentPoint = points[i];
+                MyVector2 currentPoint = points[i];
 
                 //The edges we add this loop or we will get stuck in an endless loop
-                List<Edge> newEdges = new List<Edge>();
+                List<Edge2> newEdges = new List<Edge2>();
 
                 //Is this edge visible? We only need to check if the midpoint of the edge is visible 
                 for (int j = 0; j < edges.Count; j++)
                 {
-                    Edge currentEdge = edges[j];
+                    Edge2 currentEdge = edges[j];
 
-                    Vector3 midPoint = (currentEdge.p1 + currentEdge.p2) / 2f;
+                    MyVector2 midPoint = (currentEdge.p1 + currentEdge.p2) * 0.5f;
 
-                    Edge visibilityLine = new Edge(currentPoint, midPoint);
+                    Edge2 visibilityLine = new Edge2(currentPoint, midPoint);
 
                     //Check if the visibility line is intersecting with any of the other edges
                     bool canSeeEdge = true;
@@ -70,13 +70,13 @@ namespace Habrador_Computational_Geometry
                     //This is a valid triangle
                     if (canSeeEdge)
                     {
-                        Edge edgeToPoint1 = new Edge(currentEdge.p1, currentPoint);
-                        Edge edgeToPoint2 = new Edge(currentEdge.p2, currentPoint);
+                        Edge2 edgeToPoint1 = new Edge2(currentEdge.p1, currentPoint);
+                        Edge2 edgeToPoint2 = new Edge2(currentEdge.p2, currentPoint);
 
                         newEdges.Add(edgeToPoint1);
                         newEdges.Add(edgeToPoint2);
 
-                        Triangle newTri = new Triangle(edgeToPoint1.p1, edgeToPoint1.p2, edgeToPoint2.p1);
+                        Triangle2 newTri = new Triangle2(edgeToPoint1.p1, edgeToPoint1.p2, edgeToPoint2.p1);
 
                         triangles.Add(newTri);
                     }
@@ -95,13 +95,13 @@ namespace Habrador_Computational_Geometry
 
 
 
-        private static bool AreEdgesIntersecting(Edge edge1, Edge edge2)
+        private static bool AreEdgesIntersecting(Edge2 e1, Edge2 e2)
         {
-            Vector2 l1_p1 = edge1.p1.XZ();
-            Vector2 l1_p2 = edge1.p2.XZ();
+            MyVector2 l1_p1 = e1.p1;
+            MyVector2 l1_p2 = e1.p2;
 
-            Vector2 l2_p1 = edge2.p1.XZ();
-            Vector2 l2_p2 = edge2.p2.XZ();
+            MyVector2 l2_p1 = e2.p1;
+            MyVector2 l2_p2 = e2.p2;
 
             bool isIntersecting = Intersections.LineLine(l1_p1, l1_p2, l2_p1, l2_p2, true);
 

@@ -9,23 +9,25 @@ namespace Habrador_Computational_Geometry
 
     //Store data, so we dont have to convert from edges to faces and back
     //Sometimes we want to iterate over the faces, and sometimes edges, and sometimes vertices
-    public class HalfEdgeData
+
+    //Notice that everything is in 2D
+    public class HalfEdgeData2
     {
-        public HashSet<HalfEdgeVertex> vertices;
+        public HashSet<HalfEdgeVertex2> vertices;
 
-        public HashSet<HalfEdgeFace> faces;
+        public HashSet<HalfEdgeFace2> faces;
 
-        public HashSet<HalfEdge> edges;
+        public HashSet<HalfEdge2> edges;
 
 
 
-        public HalfEdgeData()
+        public HalfEdgeData2()
         {
-            this.vertices = new HashSet<HalfEdgeVertex>();
+            this.vertices = new HashSet<HalfEdgeVertex2>();
 
-            this.faces = new HashSet<HalfEdgeFace>();
+            this.faces = new HashSet<HalfEdgeFace2>();
 
-            this.edges = new HashSet<HalfEdge>();
+            this.edges = new HashSet<HalfEdge2>();
         }
 
 
@@ -33,25 +35,25 @@ namespace Habrador_Computational_Geometry
         //Get a list with unique edges
         //Currently we have two half-edges for each edge, making it time consuming
         //So this method is not always needed, but can be useful
-        public List<HalfEdge> GetUniqueEdges()
+        public List<HalfEdge2> GetUniqueEdges()
         {
-            List<HalfEdge> uniqueEdges = new List<HalfEdge>();
+            List<HalfEdge2> uniqueEdges = new List<HalfEdge2>();
 
-            foreach (HalfEdge e in edges)
+            foreach (HalfEdge2 e in edges)
             {
-                Vector3 p1 = e.v.position;
-                Vector3 p2 = e.prevEdge.v.position;
+                MyVector2 p1 = e.v.position;
+                MyVector2 p2 = e.prevEdge.v.position;
 
                 bool isInList = false;
 
                 for (int j = 0; j < uniqueEdges.Count; j++)
                 {
-                    HalfEdge testEdge = uniqueEdges[j];
+                    HalfEdge2 testEdge = uniqueEdges[j];
 
-                    Vector3 p1_test = testEdge.v.position;
-                    Vector3 p2_test = testEdge.prevEdge.v.position;
+                    MyVector2 p1_test = testEdge.v.position;
+                    MyVector2 p2_test = testEdge.prevEdge.v.position;
 
-                    if ((p1 == p1_test && p2 == p2_test) || (p2 == p1_test && p1 == p2_test))
+                    if ((p1.Equals(p1_test) && p2.Equals(p2_test)) || (p2.Equals(p1_test) && p1.Equals(p2_test)))
                     {
                         isInList = true;
 
@@ -72,18 +74,18 @@ namespace Habrador_Computational_Geometry
 
 
     //A position
-    public class HalfEdgeVertex
+    public class HalfEdgeVertex2
     {
         //The position of the vertex
-        public Vector3 position;
+        public MyVector2 position;
 
         //Each vertex references an half-edge that starts at this point
         //Might seem strange because each halfEdge references a vertex the edge is going to?
-        public HalfEdge edge;
+        public HalfEdge2 edge;
 
 
 
-        public HalfEdgeVertex(Vector3 position)
+        public HalfEdgeVertex2(MyVector2 position)
         {
             this.position = position;
         }
@@ -92,15 +94,15 @@ namespace Habrador_Computational_Geometry
 
 
     //This face could be a triangle or whatever we need
-    public class HalfEdgeFace
+    public class HalfEdgeFace2
     {
         //Each face references one of the halfedges bounding it
         //If you need the vertices, you can use this edge
-        public HalfEdge edge;
+        public HalfEdge2 edge;
 
 
 
-        public HalfEdgeFace(HalfEdge edge)
+        public HalfEdgeFace2(HalfEdge2 edge)
         {
             this.edge = edge;
         }
@@ -109,27 +111,27 @@ namespace Habrador_Computational_Geometry
 
 
     //An edge going in a direction
-    public class HalfEdge
+    public class HalfEdge2
     {
         //The vertex it points to
-        public HalfEdgeVertex v;
+        public HalfEdgeVertex2 v;
 
         //The face it belongs to
-        public HalfEdgeFace face;
+        public HalfEdgeFace2 face;
 
         //The next half-edge inside the face (ordered clockwise)
         //The document says counter-clockwise but clockwise is easier because that's how Unity is displaying triangles
-        public HalfEdge nextEdge;
+        public HalfEdge2 nextEdge;
 
         //The opposite half-edge belonging to the neighbor
-        public HalfEdge oppositeEdge;
+        public HalfEdge2 oppositeEdge;
 
         //(optionally: the previous halfedge in the face
-        public HalfEdge prevEdge;
+        public HalfEdge2 prevEdge;
 
 
 
-        public HalfEdge(HalfEdgeVertex v)
+        public HalfEdge2(HalfEdgeVertex2 v)
         {
             this.v = v;
         }

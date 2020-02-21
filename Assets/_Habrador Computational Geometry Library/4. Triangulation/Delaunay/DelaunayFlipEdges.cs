@@ -8,11 +8,11 @@ namespace Habrador_Computational_Geometry
     //Simple but time consuming
     public class DelaunayFlipEdges
     {
-        public static HalfEdgeData GenerateTriangulation(HashSet<Vector3> points, HalfEdgeData triangleData)
+        public static HalfEdgeData2 GenerateTriangulation(HashSet<MyVector2> points, HalfEdgeData2 triangleData)
         {
             //Step 1. Triangulate the points with some algorithm
             //List<Triangle> triangles = TriangulatePoints.IncrementalTriangulation(points);
-            HashSet<Triangle> triangles = _TriangulatePoints.TriangleSplitting(points);
+            HashSet<Triangle2> triangles = _TriangulatePoints.TriangleSplitting(points);
 
             //Step 2. Change the structure from triangle to half-edge to make it faster to flip edges
             triangleData = TransformBetweenDataStructures.TransformFromTriangleToHalfEdge(triangles, triangleData);
@@ -26,10 +26,10 @@ namespace Habrador_Computational_Geometry
 
 
         //Flip edges until we get a delaunay triangulation (or something close to it)
-        private static void FlipEdges(HalfEdgeData triangleData)
+        private static void FlipEdges(HalfEdgeData2 triangleData)
         {
             //The edges we want to flip
-            HashSet<HalfEdge> edges = triangleData.edges;
+            HashSet<HalfEdge2> edges = triangleData.edges;
 
 
             int safety = 0;
@@ -50,7 +50,7 @@ namespace Habrador_Computational_Geometry
                 bool hasFlippedEdge = false;
 
                 //Search through all edges to see if we can flip an edge
-                foreach (HalfEdge thisEdge in edges)
+                foreach (HalfEdge2 thisEdge in edges)
                 {
                     //Is this edge sharing an edge with another triangle, otherwise its a border, and then we cant flip the edge
                     if (thisEdge.oppositeEdge == null)
@@ -60,10 +60,10 @@ namespace Habrador_Computational_Geometry
 
                     //The positions in 2d space of the vertices belonging to the two triangles that we might flip
                     //a-c should be the edge that we might flip
-                    Vector2 aPos = thisEdge.v.position.XZ();
-                    Vector2 bPos = thisEdge.nextEdge.v.position.XZ();
-                    Vector2 cPos = thisEdge.nextEdge.nextEdge.v.position.XZ();
-                    Vector2 dPos = thisEdge.oppositeEdge.nextEdge.v.position.XZ();
+                    MyVector2 aPos = thisEdge.v.position;
+                    MyVector2 bPos = thisEdge.nextEdge.v.position;
+                    MyVector2 cPos = thisEdge.nextEdge.nextEdge.v.position;
+                    MyVector2 dPos = thisEdge.oppositeEdge.nextEdge.v.position;
 
                     //Test if we should flip this edge
                     if (_Delaunay.ShouldFlipEdge(aPos, bPos, cPos, dPos))

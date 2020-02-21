@@ -9,9 +9,9 @@ namespace Habrador_Computational_Geometry
     //Assumes there are no degeneracies (each vertex of one polygon does not lie on an edge of the other polygon)
     public static class GreinerHormann
     {
-        public static List<List<Vector2>> ClipPolygons(List<Vector2> polyVector2, List<Vector2> clipPolyVector2, BooleanOperation booleanOperation)
+        public static List<List<MyVector2>> ClipPolygons(List<MyVector2> polyVector2, List<MyVector2> clipPolyVector2, BooleanOperation booleanOperation)
         {
-            List<List<Vector2>> finalPoly = new List<List<Vector2>>();
+            List<List<MyVector2>> finalPoly = new List<List<MyVector2>>();
 
 
 
@@ -34,9 +34,9 @@ namespace Habrador_Computational_Geometry
                 //Important to use iPlusOne because poly.next may change
                 int iPlusOne = MathUtility.ClampListIndex(i + 1, poly.Count);
 
-                Vector2 a = poly[i].coordinate;
+                MyVector2 a = poly[i].coordinate;
 
-                Vector2 b = poly[iPlusOne].coordinate;
+                MyVector2 b = poly[iPlusOne].coordinate;
 
                 //Gizmos.DrawWireSphere(poly[i].coordinate, 0.02f);
                 //Gizmos.DrawWireSphere(poly[i].next.coordinate, 0.02f);
@@ -45,16 +45,16 @@ namespace Habrador_Computational_Geometry
                 {
                     int jPlusOne = MathUtility.ClampListIndex(j + 1, clipPoly.Count);
 
-                    Vector2 c = clipPoly[j].coordinate;
+                    MyVector2 c = clipPoly[j].coordinate;
 
-                    Vector2 d = clipPoly[jPlusOne].coordinate;
+                    MyVector2 d = clipPoly[jPlusOne].coordinate;
 
                     //Are these lines intersecting?
                     if (Intersections.LineLine(a, b, c, d, true))
                     {
                         hasFoundIntersection = true;
 
-                        Vector2 intersectionPoint2D = Intersections.GetLineLineIntersectionPoint(a, b, c, d);
+                        MyVector2 intersectionPoint2D = Intersections.GetLineLineIntersectionPoint(a, b, c, d);
 
                         //Vector3 intersectionPoint = new Vector3(intersectionPoint2D.x, 0f, intersectionPoint2D.y);
 
@@ -180,9 +180,9 @@ namespace Habrador_Computational_Geometry
 
 
         //We may end up with several polygons, so this will split the connected list into one list per polygon
-        private static void AddPolygonToList(List<ClipVertex> verticesToAdd, List<List<Vector2>> finalPoly, bool shouldReverse)
+        private static void AddPolygonToList(List<ClipVertex> verticesToAdd, List<List<MyVector2>> finalPoly, bool shouldReverse)
         {
-            List<Vector2> thisPolyList = new List<Vector2>();
+            List<MyVector2> thisPolyList = new List<MyVector2>();
 
             finalPoly.Add(thisPolyList);
 
@@ -202,7 +202,7 @@ namespace Habrador_Computational_Geometry
                         thisPolyList.Reverse();
                     }
 
-                    thisPolyList = new List<Vector2>();
+                    thisPolyList = new List<MyVector2>();
 
                     finalPoly.Add(thisPolyList);
 
@@ -419,7 +419,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Is a polygon One inside polygon Two?
-        private static bool IsPolygonInsidePolygon(List<Vector2> polyOne, List<Vector2> polyTwo)
+        private static bool IsPolygonInsidePolygon(List<MyVector2> polyOne, List<MyVector2> polyTwo)
         {
             bool isInside = false;
 
@@ -484,7 +484,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Create the data structure needed
-        private static List<ClipVertex> InitDataStructure(List<Vector2> polyVector)
+        private static List<ClipVertex> InitDataStructure(List<MyVector2> polyVector)
         {
             List<ClipVertex> poly = new List<ClipVertex>();
 
@@ -509,12 +509,12 @@ namespace Habrador_Computational_Geometry
 
 
         //Insert intersection vertex
-        private static ClipVertex InsertIntersectionVertex(Vector2 a, Vector2 b, Vector2 intersectionPoint, ClipVertex currentVertex)
+        private static ClipVertex InsertIntersectionVertex(MyVector2 a, MyVector2 b, MyVector2 intersectionPoint, ClipVertex currentVertex)
         {
             //Calculate alpha which is how far the intersection coordinate is between a and b
             //so we can insert this vertex at the correct position
             //pos = start + dir * alpha
-            float alpha = (a - intersectionPoint).sqrMagnitude / (a - b).sqrMagnitude;
+            float alpha = MyVector2.SqrMagnitude(a - intersectionPoint) / MyVector2.SqrMagnitude(a - b);
 
             //Debug.Log(alpha);
 
@@ -565,7 +565,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Mark entry exit points
-        private static void MarkEntryExit(List<ClipVertex> poly, List<Vector2> clipPolyVector)
+        private static void MarkEntryExit(List<ClipVertex> poly, List<MyVector2> clipPolyVector)
         {
             //First see if the first vertex starts inside or outside (we can use the original list)
             bool isInside = Intersections.PointPolygon(clipPolyVector, poly[0].coordinate);
@@ -716,7 +716,7 @@ namespace Habrador_Computational_Geometry
     //Should maybe extend from Vertex class?
     public class ClipVertex
     {
-        public Vector2 coordinate;
+        public MyVector2 coordinate;
 
         //Next and previous vertex in the chain that will form a polygon if we walk around it
         public ClipVertex next;
@@ -741,7 +741,7 @@ namespace Habrador_Computational_Geometry
         //when we create the final polygon
         public bool isTakenByFinalPolygon;
 
-        public ClipVertex(Vector2 coordinate)
+        public ClipVertex(MyVector2 coordinate)
         {
             this.coordinate = coordinate;
         }

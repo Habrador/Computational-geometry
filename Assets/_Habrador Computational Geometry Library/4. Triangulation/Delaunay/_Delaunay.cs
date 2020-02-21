@@ -14,7 +14,7 @@ namespace Habrador_Computational_Geometry
         //Alternative 1. Triangulate with some algorithm - then flip edges until we have a delaunay triangulation
         //Is actually not simple beacuse it requires a convex hull algorithm, and a triangulate-points-algorithm
         //so it depends on other algorithms
-        public static HalfEdgeData TriangulateByFlippingEdges(HashSet<Vector3> points, HalfEdgeData triangleData)
+        public static HalfEdgeData2 TriangulateByFlippingEdges(HashSet<MyVector2> points, HalfEdgeData2 triangleData)
         {
             triangleData = DelaunayFlipEdges.GenerateTriangulation(points, triangleData);
 
@@ -24,7 +24,7 @@ namespace Habrador_Computational_Geometry
 
         //Alternative 2. Start with one triangle covering all points - then insert the points one-by-one while flipping edges
         //Requires just this algorithm and is not dependent on other algorithms
-        public static HalfEdgeData TriangulatePointByPoint(HashSet<Vector3> points, HalfEdgeData triangleData)
+        public static HalfEdgeData2 TriangulatePointByPoint(HashSet<MyVector2> points, HalfEdgeData2 triangleData)
         {
             //From the report "A fast algorithm for constructing Delaunay triangulations in the plane" by Sloan
             triangleData = DelaunayIncrementalSloan.GenerateTriangulation(points, triangleData);
@@ -42,7 +42,7 @@ namespace Habrador_Computational_Geometry
         //Start with a delaunay triangulation of all points, including the constraints
         //Then flip edges to make sure the constrains are in the triangulation
         //Then remove the unwanted triangles within the constraints if we want to
-        public static HalfEdgeData ConstrainedTriangulationWithSloan(HashSet<Vector3> sites, List<Vector3> obstacles, bool shouldRemoveTriangles, HalfEdgeData triangleData)
+        public static HalfEdgeData2 ConstrainedTriangulationWithSloan(HashSet<MyVector2> sites, List<MyVector2> obstacles, bool shouldRemoveTriangles, HalfEdgeData2 triangleData)
         {
             ConstrainedDelaunaySloan.GenerateTriangulation(sites, obstacles, shouldRemoveTriangles, triangleData);
 
@@ -52,34 +52,13 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Dynamic Constrained Delaunay
-        //
-
-        //Add constraints
-        public static HalfEdgeData AddConstraintToConstrainedDelaunay(HalfEdgeData triangleData, Edge constraintToAdd, List<Edge> allConstraints)
-        {        
-            triangleData = DynamicConstrainedDelaunay.AddConstraint(triangleData, constraintToAdd, allConstraints);
-
-            return triangleData;
-        }
-
-        //Remove constraints
-        public static HalfEdgeData RemoveConstraintFromConstrainedDelaunay(HalfEdgeData triangleData, Edge constraintToRemove, List<Edge> allConstraints)
-        {
-            triangleData = DynamicConstrainedDelaunay.AddConstraint(triangleData, constraintToRemove, allConstraints);
-
-            return triangleData;
-        }
-
-
-        //
         // Methods for all algorithms
         //
 
         //Test if we should flip an edge
         //a, b, c belongs to t1 and d is the point on the other triangle
         //a-c is the edge, which is important so we can flip it, by making the edge b-d
-        public static bool ShouldFlipEdge(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
+        public static bool ShouldFlipEdge(MyVector2 a, MyVector2 b, MyVector2 c, MyVector2 d)
         {
             bool shouldFlipEdge = false;
 
@@ -115,7 +94,7 @@ namespace Habrador_Computational_Geometry
         //v1, v2 should belong to the edge we ant to flip
         //v1, v2, v3 are counter-clockwise
         //Is this also checking if the edge can be swapped
-        public static bool ShouldFlipEdgeStable(Vector2 v1, Vector2 v2, Vector2 v3, Vector2 vp)
+        public static bool ShouldFlipEdgeStable(MyVector2 v1, MyVector2 v2, MyVector2 v3, MyVector2 vp)
         {
             float x_13 = v1.x - v3.x;
             float x_23 = v2.x - v3.x;
@@ -154,15 +133,15 @@ namespace Habrador_Computational_Geometry
         //Create a supertriangle that contains all other points
         //According to the book "Geometric tools for computer graphics" a reasonably sized triangle
         //is one that contains a circle that contains the axis-aligned bounding rectangle of the points 
-        public static Triangle GetSupertriangle(HashSet<Vector3> points)
+        public static Triangle2 GetSupertriangle(HashSet<MyVector2> points)
         {
             //Step 1. Create a AABB around the points
             float maxX = float.MinValue;
             float minX = float.MaxValue;
-            float maxZ = float.MinValue;
-            float minZ = float.MaxValue;
+            float maxY = float.MinValue;
+            float minY = float.MaxValue;
 
-            foreach (Vector3 pos in points)
+            foreach (MyVector2 pos in points)
             {
                 if (pos.x > maxX)
                 {
@@ -173,20 +152,19 @@ namespace Habrador_Computational_Geometry
                     minX = pos.x;
                 }
 
-                if (pos.z > maxZ)
+                if (pos.y > maxY)
                 {
-                    maxZ = pos.z;
+                    maxY = pos.y;
                 }
-                else if (pos.z < minZ)
+                else if (pos.y < minY)
                 {
-                    minZ = pos.z;
+                    minY = pos.y;
                 }
             }
 
-            Vector3 TL = new Vector3(minX, 0f, maxZ);
-            Vector3 TR = new Vector3(maxX, 0f, maxZ);
-            //Vector3 BL = new Vector3(minX, 0f, minZ);
-            Vector3 BR = new Vector3(maxX, 0f, minZ);
+            MyVector2 TL = new MyVector2(minX, maxY);
+            MyVector2 TR = new MyVector2(maxX, maxY);
+            MyVector2 BR = new MyVector2(maxX, minY);
 
             //Debug AABB
             //Gizmos.DrawLine(TL, TR);
@@ -197,9 +175,9 @@ namespace Habrador_Computational_Geometry
 
 
             //Step2. Find the inscribed circle - the smallest circle that surrounds the AABB
-            Vector3 circleCenter = (TL + BR) * 0.5f;
+            MyVector2 circleCenter = (TL + BR) * 0.5f;
 
-            float circleRadius = (circleCenter - TR).magnitude;
+            float circleRadius = MyVector2.Magnitude(circleCenter - TR);
 
             //Debug circle
             //Gizmos.DrawWireSphere(circleCenter, circleRadius);
@@ -211,22 +189,22 @@ namespace Habrador_Computational_Geometry
             float halfSideLenghth = circleRadius / Mathf.Tan(30f * Mathf.Deg2Rad);
 
             //The center position of the bottom-edge
-            Vector3 tri_B = new Vector3(circleCenter.x, 0f, circleCenter.z - circleRadius);
+            MyVector2 tri_B = new MyVector2(circleCenter.x, circleCenter.y - circleRadius);
 
-            Vector3 tri_BL = new Vector3(tri_B.x - halfSideLenghth, 0f, tri_B.z);
-            Vector3 tri_BR = new Vector3(tri_B.x + halfSideLenghth, 0f, tri_B.z);
+            MyVector2 tri_BL = new MyVector2(tri_B.x - halfSideLenghth, tri_B.y);
+            MyVector2 tri_BR = new MyVector2(tri_B.x + halfSideLenghth, tri_B.y);
 
             //The height from the bottom edge to the top vertex
             float triangleHeight = halfSideLenghth * Mathf.Tan(60f * Mathf.Deg2Rad);
 
-            Vector3 tri_T = new Vector3(circleCenter.x, 0f, tri_B.z + triangleHeight);
+            MyVector2 tri_T = new MyVector2(circleCenter.x, tri_B.y + triangleHeight);
 
             //Debug
             //Gizmos.DrawLine(tri_BL, tri_BR);
             //Gizmos.DrawLine(tri_BL, tri_T);
             //Gizmos.DrawLine(tri_BR, tri_T);
 
-            Triangle superTriangle = new Triangle(tri_BR, tri_BL, tri_T);
+            Triangle2 superTriangle = new Triangle2(tri_BR, tri_BL, tri_T);
 
             return superTriangle;
         }

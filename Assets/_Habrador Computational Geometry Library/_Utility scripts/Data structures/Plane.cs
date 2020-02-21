@@ -4,14 +4,15 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
-    public class Plane
+    //3D
+    public class Plane3
     {
-        public Vector3 pos;
+        public MyVector3 pos;
 
-        public Vector3 normal;
+        public MyVector3 normal;
 
 
-        public Plane(Vector3 pos, Vector3 normal)
+        public Plane3(MyVector3 pos, MyVector3 normal)
         {
             this.pos = pos;
 
@@ -21,14 +22,15 @@ namespace Habrador_Computational_Geometry
 
 
 
-    public class Plane2D
+    //2D
+    public class Plane2
     {
-        public Vector2 pos;
+        public MyVector2 pos;
 
-        public Vector2 normal;
+        public MyVector2 normal;
 
 
-        public Plane2D(Vector2 pos, Vector2 normal)
+        public Plane2(MyVector2 pos, MyVector2 normal)
         {
             this.pos = pos;
 

@@ -7,20 +7,20 @@ namespace Habrador_Computational_Geometry
     public static class TriangulateConvexHull
     {
         //If you have points on a convex hull, sorted one after each other
-        public static HashSet<Triangle> GetTriangles(List<Vector3> points)
+        public static HashSet<Triangle2> GetTriangles(List<MyVector2> points)
         {    
-            //Triangulate the convex hull
-            HashSet<Triangle> triangles = new HashSet<Triangle>();
+            HashSet<Triangle2> triangles = new HashSet<Triangle2>();
 
-            //This vertex is always a part of each triangler
-            Vector3 a = points[0];
+            //This vertex is always a part of each triangle
+            MyVector2 a = points[0];
 
+            //And then we just loop through the other edges to make all triangles
             for (int i = 2; i < points.Count; i++)
             {
-                Vector3 b = points[i];
-                Vector3 c = points[i - 1];
+                MyVector2 b = points[i];
+                MyVector2 c = points[i - 1];
 
-                triangles.Add(new Triangle(a, b, c));
+                triangles.Add(new Triangle2(a, b, c));
             }
 
             return triangles;

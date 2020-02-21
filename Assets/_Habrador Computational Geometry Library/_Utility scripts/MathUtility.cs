@@ -65,12 +65,12 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Round a value to nearest int value determined by roundValue
-        //So if roundValue is 5, we round 11 to 10 because we want to go in steps of 5
+        //Round a value to nearest int value determined by stepValue
+        //So if stepValue is 5, we round 11 to 10 because we want to go in steps of 5
         //such as 0, 5, 10, 15
-        public static int RoundValue(float value, float roundValue)
+        public static int RoundValue(float value, float stepValue)
         {
-            int roundedValue = (int)(Mathf.Round(value / roundValue) * roundValue);
+            int roundedValue = (int)(Mathf.Round(value / stepValue) * stepValue);
 
             return roundedValue;
         }
