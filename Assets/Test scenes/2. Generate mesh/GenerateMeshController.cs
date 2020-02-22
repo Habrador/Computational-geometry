@@ -11,14 +11,29 @@ public class GenerateMeshController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Mesh grid = GenerateMesh.GenerateGrid(width, cells);
+        HashSet<Triangle2> grid = GenerateMesh.GenerateGrid(width, cells);
 
         if (grid != null)
         {
             //But this will not display each triangle, so we don't know if the mesh is correct
             //Gizmos.DrawMesh(grid, Vector3.zero, Quaternion.identity);
 
-            DebugResults.DisplayMesh(grid, 0);
+            //Convert the triangles to a mesh
+
+            //2d to 3d
+            HashSet<Triangle3> grid_3d = new HashSet<Triangle3>();
+
+            foreach (Triangle2 t in grid)
+            {
+                Triangle3 t_3d = new Triangle3(t.p1.ToMyVector3(), t.p2.ToMyVector3(), t.p3.ToMyVector3());
+
+                grid_3d.Add(t_3d);
+            }
+
+            //Triangle to mesh
+            Mesh meshGrid = TransformBetweenDataStructures.Triangle3ToCompressedMesh(grid_3d);                     
+
+            DebugResults.DisplayMesh(meshGrid, 0);
         }
     }
 }

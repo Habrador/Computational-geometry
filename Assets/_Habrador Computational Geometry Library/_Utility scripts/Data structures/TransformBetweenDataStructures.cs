@@ -10,7 +10,7 @@ namespace Habrador_Computational_Geometry
         //
         // From triangle to half-edge
         //
-        public static HalfEdgeData2 TransformFromTriangleToHalfEdge(HashSet<Triangle2> triangles, HalfEdgeData2 data)
+        public static HalfEdgeData2 Triangle2ToHalfEdge2(HashSet<Triangle2> triangles, HalfEdgeData2 data)
         {
             //Step1. Make sure the triangles have the same orientation, which is clockwise
             HelpMethods.OrientTrianglesClockwise(triangles);
@@ -101,7 +101,7 @@ namespace Habrador_Computational_Geometry
         //
         // From half-edge to triangle if we know the half-edge consists of triangles
         //
-        public static HashSet<Triangle2> TransformFromHalfEdgeToTriangle(HalfEdgeData2 data)
+        public static HashSet<Triangle2> HalfEdge2ToTriangle2(HalfEdgeData2 data)
         {
             if (data == null)
             {
@@ -130,7 +130,7 @@ namespace Habrador_Computational_Geometry
         // From mesh to triangle
         //
         //The vertices and triangles are the same as in Unitys built-in Mesh, but in 2d space
-        public static HashSet<Triangle2> ConvertFromMeshToTriangle2D(Vector2[] meshVertices, int[] meshTriangles)
+        public static HashSet<Triangle2> MeshToTriangle2(Vector2[] meshVertices, int[] meshTriangles)
         {
             HashSet<Triangle2> triangles = new HashSet<Triangle2>();
 
@@ -156,7 +156,7 @@ namespace Habrador_Computational_Geometry
 
         //Version 1. Check that each vertex exists only once in the final mesh
         //Make sure the triangles have the correct orientation
-        public static Mesh ConvertFromTriangleToMeshCompressed(HashSet<Triangle3> triangles)
+        public static Mesh Triangle3ToCompressedMesh(HashSet<Triangle3> triangles)
         {
             if (triangles == null)
             {
@@ -238,7 +238,7 @@ namespace Habrador_Computational_Geometry
 
         //Version 2. Don't check for duplicate vertices, which can be good if we want a low-poly style mesh
         //Make sure the triangles have the correct orientation
-        public static Mesh ConvertFromTriangleToMesh(HashSet<Triangle3> triangles)
+        public static Mesh Triangle3ToMesh(HashSet<Triangle3> triangles)
         {
             //Create the list with all vertices and triangles
             List<MyVector3> meshVertices = new List<MyVector3>();

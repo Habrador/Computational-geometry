@@ -6,12 +6,12 @@ namespace Habrador_Computational_Geometry
 {
     //Generate a square grid where each cell consists of two triangles
     //The coordinate system starts in the middle
-    public static class GridMesh
+    public static class MeshGrid
     {
         //The grid is always a square
         //witdh - the width of the entire chunk
         //cells - the number of cells in one row
-        public static Mesh GenerateGrid(float width, int cells)
+        public static HashSet<Triangle2> GenerateGrid(float width, int cells)
         {
             //We cant have a grid with 0 cells
             if (cells <= 0)
@@ -41,13 +41,13 @@ namespace Habrador_Computational_Geometry
             float halfWidth = width * 0.5f;
 
             //Generate vertices
-            List<Vector3> vertices = new List<Vector3>();
+            List<MyVector2> vertices = new List<MyVector2>();
 
             for (int i = 0; i < verticesInOneRow; i++)
             {
                 for (int j = 0; j < verticesInOneRow; j++)
                 {
-                    Vector3 vertexPos = new Vector3(-halfWidth + i * cellWidth, 0f, -halfWidth + j * cellWidth);
+                    MyVector2 vertexPos = new MyVector2(-halfWidth + i * cellWidth, -halfWidth + j * cellWidth);
 
                     vertices.Add(vertexPos);
                 }
@@ -55,7 +55,9 @@ namespace Habrador_Computational_Geometry
 
 
             //Generate triangles by using the 1d list as if it was 2d
-            List<int> triangles = new List<int>();
+            //List<int> triangles = new List<int>();
+
+            HashSet<Triangle2> triangles = new HashSet<Triangle2>();
 
             for (int i = 0; i < verticesInOneRow; i++)
             {
@@ -69,38 +71,49 @@ namespace Habrador_Computational_Geometry
                     else
                     {
                         //Four vertices
-                        int BL = ConvertArrayPos(verticesInOneRow, i - 1, j - 1);
-                        int BR = ConvertArrayPos(verticesInOneRow, i - 0, j - 1);
-                        int TL = ConvertArrayPos(verticesInOneRow, i - 1, j - 0);
-                        int TR = ConvertArrayPos(verticesInOneRow, i - 0, j - 0);
+                        int BL_pos = ConvertArrayPos(verticesInOneRow, i - 1, j - 1);
+                        int BR_pos = ConvertArrayPos(verticesInOneRow, i - 0, j - 1);
+                        int TL_pos = ConvertArrayPos(verticesInOneRow, i - 1, j - 0);
+                        int TR_pos = ConvertArrayPos(verticesInOneRow, i - 0, j - 0);
+
+                        MyVector2 BL = vertices[BL_pos];
+                        MyVector2 BR = vertices[BR_pos];
+                        MyVector2 TL = vertices[TL_pos];
+                        MyVector2 TR = vertices[TR_pos];
 
                         //Triangle 1
-                        triangles.Add(TR);
-                        triangles.Add(BL);
-                        triangles.Add(TL);
+                        //triangles.Add(TR);
+                        //triangles.Add(BL);
+                        //triangles.Add(TL);
 
                         //Triangle 2
-                        triangles.Add(TR);
-                        triangles.Add(BR);
-                        triangles.Add(BL);
+                        //triangles.Add(TR);
+                        //triangles.Add(BR);
+                        //triangles.Add(BL);
+
+                        Triangle2 t1 = new Triangle2(TR, BL, TL);
+                        Triangle2 t2 = new Triangle2(TR, BR, BL);
+
+                        triangles.Add(t1);
+                        triangles.Add(t2);
                     }
                 }
             }
 
 
             //Generate the mesh
-            Mesh mesh = new Mesh();
+            //Mesh mesh = new Mesh();
 
-            mesh.name = "Grid";
+            //mesh.name = "Grid";
 
-            mesh.vertices = vertices.ToArray();
-            mesh.triangles = triangles.ToArray();
+            //mesh.vertices = vertices.ToArray();
+            //mesh.triangles = triangles.ToArray();
 
-            mesh.RecalculateBounds();
-            mesh.RecalculateNormals();
+            //mesh.RecalculateBounds();
+            //mesh.RecalculateNormals();
 
 
-            return mesh;
+            return triangles;
         }
 
 

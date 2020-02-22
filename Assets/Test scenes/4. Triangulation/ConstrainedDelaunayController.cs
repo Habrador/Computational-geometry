@@ -56,7 +56,7 @@ public class ConstrainedDelaunayController : MonoBehaviour
         HalfEdgeData2 triangleData = _Delaunay.ConstrainedTriangulationWithSloan(randomPoints_2d, obstacle_2d, true, new HalfEdgeData2());
 
         //From half-edge to triangle
-        HashSet<Triangle2> triangles_2d = TransformBetweenDataStructures.TransformFromHalfEdgeToTriangle(triangleData);
+        HashSet<Triangle2> triangles_2d = TransformBetweenDataStructures.HalfEdge2ToTriangle2(triangleData);
 
         //From triangulation to mesh
         
@@ -71,7 +71,7 @@ public class ConstrainedDelaunayController : MonoBehaviour
             triangles_3d.Add(new Triangle3(t.p1.ToMyVector3(), t.p2.ToMyVector3(), t.p3.ToMyVector3()));
         }
 
-        triangulatedMesh = TransformBetweenDataStructures.ConvertFromTriangleToMeshCompressed(triangles_3d);
+        triangulatedMesh = TransformBetweenDataStructures.Triangle3ToCompressedMesh(triangles_3d);
     }
 
 

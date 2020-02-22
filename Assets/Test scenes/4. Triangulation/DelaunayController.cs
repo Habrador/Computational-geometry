@@ -56,7 +56,7 @@ public class DelaunayController : MonoBehaviour
 
 
         //From half-edge to triangle
-        HashSet<Triangle2> triangles_2d = TransformBetweenDataStructures.TransformFromHalfEdgeToTriangle(triangleData);
+        HashSet<Triangle2> triangles_2d = TransformBetweenDataStructures.HalfEdge2ToTriangle2(triangleData);
 
         //Convert to mesh
 
@@ -71,7 +71,7 @@ public class DelaunayController : MonoBehaviour
             triangulation_3d.Add(new Triangle3(t.p1.ToMyVector3(), t.p2.ToMyVector3(), t.p3.ToMyVector3()));
         }
 
-        triangulatedMesh = TransformBetweenDataStructures.ConvertFromTriangleToMeshCompressed(triangulation_3d);
+        triangulatedMesh = TransformBetweenDataStructures.Triangle3ToCompressedMesh(triangulation_3d);
     }
 
 

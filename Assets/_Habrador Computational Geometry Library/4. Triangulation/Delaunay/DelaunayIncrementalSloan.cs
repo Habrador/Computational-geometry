@@ -63,7 +63,7 @@ namespace Habrador_Computational_Geometry
 
             triangles.Add(superTriangle);
 
-            TransformBetweenDataStructures.TransformFromTriangleToHalfEdge(triangles, triangulationData);
+            TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangulationData);
 
             
 
