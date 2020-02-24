@@ -58,15 +58,15 @@ namespace Habrador_Computational_Geometry
                         continue;
                     }
 
-                    //The positions in 2d space of the vertices belonging to the two triangles that we might flip
+                    //The positions of the vertices belonging to the two triangles that we might flip
                     //a-c should be the edge that we might flip
-                    MyVector2 aPos = thisEdge.v.position;
-                    MyVector2 bPos = thisEdge.nextEdge.v.position;
-                    MyVector2 cPos = thisEdge.nextEdge.nextEdge.v.position;
-                    MyVector2 dPos = thisEdge.oppositeEdge.nextEdge.v.position;
+                    MyVector2 a = thisEdge.v.position;
+                    MyVector2 b = thisEdge.nextEdge.v.position;
+                    MyVector2 c = thisEdge.nextEdge.nextEdge.v.position;
+                    MyVector2 d = thisEdge.oppositeEdge.nextEdge.v.position;
 
                     //Test if we should flip this edge
-                    if (_Delaunay.ShouldFlipEdge(aPos, bPos, cPos, dPos))
+                    if (DelaunayMethods.ShouldFlipEdge(a, b, c, d))
                     {
                         flippedEdges += 1;
 

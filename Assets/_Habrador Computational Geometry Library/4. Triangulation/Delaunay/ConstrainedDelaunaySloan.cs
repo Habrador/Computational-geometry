@@ -20,7 +20,7 @@ namespace Habrador_Computational_Geometry
 
             //Generate the Delaunay with some algorithm
             //HalfEdgeData triangleData = _Delaunay.TriangulateByFlippingEdges(points);
-            _Delaunay.TriangulatePointByPoint(points, triangleData);
+            _Delaunay.PointByPoint(points, triangleData);
             
             //Modify the triangulation by adding the constraints to the delaunay triangulation
             if (constraints != null)
@@ -197,7 +197,7 @@ namespace Habrador_Computational_Geometry
 
                     //Test if we should flip this edge
                     //if (_Delaunay.ShouldFlipEdge(v_k.XZ(), v_third_pos.XZ(), v_l.XZ(), v_opposite_pos.XZ()))
-                    if (_Delaunay.ShouldFlipEdge(v_l, v_k, v_third_pos, v_opposite_pos))
+                    if (DelaunayMethods.ShouldFlipEdge(v_l, v_k, v_third_pos, v_opposite_pos))
                     {
                         //Flip the edge
                         hasFlippedEdge = true;
@@ -232,6 +232,11 @@ namespace Habrador_Computational_Geometry
 
 
             HashSet<HalfEdgeFace2> trianglesToBeDeleted = FindTrianglesWithinConstraint(triangleData, constraints);
+
+            //if (trianglesToBeDeleted == null)
+            //{
+            //    return;
+            //}
 
             //Delete the triangles
             foreach (HalfEdgeFace2 t in trianglesToBeDeleted)

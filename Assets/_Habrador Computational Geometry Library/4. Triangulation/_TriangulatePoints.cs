@@ -23,7 +23,7 @@ namespace Habrador_Computational_Geometry
 
         //Sort the points along one axis. The first 3 points form a triangle. Consider the next point and connect it with all
         //previously connected points which are visible to the point. An edge is visible if the center of the edge is visible to the point
-        public static List<Triangle2> IncrementalTriangulation(List<MyVector2> points)
+        public static HashSet<Triangle2> IncrementalTriangulation(HashSet<MyVector2> points)
         {
             return IncrementalTriangulationAlgorithm.TriangulatePoints(points);
         }
@@ -35,7 +35,9 @@ namespace Habrador_Computational_Geometry
         //
 
         //Triangulate a convex hull
-        public static HashSet<Triangle2> TriangulateConvexHullAlgorithm(List<MyVector2> pointsOnConvexHull)
+        //Input should always be a list with the points on the convex hull sorted in clockwise or counter-clockwise order
+        //or the algorithm will not work
+        public static HashSet<Triangle2> PointsOnConvexHull(List<MyVector2> pointsOnConvexHull)
         {
             HashSet<Triangle2> triangles = TriangulateConvexHull.GetTriangles(pointsOnConvexHull);
 

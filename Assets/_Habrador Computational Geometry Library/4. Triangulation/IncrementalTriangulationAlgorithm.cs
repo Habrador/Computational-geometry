@@ -10,12 +10,14 @@ namespace Habrador_Computational_Geometry
     //We assume an edge is visible if the center of the edge is visible to the point.
     public static class IncrementalTriangulationAlgorithm
     {
-        public static List<Triangle2> TriangulatePoints(List<MyVector2> points)
+        public static HashSet<Triangle2> TriangulatePoints(HashSet<MyVector2> pointsHashset)
         {
-            List<Triangle2> triangles = new List<Triangle2>();
+            HashSet<Triangle2> triangles = new HashSet<Triangle2>();
 
             //Sort the points along x-axis
             //OrderBy is always soring in ascending order - use OrderByDescending to get in the other order
+            List<MyVector2> points = new List<MyVector2>(pointsHashset);
+
             points = points.OrderBy(n => n.x).ToList();
 
             //The first 3 vertices are always forming a triangle

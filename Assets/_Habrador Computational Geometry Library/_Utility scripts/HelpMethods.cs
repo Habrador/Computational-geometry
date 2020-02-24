@@ -8,15 +8,29 @@ namespace Habrador_Computational_Geometry
     public static class HelpMethods
     {
         //Orient triangles so they have the correct orientation
-        public static void OrientTrianglesClockwise(HashSet<Triangle2> triangles)
+        public static HashSet<Triangle2> OrientTrianglesClockwise(HashSet<Triangle2> triangles)
         {
-            foreach (Triangle2 t in triangles)
+            //Convert to list or we will no be able to update the orientation
+            List<Triangle2> trianglesList = new List<Triangle2>(triangles);
+
+            for (int i = 0; i < trianglesList.Count; i++)
             {
+                Triangle2 t = trianglesList[i];
+
                 if (!Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3))
                 {
                     t.ChangeOrientation();
+
+                    trianglesList[i] = t;
+
+                    //Debug.Log("Changed orientation");
                 }
             }
+
+            //Back to hashset
+            triangles = new HashSet<Triangle2>(trianglesList);
+
+            return triangles;
         }
 
 

@@ -112,53 +112,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &223633500
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 223633501}
-  - component: {fileID: 223633502}
-  m_Layer: 0
-  m_Name: _Delaunay Controller
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &223633501
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 223633500}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &223633502
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 223633500}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9576d3360a8de014eb0b236f4b3fce47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  seed: 0
-  halfMapSize: 10
-  numberOfPoints: 200
-  displayVertices: 0
 --- !u!1 &739290443
 GameObject:
   m_ObjectHideFlags: 0
@@ -226,7 +179,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &1171182120
 GameObject:
@@ -239,7 +192,7 @@ GameObject:
   - component: {fileID: 1171182122}
   - component: {fileID: 1171182121}
   m_Layer: 0
-  m_Name: _Constrained Delaunay Controller
+  m_Name: _Delaunay Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -257,15 +210,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a4c3d3ae8eb4be4faaf7930274f6613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 0
+  seed: 10
   halfMapSize: 10
-  numberOfPoints: 100
+  numberOfPoints: 47
   obstacle:
-  - {x: 0.62400174, y: 0, z: 3.415578}
-  - {x: 2.5677927, y: 0, z: -2.1534097}
-  - {x: -2.4571528, y: 0, z: -4.4321065}
-  - {x: -6.137087, y: 0, z: 2.6461792}
-  - {x: -3.4392295, y: 0, z: 6.199169}
+  - {x: 1.8606043, y: 0, z: 3.7334368}
+  - {x: 0.5521774, y: 0, z: 0.5322433}
+  - {x: -2.3269491, y: 0, z: -2.8268971}
+  - {x: -5.399268, y: 0, z: 1.5181946}
+  - {x: -2.3542032, y: 0, z: 5.331489}
 --- !u!4 &1171182122
 Transform:
   m_ObjectHideFlags: 0

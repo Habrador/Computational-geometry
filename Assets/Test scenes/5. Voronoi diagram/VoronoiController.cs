@@ -58,7 +58,7 @@ public class VoronoiController : MonoBehaviour
             randomSites_2d.Add(v.ToMyVector2());
         }
 
-        HalfEdgeData2 triangleData = _Delaunay.TriangulateByFlippingEdges(randomSites_2d, new HalfEdgeData2());
+        HalfEdgeData2 triangleData = _Delaunay.ByFlippingEdges(randomSites_2d, new HalfEdgeData2());
 
         //From halfedge to triangle
         //HashSet<Triangle> triangles = TransformBetweenDataStructures.TransformFromHalfEdgeToTriangle(triangleData);
@@ -81,7 +81,7 @@ public class VoronoiController : MonoBehaviour
         DisplayVoronoiCells(cells);
 
         //Display the sites
-        DebugResultsHelper.DisplayPoints(randomSites, 0.1f, Color.black);
+        DisplayResultsHelper.DisplayPoints(randomSites, 0.1f, Color.black);
 
         //Display the delaunay triangles
         //DisplayDelaunay(delaunayMesh);

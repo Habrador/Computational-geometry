@@ -10,7 +10,7 @@ namespace Habrador_Computational_Geometry
         public static List<VoronoiCell2> GenerateVoronoiDiagram(HashSet<MyVector2> sites)
         {
             //First generate the delaunay triangulation
-            HalfEdgeData2 data = _Delaunay.TriangulateByFlippingEdges(sites, new HalfEdgeData2());
+            HalfEdgeData2 data = _Delaunay.ByFlippingEdges(sites, new HalfEdgeData2());
 
 
             //Generate the voronoi diagram

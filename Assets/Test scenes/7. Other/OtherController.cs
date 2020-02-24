@@ -21,7 +21,7 @@ public class OtherController : MonoBehaviour
 
         //PointInRelationToVector(a, b, c);
 
-        //IsTriangleOrientedClockwise(a, b, c);
+        IsTriangleOrientedClockwise(a, b, c);
 
         //IsQuadrilateralConvex(a, b, c, d);
 
@@ -29,7 +29,7 @@ public class OtherController : MonoBehaviour
 
         //IsPointBetweenPoints(a, b, c);
 
-        ClosestPointOnLineSegment(a, b, c);
+        //ClosestPointOnLineSegment(a, b, c);
     }
 
 
@@ -121,9 +121,18 @@ public class OtherController : MonoBehaviour
     //Is a triangle oriented clockwise
     private void IsTriangleOrientedClockwise(MyVector2 a, MyVector2 b, MyVector2 c)
     {
-        bool isOrientedClockwise = Geometry.IsTriangleOrientedClockwise(a, b, c);
+        Triangle2 t = new Triangle2(a, b, c);
+
+        bool isOrientedClockwise = Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3);
 
         Debug.Log("Is oriented clockwise: " + isOrientedClockwise);
+
+        //We can also test if changing orientation is working
+        t.ChangeOrientation();
+
+        bool isOrientedClockwiseAfterRotation = Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3);
+
+        Debug.Log("Is oriented clockwise after changing orientation: " + isOrientedClockwiseAfterRotation);
 
 
         //Display the triangle
@@ -136,9 +145,9 @@ public class OtherController : MonoBehaviour
         //Arrows showing the direction of the triangle
         float arrowSize = 0.1f;
 
-        DebugResultsHelper.DrawArrow(a.ToVector3(), b.ToVector3(), arrowSize, Color.white);
-        DebugResultsHelper.DrawArrow(b.ToVector3(), c.ToVector3(), arrowSize, Color.white);
-        DebugResultsHelper.DrawArrow(c.ToVector3(), a.ToVector3(), arrowSize, Color.white);
+        DisplayResultsHelper.DrawArrow(a.ToVector3(), b.ToVector3(), arrowSize, Color.white);
+        DisplayResultsHelper.DrawArrow(b.ToVector3(), c.ToVector3(), arrowSize, Color.white);
+        DisplayResultsHelper.DrawArrow(c.ToVector3(), a.ToVector3(), arrowSize, Color.white);
     }
 
 
@@ -164,7 +173,7 @@ public class OtherController : MonoBehaviour
 
         float arrowSize = 0.1f;
 
-        DebugResultsHelper.DrawArrow(a_3d, b_3d, arrowSize, Color.white);
+        DisplayResultsHelper.DrawArrow(a_3d, b_3d, arrowSize, Color.white);
 
         Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
     }

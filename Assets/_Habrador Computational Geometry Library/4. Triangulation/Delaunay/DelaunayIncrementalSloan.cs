@@ -163,7 +163,7 @@ namespace Habrador_Computational_Geometry
                 
 
                 //abc are here counter-clockwise
-                if (_Delaunay.ShouldFlipEdgeStable(a, b, c, p))
+                if (DelaunayMethods.ShouldFlipEdgeStable(a, b, c, p))
                 {
                     HalfEdgeHelpMethods.FlipTriangleEdge(edgeToTest);
 
@@ -185,23 +185,26 @@ namespace Habrador_Computational_Geometry
             HalfEdgeFace2 intersectingTriangle = null;
 
             //Alternative 1. Search through all triangles and use point-in-triangle
-            //foreach (HalfEdgeFace f in triangulationData.faces)
-            //{
-            //    //The corners of this triangle
-            //    Vector3 v1 = f.edge.v.position;
-            //    Vector3 v2 = f.edge.nextEdge.v.position;
-            //    Vector3 v3 = f.edge.nextEdge.nextEdge.v.position;
+            /*
+            foreach (HalfEdgeFace2 f in triangulationData.faces)
+            {
+                //The corners of this triangle
+                MyVector2 v1 = f.edge.v.position;
+                MyVector2 v2 = f.edge.nextEdge.v.position;
+                MyVector2 v3 = f.edge.nextEdge.nextEdge.v.position;
 
-            //    //Is the point in this triangle?
-            //    if (Intersections.IsPointInTriangle(v1.XZ(), v2.XZ(), v3.XZ(), p.XZ(), true))
-            //    {
-            //        intersectingTriangle = f;
+                Triangle2 t = new Triangle2(v1, v2, v3);
 
-            //        break;
-            //    }
-            //}
+                //Is the point in this triangle?
+                if (Intersections.PointTriangle(t, p, true))
+                {
+                    intersectingTriangle = f;
 
-
+                    break;
+                }
+            }
+            */
+            
             //Alternative 2. Use a triangulation walk
             //Start at the triangle which was most recently created - this is why we should group the points into bins
             HalfEdgeFace2 currentTriangle = null;
@@ -290,6 +293,7 @@ namespace Habrador_Computational_Geometry
                 }
 
             }
+            
 
             return intersectingTriangle;
         }

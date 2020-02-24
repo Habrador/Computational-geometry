@@ -19,7 +19,7 @@ public class TriangulatePointsController : MonoBehaviour
     public void TriangulateThePoints()
     {
         //
-        //Generate the random points
+        // Generate the random points
         //
         HashSet<Vector3> points = new HashSet<Vector3>();
 
@@ -40,10 +40,6 @@ public class TriangulatePointsController : MonoBehaviour
         //Copy the list so we can display the original points because the algorithms might modify the list with points
         originalPoints = new HashSet<Vector3>(points);
 
-
-
-        //Triangulate
-
         //3d to 2d
         HashSet<MyVector2> points_2d = new HashSet<MyVector2>();
 
@@ -52,39 +48,30 @@ public class TriangulatePointsController : MonoBehaviour
             points_2d.Add(v.ToMyVector2());
         }
 
-        //List<Triangle> triangles = null;
+
+        //
+        // Triangulate the points
+        //
+
+        //Method 1 - sort the points and then add triangles by checking which edge is visible to that point
+        //HashSet<Triangle2> triangles_2d = _TriangulatePoints.IncrementalTriangulation(points_2d);
+
+        //Method 2 - triangulate the convex polygon, then add the rest of the points one-by-one
+        //The old triangle the point ends up in is split into tree new triangles
+        //HashSet<Triangle2> triangles_2d = _TriangulatePoints.TriangleSplitting(points_2d);
+
+        //Method 3 - triangulate the convex hull of the points
+        //This means that we first need to find the points on the convex hull
+        List<MyVector2> pointsOnHull = _ConvexHull.JarvisMarch(points_2d); 
+
+        HashSet<Triangle2> triangles_2d = _TriangulatePoints.PointsOnConvexHull(pointsOnHull);
 
 
-        //Alt 1 - sort the points and then add triangles by checking which edge is visible to that point
-        //List<Triangle2> triangles_2d = _TriangulatePoints.IncrementalTriangulation(points_2d);
 
-        //Alt 2 - triangulate the convex polygon, and the add points by splitting the triangles into 3 new triangles
-        HashSet<Triangle2> triangles_2d = _TriangulatePoints.TriangleSplitting(points_2d);
-
-        //Alt 3 - triangulate the convex hull of the algorithm
-        //List<Triangle2> triangles_2d = TriangulatePointsAlgorithms.TriangulateConvexHull(points_2d);
-
-
-        //List<Vector3> hull = HullAlgorithms.JarvisMarch(points);
-
-        //Debug.Log(hull.Count);
-
-        //for (int i = 1; i < hull.Count; i++)
-        //{
-        //    Debug.DrawLine(hull[i - 1], hull[i], Color.white, 1f);
-        //}
-
-        //DebugHalfEdge(triangles);
-
-
-        //print("Triangles " + triangles.Count);
-
-
-        
         if (triangles_2d != null)
         {
             //Make sure the triangles have the correct orientation
-            HelpMethods.OrientTrianglesClockwise(triangles_2d);
+            triangles_2d = HelpMethods.OrientTrianglesClockwise(triangles_2d);
 
             //From 2d to 3d
             HashSet<Triangle3> triangles_3d = new HashSet<Triangle3>();
@@ -105,10 +92,10 @@ public class TriangulatePointsController : MonoBehaviour
         if (triangulatedMesh != null)
         {
             //Display the triangles with a random color
-            DebugResultsHelper.DisplayMesh(triangulatedMesh, seed);
+            DisplayResultsHelper.DisplayMeshWithRandomColors(triangulatedMesh, seed);
 
             //Display the points
-            DebugResultsHelper.DisplayPoints(originalPoints, 0.2f, Color.black);
+            DisplayResultsHelper.DisplayPoints(originalPoints, 0.2f, Color.black);
         }
     }
 }

@@ -36,7 +36,7 @@ public class GenerateMeshController : MonoBehaviour
 
             Mesh meshGrid = TransformBetweenDataStructures.Triangle3ToMesh(grid_3d);
 
-            DebugResultsHelper.DisplayMesh(meshGrid, 0);
+            DisplayResultsHelper.DisplayMeshWithRandomColors(meshGrid, 0);
         }
     }
 }

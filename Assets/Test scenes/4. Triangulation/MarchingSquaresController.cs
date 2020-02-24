@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Habrador_Computational_Geometry;
 
+
+//Based on Procedural Cave Generation (E02. Marching Squares): https://www.youtube.com/watch?v=yOgIncKp0BE
 public class MarchingSquaresController : MonoBehaviour 
 {
     public int mapSize;
@@ -185,7 +188,7 @@ public class MarchingSquaresController : MonoBehaviour
 
             mesh.RecalculateNormals();
 
-            Gizmos.DrawMesh(mesh);
+            DisplayResultsHelper.DisplayMeshWithRandomColors(mesh, 0);
         }
     }
 }

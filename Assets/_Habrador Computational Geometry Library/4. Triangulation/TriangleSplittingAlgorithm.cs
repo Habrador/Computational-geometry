@@ -15,7 +15,7 @@ namespace Habrador_Computational_Geometry
 
 
             //Step 2. Triangulate the convex hull
-            HashSet<Triangle2> triangles = _TriangulatePoints.TriangulateConvexHullAlgorithm(pointsOnConvexHull);
+            HashSet<Triangle2> triangles = _TriangulatePoints.PointsOnConvexHull(pointsOnConvexHull);
 
 
             //Step 3. From the points we should add, remove those that are already a part of the triangulation

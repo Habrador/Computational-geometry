@@ -31,15 +31,16 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 ### 4. Triangulation
 
-* Triangulate convex polygon
-* Triangulate points with "visible edge" and "point-by-point" algorithms
+* Triangulate convex polygon CHECK
+* Triangulate points with "visible edge" algorithm CHECK
+* Triangulate points with "point-by-point" algorithm CHECK
 * Triangulate with marching squares
 
 #### 4.1 Delaunay triangulation
 
-* Delaunay triangulation - "point-by-point"
-* Delaunay triangulation - "triangulate and then flip edges"
-* Constrained delaunay triangulation
+* Delaunay triangulation - "point-by-point" CHECK
+* Delaunay triangulation - "triangulate and then flip edges" CHECK
+* Constrained delaunay triangulation CHECK
 
 
 ### 5. Voronoi diagram
