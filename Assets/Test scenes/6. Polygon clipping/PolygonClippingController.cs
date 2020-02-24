@@ -45,13 +45,13 @@ public class PolygonClippingController : MonoBehaviour
         //Clipping algortihms
         //Algortihm 1.Sutherland-Hodgman will return the intersection of the polygons
         //Requires that the clipping polygon (the polygon we want to remove from the other polygon) is convex
-        //TestSutherlandHodgman(poly, clipPoly);
+        TestSutherlandHodgman(poly, clipPoly);
 
 
 
         //Alorithm 2. Greiner-Hormann. Can do all boolean operations on all types of polygons
         //but fails when a vertex is on the other polygon's edge
-        TestGreinerHormann(poly, clipPoly);
+        //TestGreinerHormann(poly, clipPoly);
     }
 
 
@@ -68,6 +68,7 @@ public class PolygonClippingController : MonoBehaviour
             polygonAfterClipping3D.Add(v.ToVector3());
         }
 
+        //Display
         DisplayPolygon(polygonAfterClipping3D, Color.red);
     }
 
@@ -80,9 +81,13 @@ public class PolygonClippingController : MonoBehaviour
         //If you pick boolean operation: intersection you should get the same result as with the Sutherland-Hodgman
         List<List<MyVector2>> finalPolygon = GreinerHormann.ClipPolygons(poly, clipPoly, BooleanOperation.Intersection);
 
+        Debug.Log("Total polygons: " + finalPolygon.Count);
+
         for (int i = 0; i < finalPolygon.Count; i++)
         {
             List<MyVector2> thisPolygon = finalPolygon[i];
+
+            Debug.Log("Vertices in this polygon: " + thisPolygon.Count);
 
             //2d to 3d
             List<Vector3> polygonAfterClipping3D = new List<Vector3>();
@@ -90,9 +95,10 @@ public class PolygonClippingController : MonoBehaviour
             foreach (MyVector2 v in thisPolygon)
             {
                 polygonAfterClipping3D.Add(v.ToVector3());
-
-                DisplayPolygon(polygonAfterClipping3D, Color.red);
             }
+
+            //Display
+            DisplayPolygon(polygonAfterClipping3D, Color.red);
         }
     }
 

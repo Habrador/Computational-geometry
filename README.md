@@ -49,8 +49,8 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 ### 6. Polygon clipping
 
-* Greiner-Hormann	
-* Sutherland-Hodgman	
+* Greiner-Hormann CHECK
+* Sutherland-Hodgman CHECK
 
 
 ### 7. Geometry test
