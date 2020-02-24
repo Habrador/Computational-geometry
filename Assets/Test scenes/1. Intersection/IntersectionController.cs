@@ -36,9 +36,9 @@ public class IntersectionController : MonoBehaviour
 
         //RayPlane();
 
-        LinePlane();
+        //LinePlane();
 
-        //PointCircle();
+        PointCircle();
 
         //LineLine();
 
@@ -129,17 +129,17 @@ public class IntersectionController : MonoBehaviour
         Vector3 r1_center = new Vector3(t1.MinX() + (r1_size.x * 0.5f), 0f, t1.MinY() + (r1_size.z * 0.5f));
         Vector3 r2_center = new Vector3(t2.MinX() + (r2_size.x * 0.5f), 0f, t2.MinY() + (r2_size.z * 0.5f));
 
-        Gizmos.color = Color.white;
+        Gizmos.color = isIntersecting ? Color.red : Color.white;
 
         Gizmos.DrawWireCube(r1_center, r1_size);
 
-        float r = 0.01f;
+        float r = 0.1f;
 
         Gizmos.DrawWireSphere(t1_p1.ToVector3(), r);
         Gizmos.DrawWireSphere(t1_p2.ToVector3(), r);
         Gizmos.DrawWireSphere(t1_p3.ToVector3(), r);
 
-        Gizmos.color = Color.blue;
+        Gizmos.color = isIntersecting ? Color.red : Color.blue;
 
         Gizmos.DrawWireCube(r2_center, r2_size);
 
@@ -160,14 +160,26 @@ public class IntersectionController : MonoBehaviour
         MyVector2 circlePointC = t1_p3_trans.position.ToMyVector2();
 
         //Is a point in a circle determines by three other points
-        float isPointInCircle = Intersections.PointCircle(circlePointA, circlePointB, circlePointC, testPoint);
+        IntersectionCases intersectionCases = Intersections.PointCircle(circlePointA, circlePointB, circlePointC, testPoint);
 
-        print(isPointInCircle);
+        //print(isPointInCircle);
 
 
         //Display the circle
-        Gizmos.color = Color.white;
-        
+        if (intersectionCases == IntersectionCases.NoIntersection)
+        {
+            Gizmos.color = Color.white;
+        }
+        if (intersectionCases == IntersectionCases.IsInside)
+        {
+            Gizmos.color = Color.red;
+        }
+        if (intersectionCases == IntersectionCases.IsOnEdge)
+        {
+            Gizmos.color = Color.blue;
+        }
+
+
         MyVector2 centerOfCicle = Geometry.CalculateCircleCenter(circlePointA, circlePointB, circlePointC);
 
         float radius = MyVector2.Distance(centerOfCicle, circlePointA);
@@ -177,11 +189,7 @@ public class IntersectionController : MonoBehaviour
         //Display the points
         float pointRadius = 0.2f;
 
-        Gizmos.color = Color.blue;
-
         Gizmos.DrawWireSphere(pointTrans.position, pointRadius);
-
-        Gizmos.color = Color.red;
 
         Gizmos.DrawWireSphere(t1_p1_trans.position, pointRadius);
         Gizmos.DrawWireSphere(t1_p2_trans.position, pointRadius);

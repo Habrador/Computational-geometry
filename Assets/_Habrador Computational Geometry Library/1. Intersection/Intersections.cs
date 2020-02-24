@@ -4,6 +4,15 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
+    //Help enum, to make it easier to deal with three cases: intersecting inside, intersecting on edge, not intersecting 
+    //If we have two cases we can just return a bool
+    public enum IntersectionCases
+    {
+        IsInside,
+        IsOnEdge,
+        NoIntersection
+    }
+
     public static class Intersections
     {
         //
@@ -304,26 +313,31 @@ namespace Habrador_Computational_Geometry
         // Is a point intersecting with a circle?
         //
         //Is a point d inside, outside or on the same circle where a, b, c are all on the circle's edge
-        //https://gamedev.stackexchange.com/questions/71328/how-can-i-add-and-subtract-convex-polygons
-        //Returns positive if inside, negative if outside, and 0 if on the circle
-        public static float PointCircle(MyVector2 aVec, MyVector2 bVec, MyVector2 cVec, MyVector2 testPoint)
+        public static IntersectionCases PointCircle(MyVector2 a, MyVector2 b, MyVector2 c, MyVector2 testPoint)
         {
-            //This first part will simplify how we calculate the determinant
-            float a = aVec.x - testPoint.x;
-            float d = bVec.x - testPoint.x;
-            float g = cVec.x - testPoint.x;
+            //Center of circle
+            MyVector2 circleCenter = Geometry.CalculateCircleCenter(a, b, c);
 
-            float b = aVec.y - testPoint.y;
-            float e = bVec.y - testPoint.y;
-            float h = cVec.y - testPoint.y;
+            //The radius of the circle
+            float radiusSqr = MyVector2.SqrDistance(a, circleCenter);
 
-            float c = a * a + b * b;
-            float f = d * d + e * e;
-            float i = g * g + h * h;
-
-            float determinant = (a * e * i) + (b * f * g) + (c * d * h) - (g * e * c) - (h * f * a) - (i * d * b);
-
-            return determinant;
+            //The distance from the point to the circle center
+            float distPointCenterSqr = MyVector2.SqrDistance(testPoint, circleCenter);
+            
+            //Add/remove a small value becuse we will never be exactly on the edge because of floating point precision issues
+            //Mutiply epsilon by two because we are using sqr root???
+            if (distPointCenterSqr < radiusSqr - MathUtility.EPSILON * 2f)
+            {
+                return IntersectionCases.IsInside;
+            }
+            else if (distPointCenterSqr > radiusSqr + MathUtility.EPSILON * 2f)
+            {
+                return IntersectionCases.NoIntersection;
+            }
+            else
+            {
+                return IntersectionCases.IsOnEdge;
+            }
         }
 
 

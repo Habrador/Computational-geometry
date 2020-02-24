@@ -8,14 +8,14 @@ namespace Habrador_Computational_Geometry
     {
         //Calculate the center of circle in 2d space given three coordinates
         //http://paulbourke.net/geometry/circlesphere/
-        public static MyVector2 CalculateCircleCenter(MyVector2 p1, MyVector2 p2, MyVector2 p3)
+        public static MyVector2 CalculateCircleCenter(MyVector2 a, MyVector2 b, MyVector2 c)
         {
-            float ma = (p2.y - p1.y) / (p2.x - p1.x);
-            float mb = (p3.y - p2.y) / (p3.x - p2.x);
+            float ma = (b.y - a.y) / (b.x - a.x);
+            float mb = (c.y - b.y) / (c.x - b.x);
 
-            float centerX = (ma * mb * (p1.y - p3.y) + mb * (p1.x + p2.x) - ma * (p2.x + p3.x)) / (2 * (mb - ma));
+            float centerX = (ma * mb * (a.y - c.y) + mb * (a.x + b.x) - ma * (b.x + c.x)) / (2 * (mb - ma));
 
-            float centerY = (-1 / ma) * (centerX - (p1.x + p2.x) / 2) + (p1.y + p2.y) / 2;
+            float centerY = (-1f / ma) * (centerX - (a.x + b.x) / 2f) + (a.y + b.y) / 2f;
 
             MyVector2 center = new MyVector2(centerX, centerY);
 

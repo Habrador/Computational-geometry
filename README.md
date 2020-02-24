@@ -9,24 +9,24 @@ This library consists of two folders. The idea is that one is for testing purpos
 ### 1. Intersection
 
 2d-space:
-* Point-triangle				CHECK
-* Point-polygon (suffers from floating point precision issues)				CHECK
-* Triangle-triangle				CHECK
-* AABB-AABB 						CHECK
-* Line-line 						CHECK
-* Ray-plane						CHECK
-* Line-plane					CHECK
-* Point-circle 					CHECK
+* Point-triangle CHECK				
+* Point-polygon (suffers from floating point precision issues) CHECK				
+* Triangle-triangle	CHECK			
+* AABB-AABB CHECK						
+* Line-line CHECK						
+* Ray-plane CHECK						
+* Line-plane CHECK					
+* Point-circle CHECK					
 
 
 ### 2. Generate mesh
 
-* Grid mesh	CHECK
+* Grid mesh	
 
 
 ### 3. Convex Hull
 
-* Jarvis March	CHECK
+* Jarvis March	
 
 
 ### 4. Triangulation
@@ -49,8 +49,8 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 ### 6. Polygon clipping
 
-* Greiner-Hormann	CHECK
-* Sutherland-Hodgman	CHECK
+* Greiner-Hormann	
+* Sutherland-Hodgman	
 
 
 ### 7. Geometry test
@@ -80,6 +80,7 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 * The triangulation by splitting triangles, there's a small problem if a vertex ends up on the edge and is not inside the triangle
 * Voronoi point-by-point (suffers from floating point precision issues)
+* Point-polygon intersection floating point precision issues
 
 
 ## Socials

@@ -50,6 +50,13 @@ namespace Habrador_Computational_Geometry
             return magnitude;
         }
 
+        public static float SqrMagnitude(MyVector2 a)
+        {
+            float sqrMagnitude = (a.x * a.x) + (a.y * a.y);
+
+            return sqrMagnitude;
+        }
+
         public static float Distance(MyVector2 a, MyVector2 b)
         {
             float distance = Magnitude(a - b);
@@ -57,11 +64,11 @@ namespace Habrador_Computational_Geometry
             return distance;
         }
 
-        public static float SqrMagnitude(MyVector2 a)
+        public static float SqrDistance(MyVector2 a, MyVector2 b)
         {
-            float sqrMagnitude = (a.x * a.x) + (a.y * a.y);
+            float distance = SqrMagnitude(a - b);
 
-            return sqrMagnitude;
+            return distance;
         }
 
         public static MyVector2 Normalize(MyVector2 v)
