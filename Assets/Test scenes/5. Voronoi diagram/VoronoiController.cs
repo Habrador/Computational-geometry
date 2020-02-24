@@ -45,11 +45,6 @@ public class VoronoiController : MonoBehaviour
         randomSites.Add(new Vector3(bigSize, 0f, 0f));
         randomSites.Add(new Vector3(-bigSize, 0f, 0f));
 
-
-        //
-        // Generate the delaunay for comparison
-        //
-
         //3d to 2d
         HashSet<MyVector2> randomSites_2d = new HashSet<MyVector2>();
 
@@ -58,33 +53,45 @@ public class VoronoiController : MonoBehaviour
             randomSites_2d.Add(v.ToMyVector2());
         }
 
-        HalfEdgeData2 triangleData = _Delaunay.ByFlippingEdges(randomSites_2d, new HalfEdgeData2());
 
-        //From halfedge to triangle
-        //HashSet<Triangle> triangles = TransformBetweenDataStructures.TransformFromHalfEdgeToTriangle(triangleData);
+        //Generate the voronoi
+        List<VoronoiCell2> voronoiCells = DelaunayToVoronoi.GenerateVoronoiDiagram(randomSites_2d);
 
-        //Mesh delaunayMesh = TransformBetweenDataStructures.ConvertFromTriangleToMeshCompressed(triangles, true);
-
-
-
-        //
-        // Generate the voronoi diagram
-        //
-        List<VoronoiCell2> cells = DelaunayToVoronoi.GenerateVoronoiDiagram(randomSites_2d);
-
-
-
-        //
-        // Debug
-        //
         //Display the voronoi diagram
-        DisplayVoronoiCells(cells);
+        DisplayVoronoiCells(voronoiCells);
 
         //Display the sites
         DisplayResultsHelper.DisplayPoints(randomSites, 0.1f, Color.black);
 
+
+        //Generate delaunay for comparisons
+        GenerateDelaunay(randomSites_2d);
+    }
+
+
+
+    private void GenerateDelaunay(HashSet<MyVector2> points)
+    {
+        HalfEdgeData2 delaunayData = _Delaunay.ByFlippingEdges(points, new HalfEdgeData2());
+
+        //From halfedge to triangle
+        HashSet<Triangle2> triangles = TransformBetweenDataStructures.HalfEdge2ToTriangle2(delaunayData);
+
+        //Make sure they have the correct orientation
+        triangles = HelpMethods.OrientTrianglesClockwise(triangles);
+
+        //2d to 3d
+        HashSet<Triangle3> triangles_3d = new HashSet<Triangle3>();
+
+        foreach (Triangle2 t in triangles)
+        {
+            triangles_3d.Add(new Triangle3(t.p1.ToMyVector3(), t.p2.ToMyVector3(), t.p3.ToMyVector3()));
+        }
+
+        Mesh delaunayMesh = TransformBetweenDataStructures.Triangle3ToCompressedMesh(triangles_3d);
+
         //Display the delaunay triangles
-        //DisplayDelaunay(delaunayMesh);
+        DisplayResultsHelper.DisplayMeshEdges(delaunayMesh, Color.black);
     }
 
 
@@ -96,9 +103,9 @@ public class VoronoiController : MonoBehaviour
 
         for (int i = 0; i < cells.Count; i++)
         {
-            VoronoiCell2 c = cells[i];
+            VoronoiCell2 cell = cells[i];
 
-            Vector3 p1 = c.sitePos.ToVector3();
+            Vector3 p1 = cell.sitePos.ToVector3();
 
             Gizmos.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
 
@@ -108,10 +115,10 @@ public class VoronoiController : MonoBehaviour
 
             vertices.Add(p1);
 
-            for (int j = 0; j < c.edges.Count; j++)
+            for (int j = 0; j < cell.edges.Count; j++)
             {
-                Vector3 p3 = c.edges[j].p1.ToVector3();
-                Vector3 p2 = c.edges[j].p2.ToVector3();
+                Vector3 p3 = cell.edges[j].p1.ToVector3();
+                Vector3 p2 = cell.edges[j].p2.ToVector3();
 
                 vertices.Add(p2);
                 vertices.Add(p3);
@@ -130,31 +137,6 @@ public class VoronoiController : MonoBehaviour
             triangleMesh.RecalculateNormals();
 
             Gizmos.DrawMesh(triangleMesh);
-        }
-    }
-
-
-
-    //Display the delaunay triangulation with lines
-    private void DisplayDelaunay(Mesh triangulatedMesh)
-    {
-        int[] meshTriangles = triangulatedMesh.triangles;
-
-        Vector3[] meshVertices = triangulatedMesh.vertices;
-
-        Random.InitState(seed);
-
-        Gizmos.color = Color.black;
-
-        for (int i = 0; i < meshTriangles.Length; i += 3)
-        {
-            Vector3 p1 = meshVertices[meshTriangles[i + 0]];
-            Vector3 p2 = meshVertices[meshTriangles[i + 1]];
-            Vector3 p3 = meshVertices[meshTriangles[i + 2]];
-
-            Gizmos.DrawLine(p1, p2);
-            Gizmos.DrawLine(p2, p3);
-            Gizmos.DrawLine(p3, p1);
         }
     }
 }

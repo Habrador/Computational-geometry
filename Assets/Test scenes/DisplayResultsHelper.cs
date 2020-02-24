@@ -106,8 +106,8 @@ public static class DisplayResultsHelper
 
 
 
-    //Display the side of a mesh's triangles with some color
-    public static void DisplayMeshSides(Mesh mesh, Color sideColor)
+    //Display the edges of a mesh's triangles with some color
+    public static void DisplayMeshEdges(Mesh mesh, Color sideColor)
     {
         if (mesh == null)
         {
