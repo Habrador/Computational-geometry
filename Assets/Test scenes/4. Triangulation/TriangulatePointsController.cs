@@ -105,10 +105,10 @@ public class TriangulatePointsController : MonoBehaviour
         if (triangulatedMesh != null)
         {
             //Display the triangles with a random color
-            DebugResults.DisplayMesh(triangulatedMesh, seed);
+            DebugResultsHelper.DisplayMesh(triangulatedMesh, seed);
 
             //Display the points
-            DebugResults.DisplayPoints(originalPoints, 0.2f, Color.black);
+            DebugResultsHelper.DisplayPoints(originalPoints, 0.2f, Color.black);
         }
     }
 }

@@ -53,12 +53,14 @@ This library consists of two folders. The idea is that one is for testing purpos
 * Sutherland-Hodgman CHECK
 
 
-### 7. Geometry test
+### 7. Other
 
-* Is a triangle oriented clockwise?
-* Is a point left, on, or right of vector?
-* Is a point left, on, or right of a plane?
-* Is a quadrilateral convex?
+* Is a triangle oriented clockwise? CHECK
+* Is a point left, on, or right of vector? CHECK
+* Is a point left, on, or right of a plane? Which is the same as the distance to the plane. CHECK
+* Is a quadrilateral convex? CHECK
+* Is a point between two other points on the same line? CHECK
+* Closest point on a line-segment? CHECK 
 
 
 ## TODO

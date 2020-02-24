@@ -80,7 +80,7 @@ public class ConstrainedDelaunayController : MonoBehaviour
     {
         if (triangulatedMesh != null)
         {
-            DebugResults.DisplayMesh(triangulatedMesh, seed);
+            DebugResultsHelper.DisplayMesh(triangulatedMesh, seed);
         }
 
 

@@ -14,108 +14,158 @@ public class OtherController : MonoBehaviour
 	
 	void OnDrawGizmos() 
 	{
-        Vector2 a = pointATrans.position.XZ();
-        Vector2 b = pointBTrans.position.XZ();
-        Vector2 c = pointCTrans.position.XZ();
-        Vector2 d = pointDTrans.position.XZ();
+        MyVector2 a = pointATrans.position.ToMyVector2();
+        MyVector2 b = pointBTrans.position.ToMyVector2();
+        MyVector2 c = pointCTrans.position.ToMyVector2();
+        MyVector2 d = pointDTrans.position.ToMyVector2();
 
-        PointInRelationToVector(a, b, c , d);
+        //PointInRelationToVector(a, b, c);
 
+        //IsTriangleOrientedClockwise(a, b, c);
 
-        //point in triangle
-        //Gizmos.DrawLine(pointATrans.position, pointBTrans.position);
-        //Gizmos.DrawLine(pointBTrans.position, pointCTrans.position);
-        //Gizmos.DrawLine(pointCTrans.position, pointATrans.position);
+        //IsQuadrilateralConvex(a, b, c, d);
 
-        //if (Intersections.IsPointInTriangle(a, b, c, d))
-        //{
-        //    Gizmos.DrawWireSphere(pointDTrans.position, 1f);
-        //}
+        //PointInRelationToPlane(a, b, c);
 
+        //IsPointBetweenPoints(a, b, c);
 
-        //Clockwise
-        //print(Geometry.IsTriangleOrientedClockwise(a, b, c));
-
-
-        //Change triangle orientation
-        //Triangle triangle = new Triangle(new Vertex(pointATrans.position), new Vertex(pointBTrans.position), new Vertex(pointCTrans.position));
-
-        //print(Geometry.IsTriangleOrientedClockwise(triangle.v1.position, triangle.v2.position, triangle.v3.position));
-
-        //triangle.ChangeOrientation();
-
-        //print(Geometry.IsTriangleOrientedClockwise(triangle.v1.position, triangle.v2.position, triangle.v3.position));
-
-
-        //Is a simple quadrilateral (something with 4 sides) convex?
-        //Debug.Log(Geometry.IsQuadrilateralConvex(a, b, c, d));
-
-        //Gizmos.DrawLine(pointATrans.position, pointBTrans.position);
-        //Gizmos.DrawLine(pointBTrans.position, pointCTrans.position);
-        //Gizmos.DrawLine(pointCTrans.position, pointDTrans.position);
-        //Gizmos.DrawLine(pointDTrans.position, pointATrans.position);
-
-
-        //The closest point on a line sigement from a point
-        //Vector2 closestPoint = Geometry.GetClosestPointOnLineSegment(a, b, c);
-
-        //Display the line a-b
-        //Gizmos.DrawLine(pointATrans.position, pointBTrans.position);
-
-        //Display the point
-        //Gizmos.DrawWireSphere(new Vector3(closestPoint.x, 0f, closestPoint.y), 1f);
-
-
-
-        //Angle between vectors
-        //float anglebetween = Geometry.CalculateAngleBetweenVectors(a, b, c);
-
-        //Debug.Log(anglebetween);
-
-        Gizmos.DrawLine(pointATrans.position, pointBTrans.position);
-        Gizmos.DrawLine(pointBTrans.position, pointCTrans.position);
-
-        Vector3 A = pointATrans.position;
-        Vector3 B = pointBTrans.position;
-        Vector3 C = pointCTrans.position;
-        //Vector3 D = pointDTrans.position;
-
-        Vector3 ab = B - A;
-        Vector3 bc = C - B;
-
-        Vector3 normal_1 = new Vector3(ab.z, 0f, -ab.x).normalized;
-        Vector3 normal_2 = new Vector3(bc.z, 0f, -bc.x).normalized;
-
-        Gizmos.DrawRay((A + B) * 0.5f, normal_1);
-        Gizmos.DrawRay((B + C) * 0.5f, normal_2);
-
-        //float angle = Geometry.CalculateAngleBetweenVectors(a, b, c);
-
-        //Vector2 vec1 = a - b;
-        //Vector2 vec2 = c - b;
-
-        //float dot = vec1.x * vec2.x + vec1.y * vec2.y;
-
-        //float det = vec1.x * vec2.y - vec1.y * vec2.x;
-
-        ////float angle = Mathf.Atan2(det, dot) * Mathf.Rad2Deg;
-
-
-        ////float angle = Quaternion.FromToRotation(Vector3.up, to - from).eulerAngles.z;
-
-        //Vector3 from = A - B;
-        //Vector3 to = C - B;
-
-        //float angle = Vector3.SignedAngle(from, to, Vector3.up);
-
-        //Debug.Log(angle);
+        ClosestPointOnLineSegment(a, b, c);
     }
 
 
 
-    //Is a point to the left or to the right of a vector
-    private void PointInRelationToVector(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
+    private void ClosestPointOnLineSegment(MyVector2 a, MyVector2 b, MyVector2 testPoint)
     {
-        //bool isToLeft = Geometry.IsAPointLeftOfVector(a, b, c);
+        MyVector2 closestPoint = Geometry.GetClosestPointOnLineSegment(a, b, testPoint);
+
+        //Diplay
+        Gizmos.color = Color.white;
+
+        Gizmos.DrawLine(a.ToVector3(), b.ToVector3());
+
+        Gizmos.DrawWireSphere(testPoint.ToVector3(), 0.1f);
+
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawWireSphere(closestPoint.ToVector3(), 0.1f);
+    }
+
+
+
+    private void IsPointBetweenPoints(MyVector2 a, MyVector2 b, MyVector2 testPoint)
+    {
+        bool isBetween = Geometry.IsPointBetweenPoints(a, b, testPoint);
+
+        Debug.Log("Is between: " + isBetween);
+
+
+        //Diplay
+        Gizmos.color = Color.white;
+
+        Gizmos.DrawLine(a.ToVector3(), b.ToVector3());
+
+        Gizmos.DrawWireSphere(testPoint.ToVector3(), 0.1f);
+    }
+
+
+
+    private void PointInRelationToPlane(MyVector2 a, MyVector2 b, MyVector2 testPoint)
+    {
+        MyVector2 planeDir = b - a;
+
+        MyVector2 planeNormal = MyVector2.Normalize(new MyVector2(planeDir.y, -planeDir.x));
+
+        MyVector2 planePos = a + planeDir * 0.5f;
+
+        //Positive if infront, negative if behind
+        float distanceToPlane = Geometry.DistanceFromPointToPlane(planeNormal, planePos, testPoint);
+
+        Debug.Log("Distance: " + distanceToPlane);
+
+        
+        //Display
+        
+        //Plane
+        Gizmos.color = Color.blue;
+
+        Gizmos.DrawLine(a.ToVector3(), b.ToVector3());
+        //Plane normal
+        Gizmos.DrawLine(planePos.ToVector3(), planePos.ToVector3() + planeNormal.ToVector3() * 0.1f);
+
+        //Point
+        Gizmos.color = Color.white;
+
+        Gizmos.DrawWireSphere(testPoint.ToVector3(), 0.1f);
+    }
+
+
+
+    //Is a quadtrilateral convex
+    private void IsQuadrilateralConvex(MyVector2 a, MyVector2 b, MyVector2 c, MyVector2 d)
+    {
+        bool isConvex = Geometry.IsQuadrilateralConvex(a, b, c, d);
+
+        Debug.Log("Is convex " + isConvex);
+
+        //Display the quadrilateral
+        Gizmos.color = Color.white;
+
+        Gizmos.DrawLine(a.ToVector3(), b.ToVector3());
+        Gizmos.DrawLine(b.ToVector3(), c.ToVector3());
+        Gizmos.DrawLine(c.ToVector3(), d.ToVector3());
+        Gizmos.DrawLine(d.ToVector3(), a.ToVector3());
+    }
+
+
+
+    //Is a triangle oriented clockwise
+    private void IsTriangleOrientedClockwise(MyVector2 a, MyVector2 b, MyVector2 c)
+    {
+        bool isOrientedClockwise = Geometry.IsTriangleOrientedClockwise(a, b, c);
+
+        Debug.Log("Is oriented clockwise: " + isOrientedClockwise);
+
+
+        //Display the triangle
+        Gizmos.color = Color.white;
+
+        Gizmos.DrawLine(a.ToVector3(), b.ToVector3());
+        Gizmos.DrawLine(b.ToVector3(), c.ToVector3());
+        Gizmos.DrawLine(c.ToVector3(), a.ToVector3());
+
+        //Arrows showing the direction of the triangle
+        float arrowSize = 0.1f;
+
+        DebugResultsHelper.DrawArrow(a.ToVector3(), b.ToVector3(), arrowSize, Color.white);
+        DebugResultsHelper.DrawArrow(b.ToVector3(), c.ToVector3(), arrowSize, Color.white);
+        DebugResultsHelper.DrawArrow(c.ToVector3(), a.ToVector3(), arrowSize, Color.white);
+    }
+
+
+
+    //Is a point to the left or to the right of a vector going from a to b
+    private void PointInRelationToVector(MyVector2 a, MyVector2 b, MyVector2 p)
+    {
+        //bool isToLeft = Geometry.IsPointLeftOfVector(a, b, p);
+
+        //Debug.Log("Is to left: " + isToLeft);
+
+        LeftOnRight value = Geometry.IsPoint_Left_On_Right_OfVector(a, b, p);
+
+        if (value == LeftOnRight.Left) { Debug.Log("Left"); }
+        if (value == LeftOnRight.On) { Debug.Log("On"); }
+        if (value == LeftOnRight.Right) { Debug.Log("Right"); }
+
+        //Display
+        Vector3 a_3d = a.ToVector3();
+        Vector3 b_3d = b.ToVector3();
+
+        Gizmos.DrawLine(a_3d, b_3d);
+
+        float arrowSize = 0.1f;
+
+        DebugResultsHelper.DrawArrow(a_3d, b_3d, arrowSize, Color.white);
+
+        Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
     }
 }

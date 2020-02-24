@@ -81,7 +81,7 @@ public class VoronoiController : MonoBehaviour
         DisplayVoronoiCells(cells);
 
         //Display the sites
-        DebugResults.DisplayPoints(randomSites, 0.1f, Color.black);
+        DebugResultsHelper.DisplayPoints(randomSites, 0.1f, Color.black);
 
         //Display the delaunay triangles
         //DisplayDelaunay(delaunayMesh);

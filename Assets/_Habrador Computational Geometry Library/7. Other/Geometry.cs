@@ -4,9 +4,22 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
+    //Help enum in case we need to return something else than a bool
+    public enum LeftOnRight
+    {
+        Left, On, Right
+    }
+
+    //public enum InfrontOnBack
+    //{
+    //    Infront, On, Back
+    //}
+
     public static class Geometry
     {
-        //Calculate the center of circle in 2d space given three coordinates
+        //
+        // Calculate the center of circle in 2d space given three coordinates
+        //
         //http://paulbourke.net/geometry/circlesphere/
         public static MyVector2 CalculateCircleCenter(MyVector2 a, MyVector2 b, MyVector2 c)
         {
@@ -24,7 +37,9 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Is a triangle in 2d space oriented clockwise or counter-clockwise
+        //
+        // Is a triangle in 2d space oriented clockwise or counter-clockwise
+        //
         //https://math.stackexchange.com/questions/1324179/how-to-tell-if-3-connected-points-are-connected-clockwise-or-counter-clockwise
         //https://en.wikipedia.org/wiki/Curve_orientation
         public static bool IsTriangleOrientedClockwise(MyVector2 p1, MyVector2 p2, MyVector2 p3)
@@ -43,56 +58,72 @@ namespace Habrador_Computational_Geometry
 
 
 
-        ////Does a point p lie to the left or to the right of a vector going from a to b
-        ////https://gamedev.stackexchange.com/questions/71328/how-can-i-add-and-subtract-convex-polygons
-        //public static bool IsAPointLeftOfVector(Vector2 a, Vector2 b, Vector2 p)
-        //{
-        //    //To avoid floating point precision issues we can add a small value
-        //    float epsilon = MathUtility.EPSILON;
+        //
+        // Does a point p lie to the left, to the right, or on a vector going from a to b
+        //
+        //https://gamedev.stackexchange.com/questions/71328/how-can-i-add-and-subtract-convex-polygons
+        private static float GetPointInRelationToVectorValue(MyVector2 a, MyVector2 b, MyVector2 p)
+        {
+            float x1 = a.x - p.x;
+            float x2 = a.y - p.y;
+            float y1 = b.x - p.x;
+            float y2 = b.y - p.y;
 
-        //    float determinant = (a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x);
+            float determinant = MathUtility.Det2(x1, x2, y1, y2);
 
-        //    bool isToLeft = true;
+            return determinant;
+        }
 
-        //    if (determinant < 0f - epsilon)
-        //    {
-        //        isToLeft = false;
-        //    }
+        public static bool IsPointLeftOfVector(MyVector2 a, MyVector2 b, MyVector2 p)
+        {
+            float relationValue = GetPointInRelationToVectorValue(a, b, p);
 
-        //    return isToLeft;
-        //}
+            bool isToLeft = true;
 
+            //to avoid floating point precision issues we can add a small value
+            float epsilon = MathUtility.EPSILON;
 
+            if (relationValue < 0f - epsilon)
+            {
+                isToLeft = false;
+            }
+
+            return isToLeft;
+        }
+
+        //Same as above but we want to figure out if we are on the vector
         //Use this if we might en up on the line, which has a low probability in a game, but may happen in some cases
         //Where is c in relation to a-b
         //Returns -1 if to the left, 0 if on the border, 1 if to the right
-        public static int GetPointPositionInRelationToLine(MyVector2 a, MyVector2 b, MyVector2 p)
+        public static LeftOnRight IsPoint_Left_On_Right_OfVector(MyVector2 a, MyVector2 b, MyVector2 p)
         {
+            float relationValue = GetPointInRelationToVectorValue(a, b, p);
+
             //To avoid floating point precision issues we can add a small value
             float epsilon = MathUtility.EPSILON;
 
-            float determinant = (a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x);
-
-            // < 0 -> to the right
-            if (determinant < 0f - epsilon)
+            //To the right
+            if (relationValue < 0f - epsilon)
             {
-                return 1;
+                return LeftOnRight.Right;
             }
-            // > 0 -> to the left
-            else if (determinant > 0f + epsilon)
+            //To the left
+            else if (relationValue > 0f + epsilon)
             {
-                return -1;
+                return LeftOnRight.Left;
             }
             // = 0 -> on the line
             else
             {
-                return 0;
+                return LeftOnRight.On;
             }
         }
 
 
 
-        //Is a point to the left, to the right, or on a plane
+        //
+        // Is a point to the left, to the right, or on a plane
+        //
         //https://gamedevelopment.tutsplus.com/tutorials/understanding-sutherland-hodgman-clipping-for-physics-engines--gamedev-11917
         //Notice that the plane normal doesnt have to be normalized
         //public static float DistanceFromPointToPlane(Vector3 planeNormal, Vector3 planePos, Vector3 pointPos)
@@ -111,11 +142,14 @@ namespace Habrador_Computational_Geometry
             float distance = MyVector2.Dot(planeNormal, pointPos - planePos);
 
             return distance;
-        }        
+        }
 
 
 
-        //Is a quadrilateral convex? Assume no 3 points are colinear and the shape doesnt look like an hourglass
+        //
+        // Is a quadrilateral convex? Assume no 3 points are colinear and the shape doesnt look like an hourglass
+        //
+        //A quadrilateral is a polygon with four edges (or sides) and four vertices or corners
         public static bool IsQuadrilateralConvex(MyVector2 a, MyVector2 b, MyVector2 c, MyVector2 d)
         {
             bool isConvex = false;
@@ -127,9 +161,7 @@ namespace Habrador_Computational_Geometry
             //then we could measure the 4 angles of the edge, add them together (2 and 2) to get the interior angle
             //But it will still require 8 magnitude operations which is slow
             //From: https://stackoverflow.com/questions/2122305/convex-hull-of-4-points
-            //Another maybe more understandable way is point in triangle?
             bool abc = Geometry.IsTriangleOrientedClockwise(a, b, c);
-
             bool abd = Geometry.IsTriangleOrientedClockwise(a, b, d);
             bool bcd = Geometry.IsTriangleOrientedClockwise(b, c, d);
             bool cad = Geometry.IsTriangleOrientedClockwise(c, a, d);
@@ -166,20 +198,22 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Is a point c between point a and b (we assume all 3 are on the same line)
-        public static bool IsPointBetweenPoints(MyVector2 a, MyVector2 b, MyVector2 c)
+        //
+        // Is a point p between point a and b (we assume all 3 are on the same line)
+        //
+        public static bool IsPointBetweenPoints(MyVector2 a, MyVector2 b, MyVector2 p)
         {
             bool isBetween = false;
 
             //Entire line segment
             MyVector2 ab = b - a;
             //The intersection and the first point
-            MyVector2 ac = c - a;
+            MyVector2 ap = p - a;
 
             //Need to check 2 things: 
             //1. If the vectors are pointing in the same direction = if the dot product is positive
             //2. If the length of the vector between the intersection and the first point is smaller than the entire line
-            if (MyVector2.Dot(ab, ac) > 0f && MyVector2.SqrMagnitude(ab) >= MyVector2.SqrMagnitude(ac))
+            if (MyVector2.Dot(ab, ap) > 0f && MyVector2.SqrMagnitude(ab) >= MyVector2.SqrMagnitude(ap))
             {
                 isBetween = true;
             }
@@ -189,7 +223,9 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Find the closest point on a line segment from a point
+        //
+        // Find the closest point on a line segment from a point
+        //
         //From https://www.youtube.com/watch?v=KHuI9bXZS74
         //Maybe better version https://stackoverflow.com/questions/3120357/get-closest-point-to-a-line
         public static MyVector2 GetClosestPointOnLineSegment(MyVector2 a, MyVector2 b, MyVector2 p)

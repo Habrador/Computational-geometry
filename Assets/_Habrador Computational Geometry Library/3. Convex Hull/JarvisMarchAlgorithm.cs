@@ -112,18 +112,15 @@ namespace Habrador_Computational_Geometry
                     MyVector2 testPoint = point;
 
                     //Where is the test point in relation to the line a-b
-                    //  1 -> to the right
-                    //  0 -> on the line
-                    // -1 -> to the left
-                    int relation = Geometry.GetPointPositionInRelationToLine(currentPoint, nextPoint, testPoint);
+                    LeftOnRight relation = Geometry.IsPoint_Left_On_Right_OfVector(currentPoint, nextPoint, testPoint);
 
                     //The test point is on the line, so we have found a colinear point
-                    if (relation == 0)
+                    if (relation == LeftOnRight.On)
                     {
                         pointsToAddToTheHull.Add(testPoint);
                     }
                     //To the right = better point, so pick it as next point on the convex hull
-                    else if (relation == 1)
+                    else if (relation == LeftOnRight.Right)
                     {
                         nextPoint = testPoint;
 

@@ -301,9 +301,9 @@ namespace Habrador_Computational_Geometry
         {
             bool isToTheRight = false;
 
-            int pointPos = Geometry.GetPointPositionInRelationToLine(a, b, p);
+            LeftOnRight pointPos = Geometry.IsPoint_Left_On_Right_OfVector(a, b, p);
 
-            if (pointPos == 0 || pointPos == 1)
+            if (pointPos == LeftOnRight.Right || pointPos == LeftOnRight.On)
             {
                 isToTheRight = true;
             }

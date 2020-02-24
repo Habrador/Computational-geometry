@@ -6,7 +6,7 @@ using Habrador_Computational_Geometry;
 
 
 //Display meshes, points, etc so we dont have to do it in each file
-public static class DebugResults
+public static class DebugResultsHelper
 {
     //Display some points
     public static void DisplayPoints(HashSet<Vector3> points, float radius, Color color)
@@ -22,6 +22,27 @@ public static class DebugResults
         {
             Gizmos.DrawSphere(p, radius);
         }
+    }
+
+
+
+    //Display an arrow at the end of vector from a to b
+    public static void DrawArrow(Vector3 a, Vector3 b, float size, Color color)
+    {
+        //We also need to know the direction of the vector, so we need to draw a small arrow
+        Vector3 vecDir = (b - a).normalized;
+
+        Vector3 vecDirPerpendicular = new Vector3(vecDir.z, 0f, -vecDir.x);
+
+        Vector3 arrowStart = b - vecDir * size;
+
+        //Draw the arrows 4 lines
+        Gizmos.color = color;
+
+        Gizmos.DrawLine(arrowStart, arrowStart + vecDirPerpendicular * size);
+        Gizmos.DrawLine(arrowStart + vecDirPerpendicular * size, b);
+        Gizmos.DrawLine(b, arrowStart - vecDirPerpendicular * size);
+        Gizmos.DrawLine(arrowStart - vecDirPerpendicular * size, arrowStart);
     }
 
 
