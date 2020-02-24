@@ -8,6 +8,9 @@ namespace Habrador_Computational_Geometry
     {
         //The value we use to avoid floating point precision issues
         //http://sandervanrossen.blogspot.com/2009/12/realtime-csg-part-1.html
+        //Unity has a built-in÷
+        //public const float EPSILON = Mathf.Epsilon;
+        //But it's maybe better to use our own
         public const float EPSILON = 0.00001f;
 
 

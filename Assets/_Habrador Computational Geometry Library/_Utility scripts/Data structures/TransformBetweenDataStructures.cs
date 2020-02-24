@@ -151,7 +151,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // From triangle to mesh
+        // From triangle to Unity mesh
         //
 
         //Version 1. Check that each vertex exists only once in the final mesh
@@ -230,6 +230,10 @@ namespace Habrador_Computational_Geometry
 
             mesh.vertices = meshVerticesArray;
             mesh.triangles = meshTriangles.ToArray();
+
+            //Should maybe recalculate bounds and normals, maybe better to do that outside this method???
+            //mesh.RecalculateBounds();
+            //mesh.RecalculateNormals();
 
             return mesh;
         }

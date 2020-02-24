@@ -21,12 +21,12 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 ### 2. Generate mesh
 
-* Grid mesh	
+* Grid mesh	CHECK
 
 
 ### 3. Convex Hull
 
-* Jarvis March	
+* Jarvis March CHECK	
 
 
 ### 4. Triangulation

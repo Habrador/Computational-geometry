@@ -28,9 +28,6 @@ public class HullController : MonoBehaviour
         //Points from a plane mesh
         HashSet<Vector3> points = GeneratePointsFromPlane(planeTrans);
 
-        //Need to move the points to its own list because some will be removed when generating the hull
-        //and we want to display both the points and the hull
-        //HashSet<Vector3> pointsCopy = new HashSet<Vector3>(points);
 
 
         //
@@ -54,6 +51,7 @@ public class HullController : MonoBehaviour
         }
 
         
+
         //
         // Display 
         //

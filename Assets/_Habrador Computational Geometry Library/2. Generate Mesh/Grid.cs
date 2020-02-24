@@ -6,7 +6,7 @@ namespace Habrador_Computational_Geometry
 {
     //Generate a square grid where each cell consists of two triangles
     //The coordinate system starts in the middle
-    public static class MeshGrid
+    public static class Grid
     {
         //The grid is always a square
         //witdh - the width of the entire chunk

@@ -318,10 +318,10 @@ namespace Habrador_Computational_Geometry
             //Center of circle
             MyVector2 circleCenter = Geometry.CalculateCircleCenter(a, b, c);
 
-            //The radius of the circle
+            //The radius sqr of the circle
             float radiusSqr = MyVector2.SqrDistance(a, circleCenter);
 
-            //The distance from the point to the circle center
+            //The distance sqr from the point to the circle center
             float distPointCenterSqr = MyVector2.SqrDistance(testPoint, circleCenter);
             
             //Add/remove a small value becuse we will never be exactly on the edge because of floating point precision issues
