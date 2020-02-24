@@ -9,38 +9,38 @@ This library consists of two folders. The idea is that one is for testing purpos
 ### 1. Intersection
 
 2d-space:
-* Point-triangle CHECK				
-* Point-polygon (suffers from floating point precision issues) CHECK				
-* Triangle-triangle	CHECK			
-* AABB-AABB CHECK						
-* Line-line CHECK						
-* Ray-plane CHECK						
-* Line-plane CHECK					
-* Point-circle CHECK					
+* Point-triangle 	
+* Point-polygon (suffers from floating point precision issues) 
+* Triangle-triangle		
+* AABB-AABB 			
+* Line-line 					
+* Ray-plane 					
+* Line-plane 			
+* Point-circle 				
 
 
 ### 2. Generate mesh
 
-* Grid mesh	CHECK
+* Grid mesh	
 
 
 ### 3. Convex Hull
 
-* Jarvis March CHECK	
+* Jarvis March 
 
 
 ### 4. Triangulation
 
-* Triangulate convex polygon CHECK
-* Triangulate points with "visible edge" algorithm CHECK
-* Triangulate points with "point-by-point" algorithm CHECK
+* Triangulate convex polygon 
+* Triangulate points with "visible edge" algorithm 
+* Triangulate points with "point-by-point" algorithm 
 * Triangulate with marching squares
 
 #### 4.1 Delaunay triangulation
 
-* Delaunay triangulation - "point-by-point" CHECK
-* Delaunay triangulation - "triangulate and then flip edges" CHECK
-* Constrained delaunay triangulation CHECK
+* Delaunay triangulation - "point-by-point" 
+* Delaunay triangulation - "triangulate and then flip edges" 
+* Constrained delaunay triangulation 
 
 
 ### 5. Voronoi diagram
@@ -50,18 +50,18 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 ### 6. Polygon clipping
 
-* Greiner-Hormann CHECK
-* Sutherland-Hodgman CHECK
+* Greiner-Hormann 
+* Sutherland-Hodgman 
 
 
 ### 7. Other
 
-* Is a triangle oriented clockwise? CHECK
-* Is a point left, on, or right of vector? CHECK
-* Is a point left, on, or right of a plane? Which is the same as the distance to the plane. CHECK
-* Is a quadrilateral convex? CHECK
-* Is a point between two other points on the same line? CHECK
-* Closest point on a line-segment? CHECK 
+* Is a triangle oriented clockwise? 
+* Is a point left, on, or right of vector? 
+* Is a point left, on, or right of a plane? Which is the same as the distance to the plane. 
+* Is a quadrilateral convex? 
+* Is a point between two other points on the same line? 
+* Closest point on a line-segment? 
 
 
 ## TODO
