@@ -27,7 +27,7 @@ namespace Habrador_Computational_Geometry
         //1. Sort the points along one axis. The first 3 points form a triangle 
         //2. Consider the next point and connect it with all previously connected points which are visible to the point
         //3. Do 2 until we are out of points to add
-        //Is (currently) not working with colinear points
+        //Is maybe working with colinear points
         public static HashSet<Triangle2> IncrementalTriangulation(HashSet<MyVector2> points)
         {
             return IncrementalTriangulationAlgorithm.TriangulatePoints(points);

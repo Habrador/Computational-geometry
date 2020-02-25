@@ -32,8 +32,8 @@ This library consists of two folders. The idea is that one is for testing purpos
 ### 4. Triangulation
 
 * Triangulate convex polygon 
-* Triangulate points with "visible edge" algorithm - doesnt work with colinear points
-* Triangulate points with "point-by-point" algorithm - doesnt work with colinear points
+* Triangulate points with "visible edge" algorithm - is maybe working with colinear points
+* Triangulate points with "point-by-point" algorithm - 
 * Triangulate with marching squares
 
 #### 4.1 Delaunay triangulation
