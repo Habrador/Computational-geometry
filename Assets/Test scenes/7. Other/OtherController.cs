@@ -30,6 +30,10 @@ public class OtherController : MonoBehaviour
         //IsPointBetweenPoints(a, b, c);
 
         //ClosestPointOnLineSegment(a, b, c);
+
+        //Gizmos.DrawWireSphere(pointATrans.position, 0.1f);
+        //Gizmos.DrawWireSphere(pointBTrans.position, 0.1f);
+        //Gizmos.DrawWireSphere((pointATrans.position + pointBTrans.position) * 0.5f, 0.1f);
     }
 
 

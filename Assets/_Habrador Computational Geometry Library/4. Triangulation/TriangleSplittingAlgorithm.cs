@@ -12,22 +12,20 @@ namespace Habrador_Computational_Geometry
     {
         public static HashSet<Triangle2> TriangulatePoints(HashSet<MyVector2> points)
         {
-            //Step 1. Generate the convex hull - will also remove the points from points list which are not on the hull
+            //Step 1. Generate the convex hull
             List<MyVector2> pointsOnConvexHull = _ConvexHull.JarvisMarch(points);
 
 
-            //Step 2. Triangulate the convex hull
+            //Step 2. Triangulate the convex hull - is only working if we have no colinear points on the hull
             HashSet<Triangle2> triangles = _TriangulatePoints.PointsOnConvexHull(pointsOnConvexHull);
 
-
+            
             //Step 3. From the points we should add, remove those that are already a part of the triangulation
-            foreach (Triangle2 t in triangles)
+            foreach (MyVector2 v in pointsOnConvexHull)
             {
-                points.Remove(t.p1);
-                points.Remove(t.p2);
-                points.Remove(t.p3);
+                points.Remove(v);
             }
-
+            
 
             //Step 4. Add the remaining points while splitting the triangles they end up in
             foreach (MyVector2 currentPoint in points)

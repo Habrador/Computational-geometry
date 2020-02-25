@@ -8,6 +8,7 @@ namespace Habrador_Computational_Geometry
     {
         //If you have points on a convex hull, sorted one after each other
         //This algorithm is only working if we have no-colinear points on the hull
+        //If colinear, We will still cover the entire area of the convex hull, but some triangles will be flat 
         public static HashSet<Triangle2> GetTrianglesNoColinearPoints(List<MyVector2> points)
         {    
             HashSet<Triangle2> triangles = new HashSet<Triangle2>();
