@@ -26,17 +26,15 @@ namespace Habrador_Computational_Geometry
         //Test if this vector is the same as another vector
         public bool Equals(MyVector2 other)
         {
-            //This is not accurate enough
-            //if (Mathf.Approximately(this.x, other.x) && Mathf.Approximately(this.y, other.y))
-            //{
-            //    return true;
-            //}
-            //else
-            //{
-            //    return false;
-            //}
+            //Using Mathf.Approximately() is not accurate enough
+            //Using Mathf.Abs is slow because Abs involves a root
 
-            if (Mathf.Abs(this.x - other.x) < MathUtility.EPSILON && Mathf.Abs(this.y - other.y) < MathUtility.EPSILON)
+            float xDiff = this.x - other.x;
+            float yDiff = this.y - other.y;
+
+            float e = MathUtility.EPSILON;
+
+            if (xDiff < e && xDiff > -e && yDiff < e && yDiff > -e)
             {
                 return true;
             }

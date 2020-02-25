@@ -23,10 +23,10 @@ public class HullController : MonoBehaviour
         //
 
         //Random points
-        //List<Vector3> points = GenerateRandomPoints(seed, mapSize, numberOfPoints);
+        HashSet<Vector3> points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, mapSize, numberOfPoints);
 
         //Points from a plane mesh
-        HashSet<Vector3> points = GeneratePointsFromPlane(planeTrans);
+        //HashSet<Vector3> points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
 
 
 
@@ -89,50 +89,5 @@ public class HullController : MonoBehaviour
         {
             Gizmos.DrawSphere(p, 0.1f);
         }
-    }
-
-
-
-    //Generate random points within a specified square size
-    private List<Vector3> GenerateRandomPoints(int seed, float squareSize, int totalPoints)
-    {
-        List<Vector3> randomPoints = new List<Vector3>();
-
-        //Generate random numbers with a seed
-        Random.InitState(seed);
-
-        float max = squareSize;
-        float min = -squareSize;
-
-        for (int i = 0; i < totalPoints; i++)
-        {
-            float randomX = Random.Range(min, max);
-            float randomZ = Random.Range(min, max);
-
-            randomPoints.Add(new Vector3(randomX, 0f, randomZ));
-        }
-
-        return randomPoints;
-    }
-
-
-
-    //Find all vertices of a plane
-    private HashSet<Vector3> GeneratePointsFromPlane(Transform planeTrans)
-    {
-        HashSet<Vector3> points = new HashSet<Vector3>();
-
-        Mesh mesh = planeTrans.GetComponent<MeshFilter>().sharedMesh;
-
-        Vector3[] vertices = mesh.vertices;
-
-        for (int i = 0; i < vertices.Length; i++)
-        {
-            Vector3 worldPos = planeTrans.TransformPoint(vertices[i]);
-
-            points.Add(worldPos);
-        }
-
-        return points;
     }
 }

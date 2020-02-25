@@ -11,7 +11,7 @@ namespace Habrador_Computational_Geometry
         {    
             HashSet<Triangle2> triangles = new HashSet<Triangle2>();
 
-            //This vertex is always a part of each triangle
+            //This vertex will be a vertex in all triangles
             MyVector2 a = points[0];
 
             //And then we just loop through the other edges to make all triangles

@@ -112,7 +112,7 @@ namespace Habrador_Computational_Geometry
             {
                 return LeftOnRight.Left;
             }
-            // = 0 -> on the line
+            //= 0 -> on the line
             else
             {
                 return LeftOnRight.On;

@@ -188,7 +188,7 @@ public class MarchingSquaresController : MonoBehaviour
 
             mesh.RecalculateNormals();
 
-            DisplayResultsHelper.DisplayMeshWithRandomColors(mesh, 0);
+            TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
         }
     }
 }

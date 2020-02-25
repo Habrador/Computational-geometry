@@ -10,40 +10,29 @@ public class TriangulatePointsController : MonoBehaviour
     public int numberOfPoints = 25;
     //The size of the map
     public float mapSize = 20f;
+    //A plane to test the triangulation algorithms for edge cases
+    public Transform planeTrans;
 
     private Mesh triangulatedMesh;
 
-    private HashSet<Vector3> originalPoints;
+    private HashSet<Vector3> points;
+
 
 
     public void TriangulateThePoints()
     {
-        //
-        // Generate the random points
-        //
-        HashSet<Vector3> points = new HashSet<Vector3>();
+        //Get points to triangulate
 
-        //Generate random numbers with a seed
-        Random.InitState(seed);
+        //Random points
+        points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, mapSize, numberOfPoints);
 
-        float max = mapSize / 2f;
-        float min = -mapSize / 2f;
-
-        for (int i = 0; i < numberOfPoints; i++)
-        {
-            float randomX = Random.Range(min, max);
-            float randomZ = Random.Range(min, max);
-
-            points.Add(new Vector3(randomX, 0f, randomZ));
-        }
-
-        //Copy the list so we can display the original points because the algorithms might modify the list with points
-        originalPoints = new HashSet<Vector3>(points);
+        //Points from a plane mesh
+        //HashSet<Vector3> points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
 
         //3d to 2d
         HashSet<MyVector2> points_2d = new HashSet<MyVector2>();
 
-        foreach (Vector3 v in originalPoints)
+        foreach (Vector3 v in points)
         {
             points_2d.Add(v.ToMyVector2());
         }
@@ -92,10 +81,10 @@ public class TriangulatePointsController : MonoBehaviour
         if (triangulatedMesh != null)
         {
             //Display the triangles with a random color
-            DisplayResultsHelper.DisplayMeshWithRandomColors(triangulatedMesh, seed);
+            TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(triangulatedMesh, seed);
 
             //Display the points
-            DisplayResultsHelper.DisplayPoints(originalPoints, 0.2f, Color.black);
+            TestAlgorithmsHelpMethods.DisplayPoints(points, 0.2f, Color.black);
         }
     }
 }

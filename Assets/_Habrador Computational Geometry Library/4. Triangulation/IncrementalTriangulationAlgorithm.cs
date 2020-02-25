@@ -5,8 +5,10 @@ using System.Linq;
 
 namespace Habrador_Computational_Geometry
 {
-    //Sort the points along one axis. The first 3 points form a triangle. Consider the next point and connect it with all
-    //previously connected edges which are visible to the point. 
+    //Triangulate random points by: 
+    //1. Sort the points along one axis. The first 3 points form a triangle 
+    //2. Consider the next point and connect it with all previously connected points which are visible to the point
+    //3. Do 2 until we are out of points to add
     //We assume an edge is visible if the center of the edge is visible to the point.
     public static class IncrementalTriangulationAlgorithm
     {
@@ -14,7 +16,8 @@ namespace Habrador_Computational_Geometry
         {
             HashSet<Triangle2> triangles = new HashSet<Triangle2>();
 
-            //Sort the points along x-axis
+
+            //Step 1. Sort the points along x-axis
             //OrderBy is always soring in ascending order - use OrderByDescending to get in the other order
             List<MyVector2> points = new List<MyVector2>(pointsHashset);
 
@@ -25,12 +28,14 @@ namespace Habrador_Computational_Geometry
 
             triangles.Add(newTriangle);
 
+
             //All edges that form the triangles, so we have something to test against
             List<Edge2> edges = new List<Edge2>();
 
             edges.Add(new Edge2(newTriangle.p1, newTriangle.p2));
             edges.Add(new Edge2(newTriangle.p2, newTriangle.p3));
             edges.Add(new Edge2(newTriangle.p3, newTriangle.p1));
+
 
             //Add the other triangles one by one
             //Starts at 3 because we have already added 0,1,2

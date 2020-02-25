@@ -55,7 +55,7 @@ public class DelaunayController : MonoBehaviour
         //Generate the triangulation
 
         //Algorithm 1. Delaunay by triangulate all points with some bad algorithm and then flip edges until we get a delaunay triangulation 
-        //HalfEdgeData2 triangleData = _Delaunay.ByFlippingEdges(randomPoints_2d, new HalfEdgeData2());
+        HalfEdgeData2 triangleData = _Delaunay.FlippingEdges(randomPoints_2d, new HalfEdgeData2());
 
 
         //Algorithm 2. Delaunay by inserting point-by-point while flipping edges after inserting a single point 
@@ -63,7 +63,7 @@ public class DelaunayController : MonoBehaviour
 
 
         //Algorithm 3. Constrained delaunay
-        HalfEdgeData2 triangleData = _Delaunay.ConstrainedBySloan(randomPoints_2d, obstacle_2d, true, new HalfEdgeData2());
+        //HalfEdgeData2 triangleData = _Delaunay.ConstrainedBySloan(randomPoints_2d, obstacle_2d, true, new HalfEdgeData2());
 
 
 
@@ -93,7 +93,7 @@ public class DelaunayController : MonoBehaviour
     {
         if (triangulatedMesh != null)
         {
-            DisplayResultsHelper.DisplayMeshWithRandomColors(triangulatedMesh, seed);
+            TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(triangulatedMesh, seed);
         }
 
 

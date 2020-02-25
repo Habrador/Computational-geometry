@@ -4,8 +4,10 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
-    //Triangulate random points by first generating the convex hull of the points, then triangulate the convex hull
-    //and then add the other points one-by-one by splitting the triangle the point is in
+    //Triangulate random points by: 
+    //1. Generating the convex hull of the points
+    //2. Triangulate the convex hull
+    //3. Add the other points one-by-one while splitting the triangle the point is in
     public static class TriangleSplittingAlgorithm
     {
         public static HashSet<Triangle2> TriangulatePoints(HashSet<MyVector2> points)
@@ -33,9 +35,14 @@ namespace Habrador_Computational_Geometry
                 //Which triangle is this point in?
                 foreach (Triangle2 t in triangles)
                 {
-                    if (Intersections.PointTriangle(t, currentPoint, true))
+                    if (Intersections.PointTriangle(t, currentPoint, includeBorder: true))
                     {
                         //Split the triangle into three new triangles
+                        //We ignore if it ends up on the edge of a triangle
+                        //If that happens we should split the edge
+                        //But it will most likely not end up exactly on the edge because of floating point precision issues
+                        //And we are most likely going to run a Delaunay algorithm on this "bad" triangulation
+                        //so it doesn't matter anyway
 
                         //Create 3 new  with correct orientation = clockwise
                         Triangle2 t1 = new Triangle2(t.p1, t.p2, currentPoint);

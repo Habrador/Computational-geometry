@@ -13,62 +13,37 @@ namespace Habrador_Computational_Geometry
     //Is more robust than other algorithms because it will handle colinear points with ease
     public static class JarvisMarchAlgorithm
     {
-        public static List<MyVector2> GenerateConvexHull(HashSet<MyVector2> inputPoints)
-        {
-            List<MyVector2> points = new List<MyVector2>(inputPoints);
-        
-            //If fewer points, then we cant create a convex hull
-            if (points.Count < 3)
-            {
-                Debug.Log("Too few points co calculate a convex hull");
-            
-                return null;
-            }
-
-            //Find the bounding box of the points
-            //If the spread is close to 0, then they are all at the same position, and we cant create a hull
-            AABB box = HelpMethods.GetAABB(points);
-
-            if (Mathf.Abs(box.maxX - box.minX) < MathUtility.EPSILON && Mathf.Abs(box.maxY - box.minY) < MathUtility.EPSILON)
-            {
-                Debug.Log("The points cant form a convex hull");
-
-                return null;
-            }
-
-
-
-            //Hashset results in infinite loop for some reason when using First() to select the first element
-            //HashSet<Vector2> points = new HashSet<Vector2>(pointsList);
-
+        public static List<MyVector2> GenerateConvexHull(List<MyVector2> points)
+        {   
             //The list with points on the convex hull
-            List<MyVector2> convexHull = new List<MyVector2>();
+            List<MyVector2> pointsOnConvexHull = new List<MyVector2>();
+
 
             //Step 1. Find the vertex with the smallest x coordinate
-            //If several have the same x coordinate, find the one with the smallest z
+            //If several points have the same x coordinate, find the one with the smallest y
             MyVector2 startPos = points[0];
 
             for (int i = 1; i < points.Count; i++)
             {
                 MyVector2 testPos = points[i];
 
-                //Because of precision issues, we use Mathf.Approximately to test if the x positions are the same
-                if (testPos.x < startPos.x || (Mathf.Approximately(testPos.x, startPos.x) && testPos.y < startPos.y))
+                //Because of precision issues, we use a small value to test if they are the same
+                if (testPos.x < startPos.x || ((Mathf.Abs(testPos.x - startPos.x) < MathUtility.EPSILON && testPos.y < startPos.y)))
                 {
                     startPos = points[i];
                 }
             }
 
             //This vertex is always on the convex hull
-            convexHull.Add(startPos);
+            pointsOnConvexHull.Add(startPos);
 
             //But we can't remove it from the list of all points because we need it to stop the algorithm
             //points.Remove(startPos);
 
 
 
-            //Step 2. Loop to generate the convex hull
-            MyVector2 currentPoint = convexHull[0];
+            //Step 2. Loop to find the other points on the hull
+            MyVector2 previousPoint = pointsOnConvexHull[0];
 
             int counter = 0;
 
@@ -83,44 +58,42 @@ namespace Habrador_Computational_Geometry
 
                 //If we are coming from the first point on the convex hull
                 //then we are not allowed to pick it as next point, so we have to try again
-                if (nextPoint.Equals(convexHull[0]) && currentPoint.Equals(convexHull[0]))
+                if (previousPoint.Equals(pointsOnConvexHull[0]) && nextPoint.Equals(pointsOnConvexHull[0]))
                 {
                     counter += 1;
-                
+
                     continue;
                 }
 
                 //This point is assumed to be on the convex hull
                 pointsToAddToTheHull.Add(nextPoint);
 
+
                 //But this randomly selected point might not be the best next point, so we have to see if we can improve
                 //by finding a point that is more to the right
-                //We also have to check if this point has colinear points
+                //We also have to check if this point has colinear points if it happens to be on the hull
                 for (int i = 0; i < points.Count; i++)
                 {
-                    MyVector2 point = points[i];
+                    MyVector2 testPoint = points[i];
                 
                     //Dont test the point we picked randomly
                     //Or the point we are coming from which might happen when we move from the first point on the hull
-                    if (point.Equals(nextPoint) || point.Equals(currentPoint))
+                    if (testPoint.Equals(nextPoint) || testPoint.Equals(previousPoint))
                     {
-                        //counter += 1;    
-
                         continue;
                     }
-                   
-                    MyVector2 testPoint = point;
 
-                    //Where is the test point in relation to the line a-b
-                    LeftOnRight relation = Geometry.IsPoint_Left_On_Right_OfVector(currentPoint, nextPoint, testPoint);
+                    //Where is the test point in relation to the line between the point we are coming from
+                    //which we know is on the hull, and the point we think is on the hull
+                    LeftOnRight pointRelation = Geometry.IsPoint_Left_On_Right_OfVector(previousPoint, nextPoint, testPoint);
 
                     //The test point is on the line, so we have found a colinear point
-                    if (relation == LeftOnRight.On)
+                    if (pointRelation == LeftOnRight.On)
                     {
                         pointsToAddToTheHull.Add(testPoint);
                     }
-                    //To the right = better point, so pick it as next point on the convex hull
-                    else if (relation == LeftOnRight.Right)
+                    //To the right = better point, so pick it as next point we want to test if it is on the hull
+                    else if (pointRelation == LeftOnRight.Right)
                     {
                         nextPoint = testPoint;
 
@@ -128,6 +101,8 @@ namespace Habrador_Computational_Geometry
                         pointsToAddToTheHull.Clear();
 
                         pointsToAddToTheHull.Add(nextPoint);
+
+                        //We dont have to start over because the previous points weve gone through were worse
                     }
                     //To the left = worse point so do nothing
                 }
@@ -135,33 +110,35 @@ namespace Habrador_Computational_Geometry
 
 
                 //Sort this list, so we can add the colinear points in correct order
-                pointsToAddToTheHull = pointsToAddToTheHull.OrderBy(n => MyVector2.SqrMagnitude(n - currentPoint)).ToList();
+                pointsToAddToTheHull = pointsToAddToTheHull.OrderBy(n => MyVector2.SqrMagnitude(n - previousPoint)).ToList();
 
-                convexHull.AddRange(pointsToAddToTheHull);
-
-                //The next current point is the last point in this list
-                currentPoint = pointsToAddToTheHull[pointsToAddToTheHull.Count - 1];
+                pointsOnConvexHull.AddRange(pointsToAddToTheHull);
 
                 //Remove the points that are now on the convex hull, which should speed up the algorithm
+                //Or will it be slower because it also takes some time to remove points?
                 for (int i = 0; i < pointsToAddToTheHull.Count; i++)
                 {
                     points.Remove(pointsToAddToTheHull[i]);
                 }
 
 
+                //The point we are coming from in the next iteration
+                previousPoint = pointsOnConvexHull[pointsOnConvexHull.Count - 1];
+
 
                 //Have we found the first point on the hull? If so we have completed the hull
-                if (currentPoint.Equals(convexHull[0]))
+                if (previousPoint.Equals(pointsOnConvexHull[0]))
                 {
                     //Then remove it because it is the same as the first point, and we want a convex hull with no duplicates
-                    convexHull.RemoveAt(convexHull.Count - 1);
+                    pointsOnConvexHull.RemoveAt(pointsOnConvexHull.Count - 1);
 
+                    //Stop the loop!
                     break;
                 }
 
 
                 //Safety
-                if (counter > 10000)
+                if (counter > 100000)
                 {
                     Debug.Log("Stuck in endless loop when generating convex hull with jarvis march");
 
@@ -173,7 +150,7 @@ namespace Habrador_Computational_Geometry
 
             
 
-            return convexHull;
+            return pointsOnConvexHull;
         }
     }
 }

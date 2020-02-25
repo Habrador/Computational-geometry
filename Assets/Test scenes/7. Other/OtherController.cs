@@ -145,9 +145,9 @@ public class OtherController : MonoBehaviour
         //Arrows showing the direction of the triangle
         float arrowSize = 0.1f;
 
-        DisplayResultsHelper.DrawArrow(a.ToVector3(), b.ToVector3(), arrowSize, Color.white);
-        DisplayResultsHelper.DrawArrow(b.ToVector3(), c.ToVector3(), arrowSize, Color.white);
-        DisplayResultsHelper.DrawArrow(c.ToVector3(), a.ToVector3(), arrowSize, Color.white);
+        TestAlgorithmsHelpMethods.DrawArrow(a.ToVector3(), b.ToVector3(), arrowSize, Color.white);
+        TestAlgorithmsHelpMethods.DrawArrow(b.ToVector3(), c.ToVector3(), arrowSize, Color.white);
+        TestAlgorithmsHelpMethods.DrawArrow(c.ToVector3(), a.ToVector3(), arrowSize, Color.white);
     }
 
 
@@ -173,7 +173,7 @@ public class OtherController : MonoBehaviour
 
         float arrowSize = 0.1f;
 
-        DisplayResultsHelper.DrawArrow(a_3d, b_3d, arrowSize, Color.white);
+        TestAlgorithmsHelpMethods.DrawArrow(a_3d, b_3d, arrowSize, Color.white);
 
         Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
     }

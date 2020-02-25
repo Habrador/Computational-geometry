@@ -6,7 +6,7 @@ using Habrador_Computational_Geometry;
 
 
 //Display meshes, points, etc so we dont have to do it in each file
-public static class DisplayResultsHelper
+public static class TestAlgorithmsHelpMethods
 {
     //Display some points
     public static void DisplayPoints(HashSet<Vector3> points, float radius, Color color)
@@ -157,5 +157,50 @@ public static class DisplayResultsHelper
 
             Gizmos.DrawSphere(pos, 0.2f);
         }
+    }
+
+
+
+    //Find all vertices of a plane
+    public static HashSet<Vector3> GeneratePointsFromPlane(Transform planeTrans)
+    {
+        HashSet<Vector3> points = new HashSet<Vector3>();
+
+        Mesh mesh = planeTrans.GetComponent<MeshFilter>().sharedMesh;
+
+        Vector3[] vertices = mesh.vertices;
+
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            Vector3 worldPos = planeTrans.TransformPoint(vertices[i]);
+
+            points.Add(worldPos);
+        }
+
+        return points;
+    }
+
+
+
+    //Generate random points within a specified square size
+    public static HashSet<Vector3> GenerateRandomPoints(int seed, float squareSize, int totalPoints)
+    {
+        HashSet<Vector3> randomPoints = new HashSet<Vector3>();
+
+        //Generate random numbers with a seed
+        Random.InitState(seed);
+
+        float max = squareSize;
+        float min = -squareSize;
+
+        for (int i = 0; i < totalPoints; i++)
+        {
+            float randomX = Random.Range(min, max);
+            float randomZ = Random.Range(min, max);
+
+            randomPoints.Add(new Vector3(randomX, 0f, randomZ));
+        }
+
+        return randomPoints;
     }
 }

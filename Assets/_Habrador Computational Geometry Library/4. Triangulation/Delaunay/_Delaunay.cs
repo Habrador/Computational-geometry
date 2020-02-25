@@ -11,10 +11,8 @@ namespace Habrador_Computational_Geometry
         // Delaunay
         //
 
-        //Alternative 1. Triangulate with some algorithm - then flip edges until we have a delaunay triangulation
-        //Is actually not simple beacuse it requires a convex hull algorithm, and a triangulate-points-algorithm
-        //so it depends on other algorithms
-        public static HalfEdgeData2 ByFlippingEdges(HashSet<MyVector2> points, HalfEdgeData2 triangleData)
+        //Algorithm 1. Triangulate the points with some algorithm - then flip edges until we have a delaunay triangulation
+        public static HalfEdgeData2 FlippingEdges(HashSet<MyVector2> points, HalfEdgeData2 triangleData)
         {
             triangleData = DelaunayFlipEdges.GenerateTriangulation(points, triangleData);
 
@@ -22,11 +20,10 @@ namespace Habrador_Computational_Geometry
         }
 
 
-        //Alternative 2. Start with one triangle covering all points - then insert the points one-by-one while flipping edges
-        //Requires just this algorithm and is not dependent on other algorithms
+        //Algorithm 2. Start with one triangle covering all points - then insert the points one-by-one while flipping edges
+        //From the report "A fast algorithm for constructing Delaunay triangulations in the plane" by Sloan
         public static HalfEdgeData2 PointByPoint(HashSet<MyVector2> points, HalfEdgeData2 triangleData)
         {
-            //From the report "A fast algorithm for constructing Delaunay triangulations in the plane" by Sloan
             triangleData = DelaunayIncrementalSloan.GenerateTriangulation(points, triangleData);
 
             return triangleData;
@@ -38,15 +35,23 @@ namespace Habrador_Computational_Geometry
         // Constrained Delaunay
         //
 
-        //Alternative 1. From the report "An algorithm for generating constrained delaunay triangulations" by Sloan
+        //Algorithm 1. From the report "An algorithm for generating constrained delaunay triangulations" by Sloan
         //Start with a delaunay triangulation of all points, including the constraints
         //Then flip edges to make sure the constrains are in the triangulation
-        //Then remove the unwanted triangles within the constraints if we want to
+        //Then remove the unwanted triangles within the constraints (if we want to)
         public static HalfEdgeData2 ConstrainedBySloan(HashSet<MyVector2> sites, List<MyVector2> constraints, bool shouldRemoveTriangles, HalfEdgeData2 triangleData)
         {
             ConstrainedDelaunaySloan.GenerateTriangulation(sites, constraints, shouldRemoveTriangles, triangleData);
 
             return triangleData;
         }
+
+
+
+        //
+        // Dynamic constrained delaunay
+        //
+
+        //TODO
     }
 }

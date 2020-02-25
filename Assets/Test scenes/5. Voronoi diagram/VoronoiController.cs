@@ -61,7 +61,7 @@ public class VoronoiController : MonoBehaviour
         DisplayVoronoiCells(voronoiCells);
 
         //Display the sites
-        DisplayResultsHelper.DisplayPoints(randomSites, 0.1f, Color.black);
+        TestAlgorithmsHelpMethods.DisplayPoints(randomSites, 0.1f, Color.black);
 
 
         //Generate delaunay for comparisons
@@ -72,7 +72,7 @@ public class VoronoiController : MonoBehaviour
 
     private void GenerateDelaunay(HashSet<MyVector2> points)
     {
-        HalfEdgeData2 delaunayData = _Delaunay.ByFlippingEdges(points, new HalfEdgeData2());
+        HalfEdgeData2 delaunayData = _Delaunay.FlippingEdges(points, new HalfEdgeData2());
 
         //From halfedge to triangle
         HashSet<Triangle2> triangles = TransformBetweenDataStructures.HalfEdge2ToTriangle2(delaunayData);
@@ -91,7 +91,7 @@ public class VoronoiController : MonoBehaviour
         Mesh delaunayMesh = TransformBetweenDataStructures.Triangle3ToCompressedMesh(triangles_3d);
 
         //Display the delaunay triangles
-        DisplayResultsHelper.DisplayMeshEdges(delaunayMesh, Color.black);
+        TestAlgorithmsHelpMethods.DisplayMeshEdges(delaunayMesh, Color.black);
     }
 
 

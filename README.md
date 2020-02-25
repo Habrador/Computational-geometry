@@ -26,7 +26,7 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 ### 3. Convex Hull
 
-* Jarvis March 
+* Jarvis March (Gift wrapping)
 
 
 ### 4. Triangulation
@@ -69,14 +69,13 @@ This library consists of two folders. The idea is that one is for testing purpos
 ### Algorithms to implement
 
 * Dynamic constrained delaunay triangulation
-* Convex hull: Quick Hull from the Valve paper on Hull
-* Convex hull: Gift wrapping
+* Convex hull: Quickhull from the Valve paper
+* Convex hull: Graham scan
 * Marching cubes
 * Cut 3d mesh with plane
 * Metaballs
 * Voronoi with Fortune's algorithm
 * Triangulation concave polygon by ear clipping
-* Make sure all algorithms that are in 2d are using 2d data and not 3d to avoid confusion
 * Rectangle-rectangle with SAT
 
 ### Stuff to fix

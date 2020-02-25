@@ -5,16 +5,16 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Create a delaunay triangulation by flipping edges
-    //Simple but time consuming
+    //Simple but slow
     public class DelaunayFlipEdges
     {
         public static HalfEdgeData2 GenerateTriangulation(HashSet<MyVector2> points, HalfEdgeData2 triangleData)
         {
-            //Step 1. Triangulate the points with some algorithm
+            //Step 1. Triangulate the points with some algorithm. The result is a convex triangulation
             //List<Triangle> triangles = TriangulatePoints.IncrementalTriangulation(points);
             HashSet<Triangle2> triangles = _TriangulatePoints.TriangleSplitting(points);
 
-            //Step 2. Change the structure from triangle to half-edge to make it faster to flip edges
+            //Step 2. Change the structure from triangle to half-edge to make it easier to flip edges
             triangleData = TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangleData);
 
             //Step 3. Flip edges until we have a delaunay triangulation
@@ -25,15 +25,16 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Flip edges until we get a delaunay triangulation (or something close to it)
+        //Flip edges until we get a delaunay triangulation
         private static void FlipEdges(HalfEdgeData2 triangleData)
         {
             //The edges we want to flip
             HashSet<HalfEdge2> edges = triangleData.edges;
 
-
+            //To avoid getting stuck in infinite loop
             int safety = 0;
 
+            //So we can count how many edges we have flipped, which may be interesting to display
             int flippedEdges = 0;
 
             while (true)
@@ -42,7 +43,7 @@ namespace Habrador_Computational_Geometry
 
                 if (safety > 100000)
                 {
-                    Debug.Log("Stuck in endless loop when flipping edges");
+                    Debug.Log("Stuck in endless loop when flipping edges to get a Delaunay triangulation");
 
                     break;
                 }
