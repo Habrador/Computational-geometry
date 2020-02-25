@@ -27,7 +27,7 @@ public class TriangulatePointsController : MonoBehaviour
         points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, mapSize, numberOfPoints);
 
         //Points from a plane mesh
-        //HashSet<Vector3> points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
+        //points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
 
         //3d to 2d
         HashSet<MyVector2> points_2d = new HashSet<MyVector2>();
@@ -53,9 +53,13 @@ public class TriangulatePointsController : MonoBehaviour
         //This means that we first need to find the points on the convex hull
         List<MyVector2> pointsOnHull = _ConvexHull.JarvisMarch(points_2d); 
 
-        HashSet<Triangle2> triangles_2d = _TriangulatePoints.PointsOnConvexHull(pointsOnHull);
+        //No colinear points
+        //HashSet<Triangle2> triangles_2d = _TriangulatePoints.PointsOnConvexHull(pointsOnHull);
 
+        //Colinear points
+        HashSet<Triangle2> triangles_2d = _TriangulatePoints.PointsOnConvexHull(pointsOnHull, planeTrans.position.ToMyVector2());
 
+        Debug.Log("Number of triangles: " + triangles_2d.Count);
 
         if (triangles_2d != null)
         {
