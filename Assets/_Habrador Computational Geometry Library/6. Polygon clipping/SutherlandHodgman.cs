@@ -53,7 +53,7 @@ namespace Habrador_Computational_Geometry
                     float dist_to_v1 = Geometry.DistanceFromPointToPlane(plane.normal, plane.pos, v1);
                     float dist_to_v2 = Geometry.DistanceFromPointToPlane(plane.normal, plane.pos, v2);
 
-                    //TODO: What will happen if they are exactly 0? Should maybe use a tolerance 0f 0.001
+                    //TODO: What will happen if they are exactly 0? Should maybe use a tolerance of 0.001
 
                     //Case 1. Both are outside (= to the right), do nothing 
 

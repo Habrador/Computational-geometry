@@ -324,6 +324,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9712b9d68896ae448992748a6772b7e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 2
+  seed: 3
   halfMapSize: 10
   numberOfPoints: 80

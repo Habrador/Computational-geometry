@@ -4,8 +4,9 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
+    //Generate a voronoi diagram by first generating a delaunay triangulation
     //From https://stackoverflow.com/questions/85275/how-do-i-derive-a-voronoi-diagram-given-its-point-set-and-its-delaunay-triangula
-    public class DelaunayToVoronoi
+    public static class DelaunayToVoronoiAlgorithm
     {
         public static List<VoronoiCell2> GenerateVoronoiDiagram(HashSet<MyVector2> sites)
         {
@@ -34,11 +35,9 @@ namespace Habrador_Computational_Geometry
                 MyVector2 v3 = e3.v.position;
 
                 //The circumcenter is the center of a circle where the triangles corners is on the circumference of that circle
-                MyVector2 center2D = Geometry.CalculateCircleCenter(v1, v2, v3);
-
                 //The circumcenter is also known as a voronoi vertex, which is a position in the diagram where we are equally
                 //close to the surrounding sites
-                MyVector2 voronoiVertex = center2D;
+                MyVector2 voronoiVertex = Geometry.CalculateCircleCenter(v1, v2, v3);
 
                 //This will generate double edges - one belonging to each site, and could maybe be improved in the future
                 //by using the half-edge data structure
@@ -112,9 +111,7 @@ namespace Habrador_Computational_Geometry
             MyVector2 v2 = eNeighbor.nextEdge.v.position;
             MyVector2 v3 = eNeighbor.nextEdge.nextEdge.v.position;
 
-            MyVector2 center2D = Geometry.CalculateCircleCenter(v1, v2, v3);
-
-            MyVector2 voronoiVertexNeighbor = new MyVector2(center2D.x, center2D.y);
+            MyVector2 voronoiVertexNeighbor = Geometry.CalculateCircleCenter(v1, v2, v3);
 
             //Create a new vornoi edge between the voronoi vertices
             VoronoiEdge2 edge = new VoronoiEdge2(voronoiVertex, voronoiVertexNeighbor, sitePos: e.prevEdge.v.position);

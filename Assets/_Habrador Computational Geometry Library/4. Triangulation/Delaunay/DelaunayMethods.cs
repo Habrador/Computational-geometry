@@ -8,7 +8,7 @@ namespace Habrador_Computational_Geometry
     public static class DelaunayMethods
     {
         //Test if we should flip an edge
-        //a, b, c belongs to t1 and d is the point on the other triangle
+        //a, b, c belongs to the triangle and d is the point on the other triangle
         //a-c is the edge, which is important so we can flip it, by making the edge b-d
         public static bool ShouldFlipEdge(MyVector2 a, MyVector2 b, MyVector2 c, MyVector2 d)
         {
@@ -24,7 +24,7 @@ namespace Habrador_Computational_Geometry
                 if (Geometry.IsQuadrilateralConvex(a, b, c, d))
                 {
                     //If the new triangle after a flip is not better, then dont flip
-                    //This will also stop the algoritm from ending up in an endless loop
+                    //This will also stop the algorithm from ending up in an endless loop
                     IntersectionCases intersectionCases2 = Intersections.PointCircle(b, c, d, a);
 
                     if (intersectionCases2 == IntersectionCases.IsOnEdge || intersectionCases2 == IntersectionCases.IsInside)

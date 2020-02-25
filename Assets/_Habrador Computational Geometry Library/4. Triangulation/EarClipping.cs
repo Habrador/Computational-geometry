@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
-    //NOT NEEDED BECAUSE CAN DO THE SAME WITH CONSTRAINED DELAUNAY SO BETTER TO USE JUST ONE ALGORITHM
     public class EarClipping
     {
         //

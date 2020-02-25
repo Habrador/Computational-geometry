@@ -21,7 +21,7 @@ namespace Habrador_Computational_Geometry
         //http://thirdpartyninjas.com/blog/2008/10/07/line-segment-intersection/
         public static bool LineLine(MyVector2 l1_p1, MyVector2 l1_p2, MyVector2 l2_p1, MyVector2 l2_p2, bool shouldIncludeEndPoints)
         {
-            //To avoid floating point precision issues we can add a small value
+            //To avoid floating point precision issues we can use a small value
             float epsilon = MathUtility.EPSILON;
 
             bool isIntersecting = false;

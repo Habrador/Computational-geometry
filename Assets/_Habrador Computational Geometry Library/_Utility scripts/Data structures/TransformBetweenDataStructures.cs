@@ -12,15 +12,11 @@ namespace Habrador_Computational_Geometry
         //
         public static HalfEdgeData2 Triangle2ToHalfEdge2(HashSet<Triangle2> triangles, HalfEdgeData2 data)
         {
-            //Step1. Make sure the triangles have the same orientation, which is clockwise
+            //Make sure the triangles have the same orientation, which is clockwise
             triangles = HelpMethods.OrientTrianglesClockwise(triangles);
 
 
-            //Step 2. Init the data structure we need
-            //HalfEdgeData data = new HalfEdgeData();
-
-
-            //Step3. Fill the data structure
+            //Fill the data structure
             foreach (Triangle2 t in triangles)
             {
                 HalfEdgeVertex2 v1 = new HalfEdgeVertex2(t.p1);

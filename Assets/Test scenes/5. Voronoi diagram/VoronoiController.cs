@@ -55,7 +55,7 @@ public class VoronoiController : MonoBehaviour
 
 
         //Generate the voronoi
-        List<VoronoiCell2> voronoiCells = DelaunayToVoronoi.GenerateVoronoiDiagram(randomSites_2d);
+        List<VoronoiCell2> voronoiCells = _Voronoi.DelaunyToVoronoi(randomSites_2d);
 
         //Display the voronoi diagram
         DisplayVoronoiCells(voronoiCells);

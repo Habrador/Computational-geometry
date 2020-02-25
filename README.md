@@ -33,7 +33,7 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 * Triangulate convex polygon 
 * Triangulate points with "visible edge" algorithm - is maybe working with colinear points
-* Triangulate points with "point-by-point" algorithm - 
+* Triangulate points with "point-by-point" algorithm
 * Triangulate with marching squares
 
 #### 4.1 Delaunay triangulation

@@ -4,7 +4,7 @@
 //using System;
 
 ////TODO: Can maybe use the circle test to determine the exact position of an edge position???
-//public static class VoronoiSiteBySite
+//public static class VoronoiSiteBySiteAlgorithm
 //{
 //    //Algorithm 1. Incremental by adding site by site O(n*n)
 //    //https://courses.cs.washington.edu/courses/cse326/00wi/projects/voronoi.html
