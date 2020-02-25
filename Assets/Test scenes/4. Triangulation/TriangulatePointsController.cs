@@ -24,10 +24,10 @@ public class TriangulatePointsController : MonoBehaviour
         //Get points to triangulate
 
         //Random points
-        //points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, mapSize, numberOfPoints);
+        points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, mapSize, numberOfPoints);
 
         //Points from a plane mesh to test colinear points
-        points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
+        //points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
 
         //3d to 2d
         HashSet<MyVector2> points_2d = new HashSet<MyVector2>();

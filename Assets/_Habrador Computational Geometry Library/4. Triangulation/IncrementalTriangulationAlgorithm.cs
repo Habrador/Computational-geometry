@@ -9,6 +9,7 @@ namespace Habrador_Computational_Geometry
     //1. Sort the points along one axis. The first 3 points form a triangle 
     //2. Consider the next point and connect it with all previously connected points which are visible to the point
     //3. Do 2 until we are out of points to add
+    //Is not working with colinear points
     public static class IncrementalTriangulationAlgorithm
     {
         public static HashSet<Triangle2> TriangulatePoints(HashSet<MyVector2> pointsHashset)
@@ -37,19 +38,16 @@ namespace Habrador_Computational_Geometry
 
             //Step 1. Sort the points along x-axis
             //OrderBy is always soring in ascending order - use OrderByDescending to get in the other order
-            //Also have to sort in y to make it work with colinear points
-            originalPoints = originalPoints.OrderBy(n => n.x).ThenBy(n => n.y).ToList();
+            //originalPoints = originalPoints.OrderBy(n => n.x).ThenBy(n => n.y).ToList();
+            originalPoints = originalPoints.OrderBy(n => n.x).ToList();
 
 
             //Step 2. Create the first triangle so we can start the algorithm
-            //We will use the convex hull to identify which points we should add first
-            //This will make it work also with colinear points
-            List<MyVector2> pointsOnHullStart = _ConvexHull.JarvisMarch(pointsHashset);
 
             //Assumes the convex hull algorithm sorts in the same way in x and y directions as we do above
-            MyVector2 p1Start = pointsOnHullStart[MathUtility.ClampListIndex(-1, pointsOnHullStart.Count)];
-            MyVector2 p2Start = pointsOnHullStart[MathUtility.ClampListIndex( 0, pointsOnHullStart.Count)];
-            MyVector2 p3Start = pointsOnHullStart[MathUtility.ClampListIndex( 1, pointsOnHullStart.Count)];
+            MyVector2 p1Start = originalPoints[0];
+            MyVector2 p2Start = originalPoints[1];
+            MyVector2 p3Start = originalPoints[2];
 
             //Theese points for the first triangle
             Triangle2 newTriangle = new Triangle2(p1Start, p2Start, p3Start);
@@ -64,16 +62,11 @@ namespace Habrador_Computational_Geometry
             triangulatedPoints.Add(p2Start);
             triangulatedPoints.Add(p3Start);
 
-            //Remove the points we already added in the first triangle
-            originalPoints.Remove(p1Start);
-            originalPoints.Remove(p2Start);
-            originalPoints.Remove(p3Start);
-
             
             //Step 3. Add the other points one-by-one
             //Add the other points one by one
             //Starts at 3 because we have already added 0,1,2
-            for (int i = 0; i < originalPoints.Count; i++)
+            for (int i = 3; i < originalPoints.Count; i++)
             {
                 MyVector2 pointToAdd = originalPoints[i];
 
