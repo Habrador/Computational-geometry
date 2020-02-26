@@ -45,20 +45,40 @@ public class PolygonClippingController : MonoBehaviour
         //Clipping algortihms
         //Algortihm 1.Sutherland-Hodgman will return the intersection of the polygons
         //Requires that the clipping polygon (the polygon we want to remove from the other polygon) is convex
-        TestSutherlandHodgman(poly, clipPoly);
+        //TestSutherlandHodgman(poly, clipPoly);
 
 
 
         //Alorithm 2. Greiner-Hormann. Can do all boolean operations on all types of polygons
         //but fails when a vertex is on the other polygon's edge
-        //TestGreinerHormann(poly, clipPoly);
+        TestGreinerHormann(poly, clipPoly);
     }
 
 
 
     private void TestSutherlandHodgman(List<MyVector2> poly, List<MyVector2> clipPoly)
     {
-        List<MyVector2> polygonAfterClipping = SutherlandHodgman.ClipPolygon(poly, clipPoly);
+        //Normalize to range 0-1
+        //We have to use all data to normalize
+        List<MyVector2> allPoints = new List<MyVector2>();
+        allPoints.AddRange(poly);
+        allPoints.AddRange(clipPoly);
+
+        AABB normalizingBox = HelpMethods.GetAABB(allPoints);
+
+        float dMax = HelpMethods.CalculateDMax(normalizingBox);
+
+        List<MyVector2> poly_normalized = HelpMethods.Normalize(poly, normalizingBox, dMax);
+
+        List<MyVector2> clipPoly_normalized = HelpMethods.Normalize(clipPoly, normalizingBox, dMax);
+
+
+        //Main algorithm
+        List<MyVector2> polygonAfterClipping_Normalized = SutherlandHodgman.ClipPolygon(poly_normalized, clipPoly_normalized);
+
+
+        //UnNormalize
+        List<MyVector2> polygonAfterClipping = HelpMethods.UnNormalize(polygonAfterClipping_Normalized, normalizingBox, dMax);
 
         //2d to 3d
         List<Vector3> polygonAfterClipping3D = new List<Vector3>();
@@ -76,18 +96,37 @@ public class PolygonClippingController : MonoBehaviour
 
     private void TestGreinerHormann(List<MyVector2> poly, List<MyVector2> clipPoly)
     {
+        //Normalize to range 0-1
+        //We have to use all data to normalize
+        List<MyVector2> allPoints = new List<MyVector2>();
+        allPoints.AddRange(poly);
+        allPoints.AddRange(clipPoly);
+
+        AABB normalizingBox = HelpMethods.GetAABB(allPoints);
+
+        float dMax = HelpMethods.CalculateDMax(normalizingBox);
+
+        List<MyVector2> poly_normalized = HelpMethods.Normalize(poly, normalizingBox, dMax);
+
+        List<MyVector2> clipPoly_normalized = HelpMethods.Normalize(clipPoly, normalizingBox, dMax);
+
+
+
         //In this case we can get back multiple parts of the polygon because one of the 
         //polygons doesnt have to be convex
         //If you pick boolean operation: intersection you should get the same result as with the Sutherland-Hodgman
-        List<List<MyVector2>> finalPolygon = GreinerHormann.ClipPolygons(poly, clipPoly, BooleanOperation.Intersection);
+        List<List<MyVector2>> finalPolygon = GreinerHormann.ClipPolygons(poly_normalized, clipPoly_normalized, BooleanOperation.Intersection);
 
         Debug.Log("Total polygons: " + finalPolygon.Count);
 
         for (int i = 0; i < finalPolygon.Count; i++)
         {
-            List<MyVector2> thisPolygon = finalPolygon[i];
+            List<MyVector2> thisPolygon_normalized = finalPolygon[i];
 
-            Debug.Log("Vertices in this polygon: " + thisPolygon.Count);
+            Debug.Log("Vertices in this polygon: " + thisPolygon_normalized.Count);
+
+            //Unnormalized
+            List<MyVector2> thisPolygon = HelpMethods.UnNormalize(thisPolygon_normalized, normalizingBox, dMax);
 
             //2d to 3d
             List<Vector3> polygonAfterClipping3D = new List<Vector3>();

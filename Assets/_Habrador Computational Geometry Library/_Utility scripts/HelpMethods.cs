@@ -84,7 +84,18 @@ namespace Habrador_Computational_Geometry
         //
         //From "A fast algorithm for constructing Delaunay triangulations in the plane" by Sloan
         //boundingBox is the rectangle that covers all original points before normalization
-        public static MyVector2 NormalizePoint(MyVector2 point, AABB boundingBox, float dMax)
+        public static float CalculateDMax(AABB boundingBox)
+        {
+            float dMax = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
+
+            return dMax;
+        }
+
+
+        //Normalize stuff
+
+        //MyVector2
+        public static MyVector2 Normalize(MyVector2 point, AABB boundingBox, float dMax)
         {
             float x = (point.x - boundingBox.minX) / dMax;
             float y = (point.y - boundingBox.minY) / dMax;
@@ -94,11 +105,30 @@ namespace Habrador_Computational_Geometry
             return pNormalized;
         }
 
-        public static float CalculateDMax(AABB boundingBox)
+        //List<MyVector2>
+        public static List<MyVector2> Normalize(List<MyVector2> points, AABB boundingBox, float dMax)
         {
-            float dMax = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
+            List<MyVector2> normalizedPoints = new List<MyVector2>();
 
-            return dMax;
+            foreach (MyVector2 p in points)
+            {
+                normalizedPoints.Add(Normalize(p, boundingBox, dMax));
+            }
+
+            return normalizedPoints;
+        }
+
+        //HashSet<MyVector2> 
+        public static HashSet<MyVector2> Normalize(HashSet<MyVector2> points, AABB boundingBox, float dMax)
+        {
+            HashSet<MyVector2> normalizedPoints = new HashSet<MyVector2>();
+
+            foreach (MyVector2 p in points)
+            {
+                normalizedPoints.Add(Normalize(p, boundingBox, dMax));
+            }
+
+            return normalizedPoints;
         }
 
 
@@ -147,6 +177,19 @@ namespace Habrador_Computational_Geometry
             }
 
             return unNormalized;
+        }
+
+        //HalfEdgeData2
+        public static HalfEdgeData2 UnNormalize(HalfEdgeData2 data, AABB aabb, float dMax)
+        {
+            foreach (HalfEdgeVertex2 v in data.vertices)
+            {
+                MyVector2 vUnnNormalized = HelpMethods.UnNormalize(v.position, aabb, dMax);
+
+                v.position = vUnnNormalized;
+            }
+
+            return data;
         }
     }
 }

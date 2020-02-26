@@ -29,9 +29,8 @@ public class HullController : MonoBehaviour
         HashSet<Vector3> points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
 
 
-
         //
-        // Generate the convex hull
+        // Prepare the points
         //
 
         //From 3d to 2d
@@ -42,10 +41,23 @@ public class HullController : MonoBehaviour
             points_2d.Add(v.ToMyVector2());
         }
 
-        //Algorithm 1. Jarvis March - slow but simple
-        List<MyVector2> pointsOnConvexHull_2d = _ConvexHull.JarvisMarch(points_2d);
+        //Normalize to range 0-1
+        AABB normalizingBox = HelpMethods.GetAABB(new List<MyVector2>(points_2d));
 
-        if (pointsOnConvexHull_2d == null)
+        float dMax = HelpMethods.CalculateDMax(normalizingBox);
+
+        HashSet<MyVector2> points_2d_normalized = HelpMethods.Normalize(points_2d, normalizingBox, dMax);
+
+
+
+        //
+        // Generate the convex hull
+        //
+
+        //Algorithm 1. Jarvis March - slow but simple
+        List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.JarvisMarch(points_2d_normalized);
+
+        if (pointsOnConvexHull_2d_normalized == null)
         {
             Debug.Log("Couldnt find a convex hull");
         }
@@ -57,8 +69,11 @@ public class HullController : MonoBehaviour
         //
 
         //Display points on the hull and lines between the points
-        if (pointsOnConvexHull_2d != null)
+        if (pointsOnConvexHull_2d_normalized != null)
         {
+            //UnNormalize
+            List<MyVector2> pointsOnConvexHull_2d = HelpMethods.UnNormalize(pointsOnConvexHull_2d_normalized, normalizingBox, dMax);
+
             //From 2d to 3d
             List<Vector3> pointsOnConvexHull = new List<Vector3>();
 

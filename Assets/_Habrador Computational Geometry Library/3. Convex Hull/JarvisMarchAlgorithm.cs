@@ -21,18 +21,6 @@ namespace Habrador_Computational_Geometry
 
             //Step 0. Normalize the data to range [0, 1] or everything will break at larger sizes :(
             //Make sure the data is already normalized!!!
-            //AABB boundingBox = HelpMethods.GetAABB(points);
-
-            //float dMax = HelpMethods.CalculateDMax(boundingBox);
-
-            //List<MyVector2> normalizedPoints = new List<MyVector2>();
-
-            //foreach (MyVector2 p in points)
-            //{
-            //    normalizedPoints.Add(HelpMethods.NomalizePoint(p, boundingBox, dMax));
-            //}
-
-            //points = normalizedPoints;
 
 
 
@@ -167,15 +155,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-            //Unnormalize the points
-            //for (int i = 0; i < pointsOnConvexHull.Count; i++)
-            //{
-            //    MyVector2 p = pointsOnConvexHull[i];
-
-            //    MyVector2 pUnNormalized = HelpMethods.UnNomalizePoint(p, boundingBox, dMax);
-
-            //    pointsOnConvexHull[i] = pUnNormalized;
-            //}
+            //Dont forget to unnormalize the points!
 
             
 

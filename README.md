@@ -2,6 +2,7 @@
 
 This library consists of two folders. The idea is that one is for testing purposes and the other folder is the folder you drag into your project. 
 
+Make sure all input coordinates are normalized to range 0-1 to avoid floating point precision issues! Normalizing methods exists in HelpMethods
 
 ## Finished
 
@@ -81,9 +82,8 @@ This library consists of two folders. The idea is that one is for testing purpos
 ### Stuff to fix
 
 * The triangulation by splitting triangles, there's a small problem if a vertex ends up on the edge and is not inside the triangle
-* Voronoi point-by-point (suffers from floating point precision issues)
+* Voronoi point-by-point (suffers from floating point precision issues) Because the data was not normalized?
 * Point-polygon intersection floating point precision issues
-* Make sure all input values in all algorithms are normalized to 0,1 to avoid floating point precision issues
 
 
 ## Socials

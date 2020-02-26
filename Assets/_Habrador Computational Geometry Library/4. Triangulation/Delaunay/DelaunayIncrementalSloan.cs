@@ -27,6 +27,7 @@ namespace Habrador_Computational_Geometry
             //Step 1.Normalize the points to the range(0 - 1), which assumes we have more than 1 point
             //This will lower the floating point precision when unnormalizing again, so we might have to go through
             //all points in the end and make sure they have the correct coordinate
+            //Better to normalize and unnormalize outside of this method to make it more standardized
             //AABB boundingBox = HelpMethods.GetAABB(new List<MyVector2>(inputPoints));
 
             //float dMax = HelpMethods.CalculateDMax(boundingBox);
