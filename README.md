@@ -83,6 +83,7 @@ This library consists of two folders. The idea is that one is for testing purpos
 * The triangulation by splitting triangles, there's a small problem if a vertex ends up on the edge and is not inside the triangle
 * Voronoi point-by-point (suffers from floating point precision issues)
 * Point-polygon intersection floating point precision issues
+* Make sure all input values in all algorithms are normalized to 0,1 to avoid floating point precision issues
 
 
 ## Socials

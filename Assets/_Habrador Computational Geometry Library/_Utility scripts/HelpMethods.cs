@@ -7,7 +7,9 @@ namespace Habrador_Computational_Geometry
     //Standardized methods that are the same for all
     public static class HelpMethods
     {
-        //Orient triangles so they have the correct orientation
+        //
+        // Orient triangles so they have the correct orientation
+        //
         public static HashSet<Triangle2> OrientTrianglesClockwise(HashSet<Triangle2> triangles)
         {
             //Convert to list or we will no be able to update the orientation
@@ -35,15 +37,19 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Calculate the AABB of a set of points
+        //
+        // Calculate the AABB of a set of points (actually rectangle in this case)
+        //
         public static AABB GetAABB(List<MyVector2> points)
         {
-            float minX = float.MaxValue;
-            float maxX = float.MinValue;
-            float minY = float.MaxValue;
-            float maxY = float.MinValue;
+            MyVector2 p1 = points[0];
 
-            for (int i = 0; i < points.Count; i++)
+            float minX = p1.x;
+            float maxX = p1.x;
+            float minY = p1.y;
+            float maxY = p1.y;
+
+            for (int i = 1; i < points.Count; i++)
             {
                 MyVector2 p = points[i];
 
@@ -51,7 +57,7 @@ namespace Habrador_Computational_Geometry
                 {
                     minX = p.x;
                 }
-                if (p.x > maxX)
+                else if (p.x > maxX)
                 {
                     maxX = p.x;
                 }
@@ -60,7 +66,7 @@ namespace Habrador_Computational_Geometry
                 {
                     minY = p.y;
                 }
-                if (p.y > maxY)
+                else if (p.y > maxY)
                 {
                     maxY = p.y;
                 }
@@ -73,7 +79,9 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Normalize the points to the range(0 - 1)
+        //
+        // Normalize points to the range (0 -> 1)
+        //
         //From "A fast algorithm for constructing Delaunay triangulations in the plane" by Sloan
         public static void NormalizePoints(List<MyVector2> points, out List<MyVector2> normalizedPoints, out float d_max, out AABB boundingBox)
         {
@@ -88,6 +96,8 @@ namespace Habrador_Computational_Geometry
             {
                 float x = (p.x - boundingBox.minX) / d_max;
                 float y = (p.y - boundingBox.minY) / d_max;
+
+                //To unnormalize, just do the opposite: (p.x * d_max) + boundingBox.minX;
 
                 MyVector2 pNormalized = new MyVector2(x, y);
 
