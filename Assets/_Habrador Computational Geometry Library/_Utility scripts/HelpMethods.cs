@@ -84,7 +84,7 @@ namespace Habrador_Computational_Geometry
         //
         //From "A fast algorithm for constructing Delaunay triangulations in the plane" by Sloan
         //boundingBox is the rectangle that covers all original points before normalization
-        public static MyVector2 NomalizePoint(MyVector2 point, AABB boundingBox, float dMax)
+        public static MyVector2 NormalizePoint(MyVector2 point, AABB boundingBox, float dMax)
         {
             float x = (point.x - boundingBox.minX) / dMax;
             float y = (point.y - boundingBox.minY) / dMax;
@@ -94,7 +94,18 @@ namespace Habrador_Computational_Geometry
             return pNormalized;
         }
 
-        public static MyVector2 UnNomalizePoint(MyVector2 point, AABB boundingBox, float dMax)
+        public static float CalculateDMax(AABB boundingBox)
+        {
+            float dMax = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
+
+            return dMax;
+        }
+
+
+        //UnNormalize different stuff
+
+        //MyVector2
+        public static MyVector2 UnNormalize(MyVector2 point, AABB boundingBox, float dMax)
         {
             float x = (point.x * dMax) + boundingBox.minX;
             float y = (point.y * dMax) + boundingBox.minY;
@@ -104,11 +115,38 @@ namespace Habrador_Computational_Geometry
             return pUnNormalized;
         }
 
-        public static float CalculateDMax(AABB boundingBox)
+        //List<MyVector2>
+        public static List<MyVector2> UnNormalize(List<MyVector2> normalized, AABB aabb, float dMax)
         {
-            float dMax = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
+            List<MyVector2> unNormalized = new List<MyVector2>();
 
-            return dMax;
+            foreach (MyVector2 p in normalized)
+            {
+                MyVector2 pUnNormalized = UnNormalize(p, aabb, dMax);
+
+                unNormalized.Add(pUnNormalized);
+            }
+
+            return unNormalized;
+        }
+
+        //HashSet<Triangle2>
+        public static HashSet<Triangle2> UnNormalize(HashSet<Triangle2> normalized, AABB aabb, float dMax)
+        {
+            HashSet<Triangle2> unNormalized = new HashSet<Triangle2>();
+
+            foreach (Triangle2 t in normalized)
+            {
+                MyVector2 p1 = HelpMethods.UnNormalize(t.p1, aabb, dMax);
+                MyVector2 p2 = HelpMethods.UnNormalize(t.p2, aabb, dMax);
+                MyVector2 p3 = HelpMethods.UnNormalize(t.p3, aabb, dMax);
+
+                Triangle2 tUnNormalized = new Triangle2(p1, p2, p3);
+
+                unNormalized.Add(tUnNormalized);
+            }
+
+            return unNormalized;
         }
     }
 }

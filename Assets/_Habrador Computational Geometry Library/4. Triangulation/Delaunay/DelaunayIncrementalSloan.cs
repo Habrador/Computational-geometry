@@ -12,10 +12,10 @@ namespace Habrador_Computational_Geometry
     // - bins
     public static class DelaunayIncrementalSloan
     {
-        public static HalfEdgeData2 GenerateTriangulation(HashSet<MyVector2> inputPoints, HalfEdgeData2 triangulationData)
+        public static HalfEdgeData2 GenerateTriangulation(HashSet<MyVector2> points, HalfEdgeData2 triangulationData)
         {
             //We need more than 1 point to normalize
-            if (inputPoints.Count < 2)
+            if (points.Count < 2)
             {
                 Debug.Log("Can make a delaunay with sloan with less than 2 points");
 
@@ -27,16 +27,16 @@ namespace Habrador_Computational_Geometry
             //Step 1.Normalize the points to the range(0 - 1), which assumes we have more than 1 point
             //This will lower the floating point precision when unnormalizing again, so we might have to go through
             //all points in the end and make sure they have the correct coordinate
-            AABB boundingBox = HelpMethods.GetAABB(new List<MyVector2>(inputPoints));
+            //AABB boundingBox = HelpMethods.GetAABB(new List<MyVector2>(inputPoints));
 
-            float dMax = HelpMethods.CalculateDMax(boundingBox);
+            //float dMax = HelpMethods.CalculateDMax(boundingBox);
 
-            HashSet<MyVector2> points = new HashSet<MyVector2>();
+            //HashSet<MyVector2> points = new HashSet<MyVector2>();
 
-            foreach (MyVector2 p in inputPoints)
-            {
-                points.Add(HelpMethods.NomalizePoint(p, boundingBox, dMax));
-            }
+            //foreach (MyVector2 p in inputPoints)
+            //{
+            //    points.Add(HelpMethods.NomalizePoint(p, boundingBox, dMax));
+            //}
 
 
 
@@ -78,12 +78,12 @@ namespace Habrador_Computational_Geometry
 
 
             //Step 9.Reset the coordinates to their original values because they are currently in the range (0,1)
-            foreach (HalfEdgeVertex2 v in triangulationData.vertices)
-            {
-                MyVector2 vUnnNormalized = HelpMethods.UnNomalizePoint(v.position, boundingBox, dMax);
+            //foreach (HalfEdgeVertex2 v in triangulationData.vertices)
+            //{
+            //    MyVector2 vUnnNormalized = HelpMethods.UnNomalizePoint(v.position, boundingBox, dMax);
 
-                v.position = vUnnNormalized;
-            }
+            //    v.position = vUnnNormalized;
+            //}
 
 
             string meshDataString = "Delaunay with sloan created a triangulation with: ";

@@ -38,11 +38,23 @@ public class TriangulatePointsController : MonoBehaviour
         points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
 
         //3d to 2d
-        HashSet<MyVector2> points_2d = new HashSet<MyVector2>();
+        List<MyVector2> points_2d = new List<MyVector2>();
 
         foreach (Vector3 v in points)
         {
             points_2d.Add(v.ToMyVector2());
+        }
+
+        //Normalize to range 0-1
+        HashSet<MyVector2> points_2d_normalized = new HashSet<MyVector2>();
+
+        AABB normalizingBox = HelpMethods.GetAABB(points_2d);
+
+        float dMax = HelpMethods.CalculateDMax(normalizingBox);
+
+        foreach (MyVector2 p in points_2d)
+        {
+            points_2d_normalized.Add(HelpMethods.NormalizePoint(p, normalizingBox, dMax));
         }
 
 
@@ -64,10 +76,10 @@ public class TriangulatePointsController : MonoBehaviour
 
         //First find the convex hull of the points
         //This means that we first need to find the points on the convex hull
-        pointsOnHull = _ConvexHull.JarvisMarch(points_2d); 
+        List<MyVector2> pointsOnHull_normalized = _ConvexHull.JarvisMarch(points_2d_normalized); 
 
         //Method 1. Find the colinear points while triangulating the hull
-        HashSet<Triangle2> triangles_2d = _TriangulatePoints.PointsOnConvexHull(pointsOnHull);
+        HashSet<Triangle2> triangles_2d_normalized = _TriangulatePoints.PointsOnConvexHull(pointsOnHull_normalized);
 
         //Method 2. Add a point inside of the convex hull to deal with colinear points
         //HashSet<Triangle2> triangles_2d = _TriangulatePoints.PointsOnConvexHull(pointsOnHull, planeTrans.position.ToMyVector2());
@@ -75,10 +87,18 @@ public class TriangulatePointsController : MonoBehaviour
 
 
         //Display
-        Debug.Log("Number of triangles: " + triangles_2d.Count);
+        Debug.Log("Number of triangles: " + triangles_2d_normalized.Count);
 
-        if (triangles_2d != null)
+        if (pointsOnHull_normalized != null)
         {
+            pointsOnHull = HelpMethods.UnNormalize(pointsOnHull_normalized, normalizingBox, dMax);
+        }
+
+        if (triangles_2d_normalized != null)
+        {
+            //Unnormalized the triangles
+            HashSet<Triangle2> triangles_2d = HelpMethods.UnNormalize(triangles_2d_normalized, normalizingBox, dMax);
+        
             //Make sure the triangles have the correct orientation
             triangles_2d = HelpMethods.OrientTrianglesClockwise(triangles_2d);
 
