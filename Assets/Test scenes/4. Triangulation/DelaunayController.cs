@@ -65,11 +65,11 @@ public class DelaunayController : MonoBehaviour
 
 
         //Algorithm 2. Delaunay by inserting point-by-point while flipping edges after inserting a single point 
-        //HalfEdgeData2 triangleData_normalized = _Delaunay.PointByPoint(points_2d_normalized, new HalfEdgeData2());
+        HalfEdgeData2 triangleData_normalized = _Delaunay.PointByPoint(points_2d_normalized, new HalfEdgeData2());
 
 
         //Algorithm 3. Constrained delaunay
-        HalfEdgeData2 triangleData_normalized = _Delaunay.ConstrainedBySloan(points_2d_normalized, constraints_2d_normalized, true, new HalfEdgeData2());
+        //HalfEdgeData2 triangleData_normalized = _Delaunay.ConstrainedBySloan(points_2d_normalized, constraints_2d_normalized, true, new HalfEdgeData2());
 
 
 

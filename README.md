@@ -84,6 +84,7 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 * The triangulation by splitting triangles, there's a small problem if a vertex ends up on the edge and is not inside the triangle
 * Voronoi point-by-point (suffers from floating point precision issues) Because the data was not normalized?
 * Point-polygon intersection floating point precision issues
+* Clean up messy delaunay code
 
 
 ## Socials

@@ -47,7 +47,7 @@ namespace Habrador_Computational_Geometry
         //Is numerically stable
         //v1, v2 should belong to the edge we ant to flip
         //v1, v2, v3 are counter-clockwise
-        //Is this also checking if the edge can be swapped
+        //Is also checking if the edge can be swapped
         public static bool ShouldFlipEdgeStable(MyVector2 v1, MyVector2 v2, MyVector2 v3, MyVector2 vp)
         {
             float x_13 = v1.x - v3.x;
@@ -80,87 +80,6 @@ namespace Habrador_Computational_Geometry
             }
 
             return false;
-        }
-
-
-
-        //Create a supertriangle that contains all other points
-        //According to the book "Geometric tools for computer graphics" a reasonably sized triangle
-        //is one that contains a circle that contains the axis-aligned bounding rectangle of the points 
-        public static Triangle2 GetSupertriangle(HashSet<MyVector2> points)
-        {
-            //Step 1. Create a AABB around the points
-            float maxX = float.MinValue;
-            float minX = float.MaxValue;
-            float maxY = float.MinValue;
-            float minY = float.MaxValue;
-
-            foreach (MyVector2 pos in points)
-            {
-                if (pos.x > maxX)
-                {
-                    maxX = pos.x;
-                }
-                else if (pos.x < minX)
-                {
-                    minX = pos.x;
-                }
-
-                if (pos.y > maxY)
-                {
-                    maxY = pos.y;
-                }
-                else if (pos.y < minY)
-                {
-                    minY = pos.y;
-                }
-            }
-
-            MyVector2 TL = new MyVector2(minX, maxY);
-            MyVector2 TR = new MyVector2(maxX, maxY);
-            MyVector2 BR = new MyVector2(maxX, minY);
-
-            //Debug AABB
-            //Gizmos.DrawLine(TL, TR);
-            //Gizmos.DrawLine(TR, BR);
-            //Gizmos.DrawLine(BR, BL);
-            //Gizmos.DrawLine(BL, TL);
-
-
-
-            //Step2. Find the inscribed circle - the smallest circle that surrounds the AABB
-            MyVector2 circleCenter = (TL + BR) * 0.5f;
-
-            float circleRadius = MyVector2.Magnitude(circleCenter - TR);
-
-            //Debug circle
-            //Gizmos.DrawWireSphere(circleCenter, circleRadius);
-
-
-
-            //Step 3. Create the smallest triangle that surrounds the circle
-            //All edges of this triangle have the same length
-            float halfSideLenghth = circleRadius / Mathf.Tan(30f * Mathf.Deg2Rad);
-
-            //The center position of the bottom-edge
-            MyVector2 tri_B = new MyVector2(circleCenter.x, circleCenter.y - circleRadius);
-
-            MyVector2 tri_BL = new MyVector2(tri_B.x - halfSideLenghth, tri_B.y);
-            MyVector2 tri_BR = new MyVector2(tri_B.x + halfSideLenghth, tri_B.y);
-
-            //The height from the bottom edge to the top vertex
-            float triangleHeight = halfSideLenghth * Mathf.Tan(60f * Mathf.Deg2Rad);
-
-            MyVector2 tri_T = new MyVector2(circleCenter.x, tri_B.y + triangleHeight);
-
-            //Debug
-            //Gizmos.DrawLine(tri_BL, tri_BR);
-            //Gizmos.DrawLine(tri_BL, tri_T);
-            //Gizmos.DrawLine(tri_BR, tri_T);
-
-            Triangle2 superTriangle = new Triangle2(tri_BR, tri_BL, tri_T);
-
-            return superTriangle;
         }
     }
 }

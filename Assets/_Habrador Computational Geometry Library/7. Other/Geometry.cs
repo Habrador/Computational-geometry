@@ -269,10 +269,55 @@ namespace Habrador_Computational_Geometry
         //    MyVector2 from = p1 - p2;
 
         //    MyVector2 to = p3 - p2;
-            
+
         //    float angle = Vector2.SignedAngle(from, to);
-            
+
         //    return angle;
         //}
+
+
+
+        //Create a supertriangle that contains all other points
+        //According to the book "Geometric tools for computer graphics" a reasonably sized triangle
+        //is one that contains a circle that contains the axis-aligned bounding rectangle of the points 
+        //Is currently not used anywhere because our points are normalized to the range 0-1
+        //and then we can make a supertriangle by just setting its size to 100
+        public static Triangle2 GenerateSupertriangle(HashSet<MyVector2> points)
+        {
+            //Step 1. Create a AABB around the points
+            AABB aabb = HelpMethods.GetAABB(new List<MyVector2>(points));
+
+            MyVector2 TL = new MyVector2(aabb.minX, aabb.maxY);
+            MyVector2 TR = new MyVector2(aabb.maxX, aabb.maxY);
+            MyVector2 BR = new MyVector2(aabb.maxX, aabb.minY);
+
+
+            //Step2. Find the inscribed circle - the smallest circle that surrounds the AABB
+            MyVector2 circleCenter = (TL + BR) * 0.5f;
+
+            float circleRadius = MyVector2.Magnitude(circleCenter - TR);
+
+
+            //Step 3. Create the smallest triangle that surrounds the circle
+            //All edges of this triangle have the same length
+            float halfSideLenghth = circleRadius / Mathf.Tan(30f * Mathf.Deg2Rad);
+
+            //The center position of the bottom-edge
+            MyVector2 t_B = new MyVector2(circleCenter.x, circleCenter.y - circleRadius);
+
+            MyVector2 t_BL = new MyVector2(t_B.x - halfSideLenghth, t_B.y);
+            MyVector2 t_BR = new MyVector2(t_B.x + halfSideLenghth, t_B.y);
+
+            //The height from the bottom edge to the top vertex
+            float triangleHeight = halfSideLenghth * Mathf.Tan(60f * Mathf.Deg2Rad);
+
+            MyVector2 t_T = new MyVector2(circleCenter.x, t_B.y + triangleHeight);
+
+            
+            //The final triangle
+            Triangle2 superTriangle = new Triangle2(t_BR, t_BL, t_T);
+
+            return superTriangle;
+        }
     }
 }

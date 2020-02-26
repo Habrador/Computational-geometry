@@ -14,30 +14,18 @@ namespace Habrador_Computational_Geometry
     {
         public static HalfEdgeData2 GenerateTriangulation(HashSet<MyVector2> points, HalfEdgeData2 triangulationData)
         {
-            //We need more than 1 point to normalize
+            //We need more than 1 point to 
             if (points.Count < 2)
             {
                 Debug.Log("Can make a delaunay with sloan with less than 2 points");
 
-                //return null;
+                return null;
             }
 
-            //Debug.Log("Hello");
+            
 
             //Step 1.Normalize the points to the range(0 - 1), which assumes we have more than 1 point
-            //This will lower the floating point precision when unnormalizing again, so we might have to go through
-            //all points in the end and make sure they have the correct coordinate
-            //Better to normalize and unnormalize outside of this method to make it more standardized
-            //AABB boundingBox = HelpMethods.GetAABB(new List<MyVector2>(inputPoints));
-
-            //float dMax = HelpMethods.CalculateDMax(boundingBox);
-
-            //HashSet<MyVector2> points = new HashSet<MyVector2>();
-
-            //foreach (MyVector2 p in inputPoints)
-            //{
-            //    points.Add(HelpMethods.NomalizePoint(p, boundingBox, dMax));
-            //}
+            //Is not being done here, we assume the points are already normalized
 
 
 
@@ -79,12 +67,7 @@ namespace Habrador_Computational_Geometry
 
 
             //Step 9.Reset the coordinates to their original values because they are currently in the range (0,1)
-            //foreach (HalfEdgeVertex2 v in triangulationData.vertices)
-            //{
-            //    MyVector2 vUnnNormalized = HelpMethods.UnNomalizePoint(v.position, boundingBox, dMax);
-
-            //    v.position = vUnnNormalized;
-            //}
+            //Is being done outside of this method
 
 
             string meshDataString = "Delaunay with sloan created a triangulation with: ";
@@ -103,9 +86,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Insert a new point in the triangulation
-        //Can be used by other methods
-        //Assumes all points are within the existing triangulation
+        //Insert a new point in the triangulation we already have, so we need at least one triangle
         public static HalfEdgeData2 InsertNewPointInTriangulation(MyVector2 p, HalfEdgeData2 triangulationData, ref int missedPoints, ref int flippedEdges)
         {
             //Find an existing triangle which encloses p
