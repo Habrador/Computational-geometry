@@ -70,5 +70,29 @@ namespace Habrador_Computational_Geometry
 
             return box;
         }
+
+
+
+        //Normalize the points to the range(0 - 1)
+        //From "A fast algorithm for constructing Delaunay triangulations in the plane" by Sloan
+        public static void NormalizePoints(List<MyVector2> points, out List<MyVector2> normalizedPoints, out float d_max, out AABB boundingBox)
+        {
+            boundingBox = HelpMethods.GetAABB(points);
+
+            d_max = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
+
+            normalizedPoints = new List<MyVector2>();
+
+            //Normalize
+            foreach (MyVector2 p in points)
+            {
+                float x = (p.x - boundingBox.minX) / d_max;
+                float y = (p.y - boundingBox.minY) / d_max;
+
+                MyVector2 pNormalized = new MyVector2(x, y);
+
+                normalizedPoints.Add(pNormalized);
+            }
+        }
     }
 }

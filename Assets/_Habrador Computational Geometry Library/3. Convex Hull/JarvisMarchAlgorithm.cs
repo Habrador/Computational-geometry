@@ -19,6 +19,16 @@ namespace Habrador_Computational_Geometry
             List<MyVector2> pointsOnConvexHull = new List<MyVector2>();
 
 
+            //Step 0. Normalize the data to range [0, 1] or everything will break at larger sizes :(
+            List<MyVector2> normalizedPoints;
+            float d_max;
+            AABB boundingBox;
+
+            HelpMethods.NormalizePoints(new List<MyVector2>(points), out normalizedPoints, out d_max, out boundingBox);
+
+            points = normalizedPoints;
+
+
             //Step 1. Find the vertex with the smallest x coordinate
             //If several points have the same x coordinate, find the one with the smallest y
             MyVector2 startPos = points[0];
@@ -146,6 +156,19 @@ namespace Habrador_Computational_Geometry
                 }
 
                 counter += 1;
+            }
+
+
+
+            //Unnormalize the points
+            for (int i = 0; i < pointsOnConvexHull.Count; i++)
+            {
+                MyVector2 p = pointsOnConvexHull[i];
+
+                p.x = (p.x * d_max) + boundingBox.minX;
+                p.y = (p.y * d_max) + boundingBox.minY;
+
+                pointsOnConvexHull[i] = p;
             }
 
             

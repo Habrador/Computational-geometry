@@ -27,26 +27,32 @@ namespace Habrador_Computational_Geometry
             //Step 1.Normalize the points to the range(0 - 1), which assumes we have more than 1 point
             //This will lower the floating point precision when unnormalizing again, so we might have to go through
             //all points in the end and make sure they have the correct coordinate
-            AABB boundingBox = HelpMethods.GetAABB(new List<MyVector2>(inputPoints));
+            //AABB boundingBox = HelpMethods.GetAABB(new List<MyVector2>(inputPoints));
 
-            float d_max = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
+            //float d_max = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
 
-            HashSet<MyVector2> points = new HashSet<MyVector2>();
+            //HashSet<MyVector2> points = new HashSet<MyVector2>();
 
-            foreach (MyVector2 p in inputPoints)
-            {
-                float x = (p.x - boundingBox.minX) / d_max;
-                float y = (p.y - boundingBox.minY) / d_max;
+            //foreach (MyVector2 p in inputPoints)
+            //{
+            //    float x = (p.x - boundingBox.minX) / d_max;
+            //    float y = (p.y - boundingBox.minY) / d_max;
 
-                MyVector2 pNormalized = new MyVector2(x, y);
+            //    MyVector2 pNormalized = new MyVector2(x, y);
 
-                points.Add(pNormalized);
-            }
+            //    points.Add(pNormalized);
+            //}
 
-            //Used if we dont want to normalize
-            //HashSet<Vector3> points = inputPoints;
+            //Will be needed to unnormalize
+            List<MyVector2> normalizedPoints;
+            float d_max;
+            AABB boundingBox;
 
-            
+            HelpMethods.NormalizePoints(new List<MyVector2>(inputPoints), out normalizedPoints, out d_max, out boundingBox);
+
+            HashSet<MyVector2> points = new HashSet<MyVector2>(normalizedPoints);
+
+
 
             //Step 2. Sort the points into bins to make it faster to find which triangle a point is in
 
