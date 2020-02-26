@@ -210,15 +210,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a4c3d3ae8eb4be4faaf7930274f6613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 10
+  seed: 12
   halfMapSize: 10
   numberOfPoints: 100
-  obstacle:
-  - {x: 1.8606043, y: 0, z: 3.7334368}
-  - {x: 0.5521774, y: 0, z: 0.5322433}
-  - {x: -2.3269491, y: 0, z: -2.8268971}
-  - {x: -5.399268, y: 0, z: 1.5181946}
-  - {x: -2.3542032, y: 0, z: 5.331489}
+  constraints:
+  - {x: 3.070429, y: 0, z: 4.4364123}
+  - {x: 4.5578337, y: 0, z: 0}
+  - {x: 2.416151, y: 0, z: -2.5443106}
+  - {x: -0.6889745, y: 0, z: -3.6554308}
+  - {x: -4.2398453, y: 0, z: -0.68870413}
+  - {x: -1.8494933, y: 0, z: 4.315544}
 --- !u!4 &1171182122
 Transform:
   m_ObjectHideFlags: 0

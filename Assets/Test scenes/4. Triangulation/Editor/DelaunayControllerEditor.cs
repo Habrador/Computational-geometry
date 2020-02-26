@@ -33,16 +33,16 @@ public class DelaunayControllerEditor : Editor
         //So you we cant click on anything else in the scene
         HandleUtility.AddDefaultControl(0);
 
-        //Move the obstacle points
-        List<Vector3> obstacle = triangulatePoints.obstacle;
+        //Move the constrains points
+        List<Vector3> constraints = triangulatePoints.constraints;
 
-        if (obstacle != null)
+        if (constraints != null)
         {
-            for (int i = 0; i < obstacle.Count; i++)
+            for (int i = 0; i < constraints.Count; i++)
             {
-                Vector3 newPos = MovePoint(obstacle[i]);
+                Vector3 newPos = MovePoint(constraints[i]);
 
-                obstacle[i] = newPos;
+                constraints[i] = newPos;
             }
         }
     }

@@ -11,8 +11,8 @@ public class DelaunayController : MonoBehaviour
 
     public int numberOfPoints = 10;
 
-    //One obstacle where the vertices are connected to form the entire obstacle
-    public List<Vector3> obstacle;
+    //One constraints where the vertices are connected to form the entire constraint
+    public List<Vector3> constraints;
 
     Mesh triangulatedMesh;
 
@@ -21,52 +21,60 @@ public class DelaunayController : MonoBehaviour
     public void GenererateTriangulation()
     {
         //Add the random points
-        HashSet<Vector3> randomPoints = new HashSet<Vector3>();
+        HashSet<Vector3> points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, halfMapSize, numberOfPoints);
 
-        Random.InitState(seed);
-
-        for (int i = 0; i < numberOfPoints; i++)
-        {
-            float randomX = Random.Range(-halfMapSize, halfMapSize);
-            float randomZ = Random.Range(-halfMapSize, halfMapSize);
-
-            Vector3 randomPos = new Vector3(randomX, 0f, randomZ);
-
-            randomPoints.Add(randomPos);
-        }
-        
 
         //From 3d to 2d
-        HashSet<MyVector2> randomPoints_2d = new HashSet<MyVector2>();
+        HashSet<MyVector2> points_2d = new HashSet<MyVector2>();
         
-        foreach (Vector3 v in randomPoints)
+        foreach (Vector3 v in points)
         {
-            randomPoints_2d.Add(v.ToMyVector2());
+            points_2d.Add(v.ToMyVector2());
         }
 
-        List<MyVector2> obstacle_2d = new List<MyVector2>();
+        List<MyVector2> constraints_2d = new List<MyVector2>();
 
-        foreach (Vector3 v in obstacle)
+        foreach (Vector3 v in constraints)
         {
-            obstacle_2d.Add(v.ToMyVector2());
+            constraints_2d.Add(v.ToMyVector2());
         }
 
+        //Normalize to range 0-1
+        //We should use all points, including the constraints
+        List<MyVector2> allPoints = new List<MyVector2>();
 
-        //Generate the triangulation
+        allPoints.AddRange(new List<MyVector2>(points_2d));
+        allPoints.AddRange(constraints_2d);
+
+        AABB normalizingBox = HelpMethods.GetAABB(new List<MyVector2>(points_2d));
+
+        float dMax = HelpMethods.CalculateDMax(normalizingBox);
+
+        HashSet<MyVector2> points_2d_normalized = HelpMethods.Normalize(points_2d, normalizingBox, dMax);
+
+        List<MyVector2> constraints_2d_normalized = HelpMethods.Normalize(constraints_2d, normalizingBox, dMax);
+
+
+
+        //
+        // Generate the triangulation
+        //
 
         //Algorithm 1. Delaunay by triangulate all points with some bad algorithm and then flip edges until we get a delaunay triangulation 
-        HalfEdgeData2 triangleData = _Delaunay.FlippingEdges(randomPoints_2d, new HalfEdgeData2());
+        //HalfEdgeData2 triangleData_normalized = _Delaunay.FlippingEdges(points_2d_normalized, new HalfEdgeData2());
 
 
         //Algorithm 2. Delaunay by inserting point-by-point while flipping edges after inserting a single point 
-        //HalfEdgeData2 triangleData = _Delaunay.PointByPoint(randomPoints_2d, new HalfEdgeData2());
+        //HalfEdgeData2 triangleData_normalized = _Delaunay.PointByPoint(points_2d_normalized, new HalfEdgeData2());
 
 
         //Algorithm 3. Constrained delaunay
-        //HalfEdgeData2 triangleData = _Delaunay.ConstrainedBySloan(randomPoints_2d, obstacle_2d, true, new HalfEdgeData2());
+        HalfEdgeData2 triangleData_normalized = _Delaunay.ConstrainedBySloan(points_2d_normalized, constraints_2d_normalized, true, new HalfEdgeData2());
 
 
 
+        //UnNormalize
+        HalfEdgeData2 triangleData = HelpMethods.UnNormalize(triangleData_normalized, normalizingBox, dMax);
 
         //From half-edge to triangle
         HashSet<Triangle2> triangles_2d = TransformBetweenDataStructures.HalfEdge2ToTriangle2(triangleData);
@@ -98,7 +106,7 @@ public class DelaunayController : MonoBehaviour
 
 
         //Display the obstacles
-        if (obstacle != null)
+        if (constraints != null)
         {
             //DebugResults.DisplayConnectedPoints(obstacle, Color.black);
         }

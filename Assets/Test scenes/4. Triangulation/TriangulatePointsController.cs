@@ -44,7 +44,7 @@ public class TriangulatePointsController : MonoBehaviour
         //
 
         //3d to 2d
-        List<MyVector2> points_2d = new List<MyVector2>();
+        HashSet<MyVector2> points_2d = new HashSet<MyVector2>();
 
         foreach (Vector3 v in points)
         {
@@ -52,16 +52,11 @@ public class TriangulatePointsController : MonoBehaviour
         }
 
         //Normalize to range 0-1
-        HashSet<MyVector2> points_2d_normalized = new HashSet<MyVector2>();
-
-        AABB normalizingBox = HelpMethods.GetAABB(points_2d);
+        AABB normalizingBox = HelpMethods.GetAABB(new List<MyVector2>(points_2d));
 
         float dMax = HelpMethods.CalculateDMax(normalizingBox);
 
-        foreach (MyVector2 p in points_2d)
-        {
-            points_2d_normalized.Add(HelpMethods.Normalize(p, normalizingBox, dMax));
-        }
+        HashSet<MyVector2> points_2d_normalized = HelpMethods.Normalize(points_2d, normalizingBox, dMax);
 
 
 
