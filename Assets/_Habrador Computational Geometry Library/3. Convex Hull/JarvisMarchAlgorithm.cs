@@ -20,13 +20,19 @@ namespace Habrador_Computational_Geometry
 
 
             //Step 0. Normalize the data to range [0, 1] or everything will break at larger sizes :(
-            List<MyVector2> normalizedPoints;
-            float d_max;
-            AABB boundingBox;
+            AABB boundingBox = HelpMethods.GetAABB(points);
 
-            HelpMethods.NormalizePoints(new List<MyVector2>(points), out normalizedPoints, out d_max, out boundingBox);
+            float dMax = HelpMethods.CalculateDMax(boundingBox);
+
+            List<MyVector2> normalizedPoints = new List<MyVector2>();
+
+            foreach (MyVector2 p in points)
+            {
+                normalizedPoints.Add(HelpMethods.NomalizePoint(p, boundingBox, dMax));
+            }
 
             points = normalizedPoints;
+
 
 
             //Step 1. Find the vertex with the smallest x coordinate
@@ -165,10 +171,9 @@ namespace Habrador_Computational_Geometry
             {
                 MyVector2 p = pointsOnConvexHull[i];
 
-                p.x = (p.x * d_max) + boundingBox.minX;
-                p.y = (p.y * d_max) + boundingBox.minY;
+                MyVector2 pUnNormalized = HelpMethods.UnNomalizePoint(p, boundingBox, dMax);
 
-                pointsOnConvexHull[i] = p;
+                pointsOnConvexHull[i] = pUnNormalized;
             }
 
             

@@ -27,34 +27,21 @@ namespace Habrador_Computational_Geometry
             //Step 1.Normalize the points to the range(0 - 1), which assumes we have more than 1 point
             //This will lower the floating point precision when unnormalizing again, so we might have to go through
             //all points in the end and make sure they have the correct coordinate
-            //AABB boundingBox = HelpMethods.GetAABB(new List<MyVector2>(inputPoints));
+            AABB boundingBox = HelpMethods.GetAABB(new List<MyVector2>(inputPoints));
 
-            //float d_max = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
+            float dMax = HelpMethods.CalculateDMax(boundingBox);
 
-            //HashSet<MyVector2> points = new HashSet<MyVector2>();
+            HashSet<MyVector2> points = new HashSet<MyVector2>();
 
-            //foreach (MyVector2 p in inputPoints)
-            //{
-            //    float x = (p.x - boundingBox.minX) / d_max;
-            //    float y = (p.y - boundingBox.minY) / d_max;
-
-            //    MyVector2 pNormalized = new MyVector2(x, y);
-
-            //    points.Add(pNormalized);
-            //}
-
-            //Will be needed to unnormalize
-            List<MyVector2> normalizedPoints;
-            float d_max;
-            AABB boundingBox;
-
-            HelpMethods.NormalizePoints(new List<MyVector2>(inputPoints), out normalizedPoints, out d_max, out boundingBox);
-
-            HashSet<MyVector2> points = new HashSet<MyVector2>(normalizedPoints);
+            foreach (MyVector2 p in inputPoints)
+            {
+                points.Add(HelpMethods.NomalizePoint(p, boundingBox, dMax));
+            }
 
 
 
             //Step 2. Sort the points into bins to make it faster to find which triangle a point is in
+            //TODO
 
 
 
@@ -93,10 +80,9 @@ namespace Habrador_Computational_Geometry
             //Step 9.Reset the coordinates to their original values because they are currently in the range (0,1)
             foreach (HalfEdgeVertex2 v in triangulationData.vertices)
             {
-                float xUnNormalized = (v.position.x * d_max) + boundingBox.minX;
-                float yUnNormalized = (v.position.y * d_max) + boundingBox.minY;
+                MyVector2 vUnnNormalized = HelpMethods.UnNomalizePoint(v.position, boundingBox, dMax);
 
-                v.position = new MyVector2(xUnNormalized, yUnNormalized);
+                v.position = vUnnNormalized;
             }
 
 

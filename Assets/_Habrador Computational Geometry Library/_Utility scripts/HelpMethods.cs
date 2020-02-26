@@ -38,7 +38,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Calculate the AABB of a set of points (actually rectangle in this case)
+        // Calculate the AABB of a set of points (in 2d)
         //
         public static AABB GetAABB(List<MyVector2> points)
         {
@@ -83,26 +83,32 @@ namespace Habrador_Computational_Geometry
         // Normalize points to the range (0 -> 1)
         //
         //From "A fast algorithm for constructing Delaunay triangulations in the plane" by Sloan
-        public static void NormalizePoints(List<MyVector2> points, out List<MyVector2> normalizedPoints, out float d_max, out AABB boundingBox)
+        //boundingBox is the rectangle that covers all original points before normalization
+        public static MyVector2 NomalizePoint(MyVector2 point, AABB boundingBox, float dMax)
         {
-            boundingBox = HelpMethods.GetAABB(points);
+            float x = (point.x - boundingBox.minX) / dMax;
+            float y = (point.y - boundingBox.minY) / dMax;
 
-            d_max = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
+            MyVector2 pNormalized = new MyVector2(x, y);
 
-            normalizedPoints = new List<MyVector2>();
+            return pNormalized;
+        }
 
-            //Normalize
-            foreach (MyVector2 p in points)
-            {
-                float x = (p.x - boundingBox.minX) / d_max;
-                float y = (p.y - boundingBox.minY) / d_max;
+        public static MyVector2 UnNomalizePoint(MyVector2 point, AABB boundingBox, float dMax)
+        {
+            float x = (point.x * dMax) + boundingBox.minX;
+            float y = (point.y * dMax) + boundingBox.minY;
 
-                //To unnormalize, just do the opposite: (p.x * d_max) + boundingBox.minX;
+            MyVector2 pUnNormalized = new MyVector2(x, y);
 
-                MyVector2 pNormalized = new MyVector2(x, y);
+            return pUnNormalized;
+        }
 
-                normalizedPoints.Add(pNormalized);
-            }
+        public static float CalculateDMax(AABB boundingBox)
+        {
+            float dMax = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
+
+            return dMax;
         }
     }
 }
