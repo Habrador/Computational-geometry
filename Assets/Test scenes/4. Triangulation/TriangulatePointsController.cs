@@ -17,17 +17,25 @@ public class TriangulatePointsController : MonoBehaviour
 
     private HashSet<Vector3> points;
 
+    private List<MyVector2> pointsOnHull;
 
 
     public void TriangulateThePoints()
     {
-        //Get points to triangulate
+        if (pointsOnHull != null)
+        {
+            pointsOnHull.Clear();
+        }
+
+        //
+        // Get points to triangulate
+        //
 
         //Random points
-        points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, mapSize, numberOfPoints);
+        //points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, mapSize, numberOfPoints);
 
         //Points from a plane mesh to test colinear points
-        //points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
+        points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
 
         //3d to 2d
         HashSet<MyVector2> points_2d = new HashSet<MyVector2>();
@@ -39,24 +47,29 @@ public class TriangulatePointsController : MonoBehaviour
 
 
         //
-        // Triangulate the points
+        // Triangulate points on convex hull and points inside of convex hull
         //
 
         //Method 1 - sort the points and then add triangles by checking which edge is visible to that point
-        HashSet<Triangle2> triangles_2d = _TriangulatePoints.IncrementalTriangulation(points_2d);
+        //HashSet<Triangle2> triangles_2d = _TriangulatePoints.IncrementalTriangulation(points_2d);
 
         //Method 2 - triangulate the convex polygon, then add the rest of the points one-by-one
         //The old triangle the point ends up in is split into tree new triangles
         //HashSet<Triangle2> triangles_2d = _TriangulatePoints.TriangleSplitting(points_2d);
 
-        //Method 3 - triangulate the convex hull of the points
+
+        //
+        // Triangulate points on convex hull
+        //
+
+        //First find the convex hull of the points
         //This means that we first need to find the points on the convex hull
-        //List<MyVector2> pointsOnHull = _ConvexHull.JarvisMarch(points_2d); 
+        pointsOnHull = _ConvexHull.JarvisMarch(points_2d); 
 
-        //No colinear points
-        //HashSet<Triangle2> triangles_2d = _TriangulatePoints.PointsOnConvexHull(pointsOnHull);
+        //Method 1. Find the colinear points while triangulating the hull
+        HashSet<Triangle2> triangles_2d = _TriangulatePoints.PointsOnConvexHull(pointsOnHull);
 
-        //Colinear points
+        //Method 2. Add a point inside of the convex hull to deal with colinear points
         //HashSet<Triangle2> triangles_2d = _TriangulatePoints.PointsOnConvexHull(pointsOnHull, planeTrans.position.ToMyVector2());
 
 
@@ -91,7 +104,20 @@ public class TriangulatePointsController : MonoBehaviour
             TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(triangulatedMesh, seed);
 
             //Display the points
-            TestAlgorithmsHelpMethods.DisplayPoints(points, 0.2f, Color.black);
+            TestAlgorithmsHelpMethods.DisplayPoints(points, 0.1f, Color.black);
+
+            //Display the points on the hull
+            if (pointsOnHull != null && pointsOnHull.Count > 0)
+            {
+                HashSet<Vector3> pointsOnHull_3d = new HashSet<Vector3>();
+
+                foreach (MyVector2 p in pointsOnHull)
+                {
+                    pointsOnHull_3d.Add(p.ToVector3());
+                }
+            
+                TestAlgorithmsHelpMethods.DisplayPoints(pointsOnHull_3d, 0.3f, Color.black);
+            }
         }
     }
 }

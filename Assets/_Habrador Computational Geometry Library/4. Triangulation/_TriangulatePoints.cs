@@ -9,7 +9,7 @@ namespace Habrador_Computational_Geometry
     public static class _TriangulatePoints
     {
         //
-        // Points
+        // Triangulate points on convex hull and points inside of convex hull
         //
 
         //Triangulate random points by: 
@@ -36,24 +36,22 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Hull
+        // Triangulate points on convex hull
         //
 
-        //Triangulate a convex hull
         //Input should always be a list with the points on the convex hull sorted in clockwise or counter-clockwise order
-        //These points can't be colinear, if so all points will not be a part of the triangulation
-        //which might be what you want because the triangles will still cover the area
         public static HashSet<Triangle2> PointsOnConvexHull(List<MyVector2> pointsOnConvexHull)
         {
-            HashSet<Triangle2> triangles = TriangulateConvexHull.GetTrianglesNoColinearPoints(pointsOnConvexHull);
+            HashSet<Triangle2> triangles = TriangulateConvexHull.GetTriangles(pointsOnConvexHull);
 
             return triangles;
         }
 
-        //If you have colinear points you also have to provide a point which is inside of the convex hull
+        //Provide a point which is inside of the convex hull to make it easier to triangulate colinear points
+        //And the triangles should be more "even", which can also be useful
         public static HashSet<Triangle2> PointsOnConvexHull(List<MyVector2> pointsOnConvexHull, MyVector2 insidePoint)
         {
-            HashSet<Triangle2> triangles = TriangulateConvexHull.GetTrianglesColinearPoints(pointsOnConvexHull, insidePoint);
+            HashSet<Triangle2> triangles = TriangulateConvexHull.GetTriangles(pointsOnConvexHull, insidePoint);
 
             return triangles;
         }

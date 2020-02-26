@@ -14,7 +14,7 @@ namespace Habrador_Computational_Geometry
             //List<Triangle> triangles = TriangulatePoints.IncrementalTriangulation(points);
             HashSet<Triangle2> triangles = _TriangulatePoints.TriangleSplitting(points);
 
-            //Step 2. Change the structure from triangle to half-edge to make it easier to flip edges
+            //Step 2. Change the data structure from triangle to half-edge to make it easier to flip edges
             triangleData = TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangleData);
 
             //Step 3. Flip edges until we have a delaunay triangulation
@@ -34,7 +34,7 @@ namespace Habrador_Computational_Geometry
             //To avoid getting stuck in infinite loop
             int safety = 0;
 
-            //So we can count how many edges we have flipped, which may be interesting to display
+            //Count how many edges we have flipped, which may be interesting to display
             int flippedEdges = 0;
 
             while (true)
