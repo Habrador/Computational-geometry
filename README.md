@@ -13,7 +13,7 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 
 * Point-triangle
 
-![Intersection point-triangle](https://raw.githubusercontent.com/Habrador/Computational-geometry/master/media/intersections-point-triangle.png)
+![Intersection point-triangle](https://raw.githubusercontent.com/Habrador/Computational-geometry/master/_media/intersections-point-triangle.png)
 
 * Point-polygon (suffers from floating point precision issues) 
 * Triangle-triangle		
