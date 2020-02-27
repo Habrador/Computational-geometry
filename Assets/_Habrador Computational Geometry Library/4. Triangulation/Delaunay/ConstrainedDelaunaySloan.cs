@@ -241,7 +241,7 @@ namespace Habrador_Computational_Geometry
             //Delete the triangles
             foreach (HalfEdgeFace2 t in trianglesToBeDeleted)
             {
-                HalfEdgeHelpMethods.DeleteTriangle(t, triangleData, true);
+                HalfEdgeHelpMethods.DeleteTriangleFace(t, triangleData, true);
             }
         }
 

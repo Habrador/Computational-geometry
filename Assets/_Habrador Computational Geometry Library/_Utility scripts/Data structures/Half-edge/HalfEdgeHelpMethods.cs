@@ -6,7 +6,9 @@ namespace Habrador_Computational_Geometry
 {
     public static class HalfEdgeHelpMethods
     {
-        //Flip triangle edge
+        //
+        // Flip triangle edge
+        //
         //So the edge shared by two triangles is going between the two other vertices originally not part of the edge
         public static void FlipTriangleEdge(HalfEdge2 e)
         {
@@ -107,8 +109,10 @@ namespace Habrador_Computational_Geometry
 
 
 
-        ////Split triangle edge
-        ////Split an edge at a point on the edge to form four new triangles, while removing two old
+        //
+        // Split triangle edge
+        //
+        //Split an edge at a point on the edge to form four new triangles, while removing two old
         //public static void SplitTriangleEdge(HalfEdge e, Vector3 splitPosition)
         //{
 
@@ -116,10 +120,12 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Split triangle face
+        //
+        // Split triangle face
+        //
         //Split a face (which we know is a triangle) at a point to create three new triangles while removing the old triangle
         //Could maybe make it more general so we can split a face, which consists of n edges
-        public static void SplitTriangleFace(HalfEdgeFace2 f, MyVector2 splitPosition, HalfEdgeData2 data)
+        public static void SplitTriangleFaceAtPoint(HalfEdgeFace2 f, MyVector2 splitPosition, HalfEdgeData2 data)
         {
             //The edges that belongs to this face
             HalfEdge2 e_1 = f.edge;
@@ -169,7 +175,7 @@ namespace Habrador_Computational_Geometry
             }
 
             //Delete the old triangle
-            DeleteTriangle(f, data, false);
+            DeleteTriangleFace(f, data, false);
         }
 
 
@@ -243,8 +249,10 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Delete a triangle from the data structure
-        public static void DeleteTriangle(HalfEdgeFace2 t, HalfEdgeData2 data, bool shouldSetOppositeToNull)
+        //
+        // Delete a triangle
+        //
+        public static void DeleteTriangleFace(HalfEdgeFace2 t, HalfEdgeData2 data, bool shouldSetOppositeToNull)
         {
             //Update the data structure
             //In the half-edge data structure there's an edge going in the opposite direction
@@ -286,6 +294,174 @@ namespace Habrador_Computational_Geometry
             data.vertices.Remove(t_e1.v);
             data.vertices.Remove(t_e2.v);
             data.vertices.Remove(t_e3.v);
+        }
+
+
+
+        //
+        // Which triangle is a point in?
+        //
+        public static HalfEdgeFace2 FindWhichTriangleAPointIsIn(MyVector2 p, HalfEdgeFace2 startTriangle, HalfEdgeData2 triangulationData)
+        {
+            //Alternative 1. Search through all triangles and use point-in-triangle
+            //HalfEdgeFace2 intersectingTriangle = FindWhichTriangleAPointIsIn_BruteForce(p, triangulationData);
+
+            //Alternative 2.Triangulation walk
+            HalfEdgeFace2 intersectingTriangle = FindWhichTriangleAPointIsIn_TriangulationWalk(p, startTriangle, triangulationData);
+
+            return intersectingTriangle;
+        }
+
+
+
+        //Alternative 1. Which triangle is a point in? Search through all triangles and use point-in-triangle
+        //Simple but slow
+        private static HalfEdgeFace2 FindWhichTriangleAPointIsIn_BruteForce(MyVector2 p, HalfEdgeData2 triangulationData)
+        {
+            HalfEdgeFace2 intersectingTriangle = null;
+            
+            foreach (HalfEdgeFace2 f in triangulationData.faces)
+            {
+                //The corners of this triangle
+                MyVector2 v1 = f.edge.v.position;
+                MyVector2 v2 = f.edge.nextEdge.v.position;
+                MyVector2 v3 = f.edge.nextEdge.nextEdge.v.position;
+
+                Triangle2 t = new Triangle2(v1, v2, v3);
+
+                //Is the point in this triangle?
+                if (Intersections.PointTriangle(t, p, true))
+                {
+                    intersectingTriangle = f;
+
+                    break;
+                }
+            }
+
+            return intersectingTriangle;
+        }
+
+
+        //Alternative 2. Which triangle is a point in? Triangulation walk
+        //Complicated but fast
+        private static HalfEdgeFace2 FindWhichTriangleAPointIsIn_TriangulationWalk(MyVector2 p, HalfEdgeFace2 startTriangle, HalfEdgeData2 triangulationData)
+        {
+            HalfEdgeFace2 intersectingTriangle = null;
+
+
+            //Start at the triangle which was most recently created - this is why we should group the points into bins
+            HalfEdgeFace2 currentTriangle = null;
+
+            //We can feed it a start triangle to sometimes make the algorithm faster
+            if (startTriangle != null)
+            {
+                currentTriangle = startTriangle;
+            }
+            //Find a random start triangle
+            else
+            {
+                int randomPos = Random.Range(0, triangulationData.faces.Count);
+
+                int i = 0;
+
+                //faces is on a hashset so we have to loop through them while counting
+                //to find the start triangle
+                foreach (HalfEdgeFace2 f in triangulationData.faces)
+                {
+                    if (i == randomPos)
+                    {
+                        currentTriangle = f;
+
+                        break;
+                    }
+
+                    i += 1;
+                }
+            }
+
+            if (currentTriangle == null)
+            {
+                Debug.Log("Couldnt find start triangle when walking in triangulation");
+
+                return null;
+            }
+
+
+            //Start the triangulation walk to find the intersecting triangle
+            int safety = 0;
+
+            while (true)
+            {
+                safety += 1;
+
+                if (safety > 100000)
+                {
+                    Debug.Log("Stuck in endless loop when walking in triangulation");
+
+                    break;
+                }
+
+                //Is the point intersecting with the current triangle?
+                //We need to do 3 tests where each test is using the triangles edges
+                //If the point is to the right of all edges, then it's inside the triangle
+                //If the point is to the left we jump to that triangle instead
+                HalfEdge2 e1 = currentTriangle.edge;
+                HalfEdge2 e2 = e1.nextEdge;
+                HalfEdge2 e3 = e2.nextEdge;
+
+                
+                //Test 1
+                if (IsPointToTheRightOrOnLine(e1.prevEdge.v.position, e1.v.position, p))
+                {
+                    //Test 2
+                    if (IsPointToTheRightOrOnLine(e2.prevEdge.v.position, e2.v.position, p))
+                    {
+                        //Test 3
+                        if (IsPointToTheRightOrOnLine(e3.prevEdge.v.position, e3.v.position, p))
+                        {
+                            //We have found the triangle the point is in
+                            intersectingTriangle = currentTriangle;
+
+                            break;
+                        }
+                        //If to the left, move to this triangle and start the search over again
+                        else
+                        {
+                            currentTriangle = e3.oppositeEdge.face;
+                        }
+                    }
+                    //If to the left, move to this triangle and start the search over again
+                    else
+                    {
+                        currentTriangle = e2.oppositeEdge.face;
+                    }
+                }
+                //If to the left, move to this triangle and start the search over again
+                else
+                {
+                    currentTriangle = e1.oppositeEdge.face;
+                }
+
+            }
+
+
+            return intersectingTriangle;
+        }
+
+        //Help method to make code smaller
+        //Is p to the right or on the line a-b
+        private static bool IsPointToTheRightOrOnLine(MyVector2 a, MyVector2 b, MyVector2 p)
+        {
+            bool isToTheRight = false;
+
+            LeftOnRight pointPos = Geometry.IsPoint_Left_On_Right_OfVector(a, b, p);
+
+            if (pointPos == LeftOnRight.Right || pointPos == LeftOnRight.On)
+            {
+                isToTheRight = true;
+            }
+
+            return isToTheRight;
         }
     }
 }
