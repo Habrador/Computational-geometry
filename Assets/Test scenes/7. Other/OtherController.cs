@@ -21,7 +21,7 @@ public class OtherController : MonoBehaviour
 
         //PointInRelationToVector(a, b, c);
 
-        IsTriangleOrientedClockwise(a, b, c);
+        //IsTriangleOrientedClockwise(a, b, c);
 
         //IsQuadrilateralConvex(a, b, c, d);
 
@@ -29,7 +29,7 @@ public class OtherController : MonoBehaviour
 
         //IsPointBetweenPoints(a, b, c);
 
-        //ClosestPointOnLineSegment(a, b, c);
+        ClosestPointOnLineSegment(a, b, c);
 
         //Gizmos.DrawWireSphere(pointATrans.position, 0.1f);
         //Gizmos.DrawWireSphere(pointBTrans.position, 0.1f);

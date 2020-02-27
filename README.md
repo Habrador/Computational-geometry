@@ -109,11 +109,28 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 ### 7. Other
 
 * Is a triangle oriented clockwise? 
+
+![Triangle orientation](/_media/other-triangle-orientation.png?raw=true)
+
 * Is a point left, on, or right of vector? 
+
+![Point vector orientation](/_media/other-point-vector.png?raw=true)
+
 * Is a point left, on, or right of a plane? Which is the same as the distance to the plane. 
+
+![Point plane orientation](/_media/other-point-plane.png?raw=true)
+
 * Is a quadrilateral convex? 
+
+![Quadrilateral convex or concave](/_media/other-quadrilateral.png?raw=true)
+
 * Is a point between two other points on the same line? 
+
+![Is point between points on line segment](/_media/other-point-between-points.png?raw=true)
+
 * Closest point on a line-segment? 
+
+![Closest point on line segment](/_media/other-closest-point-line-segment.png?raw=true)
 
 
 ## TODO
