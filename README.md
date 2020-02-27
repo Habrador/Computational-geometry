@@ -146,15 +146,14 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 * Cut 3d mesh with plane
 * Metaballs
 * Voronoi with Fortune's algorithm
+* Voronoi point-by-point
 * Triangulation concave polygon by ear clipping
 * Rectangle-rectangle with SAT
 * Triangulate with marching squares
 
 ### Stuff to fix
 
-* The triangulation by splitting triangles, there's a small problem if a vertex ends up on the edge and is not inside the triangle
-* Voronoi point-by-point (suffers from floating point precision issues) Because the data was not normalized?
-* Point-polygon intersection floating point precision issues
+-
 
 
 ## Socials
