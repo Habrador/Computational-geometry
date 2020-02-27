@@ -16,12 +16,32 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 ![Intersection point-triangle](/_media/intersections-point-triangle.png?raw=true)
 
 * Point-polygon (suffers from floating point precision issues) 
+
+![Intersection point-triangle](/_media/intersections-point-polygon.png?raw=true)
+
 * Triangle-triangle		
+
+![Intersection point-triangle](/_media/intersections-triangle-triangle.png?raw=true)
+
 * AABB-AABB 			
-* Line-line 					
-* Ray-plane 					
-* Line-plane 			
-* Point-circle 				
+
+![Intersection point-triangle](/_media/intersections-aabb-aabb.png?raw=true)
+
+* Line-line 	
+
+![Intersection point-triangle](/_media/intersections-line-line.png?raw=true)
+				
+* Ray-plane 	
+
+![Intersection point-triangle](/_media/intersections-ray-plane.png?raw=true)
+				
+* Line-plane 	
+
+![Intersection point-triangle](/_media/intersections-line-plane.png?raw=true)
+		
+* Point-circle 	
+
+![Intersection point-triangle](/_media/intersections-point-circle.png?raw=true)			
 
 
 ### 2. Generate mesh
