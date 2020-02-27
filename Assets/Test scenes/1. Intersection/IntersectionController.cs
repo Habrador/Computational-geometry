@@ -38,13 +38,13 @@ public class IntersectionController : MonoBehaviour
 
         //LinePlane();
 
-        PointCircle();
+        //PointCircle();
 
         //LineLine();
 
         //AABB_AABB();
 
-        //PointTriangle();
+        PointTriangle();
     }
 
 

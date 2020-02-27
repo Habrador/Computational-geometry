@@ -243,13 +243,7 @@ namespace Habrador_Computational_Geometry
                 return;
             }
 
-
             HashSet<HalfEdgeFace2> trianglesToBeDeleted = FindTrianglesWithinConstraint(triangleData, constraints);
-
-            //if (trianglesToBeDeleted == null)
-            //{
-            //    return;
-            //}
 
             //Delete the triangles
             foreach (HalfEdgeFace2 t in trianglesToBeDeleted)
@@ -260,8 +254,10 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Find which triangles are within a certain constraint
-        //Sometimes we want to delete them and sometimes we want to keep them
+        //
+        // Find which triangles are within a constraint
+        //
+       
         public static HashSet<HalfEdgeFace2> FindTrianglesWithinConstraint(HalfEdgeData2 triangleData, List<MyVector2> constraints)
         {
             HashSet<HalfEdgeFace2> trianglesToDelete = new HashSet<HalfEdgeFace2>();
@@ -312,10 +308,12 @@ namespace Habrador_Computational_Geometry
 
             //Step 2. Find the rest of the triangles within the constraint by using a flood fill algorithm
             
+            //Maybe better to first find all the other border triangles?
+
             //We know this triangle should be deleted
             trianglesToDelete.Add(borderTriangle);
 
-            //We are just going to remove the first triangle each loop, so we can use a queue
+            //Store the triangles we flood filling in this queue
             Queue<HalfEdgeFace2> trianglesToCheck = new Queue<HalfEdgeFace2>();
 
             //Start at the triangle we know is within the constraints
