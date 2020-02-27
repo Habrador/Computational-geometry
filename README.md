@@ -80,7 +80,7 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 
 * Delaunay triangulation - "triangulate and then flip edges" 
 
-![Triangulation Delaunay flip edges](/_media/triangulation-delaunay-flip.edges.png?raw=true)	
+![Triangulation Delaunay flip edges](/_media/triangulation-delaunay-flip-edges.png?raw=true)	
 
 * Constrained delaunay triangulation 
 
