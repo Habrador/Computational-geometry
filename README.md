@@ -46,7 +46,9 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 
 ### 2. Generate mesh
 
-* Grid mesh	
+* Grid mesh
+
+![Grid mesh](/_media/mesh-grid.png?raw=true)	
 
 
 ### 3. Convex Hull
