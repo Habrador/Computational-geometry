@@ -74,8 +74,6 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 ![Triangulation point-by-point](/_media/triangulation-point-by-point.png?raw=true)	
 
-* Triangulate with marching squares
-
 #### 4.1 Delaunay triangulation
 
 * Delaunay triangulation - "point-by-point" 
@@ -150,6 +148,7 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 * Voronoi with Fortune's algorithm
 * Triangulation concave polygon by ear clipping
 * Rectangle-rectangle with SAT
+* Triangulate with marching squares
 
 ### Stuff to fix
 
