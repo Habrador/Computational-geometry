@@ -4,6 +4,8 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 Make sure all input coordinates are normalized to range 0-1 to avoid floating point precision issues! Normalizing methods exists in HelpMethods
 
+Some of these algorithms are available in tutorial form here: https://www.habrador.com/tutorials/math/
+
 ## Finished
 
 
