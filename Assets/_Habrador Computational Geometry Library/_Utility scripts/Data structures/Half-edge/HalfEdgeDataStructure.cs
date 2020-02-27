@@ -126,7 +126,9 @@ namespace Habrador_Computational_Geometry
         //The opposite half-edge belonging to the neighbor
         public HalfEdge2 oppositeEdge;
 
-        //(optionally: the previous halfedge in the face
+        //(optionally) the previous halfedge in the face
+        //If we assume the face is closed, then we could identify this edge by walking forward
+        //until we reach it
         public HalfEdge2 prevEdge;
 
 

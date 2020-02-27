@@ -151,8 +151,8 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Find all triangles opposite of p
-        //But we will find all edges opposite to p, and from these edges we can find the triangl
+        //Find all triangles opposite of vertex p
+        //But we will find all edges opposite to p, and from these edges we can find the triangles
         private static void AddTrianglesOppositePToStack(MyVector2 p, Stack<HalfEdge2> trianglesOppositeP, HalfEdgeData2 triangulationData)
         {
             //Find a vertex at position p and then rotate around it, triangle-by-triangle, to find all opposite edges

@@ -299,7 +299,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Which triangle is a point in?
+        // Which triangle in a triangulation is a point in? Should maybe be a part of the intersection library? 
         //
         public static HalfEdgeFace2 FindWhichTriangleAPointIsIn(MyVector2 p, HalfEdgeFace2 startTriangle, HalfEdgeData2 triangulationData)
         {
@@ -314,7 +314,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Alternative 1. Which triangle is a point in? Search through all triangles and use point-in-triangle
+        //Alternative 1. Search through all triangles and use point-in-triangle
         //Simple but slow
         private static HalfEdgeFace2 FindWhichTriangleAPointIsIn_BruteForce(MyVector2 p, HalfEdgeData2 triangulationData)
         {
@@ -342,8 +342,8 @@ namespace Habrador_Computational_Geometry
         }
 
 
-        //Alternative 2. Which triangle is a point in? Triangulation walk
-        //Complicated but fast
+        //Alternative 2. Triangulation walk
+        //Fast but a little more complicated to understand
         private static HalfEdgeFace2 FindWhichTriangleAPointIsIn_TriangulationWalk(MyVector2 p, HalfEdgeFace2 startTriangle, HalfEdgeData2 triangulationData)
         {
             HalfEdgeFace2 intersectingTriangle = null;
@@ -357,7 +357,7 @@ namespace Habrador_Computational_Geometry
             {
                 currentTriangle = startTriangle;
             }
-            //Find a random start triangle
+            //Find a random start triangle which is faster than starting at the first triangle?
             else
             {
                 int randomPos = Random.Range(0, triangulationData.faces.Count);
@@ -394,7 +394,7 @@ namespace Habrador_Computational_Geometry
             {
                 safety += 1;
 
-                if (safety > 100000)
+                if (safety > 1000000)
                 {
                     Debug.Log("Stuck in endless loop when walking in triangulation");
 
@@ -424,24 +424,23 @@ namespace Habrador_Computational_Geometry
 
                             break;
                         }
-                        //If to the left, move to this triangle and start the search over again
+                        //If to the left, move to this triangle
                         else
                         {
                             currentTriangle = e3.oppositeEdge.face;
                         }
                     }
-                    //If to the left, move to this triangle and start the search over again
+                    //If to the left, move to this triangle
                     else
                     {
                         currentTriangle = e2.oppositeEdge.face;
                     }
                 }
-                //If to the left, move to this triangle and start the search over again
+                //If to the left, move to this triangle
                 else
                 {
                     currentTriangle = e1.oppositeEdge.face;
                 }
-
             }
 
 
