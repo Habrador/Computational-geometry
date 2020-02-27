@@ -619,7 +619,7 @@ namespace Habrador_Computational_Geometry
 
             Gizmos.color = Color.green;
 
-            Gizmos.DrawWireSphere(new Vector3(thisVertex.coordinate.x, 0f, thisVertex.coordinate.y), 0.1f);
+            //Gizmos.DrawWireSphere(new Vector3(thisVertex.coordinate.x, 0f, thisVertex.coordinate.y), 0.1f);
 
             float size = 0.02f;
 
@@ -647,7 +647,7 @@ namespace Habrador_Computational_Geometry
                         Gizmos.color = Color.red;
                     }
 
-                    Gizmos.DrawWireSphere(new Vector3(thisVertex.coordinate.x, 0f, thisVertex.coordinate.y), size);
+                    //Gizmos.DrawWireSphere(new Vector3(thisVertex.coordinate.x, 0f, thisVertex.coordinate.y), size);
 
                     size += 0.005f;
                 }
@@ -686,7 +686,7 @@ namespace Habrador_Computational_Geometry
             {
                 Gizmos.color = Color.red;
 
-                Gizmos.DrawWireSphere(new Vector3(thisVertex.coordinate.x, 0f, thisVertex.coordinate.y), size);
+                //Gizmos.DrawWireSphere(new Vector3(thisVertex.coordinate.x, 0f, thisVertex.coordinate.y), size);
 
                 size += 0.01f;
 

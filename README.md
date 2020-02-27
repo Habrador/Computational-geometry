@@ -91,11 +91,19 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 
 * Voronoi from delaunay
 
+![Voronoi from delaunay](/_media/voronoi-from-delaunay.png?raw=true)	
+
+
 
 ### 6. Polygon clipping
 
 * Greiner-Hormann 
+
+![Polygon clipping greiner](/_media/polygon-clipping-greiner.png?raw=true)	
+
 * Sutherland-Hodgman 
+
+![Polygon clipping sutherland](/_media/polygon-clipping-sutherland.png?raw=true)	
 
 
 ### 7. Other
