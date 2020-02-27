@@ -28,9 +28,9 @@ namespace Habrador_Computational_Geometry
         //2. Consider the next point and connect it with all previously connected points which are visible to the point
         //3. Do 2 until we are out of points to add
         //Is not working with colinear points
-        public static HashSet<Triangle2> IncrementalTriangulation(HashSet<MyVector2> points)
+        public static HashSet<Triangle2> VisibleEdgesTriangulation(HashSet<MyVector2> points)
         {
-            return IncrementalTriangulationAlgorithm.TriangulatePoints(points);
+            return VisibleEdgesTriangulationAlgorithm.TriangulatePoints(points);
         }
 
 

@@ -65,7 +65,7 @@ public class TriangulatePointsController : MonoBehaviour
         //
 
         //Method 1 - sort the points and then add triangles by checking which edge is visible to that point
-        //HashSet<Triangle2> triangles_2d_normalized = _TriangulatePoints.IncrementalTriangulation(points_2d_normalized);
+        HashSet<Triangle2> triangles_2d_normalized = _TriangulatePoints.VisibleEdgesTriangulation(points_2d_normalized);
 
         //Method 2 - triangulate the convex polygon, then add the rest of the points one-by-one
         //The old triangle the point ends up in is split into tree new triangles
@@ -78,10 +78,10 @@ public class TriangulatePointsController : MonoBehaviour
 
         //First find the convex hull of the points
         //This means that we first need to find the points on the convex hull
-        List<MyVector2> pointsOnHull_normalized = _ConvexHull.JarvisMarch(points_2d_normalized);
+        //List<MyVector2> pointsOnHull_normalized = _ConvexHull.JarvisMarch(points_2d_normalized);
 
         //Method 1. Find the colinear points while triangulating the hull
-        HashSet<Triangle2> triangles_2d_normalized = _TriangulatePoints.PointsOnConvexHull(pointsOnHull_normalized);
+        //HashSet<Triangle2> triangles_2d_normalized = _TriangulatePoints.PointsOnConvexHull(pointsOnHull_normalized);
 
         //Method 2. Add a point inside of the convex hull to deal with colinear points
         //MyVector2 insidePoint = HelpMethods.NormalizePoint(planeTrans.position.ToMyVector2(), normalizingBox, dMax);

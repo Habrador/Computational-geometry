@@ -17,11 +17,11 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 
 * Point-polygon (suffers from floating point precision issues) 
 
-![Intersection point-triangle](/_media/intersections-point-polygon.png?raw=true)
+![Intersection point-polygon](/_media/intersections-point-polygon.png?raw=true)
 
 * Triangle-triangle		
 
-![Intersection point-triangle](/_media/intersections-triangle-triangle.png?raw=true)
+![Intersection triangle-triangle](/_media/intersections-triangle-triangle.png?raw=true)
 
 * AABB-AABB 			
 
@@ -29,19 +29,19 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 
 * Line-line 	
 
-![Intersection point-triangle](/_media/intersections-line-line.png?raw=true)
+![Intersection line-line](/_media/intersections-line-line.png?raw=true)
 				
 * Ray-plane 	
 
-![Intersection point-triangle](/_media/intersections-ray-plane.png?raw=true)
+![Intersection ray-plane](/_media/intersections-ray-plane.png?raw=true)
 				
 * Line-plane 	
 
-![Intersection point-triangle](/_media/intersections-line-plane.png?raw=true)
+![Intersection line-plane](/_media/intersections-line-plane.png?raw=true)
 		
 * Point-circle 	
 
-![Intersection point-triangle](/_media/intersections-point-circle.png?raw=true)			
+![Intersection point-circle](/_media/intersections-point-circle.png?raw=true)			
 
 
 ### 2. Generate mesh
@@ -53,19 +53,38 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 
 * Jarvis March (Gift wrapping)
 
+![Convex hull jarvis march](/_media/convex-hull-jarvis.png?raw=true)	
+
 
 ### 4. Triangulation
 
 * Triangulate convex polygon - is working with colinear points
+
+![Triangulation convex polygon](/_media/triangulation-convex-polygon.png?raw=true)	
+
 * Triangulate points with "visible edge" algorithm - is maybe working with colinear points
+
+![Triangulation visible edges](/_media/triangulation-visible-edges.png?raw=true)	
+
 * Triangulate points with "point-by-point" algorithm - is working with colinear points (because Triangulate convex polygon is working with colinear points)
+
+![Triangulation point-by-point](/_media/triangulation-point-by-point.png?raw=true)	
+
 * Triangulate with marching squares
 
 #### 4.1 Delaunay triangulation
 
 * Delaunay triangulation - "point-by-point" 
+
+![Triangulation Delaunay point-by-point](/_media/triangulation-delaunay-point-by-point.png?raw=true)	
+
 * Delaunay triangulation - "triangulate and then flip edges" 
+
+![Triangulation Delaunay flip edges](/_media/triangulation-delaunay-flip.edges.png?raw=true)	
+
 * Constrained delaunay triangulation 
+
+![Triangulation Delaunay constrained](/_media/triangulation-delaunay-constrained.png?raw=true)	
 
 
 ### 5. Voronoi diagram

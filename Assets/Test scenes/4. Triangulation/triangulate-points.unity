@@ -417,6 +417,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seed: 10
-  numberOfPoints: 50
+  numberOfPoints: 10
   mapSize: 10
   planeTrans: {fileID: 1205837021}

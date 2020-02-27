@@ -212,7 +212,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   seed: 16
   halfMapSize: 10
-  numberOfPoints: 100
+  numberOfPoints: 50
   constraints:
   - {x: 3.070429, y: 0, z: 4.4364123}
   - {x: 6.857489, y: 0, z: 1.8192692}
