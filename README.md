@@ -40,6 +40,10 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 * Line-plane 	
 
 ![Intersection line-plane](/_media/intersections-line-plane.png?raw=true)
+
+* Plane-plane
+
+![Intersection plane-plane](/_media/intersections-plane-plane.png?raw=true)
 		
 * Point-circle 	
 
