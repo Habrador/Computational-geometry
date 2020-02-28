@@ -38,15 +38,56 @@ public class IntersectionController : MonoBehaviour
 
         //LinePlane();
 
-        PointCircle();
+        //PointCircle();
 
         //LineLine();
 
         //AABB_AABB();
 
         //PointTriangle();
+
+        PlanePlane();
     }
 
+
+
+    //Is a plane intersecting with a plane
+    private void PlanePlane()
+    {
+        Vector3 planeNormal_1 = planeTrans.forward;
+
+        Vector3 planePos_1 = planeTrans.position;
+
+        Vector3 planeNormal_2 = rayTrans.forward;
+
+        Vector3 planePos_2 = rayTrans.position;
+
+        //3d to 2d
+        MyVector2 normal_1 = planeNormal_1.ToMyVector2();
+        MyVector2 normal_2 = planeNormal_2.ToMyVector2();
+
+        MyVector2 pos1 = planePos_1.ToMyVector2();
+        MyVector2 pos2 = planePos_2.ToMyVector2();
+
+
+        //Intersections
+        bool isIntersecting = Intersections.PlanePlane(pos1, normal_1, pos2, normal_2);
+
+        Debug.Log("Are planes intersecting: " + isIntersecting);
+
+        if (isIntersecting)
+        {
+            MyVector2 intersectionPoint = Intersections.GetPlanePlaneIntersectionPoint(pos1, normal_1, pos2, normal_2);
+
+            Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
+        }
+
+        //Display
+        Color planeColor = isIntersecting ? Color.red : Color.white;
+
+        TestAlgorithmsHelpMethods.DrawPlane(pos1, normal_1, planeColor);
+        TestAlgorithmsHelpMethods.DrawPlane(pos2, normal_2, planeColor);
+    }
 
 
     //Is a point intersecting with a triangle?
@@ -226,16 +267,18 @@ public class IntersectionController : MonoBehaviour
         //Debug
         Gizmos.color = Color.blue;
 
-        Vector3 planeDir = new Vector3(planeNormal_2d.y, 0f, -planeNormal_2d.x);
+        TestAlgorithmsHelpMethods.DrawPlane(planePos_2d, planeNormal_2d, Color.blue);
 
-        //Draw the plane which is just a long line
-        float infinite = 100f;
+        //Vector3 planeDir = new Vector3(planeNormal_2d.y, 0f, -planeNormal_2d.x);
 
-        Gizmos.DrawRay(planePos, planeDir * infinite);
-        Gizmos.DrawRay(planePos, -planeDir * infinite);
+        ////Draw the plane which is just a long line
+        //float infinite = 100f;
 
-        //Draw the plane normal
-        Gizmos.DrawLine(planePos, planePos + planeNormal * 1f);
+        //Gizmos.DrawRay(planePos, planeDir * infinite);
+        //Gizmos.DrawRay(planePos, -planeDir * infinite);
+
+        ////Draw the plane normal
+        //Gizmos.DrawLine(planePos, planePos + planeNormal * 1f);
 
 
         //Line
@@ -248,7 +291,7 @@ public class IntersectionController : MonoBehaviour
         {
             Gizmos.color = Color.red;
 
-            MyVector2 intersectionPoint = Intersections.GetLinePlaneIntersectionCoordinate(planePos_2d, planeNormal_2d, line_p1_2d, line_p2_2d);
+            MyVector2 intersectionPoint = Intersections.GetLinePlaneIntersectionPoint(planePos_2d, planeNormal_2d, line_p1_2d, line_p2_2d);
 
             Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
         }
@@ -312,7 +355,7 @@ public class IntersectionController : MonoBehaviour
         {
             Gizmos.color = Color.red;
 
-            MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(planePos_2d, planeNormal_2d, rayPos_2d, rayDir_2d);
+            MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionPoint(planePos_2d, planeNormal_2d, rayPos_2d, rayDir_2d);
 
             Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
         }

@@ -75,9 +75,10 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Ray-plane intersection in 2d space (Same can be used in 3d space as well if you change it to vector3)
+        // Line, plane, ray intersection with plane
         //
-        //The plane normal and the ray dir have to point against each other (not exactly against each other but generally)
+        
+        //Ray-plane intersection
         //http://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
         public static bool RayPlane(MyVector2 planePos, MyVector2 planeNormal, MyVector2 rayStart, MyVector2 rayDir)
         {
@@ -90,8 +91,13 @@ namespace Habrador_Computational_Geometry
 
             //Debug.Log(denominator);
 
+            //The ray has to point at the surface of the plane
+            //The surface of the plane is determined by the normal
             if (denominator > epsilon)
             {
+                //Now we have to figur out of the ray starts "inside" of the plane
+                //meaning on the other side of the normal
+                //If so it can't hit the plane
                 MyVector2 vecBetween = planePos - rayStart;
 
                 float t = MyVector2.Dot(vecBetween, planeNormal * -1f) / denominator;
@@ -108,7 +114,17 @@ namespace Habrador_Computational_Geometry
         }
 
         //Get the coordinate if we know a ray-plane is intersecting
-        public static MyVector2 GetRayPlaneIntersectionCoordinate(MyVector2 planePos, MyVector2 planeNormal, MyVector2 rayStart, MyVector2 rayDir)
+        public static MyVector2 GetRayPlaneIntersectionPoint(MyVector2 planePos, MyVector2 planeNormal, MyVector2 rayStart, MyVector2 rayDir)
+        {
+            MyVector2 intersectionPoint = GetIntersectionCoordinate(planePos, planeNormal, rayStart, rayDir);
+
+            return intersectionPoint;
+        }
+
+
+        //This is a useful method to find the intersection coordinate if we know we are intersecting
+        //Is used for ray-plane, line-plane, plane-plane
+        private static MyVector2 GetIntersectionCoordinate(MyVector2 planePos, MyVector2 planeNormal, MyVector2 rayStart, MyVector2 rayDir)
         {
             float denominator = MyVector2.Dot(-planeNormal, rayDir);
 
@@ -123,9 +139,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //
-        // Line-plane intersection
-        //
+        //Line-plane intersection
         public static bool LinePlane(MyVector2 planePos, MyVector2 planeNormal, MyVector2 line_p1, MyVector2 line_p2)
         {
             //To avoid floating point precision issues we can add a small value
@@ -139,7 +153,7 @@ namespace Habrador_Computational_Geometry
 
             //Debug.Log(denominator);
 
-            //No intersection if the line and plane are parallell
+            //No intersection if the line and plane are perpendicular
             if (denominator > epsilon || denominator < -epsilon)
             {
                 MyVector2 vecBetween = planePos - line_p1;
@@ -160,17 +174,46 @@ namespace Habrador_Computational_Geometry
         }
 
         //We know a line plane is intersecting and now we want the coordinate of intersection
-        public static MyVector2 GetLinePlaneIntersectionCoordinate(MyVector2 planePos, MyVector2 planeNormal, MyVector2 line_p1, MyVector2 line_p2)
+        public static MyVector2 GetLinePlaneIntersectionPoint(MyVector2 planePos, MyVector2 planeNormal, MyVector2 line_p1, MyVector2 line_p2)
         {
-            MyVector2 vecBetween = planePos - line_p1;
-
             MyVector2 lineDir = MyVector2.Normalize(line_p1 - line_p2);
 
-            float denominator = MyVector2.Dot(-planeNormal, lineDir);
+            MyVector2 intersectionPoint = GetIntersectionCoordinate(planePos, planeNormal, line_p1, lineDir);
 
-            float t = MyVector2.Dot(vecBetween, -planeNormal) / denominator;
+            return intersectionPoint;
+        }
 
-            MyVector2 intersectionPoint = line_p1 + lineDir * t;
+
+
+        //Plane-plane intersection
+        public static bool PlanePlane(MyVector2 planePos_1, MyVector2 planeNormal_1, MyVector2 planePos_2, MyVector2 planeNormal_2)
+        {
+            bool areIntersecting = false;
+
+            float dot = MyVector2.Dot(planeNormal_1, planeNormal_2);
+
+            //Debug.Log(dot);
+
+            //No intersection if the planes are parallell
+            //The are parallell if the dot product is 1 or -1
+
+            //To avoid floating point precision issues we can add a small value
+            float one = 1f - MathUtility.EPSILON;
+
+            if (dot < one && dot > -one)
+            {
+                areIntersecting = true;
+            }
+
+            return areIntersecting;
+        }
+
+        //If we know two planes are intersecting, what's the point of intersection?
+        public static MyVector2 GetPlanePlaneIntersectionPoint(MyVector2 planePos_1, MyVector2 planeNormal_1, MyVector2 planePos_2, MyVector2 planeNormal_2)
+        {
+            MyVector2 lineDir = MyVector2.Normalize(new MyVector2(planeNormal_2.y, -planeNormal_2.x));
+
+            MyVector2 intersectionPoint = GetIntersectionCoordinate(planePos_1, planeNormal_1, planePos_2, lineDir);
 
             return intersectionPoint;
         }

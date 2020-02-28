@@ -60,7 +60,7 @@ namespace Habrador_Computational_Geometry
                     {
                         MyVector2 rayDir = MyVector2.Normalize(v2 - v1);
 
-                        MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(plane.pos, plane.normal, v1, rayDir);
+                        MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionPoint(plane.pos, plane.normal, v1, rayDir);
 
                         outsidePolygon.Add(intersectionPoint);
 
@@ -73,7 +73,7 @@ namespace Habrador_Computational_Geometry
                     {
                         MyVector2 rayDir = MyVector2.Normalize(v2 - v1);
 
-                        MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionCoordinate(plane.pos, plane.normal, v1, rayDir);
+                        MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionPoint(plane.pos, plane.normal, v1, rayDir);
 
                         outsidePolygon.Add(intersectionPoint);
 

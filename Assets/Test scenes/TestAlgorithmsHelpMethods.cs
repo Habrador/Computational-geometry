@@ -8,6 +8,10 @@ using Habrador_Computational_Geometry;
 //Display meshes, points, etc so we dont have to do it in each file
 public static class TestAlgorithmsHelpMethods
 {
+    //
+    // Display
+    //
+
     //Display some points
     public static void DisplayPoints(HashSet<Vector3> points, float radius, Color color)
     {
@@ -43,6 +47,27 @@ public static class TestAlgorithmsHelpMethods
         Gizmos.DrawLine(arrowStart + vecDirPerpendicular * size, b);
         Gizmos.DrawLine(b, arrowStart - vecDirPerpendicular * size);
         Gizmos.DrawLine(arrowStart - vecDirPerpendicular * size, arrowStart);
+    }
+
+
+
+    //Display a plane
+    public static void DrawPlane(MyVector2 planePos_2d, MyVector2 planeNormal, Color color)
+    {
+        Vector3 planeDir = new Vector3(planeNormal.y, 0f, -planeNormal.x);
+
+        Vector3 planePos = planePos_2d.ToVector3();
+
+        //Draw the plane which is just a long line
+        float infinite = 100f;
+
+        Gizmos.color = color;
+
+        Gizmos.DrawRay(planePos, planeDir * infinite);
+        Gizmos.DrawRay(planePos, -planeDir * infinite);
+
+        //Draw the plane normal
+        Gizmos.DrawLine(planePos, planePos + planeNormal.ToVector3() * 1f);
     }
 
 
@@ -160,6 +185,10 @@ public static class TestAlgorithmsHelpMethods
     }
 
 
+
+    //
+    // Generate points
+    //
 
     //Find all vertices of a plane
     public static HashSet<Vector3> GeneratePointsFromPlane(Transform planeTrans)
