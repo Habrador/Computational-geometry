@@ -292,6 +292,24 @@ public static class TestAlgorithmsHelpMethods
     }
 
 
+
+    //Triangle
+    public static void DisplayTriangleMesh(MyVector2 a, MyVector2 b, MyVector2 c, Color color)
+    {
+        Triangle2 t = new Triangle2(a, b, c);
+
+        HashSet<Triangle2> triangles = new HashSet<Triangle2>();
+
+        triangles.Add(t);
+
+        triangles = HelpMethods.OrientTrianglesClockwise(triangles);
+
+        Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, false);
+
+        TestAlgorithmsHelpMethods.DisplayMesh(mesh, color);
+    }
+
+
     //
     // Generate points
     //

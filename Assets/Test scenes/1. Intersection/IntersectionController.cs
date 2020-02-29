@@ -32,7 +32,7 @@ public class IntersectionController : MonoBehaviour
 	{
         //PointPolygon();
 
-        //TriangleTriangle();
+        TriangleTriangle();
 
         //PointCircle();
 
@@ -44,7 +44,7 @@ public class IntersectionController : MonoBehaviour
 
         //PlanePlane();
 
-        RayPlane();
+        //RayPlane();
 
         //LinePlane();
     }
@@ -129,9 +129,7 @@ public class IntersectionController : MonoBehaviour
 
         //With mesh to better see what's going on
         //Triangle
-        List<MyVector2> line = new List<MyVector2>() { t_p1, t_p2, t_p3 };
-
-        TestAlgorithmsHelpMethods.DisplayConnectedLinesMesh(line, 0.5f, Color.white);
+        TestAlgorithmsHelpMethods.DisplayTriangleMesh(t_p1, t_p2, t_p3, Color.white);
 
         //Point
         Color pointColor = isIntersecting ? Color.red : Color.white;
@@ -451,14 +449,11 @@ public class IntersectionController : MonoBehaviour
 
 
         //With mesh to better see what's going on
-        List<MyVector2> t1_line = new List<MyVector2>() { t1.p1, t1.p2, t1.p3 };
-        List<MyVector2> t2_line = new List<MyVector2>() { t2.p1, t2.p2, t2.p3 };
-
-        TestAlgorithmsHelpMethods.DisplayConnectedLinesMesh(t1_line, 0.5f, Color.white);
+        TestAlgorithmsHelpMethods.DisplayTriangleMesh(t1.p1, t1.p2, t1.p3, Color.white);
 
         Color meshColor = isIntersecting ? Color.red : Color.white;
 
-        TestAlgorithmsHelpMethods.DisplayConnectedLinesMesh(t2_line, 0.5f, meshColor);
+        TestAlgorithmsHelpMethods.DisplayTriangleMesh(t2.p1, t2.p2, t2.p3, meshColor);
     }
 
 
