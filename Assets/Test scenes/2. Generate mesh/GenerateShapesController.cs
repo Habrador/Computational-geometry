@@ -25,15 +25,15 @@ public class GenerateShapesController : MonoBehaviour
         MyVector2 pD = pD_3d.ToMyVector2();
 
 
-        //CircleMesh(pA);
+        CircleMesh(pA);
 
-        //CircleMeshHollow(pA);
+        CircleMeshHollow(pB);
 
         //LineSegmemt(pA, pB);
 
         //ConnectedLines(pA, pB, pC, pD);
 
-        Arrow(pA, pB);
+        //Arrow(pA, pB);
     }
 
 
@@ -88,24 +88,26 @@ public class GenerateShapesController : MonoBehaviour
 
     private void CircleMesh(MyVector2 pA)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.GenerateCircle(pA, radius: 1.6f, resolution: 10);
+        HashSet<Triangle2> triangles = GenerateMesh.GenerateCircle(pA, radius: 1.6f, resolution: 30);
 
         Mesh mesh = Triangles2ToMesh(triangles);
 
         //Display
-        TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
+        //TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
+        TestAlgorithmsHelpMethods.DisplayMesh(mesh, 0, Color.white);
     }
 
 
 
     private void CircleMeshHollow(MyVector2 pA)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.GenerateCircleHollow(pA, radius: 1.6f, resolution: 10, width: 1f);
+        HashSet<Triangle2> triangles = GenerateMesh.GenerateCircleHollow(pA, radius: 1.6f, resolution: 30, width: 1f);
 
         Mesh mesh = Triangles2ToMesh(triangles);
 
         //Display
-        TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
+        //TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
+        TestAlgorithmsHelpMethods.DisplayMesh(mesh, 0, Color.white);
     }
 
 
