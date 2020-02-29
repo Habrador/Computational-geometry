@@ -15,7 +15,7 @@ namespace Habrador_Computational_Geometry
             HashSet<Triangle2> triangles = _TriangulatePoints.TriangleSplitting(points);
 
             //Step 2. Change the data structure from triangle to half-edge to make it easier to flip edges
-            triangleData = TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangleData);
+            triangleData = _TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangleData);
 
             //Step 3. Flip edges until we have a delaunay triangulation
             FlipEdges(triangleData);

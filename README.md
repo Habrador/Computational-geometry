@@ -2,7 +2,7 @@
 
 This library consists of two folders. The idea is that one is for testing purposes and the other folder is the folder you drag into your project. 
 
-Make sure all input coordinates are normalized to range 0-1 to avoid floating point precision issues! Normalizing methods exists in HelpMethods
+Make sure all input coordinates are normalized to range 0-1 to avoid floating point precision issues! Normalizing methods exists in HelpMethods. This is not always needed but if you notice that an algorithm doesn't work, try to normalize the input coordinates. 
 
 Some of these algorithms are available in tutorial form here: https://www.habrador.com/tutorials/math/
 
@@ -11,7 +11,7 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 ### 1. Intersection
 
-2d-space:
+#### 1.1 2d-space
 
 **Point-triangle**
 

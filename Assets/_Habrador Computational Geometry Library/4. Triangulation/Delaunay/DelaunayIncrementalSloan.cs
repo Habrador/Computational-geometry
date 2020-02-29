@@ -45,7 +45,7 @@ namespace Habrador_Computational_Geometry
             triangles.Add(superTriangle);
 
             //Change to half-edge data structure
-            TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangulationData);
+            _TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangulationData);
 
             
 

@@ -34,10 +34,6 @@ public class IntersectionController : MonoBehaviour
 
         //TriangleTriangle();
 
-        //RayPlane();
-
-        //LinePlane();
-
         //PointCircle();
 
         //LineLine();
@@ -46,7 +42,11 @@ public class IntersectionController : MonoBehaviour
 
         //PointTriangle();
 
-        PlanePlane();
+        //PlanePlane();
+
+        RayPlane();
+
+        //LinePlane();
     }
 
 
@@ -75,18 +75,32 @@ public class IntersectionController : MonoBehaviour
 
         Debug.Log("Are planes intersecting: " + isIntersecting);
 
+
+        //Display
+        //if (isIntersecting)
+        //{
+        //    MyVector2 intersectionPoint = Intersections.GetPlanePlaneIntersectionPoint(pos1, normal_1, pos2, normal_2);
+
+        //    Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
+        //}
+
+        //Color planeColor = isIntersecting ? Color.red : Color.white;
+
+        //TestAlgorithmsHelpMethods.DrawPlane(pos1, normal_1, planeColor);
+        //TestAlgorithmsHelpMethods.DrawPlane(pos2, normal_2, planeColor);
+
+
+        
+        //Display with mesh
+        TestAlgorithmsHelpMethods.DisplayPlaneMesh(pos1, normal_1, 0.5f, Color.blue);
+        TestAlgorithmsHelpMethods.DisplayPlaneMesh(pos2, normal_2, 0.5f, Color.blue);
+
         if (isIntersecting)
         {
             MyVector2 intersectionPoint = Intersections.GetPlanePlaneIntersectionPoint(pos1, normal_1, pos2, normal_2);
 
-            Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
+            TestAlgorithmsHelpMethods.DisplayCircleMesh(intersectionPoint, 1f, 20, Color.red);
         }
-
-        //Display
-        Color planeColor = isIntersecting ? Color.red : Color.white;
-
-        TestAlgorithmsHelpMethods.DrawPlane(pos1, normal_1, planeColor);
-        TestAlgorithmsHelpMethods.DrawPlane(pos2, normal_2, planeColor);
     }
 
 
@@ -104,13 +118,25 @@ public class IntersectionController : MonoBehaviour
         bool isIntersecting = Intersections.PointTriangle(t, p, includeBorder: true);
 
         //Display
-        Gizmos.color = isIntersecting ? Color.red : Color.white;
+        //Gizmos.color = isIntersecting ? Color.red : Color.white;
 
-        Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
+        //Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
 
-        Gizmos.DrawLine(t.p1.ToVector3(), t.p2.ToVector3());
-        Gizmos.DrawLine(t.p2.ToVector3(), t.p3.ToVector3());
-        Gizmos.DrawLine(t.p3.ToVector3(), t.p1.ToVector3());
+        //Gizmos.DrawLine(t.p1.ToVector3(), t.p2.ToVector3());
+        //Gizmos.DrawLine(t.p2.ToVector3(), t.p3.ToVector3());
+        //Gizmos.DrawLine(t.p3.ToVector3(), t.p1.ToVector3());
+
+
+        //With mesh to better see what's going on
+        //Triangle
+        List<MyVector2> line = new List<MyVector2>() { t_p1, t_p2, t_p3 };
+
+        TestAlgorithmsHelpMethods.DisplayConnectedLinesMesh(line, 0.5f, Color.white);
+
+        //Point
+        Color pointColor = isIntersecting ? Color.red : Color.white;
+
+        TestAlgorithmsHelpMethods.DisplayCircleMesh(p, 1f, 20, pointColor);
     }
 
 
@@ -127,17 +153,32 @@ public class IntersectionController : MonoBehaviour
         bool isIntersecting = Intersections.LineLine(l1_p1, l1_p2, l2_p1, l2_p2, shouldIncludeEndPoints: true);
 
         //Display
-        Gizmos.color = isIntersecting ? Color.red : Color.white;
 
-        Gizmos.DrawLine(l1_p1.ToVector3(), l1_p2.ToVector3());
-        Gizmos.DrawLine(l2_p1.ToVector3(), l2_p2.ToVector3());
+        //Gizmos.DrawLine(l1_p1.ToVector3(), l1_p2.ToVector3());
+        //Gizmos.DrawLine(l2_p1.ToVector3(), l2_p2.ToVector3());
+
+        //if (isIntersecting)
+        //{
+        //    MyVector2 intersectionPoint = Intersections.GetLineLineIntersectionPoint(l1_p1, l1_p2, l2_p1, l2_p2);
+
+        //    //Gizmos.color = Color.red;
+
+        //    //Gizmos.DrawSphere(intersectionPoint.ToVector3(), 1f);
+        //}
+
+
+        //With mesh
+
+        //Line
+        TestAlgorithmsHelpMethods.DisplayLineMesh(l1_p1, l1_p2, 0.5f, Color.white);
+        TestAlgorithmsHelpMethods.DisplayLineMesh(l2_p1, l2_p2, 0.5f, Color.white);
 
         //If they are intersecting we can also get the intersection point
         if (isIntersecting)
         {
             MyVector2 intersectionPoint = Intersections.GetLineLineIntersectionPoint(l1_p1, l1_p2, l2_p1, l2_p2);
 
-            Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.1f);
+            TestAlgorithmsHelpMethods.DisplayCircleMesh(intersectionPoint, 1f, 20, Color.red);
         }
     }
 
@@ -170,23 +211,24 @@ public class IntersectionController : MonoBehaviour
         Vector3 r1_center = new Vector3(t1.MinX() + (r1_size.x * 0.5f), 0f, t1.MinY() + (r1_size.z * 0.5f));
         Vector3 r2_center = new Vector3(t2.MinX() + (r2_size.x * 0.5f), 0f, t2.MinY() + (r2_size.z * 0.5f));
 
-        Gizmos.color = isIntersecting ? Color.red : Color.white;
+        Gizmos.color = Color.white;
 
-        Gizmos.DrawWireCube(r1_center, r1_size);
+        Gizmos.DrawCube(r1_center, r1_size);
 
         float r = 0.1f;
 
-        Gizmos.DrawWireSphere(t1_p1.ToVector3(), r);
-        Gizmos.DrawWireSphere(t1_p2.ToVector3(), r);
-        Gizmos.DrawWireSphere(t1_p3.ToVector3(), r);
+        //Gizmos.DrawWireSphere(t1_p1.ToVector3(), r);
+        //Gizmos.DrawWireSphere(t1_p2.ToVector3(), r);
+        //Gizmos.DrawWireSphere(t1_p3.ToVector3(), r);
 
-        Gizmos.color = isIntersecting ? Color.red : Color.blue;
+        Gizmos.color = isIntersecting ? Color.red : Color.white;
+        
 
-        Gizmos.DrawWireCube(r2_center, r2_size);
+        Gizmos.DrawCube(r2_center, r2_size);
 
-        Gizmos.DrawWireSphere(t2_p1.ToVector3(), r);
-        Gizmos.DrawWireSphere(t2_p2.ToVector3(), r);
-        Gizmos.DrawWireSphere(t2_p3.ToVector3(), r);
+        //Gizmos.DrawWireSphere(t2_p1.ToVector3(), r);
+        //Gizmos.DrawWireSphere(t2_p2.ToVector3(), r);
+        //Gizmos.DrawWireSphere(t2_p3.ToVector3(), r);
     }
 
 
@@ -207,34 +249,44 @@ public class IntersectionController : MonoBehaviour
 
 
         //Display the circle
-        if (intersectionCases == IntersectionCases.NoIntersection)
-        {
-            Gizmos.color = Color.white;
-        }
-        if (intersectionCases == IntersectionCases.IsInside)
-        {
-            Gizmos.color = Color.red;
-        }
-        if (intersectionCases == IntersectionCases.IsOnEdge)
-        {
-            Gizmos.color = Color.blue;
-        }
+        //if (intersectionCases == IntersectionCases.NoIntersection)
+        //{
+        //    Gizmos.color = Color.white;
+        //}
+        //if (intersectionCases == IntersectionCases.IsInside)
+        //{
+        //    Gizmos.color = Color.red;
+        //}
+        //if (intersectionCases == IntersectionCases.IsOnEdge)
+        //{
+        //    Gizmos.color = Color.blue;
+        //}
 
 
         MyVector2 centerOfCicle = Geometry.CalculateCircleCenter(circlePointA, circlePointB, circlePointC);
 
         float radius = MyVector2.Distance(centerOfCicle, circlePointA);
 
-        Gizmos.DrawWireSphere(centerOfCicle.ToVector3(), radius);
+        //Gizmos.DrawWireSphere(centerOfCicle.ToVector3(), radius);
 
-        //Display the points
-        float pointRadius = 0.2f;
+        ////Display the points
+        //float pointRadius = 0.2f;
 
-        Gizmos.DrawWireSphere(pointTrans.position, pointRadius);
+        //Gizmos.DrawWireSphere(pointTrans.position, pointRadius);
 
-        Gizmos.DrawWireSphere(t1_p1_trans.position, pointRadius);
-        Gizmos.DrawWireSphere(t1_p2_trans.position, pointRadius);
-        Gizmos.DrawWireSphere(t1_p3_trans.position, pointRadius);
+        //Gizmos.DrawWireSphere(t1_p1_trans.position, pointRadius);
+        //Gizmos.DrawWireSphere(t1_p2_trans.position, pointRadius);
+        //Gizmos.DrawWireSphere(t1_p3_trans.position, pointRadius);
+
+
+        //With mesh
+        //Big circle
+        TestAlgorithmsHelpMethods.DisplayCircleMesh(centerOfCicle, radius, 60, Color.white);
+
+        //Small circle
+        Color circleColor = (intersectionCases == IntersectionCases.IsInside) ? Color.red : Color.white;
+
+        TestAlgorithmsHelpMethods.DisplayCircleMesh(testPoint, 1f, 20, circleColor);
     }
 
 
@@ -265,38 +317,39 @@ public class IntersectionController : MonoBehaviour
 
 
         //Debug
-        Gizmos.color = Color.blue;
+        //TestAlgorithmsHelpMethods.DrawPlane(planePos_2d, planeNormal_2d, Color.blue);
 
-        TestAlgorithmsHelpMethods.DrawPlane(planePos_2d, planeNormal_2d, Color.blue);
+        ////Line
+        //Gizmos.color = Color.white;
 
-        //Vector3 planeDir = new Vector3(planeNormal_2d.y, 0f, -planeNormal_2d.x);
+        //Gizmos.DrawWireSphere(line_p1, 0.1f);
+        //Gizmos.DrawWireSphere(line_p2, 0.1f);
 
-        ////Draw the plane which is just a long line
-        //float infinite = 100f;
+        //if (isIntersecting)
+        //{
+        //    Gizmos.color = Color.red;
 
-        //Gizmos.DrawRay(planePos, planeDir * infinite);
-        //Gizmos.DrawRay(planePos, -planeDir * infinite);
+        //    MyVector2 intersectionPoint = Intersections.GetLinePlaneIntersectionPoint(planePos_2d, planeNormal_2d, line_p1_2d, line_p2_2d);
 
-        ////Draw the plane normal
-        //Gizmos.DrawLine(planePos, planePos + planeNormal * 1f);
+        //    Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
+        //}
 
+        //Gizmos.DrawLine(line_p1, line_p2);
+
+
+        //Display with mesh
+        //Plane
+        TestAlgorithmsHelpMethods.DisplayPlaneMesh(planePos_2d, planeNormal_2d, 0.5f, Color.blue);
 
         //Line
-        Gizmos.color = Color.white;
-
-        Gizmos.DrawWireSphere(line_p1, 0.1f);
-        Gizmos.DrawWireSphere(line_p2, 0.1f);
+        TestAlgorithmsHelpMethods.DisplayLineMesh(line_p1_2d, line_p2_2d, 0.5f, Color.white);
 
         if (isIntersecting)
         {
-            Gizmos.color = Color.red;
-
             MyVector2 intersectionPoint = Intersections.GetLinePlaneIntersectionPoint(planePos_2d, planeNormal_2d, line_p1_2d, line_p2_2d);
 
-            Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
+            TestAlgorithmsHelpMethods.DisplayCircleMesh(intersectionPoint, 1f, 20, Color.red);
         }
-
-        Gizmos.DrawLine(line_p1, line_p2);
     }
 
 
@@ -334,33 +387,40 @@ public class IntersectionController : MonoBehaviour
         //Debug
         Gizmos.color = Color.blue;
 
-        Vector3 planeDir = new Vector3(planeNormal_2d.y, 0f, -planeNormal_2d.x);
+        TestAlgorithmsHelpMethods.DrawPlane(planePos_2d, planeNormal_2d, Color.blue);
 
-        //Draw the plane which is just a long line
-        float infinite = 100f;
 
-        Gizmos.DrawRay(planePos, planeDir * infinite);
-        Gizmos.DrawRay(planePos, -planeDir * infinite);
-        
-        //Draw the plane normal
-        Gizmos.DrawLine(planePos, planePos + planeNormal * 1f);
-
-        
         //Ray
-        Gizmos.color = Color.white;
+        //Gizmos.color = Color.white;
 
-        Gizmos.DrawWireSphere(rayPos, 0.1f);
+        //Gizmos.DrawWireSphere(rayPos, 0.1f);
+
+        //if (isIntersecting)
+        //{
+        //    Gizmos.color = Color.red;
+
+        //    MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionPoint(planePos_2d, planeNormal_2d, rayPos_2d, rayDir_2d);
+
+        //    Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
+        //}
+
+        //Gizmos.DrawRay(rayPos, rayDir * 100f);
+
+
+        
+        //Display with mesh
+        //Plane
+        TestAlgorithmsHelpMethods.DisplayPlaneMesh(planePos_2d, planeNormal_2d, 0.5f, Color.blue);
+
+        //Ray
+        TestAlgorithmsHelpMethods.DisplayArrowMesh(rayPos_2d, rayPos_2d + rayDir_2d * 6f, 0.5f, 0.5f + 0.5f, Color.white);
 
         if (isIntersecting)
         {
-            Gizmos.color = Color.red;
-
             MyVector2 intersectionPoint = Intersections.GetRayPlaneIntersectionPoint(planePos_2d, planeNormal_2d, rayPos_2d, rayDir_2d);
 
-            Gizmos.DrawWireSphere(intersectionPoint.ToVector3(), 0.2f);
+            TestAlgorithmsHelpMethods.DisplayCircleMesh(intersectionPoint, 1f, 20, Color.red);
         }
-
-        Gizmos.DrawRay(rayPos, rayDir * infinite);
     }
 
 
@@ -384,20 +444,21 @@ public class IntersectionController : MonoBehaviour
 
 
         //Display
-        Gizmos.color = Color.white;
+        //Color color = isIntersecting ? Color.red : Color.white;
 
-        if (isIntersecting)
-        {
-            Gizmos.color = Color.red;
-        }
+        //TestAlgorithmsHelpMethods.DisplayTriangle(t1.p1.ToVector3(), t1.p2.ToVector3(), t1.p3.ToVector3(), color);
+        //TestAlgorithmsHelpMethods.DisplayTriangle(t2.p1.ToVector3(), t2.p2.ToVector3(), t2.p3.ToVector3(), color);
 
-        Gizmos.DrawLine(t1.p1.ToVector3(), t1.p2.ToVector3());
-        Gizmos.DrawLine(t1.p2.ToVector3(), t1.p3.ToVector3());
-        Gizmos.DrawLine(t1.p3.ToVector3(), t1.p1.ToVector3());
 
-        Gizmos.DrawLine(t2.p1.ToVector3(), t2.p2.ToVector3());
-        Gizmos.DrawLine(t2.p2.ToVector3(), t2.p3.ToVector3());
-        Gizmos.DrawLine(t2.p3.ToVector3(), t2.p1.ToVector3());
+        //With mesh to better see what's going on
+        List<MyVector2> t1_line = new List<MyVector2>() { t1.p1, t1.p2, t1.p3 };
+        List<MyVector2> t2_line = new List<MyVector2>() { t2.p1, t2.p2, t2.p3 };
+
+        TestAlgorithmsHelpMethods.DisplayConnectedLinesMesh(t1_line, 0.5f, Color.white);
+
+        Color meshColor = isIntersecting ? Color.red : Color.white;
+
+        TestAlgorithmsHelpMethods.DisplayConnectedLinesMesh(t2_line, 0.5f, meshColor);
     }
 
 
@@ -421,16 +482,26 @@ public class IntersectionController : MonoBehaviour
         bool isIntersecting = Intersections.PointPolygon(polygonPoints_2d, testPoint.ToMyVector2());
 
         //Display
-        Gizmos.color = isIntersecting ? Color.red : Color.white;
+        //Gizmos.color = isIntersecting ? Color.red : Color.white;
 
-        for (int i = 0; i < polygonPoints.Count; i++)
-        {
-            int iPlusOne = MathUtility.ClampListIndex(i + 1, polygonPoints.Count);
+        //for (int i = 0; i < polygonPoints.Count; i++)
+        //{
+        //    int iPlusOne = MathUtility.ClampListIndex(i + 1, polygonPoints.Count);
 
-            Gizmos.DrawLine(polygonPoints[i], polygonPoints[iPlusOne]);
-        }
+        //    Gizmos.DrawLine(polygonPoints[i], polygonPoints[iPlusOne]);
+        //}
 
-        Gizmos.DrawWireSphere(testPoint, 0.1f);
+        //Gizmos.DrawWireSphere(testPoint, 0.1f);
+
+
+        //With mesh to better see what's going on
+        //Line
+        TestAlgorithmsHelpMethods.DisplayConnectedLinesMesh(polygonPoints_2d, 0.5f, Color.white);
+
+        //Point
+        Color circleColor = isIntersecting ? Color.red : Color.white;
+
+        TestAlgorithmsHelpMethods.DisplayCircleMesh(testPoint.ToMyVector2(), 1f, 20, circleColor);
     }
 
 

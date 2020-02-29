@@ -21,7 +21,7 @@ namespace Habrador_Computational_Geometry
         //
 
         //Circle
-        public static HashSet<Triangle2> GenerateCircle(MyVector2 center, float radius, int resolution)
+        public static HashSet<Triangle2> Circle(MyVector2 center, float radius, int resolution)
         {
             HashSet<Triangle2> triangles = Shapes.Circle(center, radius, resolution);
 
@@ -29,7 +29,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //Circle with hole in it
-        public static HashSet<Triangle2> GenerateCircleHollow(MyVector2 center, float radius, int resolution, float width)
+        public static HashSet<Triangle2> CircleHollow(MyVector2 center, float radius, int resolution, float width)
         {
             HashSet<Triangle2> triangles = Shapes.CircleHollow(center, radius, resolution, width);
 
@@ -37,7 +37,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //Line segment
-        public static HashSet<Triangle2> GenerateLineSegment(MyVector2 p1, MyVector2 p2, float width)
+        public static HashSet<Triangle2> LineSegment(MyVector2 p1, MyVector2 p2, float width)
         {
             HashSet<Triangle2> triangles = Shapes.LineSegment(p1, p2, width);
 

@@ -47,10 +47,10 @@ public class GenerateShapesController : MonoBehaviour
             return;
         }
 
-        Mesh mesh = Triangles2ToMesh(triangles);
+        Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, useCompressedMesh: false);
 
         //Display
-        TestAlgorithmsHelpMethods.DisplayMesh(mesh, 0, Color.white);
+        TestAlgorithmsHelpMethods.DisplayMesh(mesh, Color.white);
     }
 
 
@@ -66,19 +66,19 @@ public class GenerateShapesController : MonoBehaviour
 
         HashSet<Triangle2> triangles = GenerateMesh.ConnectedLineSegments(lines, 0.5f, isConnected: true);
 
-        Mesh mesh = Triangles2ToMesh(triangles);
+        Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, useCompressedMesh: false);
 
         //Display
-        TestAlgorithmsHelpMethods.DisplayMesh(mesh, 0, Color.white);
+        TestAlgorithmsHelpMethods.DisplayMesh(mesh, Color.white);
     }
 
 
 
     private void LineSegmemt(MyVector2 pA, MyVector2 pB)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.GenerateLineSegment(pA, pB, 0.2f);
+        HashSet<Triangle2> triangles = GenerateMesh.LineSegment(pA, pB, 0.2f);
 
-        Mesh mesh = Triangles2ToMesh(triangles);
+        Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, useCompressedMesh: false);
 
         //Display
         TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
@@ -88,46 +88,25 @@ public class GenerateShapesController : MonoBehaviour
 
     private void CircleMesh(MyVector2 pA)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.GenerateCircle(pA, radius: 1.6f, resolution: 30);
+        HashSet<Triangle2> triangles = GenerateMesh.Circle(pA, radius: 1.6f, resolution: 30);
 
-        Mesh mesh = Triangles2ToMesh(triangles);
+        Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, useCompressedMesh: false);
 
         //Display
         //TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
-        TestAlgorithmsHelpMethods.DisplayMesh(mesh, 0, Color.white);
+        TestAlgorithmsHelpMethods.DisplayMesh(mesh, Color.white);
     }
 
 
 
     private void CircleMeshHollow(MyVector2 pA)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.GenerateCircleHollow(pA, radius: 1.6f, resolution: 30, width: 1f);
+        HashSet<Triangle2> triangles = GenerateMesh.CircleHollow(pA, radius: 1.6f, resolution: 30, width: 1f);
 
-        Mesh mesh = Triangles2ToMesh(triangles);
+        Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, useCompressedMesh: false);
 
         //Display
         //TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
-        TestAlgorithmsHelpMethods.DisplayMesh(mesh, 0, Color.white);
-    }
-
-
-
-    //Help method to just convert triangles to mesh
-    private Mesh Triangles2ToMesh(HashSet<Triangle2> triangles)
-    {
-        Debug.Log(triangles.Count);
-
-        //2d to 3d
-        HashSet<Triangle3> triangles_3d = new HashSet<Triangle3>();
-
-        foreach (Triangle2 t in triangles)
-        {
-            triangles_3d.Add(new Triangle3(t.p1.ToMyVector3(), t.p2.ToMyVector3(), t.p3.ToMyVector3()));
-        }
-
-        //To mesh
-        Mesh mesh = TransformBetweenDataStructures.Triangle3ToMesh(triangles_3d);
-
-        return mesh;
+        TestAlgorithmsHelpMethods.DisplayMesh(mesh, Color.white);
     }
 }

@@ -75,7 +75,7 @@ public class VoronoiController : MonoBehaviour
         HalfEdgeData2 delaunayData = _Delaunay.FlippingEdges(points, new HalfEdgeData2());
 
         //From halfedge to triangle
-        HashSet<Triangle2> triangles = TransformBetweenDataStructures.HalfEdge2ToTriangle2(delaunayData);
+        HashSet<Triangle2> triangles = _TransformBetweenDataStructures.HalfEdge2ToTriangle2(delaunayData);
 
         //Make sure they have the correct orientation
         triangles = HelpMethods.OrientTrianglesClockwise(triangles);
@@ -88,7 +88,7 @@ public class VoronoiController : MonoBehaviour
             triangles_3d.Add(new Triangle3(t.p1.ToMyVector3(), t.p2.ToMyVector3(), t.p3.ToMyVector3()));
         }
 
-        Mesh delaunayMesh = TransformBetweenDataStructures.Triangle3ToCompressedMesh(triangles_3d);
+        Mesh delaunayMesh = _TransformBetweenDataStructures.Triangle3ToCompressedMesh(triangles_3d);
 
         //Display the delaunay triangles
         TestAlgorithmsHelpMethods.DisplayMeshEdges(delaunayMesh, Color.black);

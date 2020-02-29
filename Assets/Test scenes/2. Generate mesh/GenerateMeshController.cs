@@ -34,7 +34,7 @@ public class GenerateMeshController : MonoBehaviour
             //Will also test that the triangle->mesh is working
             //Mesh meshGrid = TransformBetweenDataStructures.Triangle3ToCompressedMesh(grid_3d);
 
-            Mesh meshGrid = TransformBetweenDataStructures.Triangle3ToMesh(grid_3d);
+            Mesh meshGrid = _TransformBetweenDataStructures.Triangle3ToMesh(grid_3d);
 
             TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(meshGrid, 0);
         }

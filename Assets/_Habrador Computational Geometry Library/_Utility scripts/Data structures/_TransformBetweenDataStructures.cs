@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Transform one representation to another
-    public static class TransformBetweenDataStructures
+    public static class _TransformBetweenDataStructures
     {
         //
         // From triangle to half-edge
@@ -282,6 +282,40 @@ namespace Habrador_Computational_Geometry
             mesh.triangles = meshTriangles.ToArray();
 
             return mesh;
+        }
+
+
+
+        //
+        // From Triangle2 to Unity mesh
+        //
+
+        //meshHeight is the y coordinate in 3d space
+        public static Mesh Triangles2ToMesh(HashSet<Triangle2> triangles, bool useCompressedMesh, float meshHeight = 0f)
+        {
+            Debug.Log(triangles.Count);
+
+            //2d to 3d
+            HashSet<Triangle3> triangles_3d = new HashSet<Triangle3>();
+
+            foreach (Triangle2 t in triangles)
+            {
+                triangles_3d.Add(new Triangle3(t.p1.ToMyVector3(meshHeight), t.p2.ToMyVector3(meshHeight), t.p3.ToMyVector3(meshHeight)));
+            }
+
+            //To mesh
+            if (useCompressedMesh)
+            {
+                Mesh mesh = _TransformBetweenDataStructures.Triangle3ToCompressedMesh(triangles_3d);
+
+                return mesh;
+            }
+            else
+            {
+                Mesh mesh = _TransformBetweenDataStructures.Triangle3ToMesh(triangles_3d);
+
+                return mesh;
+            }
         }
     }
 }
