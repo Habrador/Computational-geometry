@@ -184,9 +184,9 @@ namespace Habrador_Computational_Geometry
         {
             foreach (HalfEdgeVertex2 v in data.vertices)
             {
-                MyVector2 vUnnNormalized = HelpMethods.UnNormalize(v.position, aabb, dMax);
+                MyVector2 vUnNormalized = HelpMethods.UnNormalize(v.position, aabb, dMax);
 
-                v.position = vUnnNormalized;
+                v.position = vUnNormalized;
             }
 
             return data;

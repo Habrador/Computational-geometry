@@ -19,6 +19,8 @@ namespace Habrador_Computational_Geometry
         // Are two lines intersecting?
         //
         //http://thirdpartyninjas.com/blog/2008/10/07/line-segment-intersection/
+        //Notice that there are more than one way to test if two line segments are intersecting
+        //but this is the fastest according to https://www.habrador.com/tutorials/math/5-line-line-intersection/
         public static bool LineLine(MyVector2 l1_p1, MyVector2 l1_p2, MyVector2 l2_p1, MyVector2 l2_p2, bool shouldIncludeEndPoints)
         {
             //To avoid floating point precision issues we can use a small value

@@ -8,7 +8,7 @@ namespace Habrador_Computational_Geometry
     public static class _TransformBetweenDataStructures
     {
         //
-        // From triangle to half-edge
+        // Triangle to half-edge
         //
         public static HalfEdgeData2 Triangle2ToHalfEdge2(HashSet<Triangle2> triangles, HalfEdgeData2 data)
         {
@@ -95,7 +95,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // From half-edge to triangle if we know the half-edge consists of triangles
+        // Half-edge to triangle if we know the half-edge consists of triangles
         //
         public static HashSet<Triangle2> HalfEdge2ToTriangle2(HalfEdgeData2 data)
         {
@@ -123,7 +123,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // From mesh to triangle
+        // Unity mesh to triangle
         //
         //The vertices and triangles are the same as in Unitys built-in Mesh, but in 2d space
         public static HashSet<Triangle2> MeshToTriangle2(Vector2[] meshVertices, int[] meshTriangles)
@@ -147,7 +147,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // From triangle to Unity mesh
+        // Triangle to Unity mesh
         //
 
         //Version 1. Check that each vertex exists only once in the final mesh
@@ -293,8 +293,6 @@ namespace Habrador_Computational_Geometry
         //meshHeight is the y coordinate in 3d space
         public static Mesh Triangles2ToMesh(HashSet<Triangle2> triangles, bool useCompressedMesh, float meshHeight = 0f)
         {
-            Debug.Log(triangles.Count);
-
             //2d to 3d
             HashSet<Triangle3> triangles_3d = new HashSet<Triangle3>();
 

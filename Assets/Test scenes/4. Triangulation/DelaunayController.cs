@@ -20,7 +20,7 @@ public class DelaunayController : MonoBehaviour
 
     public void GenererateTriangulation()
     {
-        //Add the random points
+        //Get the random points
         HashSet<Vector3> points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, halfMapSize, numberOfPoints);
 
 
