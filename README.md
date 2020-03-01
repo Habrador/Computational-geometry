@@ -90,6 +90,8 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 **"flip edges" method** 
 
+A visualization of this algorithm: https://www.youtube.com/watch?v=-d7Nb4fxL5s
+
 ![Triangulation Delaunay flip edges](/_media/triangulation-delaunay-flip-edges.png?raw=true)	
 
 **Constrained triangulation** 

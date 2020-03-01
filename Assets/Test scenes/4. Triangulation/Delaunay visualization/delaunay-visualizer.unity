@@ -327,7 +327,7 @@ MonoBehaviour:
   halfMapSize: 10
   numberOfPoints: 500
   flipText: {fileID: 1489410829}
-  timeBetweenFlip: 0.05
+  timeBetweenFlip: 0.25
 --- !u!4 &1305156612
 Transform:
   m_ObjectHideFlags: 0
@@ -389,7 +389,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 5, y: 5}
-  m_SizeDelta: {x: 300, y: 30}
+  m_SizeDelta: {x: 300, y: 58.24}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1489410829
 MonoBehaviour:
@@ -411,15 +411,15 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 20
+    m_FontSize: 50
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Flips: '
