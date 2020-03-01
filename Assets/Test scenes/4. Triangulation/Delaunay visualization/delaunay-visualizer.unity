@@ -327,7 +327,7 @@ MonoBehaviour:
   halfMapSize: 10
   numberOfPoints: 500
   flipText: {fileID: 1489410829}
-  timeBetweenFlip: 0.25
+  timeBetweenFlip: 0.1
 --- !u!4 &1305156612
 Transform:
   m_ObjectHideFlags: 0

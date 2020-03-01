@@ -90,7 +90,7 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 **"flip edges" method** 
 
-A visualization of this algorithm: https://www.youtube.com/watch?v=-d7Nb4fxL5s
+The basic idea is that you triangulate the points by using a "bad" triangulation method (which is in this case either "visible edge" or "point-by-point" from above). Then you go through all edges and check if the edge should be flipped to make a better triangle. When no more edges can be flipped you are done! A visualization of this algorithm: https://www.youtube.com/watch?v=-d7Nb4fxL5s
 
 ![Triangulation Delaunay flip edges](/_media/triangulation-delaunay-flip-edges.png?raw=true)	
 
