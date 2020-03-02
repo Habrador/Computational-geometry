@@ -86,11 +86,13 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 **"point-by-point" method** 
 
+The basic idea is that you generate a big triangle around all points you want to triangulate. Then you add each point one after the other. The triangle the point ends up in is split into three new triangles. After the split you restore the Delaunay triangulation by flipping edges. When all points have been added you remove the remains of the first big triangle. A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=YNQR5tH-s40  
+
 ![Triangulation Delaunay point-by-point](/_media/triangulation-delaunay-point-by-point.png?raw=true)	
 
 **"flip edges" method** 
 
-The basic idea is that you triangulate the points by using a "bad" triangulation method (which is in this case either "visible edge" or "point-by-point" from above). Then you go through all edges and check if the edge should be flipped to make a better triangle. When no more edges can be flipped you are done! A visualization of this algorithm: https://www.youtube.com/watch?v=-d7Nb4fxL5s
+The basic idea is that you triangulate the points by using a "bad" triangulation method (which is in this case either "visible edge" or "point-by-point" from above). Then you go through all edges and check if the edge should be flipped to make a better triangle. When no more edges can be flipped you are done! A visualization of this algorithm can be found: https://www.youtube.com/watch?v=-d7Nb4fxL5s and https://www.youtube.com/watch?v=lR_SzgEkDwk
 
 ![Triangulation Delaunay flip edges](/_media/triangulation-delaunay-flip-edges.png?raw=true)	
 
@@ -164,6 +166,7 @@ The basic idea is that you triangulate the points by using a "bad" triangulation
 ### Stuff to fix
 
 * Optimize Constrained Delaunay - there's a faster method to find edges that intersects with the constrained edge. I also think the method where triangles within the constrain is removed can be faster. 
+* Make a test scene to test that the "find which triangle a point is in by triangulation walk" is working
 
 
 ## Socials

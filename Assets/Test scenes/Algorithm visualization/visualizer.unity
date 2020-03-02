@@ -304,6 +304,7 @@ GameObject:
   - component: {fileID: 1305156612}
   - component: {fileID: 1305156611}
   - component: {fileID: 1305156613}
+  - component: {fileID: 1305156614}
   m_Layer: 0
   m_Name: _Controller
   m_TagString: Untagged
@@ -326,8 +327,8 @@ MonoBehaviour:
   seed: 2
   halfMapSize: 10
   numberOfPoints: 500
+  pauseTime: 0.25
   flipText: {fileID: 1489410829}
-  timeBetweenFlip: 0.1
 --- !u!4 &1305156612
 Transform:
   m_ObjectHideFlags: 0
@@ -352,6 +353,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 528bce1a7911d2c49860a08f292f1376, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1305156614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1305156610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a96b685daea6cd146af6a051dca7f1bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1489410827

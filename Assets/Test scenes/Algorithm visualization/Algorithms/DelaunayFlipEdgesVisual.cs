@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Habrador_Computational_Geometry;
 
-public class FlipEdgesVisual : MonoBehaviour
+
+
+//Visualizes delaunay triangulation algorithm "flip edges" in steps
+public class DelaunayFlipEdgesVisual : MonoBehaviour
 {
-    DelaunayVisualizerController controller;
+    VisualizerController controller;
 
 
 
-    public void Delaunay_FlipEdges_Visualizer(HashSet<MyVector2> points, HalfEdgeData2 triangleData)
+    public void StartVisualizer(HashSet<MyVector2> points, HalfEdgeData2 triangleData)
     {
-        controller = GetComponent<DelaunayVisualizerController>();
+        controller = GetComponent<VisualizerController>();
 
         //Step 1. Triangulate the points with some algorithm. The result is a convex triangulation
         //List<Triangle> triangles = TriangulatePoints.IncrementalTriangulation(points);
@@ -19,6 +22,9 @@ public class FlipEdgesVisual : MonoBehaviour
 
         //Step 2. Change the data structure from triangle to half-edge to make it easier to flip edges
         triangleData = _TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangleData);
+
+        //Generate the visual triangles
+        controller.GenerateTriangulationMesh(triangleData);
 
         //Step 3. Flip edges until we have a delaunay triangulation
         StartCoroutine(FlipEdges(triangleData));
@@ -67,6 +73,10 @@ public class FlipEdgesVisual : MonoBehaviour
                 MyVector2 c = thisEdge.nextEdge.nextEdge.v.position;
                 MyVector2 d = thisEdge.oppositeEdge.nextEdge.v.position;
 
+                controller.GenerateDelaunayCircleMeshes(a, b, c, d);
+
+                yield return new WaitForSeconds(controller.pauseTime);
+
                 //Test if we should flip this edge
                 if (DelaunayMethods.ShouldFlipEdge(a, b, c, d))
                 {
@@ -78,9 +88,9 @@ public class FlipEdgesVisual : MonoBehaviour
 
                     controller.flipText.text = "Flipped edges: " + flippedEdges;
 
-                    controller.GenerateMesh(triangleData);
+                    controller.GenerateTriangulationMesh(triangleData);
 
-                    yield return new WaitForSeconds(controller.timeBetweenFlip);
+                    yield return new WaitForSeconds(controller.pauseTime);
                 }
 
             }
@@ -93,6 +103,9 @@ public class FlipEdgesVisual : MonoBehaviour
                 break;
             }
         }
+
+        //Remove the circle meshes so we see that we are finished
+        controller.ClearBlackMeshes();
 
         yield return null;
     }

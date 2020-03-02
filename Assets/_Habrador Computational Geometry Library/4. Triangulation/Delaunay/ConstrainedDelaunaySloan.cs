@@ -12,10 +12,7 @@ namespace Habrador_Computational_Geometry
             //Start by generating a delaunay triangulation with all points, including the constraints
             if (constraints != null)
             {
-                foreach (MyVector2 p in constraints)
-                {
-                    points.Add(p);
-                }
+                points.UnionWith(constraints);
             }
 
             //Generate the Delaunay triangulation with some algorithm

@@ -37,6 +37,7 @@ namespace Habrador_Computational_Geometry
             //Step 3. Establish the supertriangle
             //The report says that the supertriangle should be at (-100, 100) which is way
             //outside of the points which are in the range(0, 1)
+            //So make sure you have NORMALIZED the points
             Triangle2 superTriangle = new Triangle2(new MyVector2(-100f, -100f), new MyVector2(100f, -100f), new MyVector2(0f, 100f));
 
             //Create the triangulation data with the only triangle we have
@@ -93,9 +94,9 @@ namespace Habrador_Computational_Geometry
         {
             //Step 5. Insert the new point in the triangulation
             //Find the existing triangle the point is in
-            HalfEdgeFace2 f = HalfEdgeHelpMethods.FindWhichTriangleAPointIsIn(p, null, triangulationData);
+            HalfEdgeFace2 f = PointTriangulationIntersection.TriangulationWalk(p, null, triangulationData);
 
-            //We couldnt find a triangle maybe because of floating point precision issues?
+            //We couldnt find a triangle maybe because the point is not in the triangulation?
             if (f == null)
             {
                 missedPoints += 1;
