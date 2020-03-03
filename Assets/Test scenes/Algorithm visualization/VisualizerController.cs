@@ -39,6 +39,10 @@ public class VisualizerController : MonoBehaviour
     [System.NonSerialized]
     public bool shouldDisplayColoredMesh = true;
 
+    [System.NonSerialized]
+    public MyVector2 activePoint;
+
+
 
     private void Start()
     {
@@ -49,6 +53,9 @@ public class VisualizerController : MonoBehaviour
         blackMaterial = new Material(Shader.Find("Unlit/Color"));
 
         blackMaterial.color = Color.black;
+
+        //Set active point to be outside of screen
+        activePoint = new MyVector2(-10000f, -10000f);
 
         //Generate the points we want to triangulate
         HashSet<Vector3> points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, halfMapSize, numberOfPoints);
@@ -76,12 +83,12 @@ public class VisualizerController : MonoBehaviour
 
 
         //Run delaunay with some algorithm
-        DelaunayFlipEdgesVisual flipEdges = GetComponent<DelaunayFlipEdgesVisual>();
+        //DelaunayFlipEdgesVisual flipEdges = GetComponent<DelaunayFlipEdgesVisual>();
 
-        if (flipEdges != null)
-        {
-            flipEdges.StartVisualizer(points_2d_normalized, new HalfEdgeData2());
-        }
+        //if (flipEdges != null)
+        //{
+        //    flipEdges.StartVisualizer(points_2d_normalized, new HalfEdgeData2());
+        //}
 
         //DelaunayPointByPointVisual pointByPoint = GetComponent<DelaunayPointByPointVisual>();
 
@@ -89,6 +96,14 @@ public class VisualizerController : MonoBehaviour
         //{
         //    pointByPoint.StartVisualizer(points_2d_normalized, new HalfEdgeData2());
         //}
+
+        //Triangulate with visible edges
+        VisibleEdgeVisualizer visibleEdge = GetComponent<VisibleEdgeVisualizer>();
+
+        if (visibleEdge)
+        {
+            visibleEdge.StartVisualization(points_2d_normalized);
+        }
     }
 
 
@@ -126,7 +141,7 @@ public class VisualizerController : MonoBehaviour
     //Generate the mesh from the half-edge data structure, which is called when we have flipped an edge
     public void GenerateTriangulationMesh(HalfEdgeData2 triangleData_normalized)
     {
-        //From half-edge to triangle while unnormalizing
+        //From half-edge to triangle
         HashSet<Triangle2> triangles_2d = new HashSet<Triangle2>();
 
         foreach (HalfEdgeFace2 f in triangleData_normalized.faces)
@@ -136,14 +151,36 @@ public class VisualizerController : MonoBehaviour
             MyVector2 p2 = f.edge.nextEdge.v.position;
             MyVector2 p3 = f.edge.nextEdge.nextEdge.v.position;
 
+            Triangle2 t = new Triangle2(p1, p2, p3);
+
+            triangles_2d.Add(t);
+        }
+
+        GenerateTriangulationMesh(triangles_2d);
+    }
+    
+    
+    
+    public void GenerateTriangulationMesh(HashSet<Triangle2> triangleData_unnormalized)
+    {
+        //Unnormalize
+        HashSet<Triangle2> triangles_2d = new HashSet<Triangle2>();
+
+        foreach (Triangle2 t in triangleData_unnormalized)
+        {
+            //Each face has in this case three edges
+            MyVector2 p1 = t.p1;
+            MyVector2 p2 = t.p2;
+            MyVector2 p3 = t.p3;
+
             //Unnormalize the point
             p1 = HelpMethods.UnNormalize(p1, normalizingBox, dMax);
             p2 = HelpMethods.UnNormalize(p2, normalizingBox, dMax);
             p3 = HelpMethods.UnNormalize(p3, normalizingBox, dMax);
 
-            Triangle2 t = new Triangle2(p1, p2, p3);
+            Triangle2 t_unnormalized = new Triangle2(p1, p2, p3);
 
-            triangles_2d.Add(t);
+            triangles_2d.Add(t_unnormalized);
         }
 
 
@@ -195,10 +232,12 @@ public class VisualizerController : MonoBehaviour
 
 
     //Generate just a circle mesh
-    public void GenerateDelaunayCircleMeshes(MyVector2 a)
+    public void GenerateCircleMesh(MyVector2 a, bool shouldResetAllMeshes)
     {
-        //Remove all old meshes
-        ClearBlackMeshes();
+        if (shouldResetAllMeshes)
+        {
+            ClearBlackMeshes();
+        }
 
         a = HelpMethods.UnNormalize(a, normalizingBox, dMax);
 
@@ -276,6 +315,12 @@ public class VisualizerController : MonoBehaviour
     }
 
 
+    public void SetActivePoint(MyVector2 p)
+    {
+        activePoint = HelpMethods.UnNormalize(p, normalizingBox, dMax);
+    }
+
+
 
     //From Triangle2 to mesh where height is option to avoid z-fighting
     private Mesh Triangle2ToMesh(Triangle2 t, float meshHeight = 0f)
@@ -310,8 +355,11 @@ public class VisualizerController : MonoBehaviour
             {
                 TestAlgorithmsHelpMethods.DisplayMeshEdges(m, Color.black);
             }
-        
-            
+
+
+            Gizmos.color = Color.white;
+
+            Gizmos.DrawWireSphere(activePoint.ToVector3(), 0.3f);
         }
     }
 }

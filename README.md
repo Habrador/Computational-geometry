@@ -86,7 +86,9 @@ You have points on a convex hull you want to triangulate. You have four options 
 You have some points you want to triangulate, you follow the steps:
 1. Sort all points in x and then y direction
 2. Find the first triangle
-3. Add the rest of the sorted points one-by-one and build triangles to visible edges on the existing triangulation. To determine if an edge is visible from the point you build the convex shape from the existing triangles. Then for each edge in the convex hull, you build a triangle with the point. If this triangle is oriented clockwise, the edge is visible and you can add a new triangle.    
+3. Add the rest of the sorted points one-by-one and build triangles to visible edges on the existing triangulation. To determine if an edge is visible from the point you build the convex shape from the existing triangles. Then for each edge in the convex hull, you build a triangle with the point. If this triangle is oriented clockwise, the edge is visible and you can add a new triangle.
+
+A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=MkMXKu1m6A4    
 
 ![Triangulation visible edges](/_media/triangulation-visible-edges.png?raw=true)	
 
@@ -119,7 +121,7 @@ You triangulate the points by using a "bad" triangulation method (which is in th
 
 **Constrained triangulation** 
 
-You add the constraints to the points and generate a Delaunay triangulation by using one of the above methods. Use this triangulation to find which edges interesect with the constraints. Then you flip these edges until they no longer interesect with the constraint. YOu finally remove the triangles that are "inside" of the constraint.   
+You add the constraints to the points and generate a Delaunay triangulation by using one of the above methods. Use this triangulation to find which edges interesect with the constraints. Then you flip these edges until they no longer interesect with the constraint. You finally remove the triangles that are "inside" of the constraint.   
 
 ![Triangulation Delaunay constrained](/_media/triangulation-delaunay-constrained.png?raw=true)	
 

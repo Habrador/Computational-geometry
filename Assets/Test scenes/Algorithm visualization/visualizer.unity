@@ -212,7 +212,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &363335863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305,6 +305,7 @@ GameObject:
   - component: {fileID: 1305156611}
   - component: {fileID: 1305156613}
   - component: {fileID: 1305156614}
+  - component: {fileID: 1305156615}
   m_Layer: 0
   m_Name: _Controller
   m_TagString: Untagged
@@ -327,7 +328,7 @@ MonoBehaviour:
   seed: 2
   halfMapSize: 10
   numberOfPoints: 20
-  pauseTime: 0.25
+  pauseTime: 2
   flipText: {fileID: 1489410829}
 --- !u!4 &1305156612
 Transform:
@@ -365,6 +366,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a96b685daea6cd146af6a051dca7f1bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1305156615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1305156610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b8c8d362bca4694d9f3b9c0c59f14c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1489410827

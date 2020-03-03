@@ -70,7 +70,7 @@ public class DelaunayPointByPointVisual : MonoBehaviour
 
             //Visualize
             //Display the point as a black circle
-            controller.GenerateDelaunayCircleMeshes(p);
+            controller.GenerateCircleMesh(p, shouldResetAllMeshes: true);
 
             yield return new WaitForSeconds(controller.pauseTime);
 
