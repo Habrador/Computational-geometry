@@ -62,7 +62,7 @@ namespace Habrador_Computational_Geometry
         // Does a point p lie to the left, to the right, or on a vector going from a to b
         //
         //https://gamedev.stackexchange.com/questions/71328/how-can-i-add-and-subtract-convex-polygons
-        private static float GetPointInRelationToVectorValue(MyVector2 a, MyVector2 b, MyVector2 p)
+        public static float GetPointInRelationToVectorValue(MyVector2 a, MyVector2 b, MyVector2 p)
         {
             float x1 = a.x - p.x;
             float x2 = a.y - p.y;
@@ -94,7 +94,6 @@ namespace Habrador_Computational_Geometry
         //Same as above but we want to figure out if we are on the vector
         //Use this if we might en up on the line, which has a low probability in a game, but may happen in some cases
         //Where is c in relation to a-b
-        //Returns -1 if to the left, 0 if on the border, 1 if to the right
         public static LeftOnRight IsPoint_Left_On_Right_OfVector(MyVector2 a, MyVector2 b, MyVector2 p)
         {
             float relationValue = GetPointInRelationToVectorValue(a, b, p);
@@ -103,12 +102,12 @@ namespace Habrador_Computational_Geometry
             float epsilon = MathUtility.EPSILON;
 
             //To the right
-            if (relationValue < 0f - epsilon)
+            if (relationValue < -epsilon)
             {
                 return LeftOnRight.Right;
             }
             //To the left
-            else if (relationValue > 0f + epsilon)
+            else if (relationValue > epsilon)
             {
                 return LeftOnRight.Left;
             }

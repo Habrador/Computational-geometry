@@ -17,8 +17,8 @@ public class DelaunayFlipEdgesVisual : MonoBehaviour
         controller = GetComponent<VisualizerController>();
 
         //Step 1. Triangulate the points with some algorithm. The result is a convex triangulation
-        //List<Triangle> triangles = TriangulatePoints.IncrementalTriangulation(points);
-        HashSet<Triangle2> triangles = _TriangulatePoints.TriangleSplitting(points);
+        HashSet<Triangle2> triangles = _TriangulatePoints.VisibleEdgesTriangulation(points);
+        //HashSet<Triangle2> triangles = _TriangulatePoints.TriangleSplitting(points);
 
         //Step 2. Change the data structure from triangle to half-edge to make it easier to flip edges
         triangleData = _TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangleData);
@@ -73,9 +73,10 @@ public class DelaunayFlipEdgesVisual : MonoBehaviour
                 MyVector2 c = thisEdge.nextEdge.nextEdge.v.position;
                 MyVector2 d = thisEdge.oppositeEdge.nextEdge.v.position;
 
-                controller.GenerateDelaunayCircleMeshes(a, b, c, d);
+                //If we want to display the test circle
+                //controller.GenerateDelaunayCircleMeshes(a, b, c, d);
 
-                yield return new WaitForSeconds(controller.pauseTime);
+                //yield return new WaitForSeconds(controller.pauseTime);
 
                 //Test if we should flip this edge
                 if (DelaunayMethods.ShouldFlipEdge(a, b, c, d))

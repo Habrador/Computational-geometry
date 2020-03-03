@@ -14,6 +14,25 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //Test if a float is the same as another float
+        public static bool AreFloatsEqual(float a, float b)
+        {
+            float diff = a - b;
+
+            float e = MathUtility.EPSILON;
+
+            if (diff < e && diff > -e)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+
         //Remap value from range 1 to range 2
         public static float Remap(float value, float r1_low, float r1_high, float r2_low, float r2_high)
         {

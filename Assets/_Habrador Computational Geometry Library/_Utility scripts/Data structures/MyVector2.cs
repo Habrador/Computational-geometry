@@ -44,6 +44,8 @@ namespace Habrador_Computational_Geometry
             }
         }
 
+
+        //Vector operations
         public static float Dot(MyVector2 a, MyVector2 b)
         {
             float dotProduct = a.x * b.x + a.y * b.y;

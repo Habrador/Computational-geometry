@@ -70,33 +70,56 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 ### 4. Triangulation
 
-**Triangulate convex polygon.** Is working with colinear points
+**Triangulate convex polygon.**
+
+You have points on a convex hull you want to triangulate. You have four options here if you have colinear points (points on the same line): 
+1. Triangulate the convex hull while ignoring the colinear points. The area covered will be the same anyway.
+2. Triangulate the convex hull and add the colinear points by splitting triangle edges.
+3. Add a point inside of the convex hull.
+4. Use the algorithm below called "Triangulate points with 'visible edge' algorithm." 
 
 ![Triangulation convex polygon](/_media/triangulation-convex-polygon.png?raw=true)	
 
-**Triangulate points with "visible edge" algorithm.** Is maybe working with colinear points
+
+**Triangulate points with "visible edge" algorithm.**
+
+You have some points you want to triangulate, you follow the steps:
+1. Sort all points in x and then y direction
+2. Find the first triangle
+3. Add the rest of the sorted points one-by-one and build triangles to visible edges on the existing triangulation. To determine if an edge is visible from the point you build the convex shape from the existing triangles. Then for each edge in the convex hull, you build a triangle with the point. If this triangle is oriented clockwise, the edge is visible and you can add a new triangle.    
 
 ![Triangulation visible edges](/_media/triangulation-visible-edges.png?raw=true)	
 
-**Triangulate points with "point-by-point" algorithm.** Is working with colinear points (because Triangulate convex polygon is working with colinear points)
+
+**Triangulate points with "point-by-point" algorithm.** 
+
+You have some points you want to triangulate, you follow the steps:
+1. Generate the convex hull of all points.
+2. Triangulate the convex hull with one of several algorithms mentioned above.
+3. Add the rest of the points one-by-one by splitting the triangles they end up in into three new triangles.
 
 ![Triangulation point-by-point](/_media/triangulation-point-by-point.png?raw=true)	
+
 
 #### 4.1 Delaunay triangulation
 
 **"point-by-point" method** 
 
-The basic idea is that you generate a big triangle around all points you want to triangulate. Then you add each point one after the other. The triangle the point ends up in is split into three new triangles. After the split you restore the Delaunay triangulation by flipping edges. When all points have been added you remove the remains of the first big triangle. A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=YNQR5tH-s40  
+You generate a big triangle around all points you want to triangulate. Then you add each point one after the other. The triangle the point ends up in is split into three new triangles. After the split you restore the Delaunay triangulation by flipping edges. When all points have been added you remove the remains of the first big triangle. A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=YNQR5tH-s40  
 
 ![Triangulation Delaunay point-by-point](/_media/triangulation-delaunay-point-by-point.png?raw=true)	
 
+
 **"flip edges" method** 
 
-The basic idea is that you triangulate the points by using a "bad" triangulation method (which is in this case either "visible edge" or "point-by-point" from above). Then you go through all edges and check if the edge should be flipped to make a better triangle. When no more edges can be flipped you are done! A visualization of this algorithm can be found: https://www.youtube.com/watch?v=-d7Nb4fxL5s and https://www.youtube.com/watch?v=lR_SzgEkDwk
+You triangulate the points by using a "bad" triangulation method (which is in this case either "visible edge" or "point-by-point" from above). Then you go through all edges and check if the edge should be flipped to make a better triangle. When no more edges can be flipped you are done! A visualization of this algorithm can be found: https://www.youtube.com/watch?v=-d7Nb4fxL5s and https://www.youtube.com/watch?v=lR_SzgEkDwk
 
 ![Triangulation Delaunay flip edges](/_media/triangulation-delaunay-flip-edges.png?raw=true)	
 
+
 **Constrained triangulation** 
+
+You add the constraints to the points and generate a Delaunay triangulation by using one of the above methods. Use this triangulation to find which edges interesect with the constraints. Then you flip these edges until they no longer interesect with the constraint. YOu finally remove the triangles that are "inside" of the constraint.   
 
 ![Triangulation Delaunay constrained](/_media/triangulation-delaunay-constrained.png?raw=true)	
 
@@ -104,6 +127,8 @@ The basic idea is that you triangulate the points by using a "bad" triangulation
 ### 5. Voronoi diagram
 
 **From a Delaunay triangulation**
+
+You first generate a Delaunay triangulation by using some method. Then you use the fact that you can get the Voronoi diagram from the Delaunay triangulation. 
 
 ![Voronoi from delaunay](/_media/voronoi-from-delaunay.png?raw=true)	
 

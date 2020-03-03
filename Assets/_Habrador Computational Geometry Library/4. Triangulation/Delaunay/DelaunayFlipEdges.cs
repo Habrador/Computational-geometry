@@ -11,8 +11,8 @@ namespace Habrador_Computational_Geometry
         public static HalfEdgeData2 GenerateTriangulation(HashSet<MyVector2> points, HalfEdgeData2 triangleData)
         {
             //Step 1. Triangulate the points with some algorithm. The result is a convex triangulation
-            //List<Triangle> triangles = TriangulatePoints.IncrementalTriangulation(points);
-            HashSet<Triangle2> triangles = _TriangulatePoints.TriangleSplitting(points);
+            //HashSet<Triangle2> triangles = _TriangulatePoints.VisibleEdgesTriangulation(points);
+            HashSet<Triangle2> triangles = _TriangulatePoints.TriangleSplitting(points, addColinearPoints: true);
 
             //Step 2. Change the data structure from triangle to half-edge to make it easier to flip edges
             triangleData = _TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangleData);

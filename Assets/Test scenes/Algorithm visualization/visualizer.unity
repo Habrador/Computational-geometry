@@ -326,7 +326,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   seed: 2
   halfMapSize: 10
-  numberOfPoints: 500
+  numberOfPoints: 20
   pauseTime: 0.25
   flipText: {fileID: 1489410829}
 --- !u!4 &1305156612

@@ -37,7 +37,7 @@ public class VisualizerController : MonoBehaviour
     private Material blackMaterial;
 
     [System.NonSerialized]
-    public bool shouldDisplayColoredMesh = false;
+    public bool shouldDisplayColoredMesh = true;
 
 
     private void Start()
@@ -76,19 +76,19 @@ public class VisualizerController : MonoBehaviour
 
 
         //Run delaunay with some algorithm
-        //DelaunayFlipEdgesVisual flipEdges = GetComponent<DelaunayFlipEdgesVisual>();
+        DelaunayFlipEdgesVisual flipEdges = GetComponent<DelaunayFlipEdgesVisual>();
 
-        //if (flipEdges != null)
-        //{
-        //    flipEdges.StartVisualizer(points_2d_normalized, new HalfEdgeData2());
-        //}
-
-        DelaunayPointByPointVisual pointByPoint = GetComponent<DelaunayPointByPointVisual>();
-
-        if (pointByPoint != null)
+        if (flipEdges != null)
         {
-            pointByPoint.StartVisualizer(points_2d_normalized, new HalfEdgeData2());
+            flipEdges.StartVisualizer(points_2d_normalized, new HalfEdgeData2());
         }
+
+        //DelaunayPointByPointVisual pointByPoint = GetComponent<DelaunayPointByPointVisual>();
+
+        //if (pointByPoint != null)
+        //{
+        //    pointByPoint.StartVisualizer(points_2d_normalized, new HalfEdgeData2());
+        //}
     }
 
 

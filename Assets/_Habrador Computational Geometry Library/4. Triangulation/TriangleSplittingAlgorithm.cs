@@ -6,26 +6,28 @@ namespace Habrador_Computational_Geometry
 {
     //Triangulate random points by: 
     //1. Generating the convex hull of the points
-    //2. Triangulate the convex hull
+    //2. Triangulate the convex hull. This step will ignore colinear points which can be added when we have the hull. We could use
+    //   "Visible edges" to triangulate the convex hull with colinear points, but then this algorithm is useless
+    //   because we could have used "Visible edges" to triangulate the points from the beginning
     //3. Add the other points one-by-one while splitting the triangle the point is in
     public static class TriangleSplittingAlgorithm
     {
-        public static HashSet<Triangle2> TriangulatePoints(HashSet<MyVector2> points)
+        public static HashSet<Triangle2> TriangulatePoints(HashSet<MyVector2> points, bool addColinearPoints)
         {
             //Step 1. Generate the convex hull
             List<MyVector2> pointsOnConvexHull = _ConvexHull.JarvisMarch(points);
 
 
-            //Step 2. Triangulate the convex hull - is only working if we have no colinear points on the hull
-            HashSet<Triangle2> triangles = _TriangulatePoints.PointsOnConvexHull(pointsOnConvexHull);
-
+            //Step 2. Triangulate the convex hull
+            HashSet<Triangle2> triangles = _TriangulatePoints.PointsOnConvexHull(pointsOnConvexHull, addColinearPoints: true);
             
+
             //Step 3. From the points we should add, remove those that are already a part of the triangulation
             foreach (MyVector2 v in pointsOnConvexHull)
             {
                 points.Remove(v);
             }
-            
+
 
             //Step 4. Add the remaining points while splitting the triangles they end up in
             foreach (MyVector2 currentPoint in points)
@@ -60,7 +62,7 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-       
+
 
             return triangles;
         }
