@@ -40,8 +40,11 @@ public class DelaunayPointByPointVisual : MonoBehaviour
 
     IEnumerator InsertPoints(HashSet<MyVector2> points, HalfEdgeData2 triangulationData, Triangle2 superTriangle)
     {
-        //Visualize the first triangle
-        controller.GenerateTriangulationMesh(triangulationData);
+        //VISUALZ
+        ShowTriangles(triangulationData);
+
+        //VISUALZ - dont show the colored mesh until its finished because its flickering
+        controller.shouldDisplayColoredMesh = false;
 
         yield return new WaitForSeconds(controller.pauseTime);
 
@@ -68,13 +71,13 @@ public class DelaunayPointByPointVisual : MonoBehaviour
             HalfEdgeHelpMethods.SplitTriangleFaceAtPoint(f, p, triangulationData);
 
 
-            //Visualize
+            //VISUALZ
             //Display the point as a black circle
-            controller.GenerateCircleMesh(p, shouldResetAllMeshes: true);
+            ShowCircle(p);
 
             yield return new WaitForSeconds(controller.pauseTime);
 
-            controller.GenerateTriangulationMesh(triangulationData);
+            ShowTriangles(triangulationData);
 
             yield return new WaitForSeconds(controller.pauseTime);
 
@@ -120,18 +123,19 @@ public class DelaunayPointByPointVisual : MonoBehaviour
 
                     flippedEdges += 1;
 
-                    //Visualize
+                    //VISUALZ
                     controller.flipText.text = "Flipped edges: " + flippedEdges;
 
-                    controller.GenerateTriangulationMesh(triangulationData);
+                    ShowTriangles(triangulationData);
 
                     yield return new WaitForSeconds(controller.pauseTime);
                 }
             }
         }
 
-
-        controller.ClearBlackMeshes();
+        
+        //Dont show the last point we added
+        controller.ResetBlackMeshes();
 
 
         //Step 8. Delete the vertices belonging to the supertriangle
@@ -233,14 +237,48 @@ public class DelaunayPointByPointVisual : MonoBehaviour
         {
             HalfEdgeHelpMethods.DeleteTriangleFace(f, triangulationData, shouldSetOppositeToNull: true);
 
-            controller.GenerateTriangulationMesh(triangulationData);
+
+            //VISUALZ
+            ShowTriangles(triangulationData);
 
             yield return new WaitForSeconds(controller.pauseTime);
         }
 
 
+        //VISUALZ - show the colored mesh when its finished
         controller.shouldDisplayColoredMesh = true;
 
         yield return null;
+    }
+
+
+
+    //
+    // Visualz
+    //
+
+    //Show triangles
+    private void ShowTriangles(HalfEdgeData2 triangles)
+    {
+        controller.ResetMultiColoredMeshes();
+
+        List<Mesh> meshes = controller.GenerateTriangulationMesh(triangles, shouldUnNormalize: true);
+
+        List<Material> materials = controller.GenerateRandomMaterials(meshes.Count);
+
+        controller.multiColoredMeshes = meshes;
+        controller.multiColoredMeshesMaterials = materials;
+    }
+
+    //Show current active point where we split triangle
+    private void ShowCircle(MyVector2 p)
+    {
+        controller.ResetBlackMeshes();
+
+        HashSet<Triangle2> triangles = GenerateMesh.Circle(controller.UnNormalize(p), 0.2f, 10);
+
+        List<Mesh> meshes = controller.GenerateTriangulationMesh(triangles, shouldUnNormalize: false);
+
+        controller.blackMeshes = meshes;
     }
 }

@@ -17,10 +17,10 @@ public class VisibleEdgeVisualizer : MonoBehaviour
     {
         controller = GetComponent<VisualizerController>();
 
-        StartCoroutine(RunVisualization(points));
-
-        //Start by showing all points
+        //Start by showing all points we want to triangulate
         ShowPoints(points);
+
+        StartCoroutine(RunVisualization(points));
     }
 
 
@@ -92,7 +92,7 @@ public class VisibleEdgeVisualizer : MonoBehaviour
 
 
         //Show the triangulation
-        controller.GenerateTriangulationMesh(triangles);
+        ShowTriangles(triangles);
 
         yield return new WaitForSeconds(controller.pauseTime);
 
@@ -124,7 +124,10 @@ public class VisibleEdgeVisualizer : MonoBehaviour
         {
             bool couldFormTriangle = false;
 
+
+            //Show which point we draw triangles to
             controller.SetActivePoint(pointToAdd);
+
 
             //Loop through all edges in the convex hull
             for (int j = 0; j < pointsOnHull.Count; j++)
@@ -150,7 +153,7 @@ public class VisibleEdgeVisualizer : MonoBehaviour
 
 
                     //Show the triangulation
-                    controller.GenerateTriangulationMesh(triangles);
+                    ShowTriangles(triangles);
 
                     yield return new WaitForSeconds(controller.pauseTime);
                 }
@@ -180,17 +183,45 @@ public class VisibleEdgeVisualizer : MonoBehaviour
 
 
 
+    //
+    // Display stuff
+    //
+
     //Show points
     private void ShowPoints(HashSet<MyVector2> points)
     {
-        //Clear previous points
-        //Remove all old meshes
-        controller.ClearBlackMeshes();
+        controller.ResetBlackMeshes();
+
+
+        HashSet<Triangle2> triangles = new HashSet<Triangle2>();
 
         foreach (MyVector2 p in points)
         {
-            controller.GenerateCircleMesh(p, shouldResetAllMeshes: false);
+            MyVector2 point = controller.UnNormalize(p);
+        
+            HashSet<Triangle2> circleTriangles = GenerateMesh.Circle(point, 0.1f, 10);
+
+            triangles.UnionWith(circleTriangles);
         }
+
+
+        //Will unnormalize
+        List<Mesh> meshes = controller.GenerateTriangulationMesh(triangles, shouldUnNormalize: false);
+
+        controller.blackMeshes = meshes;
     }
-    
+
+
+    //Show triangles
+    private void ShowTriangles(HashSet<Triangle2> triangles)
+    {
+        controller.ResetMultiColoredMeshes();
+
+        List<Mesh> meshes = controller.GenerateTriangulationMesh(triangles, shouldUnNormalize: true);
+
+        List<Material> materials = controller.GenerateRandomMaterials(triangles.Count);
+
+        controller.multiColoredMeshes = meshes;
+        controller.multiColoredMeshesMaterials = materials;
+    }
 }

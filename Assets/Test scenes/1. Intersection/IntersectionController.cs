@@ -213,7 +213,7 @@ public class IntersectionController : MonoBehaviour
 
         Gizmos.DrawCube(r1_center, r1_size);
 
-        float r = 0.1f;
+        //float r = 0.1f;
 
         //Gizmos.DrawWireSphere(t1_p1.ToVector3(), r);
         //Gizmos.DrawWireSphere(t1_p2.ToVector3(), r);

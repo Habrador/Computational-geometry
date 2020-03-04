@@ -23,8 +23,8 @@ public class DelaunayFlipEdgesVisual : MonoBehaviour
         //Step 2. Change the data structure from triangle to half-edge to make it easier to flip edges
         triangleData = _TransformBetweenDataStructures.Triangle2ToHalfEdge2(triangles, triangleData);
 
-        //Generate the visual triangles
-        controller.GenerateTriangulationMesh(triangleData);
+        //VISUALZ Generate the visual triangles
+        ShowTriangles(triangleData);
 
         //Step 3. Flip edges until we have a delaunay triangulation
         StartCoroutine(FlipEdges(triangleData));
@@ -73,10 +73,10 @@ public class DelaunayFlipEdgesVisual : MonoBehaviour
                 MyVector2 c = thisEdge.nextEdge.nextEdge.v.position;
                 MyVector2 d = thisEdge.oppositeEdge.nextEdge.v.position;
 
-                //If we want to display the test circle
-                //controller.GenerateDelaunayCircleMeshes(a, b, c, d);
+                //VISUALZ If we want to display the test circle
+                ShowCircles(a, b, c, d);
 
-                //yield return new WaitForSeconds(controller.pauseTime);
+                yield return new WaitForSeconds(controller.pauseTime);
 
                 //Test if we should flip this edge
                 if (DelaunayMethods.ShouldFlipEdge(a, b, c, d))
@@ -89,7 +89,8 @@ public class DelaunayFlipEdgesVisual : MonoBehaviour
 
                     controller.flipText.text = "Flipped edges: " + flippedEdges;
 
-                    controller.GenerateTriangulationMesh(triangleData);
+                    //VISUALZ Generate the visual triangles
+                    ShowTriangles(triangleData);
 
                     yield return new WaitForSeconds(controller.pauseTime);
                 }
@@ -106,8 +107,47 @@ public class DelaunayFlipEdgesVisual : MonoBehaviour
         }
 
         //Remove the circle meshes so we see that we are finished
-        controller.ClearBlackMeshes();
+        controller.ResetBlackMeshes();
 
         yield return null;
+    }
+
+
+
+    //
+    // Visualz
+    //
+
+    //Show triangles
+    private void ShowTriangles(HalfEdgeData2 triangles)
+    {
+        controller.ResetMultiColoredMeshes();
+
+        List<Mesh> meshes = controller.GenerateTriangulationMesh(triangles, shouldUnNormalize: true);
+
+        List<Material> materials = controller.GenerateRandomMaterials(meshes.Count);
+
+        controller.multiColoredMeshes = meshes;
+        controller.multiColoredMeshesMaterials = materials;
+    }
+
+    //Show circles
+    private void ShowCircles(MyVector2 a, MyVector2 b, MyVector2 c, MyVector2 d)
+    {
+        //Generate triangles
+        //Will unnormalize
+        HashSet<Triangle2> triangles = controller.GenerateDelaunayCircleTriangles(a, b, c, d);
+
+        //The active edge is between a-c
+        HashSet<Triangle2> edge = GenerateMesh.LineSegment(controller.UnNormalize(a), controller.UnNormalize(c), 0.2f);
+
+        triangles.UnionWith(edge);
+
+        //Generate meshes
+        List<Mesh> meshes = controller.GenerateTriangulationMesh(triangles, shouldUnNormalize: false);
+
+        controller.ResetBlackMeshes();
+
+        controller.blackMeshes = meshes;
     }
 }

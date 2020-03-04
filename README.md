@@ -63,7 +63,17 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 ### 3. Convex Hull
 
+A common problem in Computational Geometry is to find the convex hull of a set of points.
+
 **Jarvis March.* Is also known as "Gift wrapping"
+
+The simplest algorithm is called Gift Wrapping (or Jarvis March). The idea is:
+1. Find a point on the hull (which can be the point with the smallest x-coordinate)
+2. To find the next point on the hull, you pick a point randomly, and then you test all other points if the other point is to the right of the point between the last point on the hull and the point you picked randomly. If so then this point is a better point. You continue like this until you find no more point to the right. This last point is also on the hull. 
+
+This algorithm may be slow, but it is robust and can easily deal with colinear points. Sometimes it's better to use an algorithm which is easy to understand than a more complicated one.
+
+A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=Z_wcJUgvohc   
 
 ![Convex hull jarvis march](/_media/convex-hull-jarvis.png?raw=true)	
 
@@ -130,7 +140,7 @@ You add the constraints to the points and generate a Delaunay triangulation by u
 
 **From a Delaunay triangulation**
 
-You first generate a Delaunay triangulation by using some method. Then you use the fact that you can get the Voronoi diagram from the Delaunay triangulation. 
+You first generate a Delaunay triangulation by using some method. Then you use the fact that you can get the Voronoi diagram from the Delaunay triangulation. For each Delaunay triangle you generate a circle where the triangle-corners are on the edge of the circle. The center of this circle is a corner in the Voronoi diagram face belonging to the triangle.     
 
 ![Voronoi from delaunay](/_media/voronoi-from-delaunay.png?raw=true)	
 

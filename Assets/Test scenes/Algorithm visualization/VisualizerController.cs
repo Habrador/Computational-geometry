@@ -27,20 +27,27 @@ public class VisualizerController : MonoBehaviour
 
     //Used for visualizing purposes
 
-    //Triangles and materials so we can display them 
-    private List<Mesh> triangleMeshes = new List<Mesh>();
-    private List<Material> triangleMaterials = new List<Material>();
+    //Triangles that has different colors
+    [System.NonSerialized]
+    public List<Mesh> multiColoredMeshes = new List<Mesh>();
+    [System.NonSerialized]
+    public List<Material> multiColoredMeshesMaterials = new List<Material>();
 
-    //Black meshes
-    private List<Mesh> blackMeshes = new List<Mesh>();
-
+    //Triangles with a single color
+    [System.NonSerialized]
+    public List<Mesh> blackMeshes = new List<Mesh>();
     private Material blackMaterial;
 
     [System.NonSerialized]
     public bool shouldDisplayColoredMesh = true;
 
+    //Display a single point with draw gizmos
     [System.NonSerialized]
     public MyVector2 activePoint;
+
+    //Connected points
+    [System.NonSerialized]
+    public List<MyVector2> connectedPoints;
 
 
 
@@ -56,6 +63,7 @@ public class VisualizerController : MonoBehaviour
 
         //Set active point to be outside of screen
         activePoint = new MyVector2(-10000f, -10000f);
+
 
         //Generate the points we want to triangulate
         HashSet<Vector3> points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, halfMapSize, numberOfPoints);
@@ -82,7 +90,7 @@ public class VisualizerController : MonoBehaviour
         HashSet<MyVector2> points_2d_normalized = HelpMethods.Normalize(points_2d, normalizingBox, dMax);
 
 
-        //Run delaunay with some algorithm
+        //Visualization 1. Delaunay flip edges
         //DelaunayFlipEdgesVisual flipEdges = GetComponent<DelaunayFlipEdgesVisual>();
 
         //if (flipEdges != null)
@@ -90,6 +98,8 @@ public class VisualizerController : MonoBehaviour
         //    flipEdges.StartVisualizer(points_2d_normalized, new HalfEdgeData2());
         //}
 
+
+        //Visualization 2. Delaunay point-by-point
         //DelaunayPointByPointVisual pointByPoint = GetComponent<DelaunayPointByPointVisual>();
 
         //if (pointByPoint != null)
@@ -97,12 +107,22 @@ public class VisualizerController : MonoBehaviour
         //    pointByPoint.StartVisualizer(points_2d_normalized, new HalfEdgeData2());
         //}
 
-        //Triangulate with visible edges
-        VisibleEdgeVisualizer visibleEdge = GetComponent<VisibleEdgeVisualizer>();
 
-        if (visibleEdge)
+        //Visualization 3. Triangulate with visible edges
+        //VisibleEdgeVisualizer visibleEdge = GetComponent<VisibleEdgeVisualizer>();
+
+        //if (visibleEdge)
+        //{
+        //    visibleEdge.StartVisualization(points_2d_normalized);
+        //}
+
+
+        //Visualization 4. Gift wrapping
+        GiftWrappingVisualizer giftWrapping = GetComponent<GiftWrappingVisualizer>();
+
+        if (giftWrapping)
         {
-            visibleEdge.StartVisualization(points_2d_normalized);
+            giftWrapping.InitVisualization(points_2d_normalized);
         }
     }
 
@@ -112,12 +132,14 @@ public class VisualizerController : MonoBehaviour
     private void Update()
     {
         //Triangulation with random color
-        if (triangleMeshes != null && triangleMaterials != null && shouldDisplayColoredMesh)
+        if (multiColoredMeshes != null && multiColoredMeshesMaterials != null && shouldDisplayColoredMesh)
         {
-            for (int i = 0; i < triangleMeshes.Count; i++)
+            for (int i = 0; i < multiColoredMeshes.Count; i++)
             {
                 //Display it
-                Graphics.DrawMesh(triangleMeshes[i], Vector3.zero, Quaternion.identity, triangleMaterials[i], 0);
+                Vector3 meshPos = Vector3.zero;
+
+                Graphics.DrawMesh(multiColoredMeshes[i], meshPos, Quaternion.identity, multiColoredMeshesMaterials[i], 0);
             }
         }
 
@@ -127,8 +149,10 @@ public class VisualizerController : MonoBehaviour
         {
             for (int i = 0; i < blackMeshes.Count; i++)
             {
-                //Display it
-                Graphics.DrawMesh(blackMeshes[i], Vector3.zero, Quaternion.identity, blackMaterial, 0);
+                //Display it (draw the black mehes above)
+                Vector3 meshPos = Vector3.zero + Vector3.up;
+
+                Graphics.DrawMesh(blackMeshes[i], meshPos, Quaternion.identity, blackMaterial, 0);
             }
         }
 
@@ -138,13 +162,85 @@ public class VisualizerController : MonoBehaviour
 
 
 
-    //Generate the mesh from the half-edge data structure, which is called when we have flipped an edge
-    public void GenerateTriangulationMesh(HalfEdgeData2 triangleData_normalized)
+    //TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(displayMesh, seed);
+    //Is adding memory each time we run it in playmode, which could maybe 
+    //have been solved by destroying the meshes we create each update???
+    //But DrawMesh is similar
+    private void OnDrawGizmos()
+    {
+        if (multiColoredMeshes != null)
+        {
+            foreach (Mesh m in multiColoredMeshes)
+            {
+                TestAlgorithmsHelpMethods.DisplayMeshEdges(m, Color.black);
+            }
+        }
+
+
+        //This point is set to be outside if its not active
+        Gizmos.color = Color.white;
+
+        Gizmos.DrawWireSphere(activePoint.ToVector3(), 0.3f);
+
+
+        //Connected points
+        if (connectedPoints != null)
+        {
+            Gizmos.color = Color.white;
+
+            for (int i = 0; i < connectedPoints.Count; i++)
+            {
+                //Show the circle
+                Gizmos.DrawWireSphere(connectedPoints[i].ToVector3(), 0.2f);
+
+                //Line to previous point
+                if (i > 0)
+                {
+                    Gizmos.DrawLine(connectedPoints[i].ToVector3(), connectedPoints[i - 1].ToVector3());
+                }
+            }
+        }
+    }
+
+
+
+    //
+    // Reset methods
+    //
+
+    public void ResetBlackMeshes()
+    {
+        blackMeshes.Clear();
+
+        Resources.UnloadUnusedAssets();
+    }
+
+    public void ResetMultiColoredMeshes()
+    {
+        //Generate the triangle meshes
+        multiColoredMeshes.Clear();
+        //Materials is not a constant because in some algorithms we add triangles
+        //Could maybe in that case just add a new material?
+        multiColoredMeshesMaterials.Clear();
+
+        //This line is important or unity will run into memory problems
+        //This line will remove the mesh and material we just cleared from memory
+        Resources.UnloadUnusedAssets();
+    }
+
+
+
+    //
+    // Generate meshes
+    //
+
+    //Generate list of meshes from the Half-edge data structure
+    public List<Mesh> GenerateTriangulationMesh(HalfEdgeData2 triangleData, bool shouldUnNormalize)
     {
         //From half-edge to triangle
         HashSet<Triangle2> triangles_2d = new HashSet<Triangle2>();
 
-        foreach (HalfEdgeFace2 f in triangleData_normalized.faces)
+        foreach (HalfEdgeFace2 f in triangleData.faces)
         {
             //Each face has in this case three edges
             MyVector2 p1 = f.edge.v.position;
@@ -156,31 +252,40 @@ public class VisualizerController : MonoBehaviour
             triangles_2d.Add(t);
         }
 
-        GenerateTriangulationMesh(triangles_2d);
+        List<Mesh> meshes = GenerateTriangulationMesh(triangles_2d, shouldUnNormalize);
+
+        return meshes;
     }
-    
-    
-    
-    public void GenerateTriangulationMesh(HashSet<Triangle2> triangleData_unnormalized)
+
+
+    //Generate list of meshes from the Triangle2 data structure
+    public List<Mesh> GenerateTriangulationMesh(HashSet<Triangle2> triangleData, bool shouldUnNormalize)
     {
         //Unnormalize
         HashSet<Triangle2> triangles_2d = new HashSet<Triangle2>();
 
-        foreach (Triangle2 t in triangleData_unnormalized)
+        if (shouldUnNormalize)
         {
-            //Each face has in this case three edges
-            MyVector2 p1 = t.p1;
-            MyVector2 p2 = t.p2;
-            MyVector2 p3 = t.p3;
+            foreach (Triangle2 t in triangleData)
+            {
+                //Each face has in this case three edges
+                MyVector2 p1 = t.p1;
+                MyVector2 p2 = t.p2;
+                MyVector2 p3 = t.p3;
 
-            //Unnormalize the point
-            p1 = HelpMethods.UnNormalize(p1, normalizingBox, dMax);
-            p2 = HelpMethods.UnNormalize(p2, normalizingBox, dMax);
-            p3 = HelpMethods.UnNormalize(p3, normalizingBox, dMax);
+                //Unnormalize the point
+                p1 = HelpMethods.UnNormalize(p1, normalizingBox, dMax);
+                p2 = HelpMethods.UnNormalize(p2, normalizingBox, dMax);
+                p3 = HelpMethods.UnNormalize(p3, normalizingBox, dMax);
 
-            Triangle2 t_unnormalized = new Triangle2(p1, p2, p3);
+                Triangle2 t_unnormalized = new Triangle2(p1, p2, p3);
 
-            triangles_2d.Add(t_unnormalized);
+                triangles_2d.Add(t_unnormalized);
+            }
+        }
+        else
+        {
+            triangles_2d = triangleData;
         }
 
 
@@ -188,83 +293,34 @@ public class VisualizerController : MonoBehaviour
         //triangles_2d = HelpMethods.OrientTrianglesClockwise(triangles_2d);
 
 
-        //From 2d to mesh in one step
+        //From 2d to mesh in one step if we want one single mesh
         //Mesh displayMesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles_2d, useCompressedMesh: false);
 
 
-        //Generate the triangle meshes
-        triangleMeshes.Clear();
-        //Materials is not a constant because in some algorithms we add triangles
-        //Could maybe in that case just add a new material?
-        triangleMaterials.Clear();
-
-        //This line is important or unity will run into memory problems
-        //This line will remove the mesh and material we just cleared from memory
-        Resources.UnloadUnusedAssets();
-
-
-        Random.InitState(seed);
+        //Generate the meshes from triangles
+        List<Mesh> meshes = new List<Mesh>();
 
         foreach (Triangle2 t in triangles_2d)
         {
             Mesh triangleMesh = Triangle2ToMesh(t);
 
-
-            //Color the triangle
-            Color color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
-
-            //float grayScale = Random.Range(0f, 1f);
-
-            //Color color = new Color(grayScale, grayScale, grayScale, 1f);
-
-
-            Material mat = new Material(Shader.Find("Unlit/Color"));
-
-            mat.color = color;
-
-
-            //Add them to the lists
-            triangleMeshes.Add(triangleMesh);
-
-            triangleMaterials.Add(mat);
+            meshes.Add(triangleMesh);
         }
+
+
+        return meshes;
     }
 
-
-    //Generate just a circle mesh
-    public void GenerateCircleMesh(MyVector2 a, bool shouldResetAllMeshes)
-    {
-        if (shouldResetAllMeshes)
-        {
-            ClearBlackMeshes();
-        }
-
-        a = HelpMethods.UnNormalize(a, normalizingBox, dMax);
-
-        HashSet<Triangle2> circle_a = GenerateMesh.Circle(a, 0.2f, 10);
-
-        //Generate meshes
-        foreach (Triangle2 t in circle_a)
-        {
-            Mesh triangleMesh = Triangle2ToMesh(t, 0.1f);
-
-            blackMeshes.Add(triangleMesh);
-        }
-    }
 
 
     //Generate circle meshes for delaunay based in 3 points in a triangle, where d is the opposite vertex
-    public void GenerateDelaunayCircleMeshes(MyVector2 a, MyVector2 b, MyVector2 c, MyVector2 d)
+    public HashSet<Triangle2> GenerateDelaunayCircleTriangles(MyVector2 a, MyVector2 b, MyVector2 c, MyVector2 d)
     {
-        //Remove all old meshes
-        ClearBlackMeshes();
-
-
         //Unnormalize the points
-        a = HelpMethods.UnNormalize(a, normalizingBox, dMax);
-        b = HelpMethods.UnNormalize(b, normalizingBox, dMax);
-        c = HelpMethods.UnNormalize(c, normalizingBox, dMax);
-        d = HelpMethods.UnNormalize(d, normalizingBox, dMax);
+        a = UnNormalize(a);
+        b = UnNormalize(b);
+        c = UnNormalize(c);
+        d = UnNormalize(d);
 
 
         //Generate the triangles
@@ -292,37 +348,13 @@ public class VisualizerController : MonoBehaviour
         allTriangles.UnionWith(circle_d);
 
 
-        //Active edge is a-c
-        HashSet<Triangle2> activeEdgeMesh = GenerateMesh.LineSegment(a, c, 0.2f);
-
-        allTriangles.UnionWith(activeEdgeMesh);
-
-
-        //Generate meshes
-        foreach (Triangle2 t in allTriangles)
-        {
-            Mesh triangleMesh = Triangle2ToMesh(t, 0.1f);
-
-            blackMeshes.Add(triangleMesh);
-        }
-    }
-
-    public void ClearBlackMeshes()
-    {
-        blackMeshes.Clear();
-
-        Resources.UnloadUnusedAssets();
-    }
-
-
-    public void SetActivePoint(MyVector2 p)
-    {
-        activePoint = HelpMethods.UnNormalize(p, normalizingBox, dMax);
+        return allTriangles;
     }
 
 
 
     //From Triangle2 to mesh where height is option to avoid z-fighting
+    //But we can also determine height on DrawMesh()
     private Mesh Triangle2ToMesh(Triangle2 t, float meshHeight = 0f)
     {
         //Make a single mesh triangle
@@ -343,23 +375,50 @@ public class VisualizerController : MonoBehaviour
 
 
 
-    //TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(displayMesh, seed);
-    //Is adding memory each time we run it in playmode, which could maybe 
-    //have been solved by destroying the meshes we create each update???
-    //But DrawMesh is similar
-    private void OnDrawGizmos()
+    //
+    // Other
+    //
+
+    public MyVector2 UnNormalize(MyVector2 p)
     {
-        if (triangleMeshes != null)
+        return HelpMethods.UnNormalize(p, normalizingBox, dMax);
+    }
+
+
+
+    public void SetActivePoint(MyVector2 p)
+    {
+        activePoint = HelpMethods.UnNormalize(p, normalizingBox, dMax);
+    }
+
+
+
+    //Generate a list with random materials
+    public List<Material> GenerateRandomMaterials(int howMany)
+    {
+        List<Material> materials = new List<Material>();
+
+
+        Random.InitState(seed);
+
+        for (int i = 0; i < howMany; i++)
         {
-            foreach (Mesh m in triangleMeshes)
-            {
-                TestAlgorithmsHelpMethods.DisplayMeshEdges(m, Color.black);
-            }
+            //Color the triangle
+            Color color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
+
+            //float grayScale = Random.Range(0f, 1f);
+
+            //Color color = new Color(grayScale, grayScale, grayScale, 1f);
 
 
-            Gizmos.color = Color.white;
+            Material mat = new Material(Shader.Find("Unlit/Color"));
 
-            Gizmos.DrawWireSphere(activePoint.ToVector3(), 0.3f);
+            mat.color = color;
+
+
+            materials.Add(mat);
         }
+
+        return materials;
     }
 }
