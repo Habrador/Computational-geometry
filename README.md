@@ -65,9 +65,9 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 A common problem in Computational Geometry is to find the convex hull of a set of points.
 
-**Jarvis March.* Is also known as "Gift wrapping"
+**Jarvis March.** Is also known as "Gift wrapping"
 
-The simplest algorithm is called Gift Wrapping (or Jarvis March). The idea is:
+This is the simplest algorithm. The idea is:
 1. Find a point on the hull (which can be the point with the smallest x-coordinate)
 2. To find the next point on the hull, you pick a point randomly, and then you test all other points if the other point is to the right of the point between the last point on the hull and the point you picked randomly. If so then this point is a better point. You continue like this until you find no more point to the right. This last point is also on the hull. 
 
