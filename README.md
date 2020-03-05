@@ -208,13 +208,13 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 
 * Dynamic constrained delaunay triangulation
 * Convex hull: Graham scan
-* Marching cubes
+* Triangulate with Marching cubes
 * Cut 3d mesh with plane
 * Metaballs
 * Voronoi with Fortune's algorithm
 * Voronoi point-by-point
-* Triangulation concave polygon by ear clipping
-* Rectangle-rectangle with SAT
+* Triangulation concave polygon by ear clipping (You can most likely achieve the same thing with Constrained Delaunay, so maybe unnecessary to implement)
+* Convex polygon intersection with SAT
 * Triangulate with marching squares
 
 ### Stuff to fix

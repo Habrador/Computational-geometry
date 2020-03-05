@@ -23,10 +23,10 @@ public class HullController : MonoBehaviour
         //
 
         //Random points
-        HashSet<Vector3> points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, mapSize, numberOfPoints);
+        //HashSet<Vector3> points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, mapSize, numberOfPoints);
 
         //Points from a plane mesh
-        //HashSet<Vector3> points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
+        HashSet<Vector3> points = TestAlgorithmsHelpMethods.GeneratePointsFromPlane(planeTrans);
 
 
         //

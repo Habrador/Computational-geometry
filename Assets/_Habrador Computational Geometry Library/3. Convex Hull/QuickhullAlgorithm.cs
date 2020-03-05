@@ -63,6 +63,8 @@ namespace Habrador_Computational_Geometry
             float maxDistanceSqr = -Mathf.Infinity;
 
             //Loop through all points and compare them
+            //TODO is comparing too many times: example maxX with maxY, and then maxY with maxX
+            //https://stackoverflow.com/questions/12249051/unique-combinations-of-list
             for (int i = 0; i < extremePoints.Count; i++)
             {
                 MyVector2 p1_test = extremePoints[i];
@@ -77,7 +79,7 @@ namespace Habrador_Computational_Geometry
                 
                     MyVector2 p2_test = extremePoints[j];
 
-                    float distSqr = MyVector2.SqrDistance(maxX, minX);
+                    float distSqr = MyVector2.SqrDistance(p1_test, p2_test);
 
                     if (distSqr > maxDistanceSqr)
                     {
