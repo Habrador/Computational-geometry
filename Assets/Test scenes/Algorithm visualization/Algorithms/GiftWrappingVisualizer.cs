@@ -213,7 +213,7 @@ public class GiftWrappingVisualizer : MonoBehaviour
 
         foreach (MyVector2 p in points)
         {
-            HashSet<Triangle2> tCircle = GenerateMesh.Circle(controller.UnNormalize(p), 0.1f, 10);
+            HashSet<Triangle2> tCircle = _GenerateMesh.Circle(controller.UnNormalize(p), 0.1f, 10);
 
             triangles.UnionWith(tCircle);
         }

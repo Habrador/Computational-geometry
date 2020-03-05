@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Generate a counter-clockwise convex hull with the jarvis march algorithm (gift wrapping)
+    //https://en.wikipedia.org/wiki/Gift_wrapping_algorithm
     //The basic idea is that we first find a point we know is on the convex hull, then the next 
     //point is always to the right of all other points
     //The algorithm is O(n*n) but is often faster if the number of points on the hull is fewer than all points
@@ -15,7 +16,6 @@ namespace Habrador_Computational_Geometry
     {
         public static List<MyVector2> GenerateConvexHull(List<MyVector2> points)
         {   
-            //The list with points on the convex hull
             List<MyVector2> pointsOnConvexHull = new List<MyVector2>();
 
 

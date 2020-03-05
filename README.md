@@ -65,6 +65,8 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 A common problem in Computational Geometry is to find the convex hull of a set of points.
 
+![Convex hull jarvis march](/_media/convex-hull-jarvis.png?raw=true)
+
 **Jarvis March.** Is also known as "Gift wrapping"
 
 This is the simplest algorithm. The idea is:
@@ -75,7 +77,13 @@ This algorithm may be slow, but it is robust and can easily deal with colinear p
 
 A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=Z_wcJUgvohc   
 
-![Convex hull jarvis march](/_media/convex-hull-jarvis.png?raw=true)	
+**Quickhull.**
+
+A good paper on this algorithm is "Implementing Quickhull" from Valve by Dirk Gregorious. It has images so you can see what's going on. But the idea is:
+1. Find a first triangle with three points that are on the hull. Now you can remove all points that are within this triangle
+2. For each edge (you start with the triangle's three edges) find the points that are "outside" of this edge
+3. For each edge (and by using the points you know are outside of this edge) find the point that is the furthest from this edge. This point is also on the hull. Now the original edge on the triangle has been split into two. Remove all points that are within this new triangle formed by the original edge and the two new edges.   
+4. Repeat 2 and 3 for each new edge
 
 
 ### 4. Triangulation
@@ -157,7 +165,17 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 ![Polygon clipping sutherland](/_media/polygon-clipping-sutherland.png?raw=true)	
 
 
-### 7. Other
+
+### 7. Interpolation
+
+**Catmull-Rom splines**
+
+
+**Bezier curves**
+
+
+
+### 8. Other
 
 **Is a triangle oriented clockwise?** 
 
@@ -189,7 +207,6 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 ### Algorithms to implement
 
 * Dynamic constrained delaunay triangulation
-* Convex hull: Quickhull from the Valve paper
 * Convex hull: Graham scan
 * Marching cubes
 * Cut 3d mesh with plane

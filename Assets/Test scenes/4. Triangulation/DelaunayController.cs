@@ -46,7 +46,7 @@ public class DelaunayController : MonoBehaviour
         allPoints.AddRange(new List<MyVector2>(points_2d));
         allPoints.AddRange(constraints_2d);
 
-        AABB normalizingBox = HelpMethods.GetAABB(new List<MyVector2>(points_2d));
+        AABB normalizingBox = new AABB(new List<MyVector2>(points_2d));
 
         float dMax = HelpMethods.CalculateDMax(normalizingBox);
 

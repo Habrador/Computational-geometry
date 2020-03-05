@@ -108,6 +108,11 @@ namespace Habrador_Computational_Geometry
             //So we will use the previous points on the hull and add the point we added last iteration
             //to generate the new convex hull
 
+            //TODO a faster way to test if an edge is visible is to use "plane test" accoding to Quickhull paper???
+            //On the other hand its faster to test just edges on the convex hull. The problem with using just planes
+            //is that some points planes are "inside" of the convex polygon. Can we remove these points without
+            //generating the convex hull?
+
             //First we need to init the convex hull
             HashSet<MyVector2> triangulatePoints = new HashSet<MyVector2>();
 

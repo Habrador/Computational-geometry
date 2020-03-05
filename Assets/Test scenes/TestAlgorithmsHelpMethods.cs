@@ -220,7 +220,7 @@ public static class TestAlgorithmsHelpMethods
     //Connected list of points
     public static void DisplayConnectedLinesMesh(List<MyVector2> points, float lineWidth, Color color)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.ConnectedLineSegments(points, lineWidth, isConnected: true);
+        HashSet<Triangle2> triangles = _GenerateMesh.ConnectedLineSegments(points, lineWidth, isConnected: true);
        
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, false);
         
@@ -232,7 +232,7 @@ public static class TestAlgorithmsHelpMethods
     //Circle
     public static void DisplayCircleMesh(MyVector2 center, float radius, int resolution, Color color)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.Circle(center, radius, resolution);
+        HashSet<Triangle2> triangles = _GenerateMesh.Circle(center, radius, resolution);
 
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, false);
 
@@ -244,7 +244,7 @@ public static class TestAlgorithmsHelpMethods
     //Line
     public static void DisplayLineMesh(MyVector2 a, MyVector2 b, float width, Color color)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.LineSegment(a, b, width);
+        HashSet<Triangle2> triangles = _GenerateMesh.LineSegment(a, b, width);
 
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, false);
 
@@ -265,7 +265,7 @@ public static class TestAlgorithmsHelpMethods
         MyVector2 a = pos + planeDir * infinite;
         MyVector2 b = pos - planeDir * infinite;
 
-        HashSet<Triangle2> triangles = GenerateMesh.LineSegment(a, b, width);
+        HashSet<Triangle2> triangles = _GenerateMesh.LineSegment(a, b, width);
 
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, false);
 
@@ -284,7 +284,7 @@ public static class TestAlgorithmsHelpMethods
     //Arrow
     public static void DisplayArrowMesh(MyVector2 a, MyVector2 b, float width, float arrowSize, Color color)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.Arrow(a, b, width, arrowSize);
+        HashSet<Triangle2> triangles = _GenerateMesh.Arrow(a, b, width, arrowSize);
 
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, false);
 

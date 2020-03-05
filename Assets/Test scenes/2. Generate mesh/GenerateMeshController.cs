@@ -11,7 +11,7 @@ public class GenerateMeshController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        HashSet<Triangle2> grid = GenerateMesh.GenerateGrid(width, cells);
+        HashSet<Triangle2> grid = _GenerateMesh.GenerateGrid(width, cells);
 
         if (grid != null)
         {

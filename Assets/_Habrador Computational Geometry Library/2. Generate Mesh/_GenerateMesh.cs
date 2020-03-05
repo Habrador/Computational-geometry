@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
-    public static class GenerateMesh
+    public static class _GenerateMesh
     {
         //Generate a square grid where each cell has two triangles
         public static HashSet<Triangle2> GenerateGrid(float width, int cells)

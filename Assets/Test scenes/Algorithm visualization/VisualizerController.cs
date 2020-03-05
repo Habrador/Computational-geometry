@@ -83,7 +83,7 @@ public class VisualizerController : MonoBehaviour
 
         allPoints.AddRange(new List<MyVector2>(points_2d));
 
-        normalizingBox = HelpMethods.GetAABB(new List<MyVector2>(points_2d));
+        normalizingBox = new AABB(new List<MyVector2>(points_2d));
 
         dMax = HelpMethods.CalculateDMax(normalizingBox);
 
@@ -330,16 +330,16 @@ public class VisualizerController : MonoBehaviour
 
         float radius = MyVector2.Distance(center, a);
         
-        HashSet<Triangle2> allTriangles = GenerateMesh.CircleHollow(center, radius, 100, 0.1f);
+        HashSet<Triangle2> allTriangles = _GenerateMesh.CircleHollow(center, radius, 100, 0.1f);
 
 
         //Circles showing the 4 points
         float circleMeshRadius = 0.3f;
 
-        HashSet<Triangle2> circle_a = GenerateMesh.Circle(a, circleMeshRadius, 10);
-        HashSet<Triangle2> circle_b = GenerateMesh.Circle(b, circleMeshRadius, 10);
-        HashSet<Triangle2> circle_c = GenerateMesh.Circle(c, circleMeshRadius, 10);
-        HashSet<Triangle2> circle_d = GenerateMesh.Circle(d, circleMeshRadius, 10);
+        HashSet<Triangle2> circle_a = _GenerateMesh.Circle(a, circleMeshRadius, 10);
+        HashSet<Triangle2> circle_b = _GenerateMesh.Circle(b, circleMeshRadius, 10);
+        HashSet<Triangle2> circle_c = _GenerateMesh.Circle(c, circleMeshRadius, 10);
+        HashSet<Triangle2> circle_d = _GenerateMesh.Circle(d, circleMeshRadius, 10);
 
         //Similar to List's add range
         allTriangles.UnionWith(circle_a);

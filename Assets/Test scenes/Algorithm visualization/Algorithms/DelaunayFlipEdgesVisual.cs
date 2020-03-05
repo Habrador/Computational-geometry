@@ -139,7 +139,7 @@ public class DelaunayFlipEdgesVisual : MonoBehaviour
         HashSet<Triangle2> triangles = controller.GenerateDelaunayCircleTriangles(a, b, c, d);
 
         //The active edge is between a-c
-        HashSet<Triangle2> edge = GenerateMesh.LineSegment(controller.UnNormalize(a), controller.UnNormalize(c), 0.2f);
+        HashSet<Triangle2> edge = _GenerateMesh.LineSegment(controller.UnNormalize(a), controller.UnNormalize(c), 0.2f);
 
         triangles.UnionWith(edge);
 

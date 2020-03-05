@@ -58,7 +58,7 @@ public class TriangulatePointsController : MonoBehaviour
         }
 
         //Normalize to range 0-1
-        AABB normalizingBox = HelpMethods.GetAABB(new List<MyVector2>(points_2d));
+        AABB normalizingBox = new AABB(new List<MyVector2>(points_2d));
 
         float dMax = HelpMethods.CalculateDMax(normalizingBox);
 

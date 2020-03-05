@@ -199,7 +199,7 @@ public class VisibleEdgeVisualizer : MonoBehaviour
         {
             MyVector2 point = controller.UnNormalize(p);
         
-            HashSet<Triangle2> circleTriangles = GenerateMesh.Circle(point, 0.1f, 10);
+            HashSet<Triangle2> circleTriangles = _GenerateMesh.Circle(point, 0.1f, 10);
 
             triangles.UnionWith(circleTriangles);
         }

@@ -284,7 +284,7 @@ namespace Habrador_Computational_Geometry
         public static Triangle2 GenerateSupertriangle(HashSet<MyVector2> points)
         {
             //Step 1. Create a AABB around the points
-            AABB aabb = HelpMethods.GetAABB(new List<MyVector2>(points));
+            AABB aabb = new AABB(new List<MyVector2>(points));
 
             MyVector2 TL = new MyVector2(aabb.minX, aabb.maxY);
             MyVector2 TR = new MyVector2(aabb.maxX, aabb.maxY);

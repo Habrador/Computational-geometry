@@ -275,7 +275,7 @@ public class DelaunayPointByPointVisual : MonoBehaviour
     {
         controller.ResetBlackMeshes();
 
-        HashSet<Triangle2> triangles = GenerateMesh.Circle(controller.UnNormalize(p), 0.2f, 10);
+        HashSet<Triangle2> triangles = _GenerateMesh.Circle(controller.UnNormalize(p), 0.2f, 10);
 
         List<Mesh> meshes = controller.GenerateTriangulationMesh(triangles, shouldUnNormalize: false);
 

@@ -40,7 +40,7 @@ public class GenerateShapesController : MonoBehaviour
 
     private void Arrow(MyVector2 pA, MyVector2 pB)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.Arrow(pA, pB, lineWidth: 0.2f, arrowSize: 0.6f);
+        HashSet<Triangle2> triangles = _GenerateMesh.Arrow(pA, pB, lineWidth: 0.2f, arrowSize: 0.6f);
 
         if (triangles == null)
         {
@@ -64,7 +64,7 @@ public class GenerateShapesController : MonoBehaviour
         lines.Add(pC);
         lines.Add(pD);
 
-        HashSet<Triangle2> triangles = GenerateMesh.ConnectedLineSegments(lines, 0.5f, isConnected: true);
+        HashSet<Triangle2> triangles = _GenerateMesh.ConnectedLineSegments(lines, 0.5f, isConnected: true);
 
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, useCompressedMesh: false);
 
@@ -76,7 +76,7 @@ public class GenerateShapesController : MonoBehaviour
 
     private void LineSegmemt(MyVector2 pA, MyVector2 pB)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.LineSegment(pA, pB, 0.2f);
+        HashSet<Triangle2> triangles = _GenerateMesh.LineSegment(pA, pB, 0.2f);
 
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, useCompressedMesh: false);
 
@@ -88,7 +88,7 @@ public class GenerateShapesController : MonoBehaviour
 
     private void CircleMesh(MyVector2 pA)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.Circle(pA, radius: 1.6f, resolution: 30);
+        HashSet<Triangle2> triangles = _GenerateMesh.Circle(pA, radius: 1.6f, resolution: 30);
 
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, useCompressedMesh: false);
 
@@ -101,7 +101,7 @@ public class GenerateShapesController : MonoBehaviour
 
     private void CircleMeshHollow(MyVector2 pA)
     {
-        HashSet<Triangle2> triangles = GenerateMesh.CircleHollow(pA, radius: 1.6f, resolution: 30, width: 1f);
+        HashSet<Triangle2> triangles = _GenerateMesh.CircleHollow(pA, radius: 1.6f, resolution: 30, width: 1f);
 
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, useCompressedMesh: false);
 

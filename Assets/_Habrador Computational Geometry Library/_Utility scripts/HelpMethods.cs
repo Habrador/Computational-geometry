@@ -38,48 +38,6 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Calculate the AABB of a set of points (in 2d)
-        //
-        public static AABB GetAABB(List<MyVector2> points)
-        {
-            MyVector2 p1 = points[0];
-
-            float minX = p1.x;
-            float maxX = p1.x;
-            float minY = p1.y;
-            float maxY = p1.y;
-
-            for (int i = 1; i < points.Count; i++)
-            {
-                MyVector2 p = points[i];
-
-                if (p.x < minX)
-                {
-                    minX = p.x;
-                }
-                else if (p.x > maxX)
-                {
-                    maxX = p.x;
-                }
-
-                if (p.y < minY)
-                {
-                    minY = p.y;
-                }
-                else if (p.y > maxY)
-                {
-                    maxY = p.y;
-                }
-            }
-
-            AABB box = new AABB(minX, maxX, minY, maxY);
-
-            return box;
-        }
-
-
-
-        //
         // Normalize points to the range (0 -> 1)
         //
         //From "A fast algorithm for constructing Delaunay triangulations in the plane" by Sloan

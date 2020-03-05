@@ -42,7 +42,7 @@ public class HullController : MonoBehaviour
         }
 
         //Normalize to range 0-1
-        AABB normalizingBox = HelpMethods.GetAABB(new List<MyVector2>(points_2d));
+        AABB normalizingBox = new AABB(new List<MyVector2>(points_2d));
 
         float dMax = HelpMethods.CalculateDMax(normalizingBox);
 
@@ -54,15 +54,22 @@ public class HullController : MonoBehaviour
         // Generate the convex hull
         //
 
+
+
         //Algorithm 1. Jarvis March - slow but simple
-        List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.JarvisMarch(points_2d_normalized);
+        //List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.JarvisMarch(points_2d_normalized);
+
+
+        //Algorithm 2. Quickhull
+        //List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.Quickhull(points_2d_normalized, includeColinearPoints: true, normalizingBox, dMax);
+        List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.Quickhull(points_2d_normalized, includeColinearPoints: true);
 
         if (pointsOnConvexHull_2d_normalized == null)
         {
             Debug.Log("Couldnt find a convex hull");
         }
 
-        
+
 
         //
         // Display 
@@ -84,9 +91,11 @@ public class HullController : MonoBehaviour
 
             //print(pointsOnConvexHull.Count);
 
-            for (int i = 1; i < pointsOnConvexHull.Count; i++)
+            for (int i = 0; i < pointsOnConvexHull.Count; i++)
             {
-                Gizmos.DrawLine(pointsOnConvexHull[i - 1], pointsOnConvexHull[i]);
+                int i_minus_one = MathUtility.ClampListIndex(i - 1, pointsOnConvexHull.Count);
+
+                Gizmos.DrawLine(pointsOnConvexHull[i_minus_one], pointsOnConvexHull[i]);
             }
 
             float size = 0.1f;
@@ -105,4 +114,23 @@ public class HullController : MonoBehaviour
             Gizmos.DrawSphere(p, 0.1f);
         }
     }
+
+
+
+    //Time an algorithm
+    private float TimeJarvis(HashSet<MyVector2> points)
+    {
+        System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
+
+        stopWatch.Start();
+        
+        List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.JarvisMarch(points);
+        
+        stopWatch.Stop();
+
+        float timeJarvis = stopWatch.ElapsedMilliseconds;
+
+        return timeJarvis;
+    }
+
 }
