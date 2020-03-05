@@ -20,7 +20,7 @@ public class VisualizerController : MonoBehaviour
     public Text flipText;
 
     //To make it faster to unnormalize the data when we display it 
-    private AABB normalizingBox;
+    private AABB2 normalizingBox;
 
     private float dMax;
 
@@ -83,7 +83,7 @@ public class VisualizerController : MonoBehaviour
 
         allPoints.AddRange(new List<MyVector2>(points_2d));
 
-        normalizingBox = new AABB(new List<MyVector2>(points_2d));
+        normalizingBox = new AABB2(new List<MyVector2>(points_2d));
 
         dMax = HelpMethods.CalculateDMax(normalizingBox);
 

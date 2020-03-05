@@ -42,7 +42,7 @@ namespace Habrador_Computational_Geometry
         //
         //From "A fast algorithm for constructing Delaunay triangulations in the plane" by Sloan
         //boundingBox is the rectangle that covers all original points before normalization
-        public static float CalculateDMax(AABB boundingBox)
+        public static float CalculateDMax(AABB2 boundingBox)
         {
             float dMax = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
 
@@ -53,7 +53,7 @@ namespace Habrador_Computational_Geometry
         //Normalize stuff
 
         //MyVector2
-        public static MyVector2 Normalize(MyVector2 point, AABB boundingBox, float dMax)
+        public static MyVector2 Normalize(MyVector2 point, AABB2 boundingBox, float dMax)
         {
             float x = (point.x - boundingBox.minX) / dMax;
             float y = (point.y - boundingBox.minY) / dMax;
@@ -64,7 +64,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //List<MyVector2>
-        public static List<MyVector2> Normalize(List<MyVector2> points, AABB boundingBox, float dMax)
+        public static List<MyVector2> Normalize(List<MyVector2> points, AABB2 boundingBox, float dMax)
         {
             List<MyVector2> normalizedPoints = new List<MyVector2>();
 
@@ -77,7 +77,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //HashSet<MyVector2> 
-        public static HashSet<MyVector2> Normalize(HashSet<MyVector2> points, AABB boundingBox, float dMax)
+        public static HashSet<MyVector2> Normalize(HashSet<MyVector2> points, AABB2 boundingBox, float dMax)
         {
             HashSet<MyVector2> normalizedPoints = new HashSet<MyVector2>();
 
@@ -93,7 +93,7 @@ namespace Habrador_Computational_Geometry
         //UnNormalize different stuff
 
         //MyVector2
-        public static MyVector2 UnNormalize(MyVector2 point, AABB boundingBox, float dMax)
+        public static MyVector2 UnNormalize(MyVector2 point, AABB2 boundingBox, float dMax)
         {
             float x = (point.x * dMax) + boundingBox.minX;
             float y = (point.y * dMax) + boundingBox.minY;
@@ -104,7 +104,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //List<MyVector2>
-        public static List<MyVector2> UnNormalize(List<MyVector2> normalized, AABB aabb, float dMax)
+        public static List<MyVector2> UnNormalize(List<MyVector2> normalized, AABB2 aabb, float dMax)
         {
             List<MyVector2> unNormalized = new List<MyVector2>();
 
@@ -119,7 +119,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //HashSet<Triangle2>
-        public static HashSet<Triangle2> UnNormalize(HashSet<Triangle2> normalized, AABB aabb, float dMax)
+        public static HashSet<Triangle2> UnNormalize(HashSet<Triangle2> normalized, AABB2 aabb, float dMax)
         {
             HashSet<Triangle2> unNormalized = new HashSet<Triangle2>();
 
@@ -138,7 +138,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //HalfEdgeData2
-        public static HalfEdgeData2 UnNormalize(HalfEdgeData2 data, AABB aabb, float dMax)
+        public static HalfEdgeData2 UnNormalize(HalfEdgeData2 data, AABB2 aabb, float dMax)
         {
             foreach (HalfEdgeVertex2 v in data.vertices)
             {

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Axis-Aligned-Bounding-Box, which is a rectangle in 2d space aligned along the x and y axis
-    public struct AABB
+    public struct AABB2
     {
         public float minX;
         public float maxX;
@@ -14,7 +14,7 @@ namespace Habrador_Computational_Geometry
 
 
         //We know the min and max values
-        public AABB(float minX, float maxX, float minY, float maxY)
+        public AABB2(float minX, float maxX, float minY, float maxY)
         {
             this.minX = minX;
             this.maxX = maxX;
@@ -24,7 +24,7 @@ namespace Habrador_Computational_Geometry
 
 
         //We have a list with points and want to find the min and max values
-        public AABB(List<MyVector2> points)
+        public AABB2(List<MyVector2> points)
         {
             MyVector2 p1 = points[0];
 

@@ -377,7 +377,7 @@ namespace Habrador_Computational_Geometry
 
 
         //For debugging
-        private static void DisplayPoints(HashSet<MyVector2> points, AABB normalizingbox, float dMax)
+        private static void DisplayPoints(HashSet<MyVector2> points, AABB2 normalizingbox, float dMax)
         {
             foreach (MyVector2 p in points)
             {

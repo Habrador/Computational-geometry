@@ -60,7 +60,7 @@ namespace Habrador_Computational_Geometry
 
             //Find the bounding box of the points
             //If the spread is close to 0, then they are all at the same position, and we cant create a hull
-            AABB box = new AABB(points);
+            AABB2 box = new AABB2(points);
 
             if (Mathf.Abs(box.maxX - box.minX) < MathUtility.EPSILON || Mathf.Abs(box.maxY - box.minY) < MathUtility.EPSILON)
             {

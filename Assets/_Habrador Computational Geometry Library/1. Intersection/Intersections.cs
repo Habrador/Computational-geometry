@@ -322,29 +322,27 @@ namespace Habrador_Computational_Geometry
         // Are two Axis-aligned-bounding-box (boxes are here rectangles) intersecting?
         //
         //r1_minX - the smallest x-coordinate of all corners belonging to rectangle 1
-        public static bool AABB_AABB_2D(
-            float r1_minX, float r1_maxX, float r1_minY, float r1_maxY,
-            float r2_minX, float r2_maxX, float r2_minY, float r2_maxY)
+        public static bool AABB_AABB_2D(AABB2 r1, AABB2 r2)
         {
             //If the min of one box in one dimension is greater than the max of another box then the boxes are not intersecting
             //They have to intersect in 2 dimensions. We have to test if box 1 is to the left or box 2 and vice versa
             bool isIntersecting = true;
 
             //X axis
-            if (r1_minX > r2_maxX)
+            if (r1.minX > r2.maxX)
             {
                 isIntersecting = false;
             }
-            else if (r2_minX > r1_maxX)
+            else if (r2.minX > r1.maxX)
             {
                 isIntersecting = false;
             }
             //Y axis
-            else if (r1_minY > r2_maxY)
+            else if (r1.minY > r2.maxY)
             {
                 isIntersecting = false;
             }
-            else if (r2_minY > r1_maxY)
+            else if (r2.minY > r1.maxY)
             {
                 isIntersecting = false;
             }
@@ -464,20 +462,12 @@ namespace Habrador_Computational_Geometry
             if (do_AABB_test)
             {
                 //Rectangle that covers t1 
-                float r1_minX = t1.MinX();
-                float r1_maxX = t1.MaxX();
-
-                float r1_minY = t1.MinY();
-                float r1_maxY = t1.MaxY();
+                AABB2 r1 = new AABB2(t1.MinX(), t1.MaxX(), t1.MinY(), t1.MaxY());
 
                 //Rectangle that covers t2
-                float r2_minX = t2.MinX();
-                float r2_maxX = t2.MaxX();
+                AABB2 r2 = new AABB2(t2.MinX(), t2.MaxX(), t2.MinY(), t2.MaxY());
 
-                float r2_minY = t2.MinY();
-                float r2_maxY = t2.MaxY();
-
-                if (!AABB_AABB_2D(r1_minX, r1_maxX, r1_minY, r1_maxY, r2_minX, r2_maxX, r2_minY, r2_maxY))
+                if (!AABB_AABB_2D(r1, r2))
                 {
                     return false;
                 }

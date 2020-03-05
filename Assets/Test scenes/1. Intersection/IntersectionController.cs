@@ -32,13 +32,13 @@ public class IntersectionController : MonoBehaviour
 	{
         //PointPolygon();
 
-        TriangleTriangle();
+        //TriangleTriangle();
 
         //PointCircle();
 
         //LineLine();
 
-        //AABB_AABB();
+        AABB_AABB();
 
         //PointTriangle();
 
@@ -193,21 +193,19 @@ public class IntersectionController : MonoBehaviour
         MyVector2 t2_p2 = t2_p2_trans.position.ToMyVector2();
         MyVector2 t2_p3 = t2_p3_trans.position.ToMyVector2();
 
-        Triangle2 t1 = new Triangle2(t1_p1, t1_p2, t1_p3);
-        Triangle2 t2 = new Triangle2(t2_p1, t2_p2, t2_p3);
+        AABB2 r1 = new AABB2(new List<MyVector2>() { t1_p1, t1_p2, t1_p3 });
+        AABB2 r2 = new AABB2(new List<MyVector2>() { t2_p1, t2_p2, t2_p3 });
 
-        bool isIntersecting = Intersections.AABB_AABB_2D(
-            t1.MinX(), t1.MaxX(), t1.MinY(), t1.MaxY(),
-            t2.MinX(), t2.MaxX(), t2.MinY(), t2.MaxY());
+        bool isIntersecting = Intersections.AABB_AABB_2D(r1, r2);
 
         Debug.Log("AABB intersecting: " + isIntersecting);
 
         //Display the rectangles and the vertices we use to make the rectangles
-        Vector3 r1_size = new Vector3(t1.MaxX() - t1.MinX(), 0.01f, t1.MaxY() - t1.MinY());
-        Vector3 r2_size = new Vector3(t2.MaxX() - t2.MinX(), 0.01f, t2.MaxY() - t2.MinY());
+        Vector3 r1_size = new Vector3(r1.maxX - r1.minX, 0.01f, r1.maxY - r1.minY);
+        Vector3 r2_size = new Vector3(r2.maxX - r2.minX, 0.01f, r2.maxY - r2.minY);
 
-        Vector3 r1_center = new Vector3(t1.MinX() + (r1_size.x * 0.5f), 0f, t1.MinY() + (r1_size.z * 0.5f));
-        Vector3 r2_center = new Vector3(t2.MinX() + (r2_size.x * 0.5f), 0f, t2.MinY() + (r2_size.z * 0.5f));
+        Vector3 r1_center = new Vector3(r1.minX + (r1_size.x * 0.5f), 0f, r1.minY + (r1_size.z * 0.5f));
+        Vector3 r2_center = new Vector3(r2.minX + (r2_size.x * 0.5f), 0f, r2.minY + (r2_size.z * 0.5f));
 
         Gizmos.color = Color.white;
 

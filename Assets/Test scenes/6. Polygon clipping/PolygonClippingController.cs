@@ -64,7 +64,7 @@ public class PolygonClippingController : MonoBehaviour
         allPoints.AddRange(poly);
         allPoints.AddRange(clipPoly);
 
-        AABB normalizingBox = new AABB(allPoints);
+        AABB2 normalizingBox = new AABB2(allPoints);
 
         float dMax = HelpMethods.CalculateDMax(normalizingBox);
 
@@ -102,7 +102,7 @@ public class PolygonClippingController : MonoBehaviour
         allPoints.AddRange(poly);
         allPoints.AddRange(clipPoly);
 
-        AABB normalizingBox = new AABB(allPoints);
+        AABB2 normalizingBox = new AABB2(allPoints);
 
         float dMax = HelpMethods.CalculateDMax(normalizingBox);
 

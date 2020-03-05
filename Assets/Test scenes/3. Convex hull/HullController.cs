@@ -42,7 +42,7 @@ public class HullController : MonoBehaviour
         }
 
         //Normalize to range 0-1
-        AABB normalizingBox = new AABB(new List<MyVector2>(points_2d));
+        AABB2 normalizingBox = new AABB2(new List<MyVector2>(points_2d));
 
         float dMax = HelpMethods.CalculateDMax(normalizingBox);
 
