@@ -113,7 +113,7 @@ namespace Habrador_Computational_Geometry
             //Make sure the hull is oriented counter-clockwise
             Triangle2 tStart = new Triangle2(p1, p2, p3);
 
-            if (Geometry.IsTriangleOrientedClockwise(tStart.p1, tStart.p2, tStart.p3))
+            if (_Geometry.IsTriangleOrientedClockwise(tStart.p1, tStart.p2, tStart.p3))
             {
                 tStart.ChangeOrientation();
             }
@@ -140,7 +140,7 @@ namespace Habrador_Computational_Geometry
             foreach (MyVector2 p in pointsToAdd)
             {
                 //p1 p2
-                LeftOnRight pointRelation1 = Geometry.IsPoint_Left_On_Right_OfVector(p1, p2, p);
+                LeftOnRight pointRelation1 = _Geometry.IsPoint_Left_On_Right_OfVector(p1, p2, p);
 
                 if (pointRelation1 == LeftOnRight.On || pointRelation1 == LeftOnRight.Right)
                 {
@@ -150,7 +150,7 @@ namespace Habrador_Computational_Geometry
                 }
 
                 //p2 p3
-                LeftOnRight pointRelation2 = Geometry.IsPoint_Left_On_Right_OfVector(p2, p3, p);
+                LeftOnRight pointRelation2 = _Geometry.IsPoint_Left_On_Right_OfVector(p2, p3, p);
 
                 if (pointRelation2 == LeftOnRight.On || pointRelation2 == LeftOnRight.Right)
                 {
@@ -221,7 +221,7 @@ namespace Habrador_Computational_Geometry
 
                 foreach (MyVector2 p in points)
                 {
-                    LeftOnRight pointRelation = Geometry.IsPoint_Left_On_Right_OfVector(p1, p2, p);
+                    LeftOnRight pointRelation = _Geometry.IsPoint_Left_On_Right_OfVector(p1, p2, p);
 
                     if (pointRelation == LeftOnRight.On)
                     {
@@ -279,7 +279,7 @@ namespace Habrador_Computational_Geometry
                 foreach (MyVector2 p in pointsToAdd)
                 {
                     //p1 p2
-                    LeftOnRight pointRelation1 = Geometry.IsPoint_Left_On_Right_OfVector(p1, p2, p);
+                    LeftOnRight pointRelation1 = _Geometry.IsPoint_Left_On_Right_OfVector(p1, p2, p);
 
                     if (pointRelation1 == LeftOnRight.On || pointRelation1 == LeftOnRight.Right)
                     {
@@ -318,7 +318,7 @@ namespace Habrador_Computational_Geometry
 
             foreach (MyVector2 p in points)
             {
-                if (Intersections.PointTriangle(t, p, includeBorder: false))
+                if (_Intersections.PointTriangle(t, p, includeBorder: false))
                 {
                     pointsToRemove.Add(p);
                 }
@@ -352,7 +352,7 @@ namespace Habrador_Computational_Geometry
             {
                 //The distance between this point and the edge is the same as the distance between
                 //the point and the plane
-                float distanceToEdge = Geometry.DistanceFromPointToPlane(edgeNormal, p1, p);
+                float distanceToEdge = _Geometry.DistanceFromPointToPlane(edgeNormal, p1, p);
 
                 //The distance can be negative if we are behind the plane
                 //and because we just picked a normal out of nowhere, we have to make sure

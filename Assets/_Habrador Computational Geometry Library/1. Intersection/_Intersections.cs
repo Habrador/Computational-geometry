@@ -13,7 +13,7 @@ namespace Habrador_Computational_Geometry
         NoIntersection
     }
 
-    public static class Intersections
+    public static class _Intersections
     {
         //
         // Are two lines intersecting?
@@ -166,7 +166,7 @@ namespace Habrador_Computational_Geometry
 
                 //Gizmos.DrawWireSphere(intersectionPoint, 0.5f);
 
-                if (Geometry.IsPointBetweenPoints(line_p1, line_p2, intersectionPoint))
+                if (_Geometry.IsPointBetweenPoints(line_p1, line_p2, intersectionPoint))
                 {
                     areIntersecting = true;
                 }
@@ -359,7 +359,7 @@ namespace Habrador_Computational_Geometry
         public static IntersectionCases PointCircle(MyVector2 a, MyVector2 b, MyVector2 c, MyVector2 testPoint)
         {
             //Center of circle
-            MyVector2 circleCenter = Geometry.CalculateCircleCenter(a, b, c);
+            MyVector2 circleCenter = _Geometry.CalculateCircleCenter(a, b, c);
 
             //The radius sqr of the circle
             float radiusSqr = MyVector2.SqrDistance(a, circleCenter);
@@ -430,7 +430,7 @@ namespace Habrador_Computational_Geometry
                 MyVector2 l2_p2 = polygonPoints[iPlusOne];
 
                 //Are the lines intersecting?
-                if (Intersections.LineLine(l1_p1, l1_p2, l2_p1, l2_p2, shouldIncludeEndPoints: true))
+                if (_Intersections.LineLine(l1_p1, l1_p2, l2_p1, l2_p2, shouldIncludeEndPoints: true))
                 {
                     numberOfIntersections += 1;
                 }

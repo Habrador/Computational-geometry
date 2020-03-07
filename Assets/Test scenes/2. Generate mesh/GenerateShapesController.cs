@@ -101,7 +101,7 @@ public class GenerateShapesController : MonoBehaviour
 
     private void CircleMeshHollow(MyVector2 pA)
     {
-        HashSet<Triangle2> triangles = _GenerateMesh.CircleHollow(pA, radius: 1.6f, resolution: 30, width: 1f);
+        HashSet<Triangle2> triangles = _GenerateMesh.CircleHollow(pA, innerRadius: 3f, resolution: 30, width: 1f);
 
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, useCompressedMesh: false);
 

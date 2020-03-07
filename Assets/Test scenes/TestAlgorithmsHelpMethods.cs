@@ -38,15 +38,19 @@ public static class TestAlgorithmsHelpMethods
 
         Vector3 vecDirPerpendicular = new Vector3(vecDir.z, 0f, -vecDir.x);
 
-        Vector3 arrowStart = b - vecDir * size;
+        Vector3 arrowTipStart = b - vecDir * size;
 
         //Draw the arrows 4 lines
         Gizmos.color = color;
 
-        Gizmos.DrawLine(arrowStart, arrowStart + vecDirPerpendicular * size);
-        Gizmos.DrawLine(arrowStart + vecDirPerpendicular * size, b);
-        Gizmos.DrawLine(b, arrowStart - vecDirPerpendicular * size);
-        Gizmos.DrawLine(arrowStart - vecDirPerpendicular * size, arrowStart);
+        //Arrow tip
+        Gizmos.DrawLine(arrowTipStart, arrowTipStart + vecDirPerpendicular * size);
+        Gizmos.DrawLine(arrowTipStart + vecDirPerpendicular * size, b);
+        Gizmos.DrawLine(b, arrowTipStart - vecDirPerpendicular * size);
+        Gizmos.DrawLine(arrowTipStart - vecDirPerpendicular * size, arrowTipStart);
+
+        //Arrow line
+        Gizmos.DrawLine(a, arrowTipStart);
     }
 
 
@@ -152,7 +156,7 @@ public static class TestAlgorithmsHelpMethods
             return;
         }
 
-
+        //Display the entire mesh with a single color
         if (!useRandomColor)
         {
             Gizmos.color = meshColor;
@@ -161,9 +165,9 @@ public static class TestAlgorithmsHelpMethods
 
             Gizmos.DrawMesh(mesh);
         }
+        //Display the individual triangles with a random color
         else
         {
-            //Display the triangles with a random color
             int[] meshTriangles = mesh.triangles;
 
             Vector3[] meshVertices = mesh.vertices;

@@ -201,6 +201,12 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 
 ![Closest point on line segment](/_media/other-closest-point-line-segment.png?raw=true)
 
+**Has passed point?** 
+
+If we are going from A to B, how do we know if we have passed B? Measuring just the distance to B, and say we have passed B if we are closer than x meter to B is not accurate enough!  
+
+![Closest point on line segment](/_media/other-passed-waypoint.png?raw=true)
+
 
 ## TODO
 

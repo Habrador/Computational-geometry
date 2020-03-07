@@ -62,7 +62,7 @@ public class VisibleEdgeVisualizer : MonoBehaviour
         for (int i = 0; i < sortedPoints.Count; i++)
         {
             //We have found a non-colinear point
-            LeftOnRight pointRelation = Geometry.IsPoint_Left_On_Right_OfVector(p1, p2, sortedPoints[i]);
+            LeftOnRight pointRelation = _Geometry.IsPoint_Left_On_Right_OfVector(p1, p2, sortedPoints[i]);
 
             if (pointRelation == LeftOnRight.Left || pointRelation == LeftOnRight.Right)
             {
@@ -136,7 +136,7 @@ public class VisibleEdgeVisualizer : MonoBehaviour
                 MyVector2 hull_p2 = pointsOnHull[MathUtility.ClampListIndex(j + 1, pointsOnHull.Count)];
 
                 //First we have to check if the points are colinear, then we cant form a triangle
-                LeftOnRight pointRelation = Geometry.IsPoint_Left_On_Right_OfVector(hull_p1, hull_p2, pointToAdd);
+                LeftOnRight pointRelation = _Geometry.IsPoint_Left_On_Right_OfVector(hull_p1, hull_p2, pointToAdd);
 
                 if (pointRelation == LeftOnRight.On)
                 {
@@ -145,7 +145,7 @@ public class VisibleEdgeVisualizer : MonoBehaviour
 
                 //If this triangle is clockwise, then we can see the edge
                 //so we should create a new triangle with this edge and the point
-                if (Geometry.IsTriangleOrientedClockwise(hull_p1, hull_p2, pointToAdd))
+                if (_Geometry.IsTriangleOrientedClockwise(hull_p1, hull_p2, pointToAdd))
                 {
                     triangles.Add(new Triangle2(hull_p1, hull_p2, pointToAdd));
 

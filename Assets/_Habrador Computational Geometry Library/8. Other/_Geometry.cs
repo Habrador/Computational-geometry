@@ -15,7 +15,7 @@ namespace Habrador_Computational_Geometry
     //    Infront, On, Back
     //}
 
-    public static class Geometry
+    public static class _Geometry
     {
         //
         // Calculate the center of circle in 2d space given three coordinates
@@ -160,10 +160,10 @@ namespace Habrador_Computational_Geometry
             //then we could measure the 4 angles of the edge, add them together (2 and 2) to get the interior angle
             //But it will still require 8 magnitude operations which is slow
             //From: https://stackoverflow.com/questions/2122305/convex-hull-of-4-points
-            bool abc = Geometry.IsTriangleOrientedClockwise(a, b, c);
-            bool abd = Geometry.IsTriangleOrientedClockwise(a, b, d);
-            bool bcd = Geometry.IsTriangleOrientedClockwise(b, c, d);
-            bool cad = Geometry.IsTriangleOrientedClockwise(c, a, d);
+            bool abc = _Geometry.IsTriangleOrientedClockwise(a, b, c);
+            bool abd = _Geometry.IsTriangleOrientedClockwise(a, b, d);
+            bool bcd = _Geometry.IsTriangleOrientedClockwise(b, c, d);
+            bool cad = _Geometry.IsTriangleOrientedClockwise(c, a, d);
 
             if (abc && abd && bcd & !cad)
             {
@@ -317,6 +317,38 @@ namespace Habrador_Computational_Geometry
             Triangle2 superTriangle = new Triangle2(t_BR, t_BL, t_T);
 
             return superTriangle;
+        }
+
+
+
+        //
+        // If p is going from p1 to p2, has it passed p2?
+        //
+        //This is very useful if we are moving between waypoints and want to know if we have passed
+        //waypoint b
+        public static bool HasPassedWaypoint(MyVector2 wp1, MyVector2 wp2, MyVector2 p)
+        {
+            //The vector between the character and the waypoint we are going from
+            MyVector2 a = p - wp1;
+
+            //The vector between the waypoints
+            MyVector2 b = wp2 - wp1;
+
+            //Vector projection from https://en.wikipedia.org/wiki/Vector_projection
+            //To know if we have passed the upcoming waypoint we need to find out how much of b is a1
+            //a1 = (a.b / |b|^2) * b
+            //a1 = progress * b -> progress = a1 / b -> progress = (a.b / |b|^2)
+            float progress = (a.x * b.x + a.y * b.y) / (b.x * b.x + b.y * b.y);
+
+            //If progress is above 1 we know we have passed the waypoint
+            if (progress > 1.0f + MathUtility.EPSILON)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

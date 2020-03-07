@@ -90,7 +90,7 @@ namespace Habrador_Computational_Geometry
 
                     //Where is the test point in relation to the line between the point we are coming from
                     //which we know is on the hull, and the point we think is on the hull
-                    LeftOnRight pointRelation = Geometry.IsPoint_Left_On_Right_OfVector(previousPoint, nextPoint, testPoint);
+                    LeftOnRight pointRelation = _Geometry.IsPoint_Left_On_Right_OfVector(previousPoint, nextPoint, testPoint);
 
                     //The test point is on the line, so we have found a colinear point
                     if (pointRelation == LeftOnRight.On)

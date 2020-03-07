@@ -95,15 +95,5 @@ namespace Habrador_Computational_Geometry
 
             return roundedValue;
         }
-
-
-
-        //Lerp exponentially between 2 values
-        public static float Eerp(float a, float b, float t)
-        {
-            float exponentiallyLerpedValue = a * Mathf.Pow(b / a, t);
-
-            return exponentiallyLerpedValue;
-        }
     }
 }

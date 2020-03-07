@@ -121,7 +121,7 @@ namespace Habrador_Computational_Geometry
                 //Step 3.2. If the two triangles don't form a convex quadtrilateral
                 //place the edge back on the list of intersecting edges (because this edge cant be flipped) 
                 //and go to step 3.1
-                if (!Geometry.IsQuadrilateralConvex(v_k, v_l, v_3rd, v_opposite_pos))
+                if (!_Geometry.IsQuadrilateralConvex(v_k, v_l, v_3rd, v_opposite_pos))
                 {
                     intersectingEdges.Enqueue(e);
 
@@ -528,7 +528,7 @@ namespace Habrador_Computational_Geometry
             }
 
             //Then check if the lines are intersecting
-            if (!Intersections.LineLine(e1_p1, e1_p2, e2_p1, e2_p2, shouldIncludeEndPoints: false))
+            if (!_Intersections.LineLine(e1_p1, e1_p2, e2_p1, e2_p2, shouldIncludeEndPoints: false))
             {
                 return false;
             }

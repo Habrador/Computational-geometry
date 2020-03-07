@@ -16,16 +16,16 @@ namespace Habrador_Computational_Geometry
 
             //Use the circle test to test if we need to flip this edge
             //We should flip if d is inside a circle formed by a, b, c
-            IntersectionCases intersectionCases = Intersections.PointCircle(a, b, c, d);
+            IntersectionCases intersectionCases = _Intersections.PointCircle(a, b, c, d);
 
             if (intersectionCases == IntersectionCases.IsInside)
             {
                 //Are these the two triangles forming a convex quadrilateral? Otherwise the edge cant be flipped
-                if (Geometry.IsQuadrilateralConvex(a, b, c, d))
+                if (_Geometry.IsQuadrilateralConvex(a, b, c, d))
                 {
                     //If the new triangle after a flip is not better, then dont flip
                     //This will also stop the algorithm from ending up in an endless loop
-                    IntersectionCases intersectionCases2 = Intersections.PointCircle(b, c, d, a);
+                    IntersectionCases intersectionCases2 = _Intersections.PointCircle(b, c, d, a);
 
                     if (intersectionCases2 == IntersectionCases.IsOnEdge || intersectionCases2 == IntersectionCases.IsInside)
                     {

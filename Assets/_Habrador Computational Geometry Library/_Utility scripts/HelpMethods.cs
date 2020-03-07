@@ -19,7 +19,7 @@ namespace Habrador_Computational_Geometry
             {
                 Triangle2 t = trianglesList[i];
 
-                if (!Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3))
+                if (!_Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3))
                 {
                     t.ChangeOrientation();
 

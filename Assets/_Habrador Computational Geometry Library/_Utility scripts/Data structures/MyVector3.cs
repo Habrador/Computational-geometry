@@ -18,5 +18,33 @@ namespace Habrador_Computational_Geometry
             this.y = y;
             this.z = z;
         }
+
+
+
+        //Operator overloads
+        public static MyVector3 operator +(MyVector3 a, MyVector3 b)
+        {
+            return new MyVector3(a.x + b.x, a.y + b.y, a.z + b.z);
+        }
+
+        public static MyVector3 operator -(MyVector3 a, MyVector3 b)
+        {
+            return new MyVector3(a.x - b.x, a.y - b.y, a.z - b.z);
+        }
+
+        public static MyVector3 operator *(MyVector3 a, float b)
+        {
+            return new MyVector3(a.x * b, a.y * b, a.z * b);
+        }
+
+        public static MyVector3 operator *(float b, MyVector3 a)
+        {
+            return new MyVector3(a.x * b, a.y * b, a.z * b);
+        }
+
+        public static MyVector3 operator -(MyVector3 a)
+        {
+            return a * -1f;
+        }
     }
 }

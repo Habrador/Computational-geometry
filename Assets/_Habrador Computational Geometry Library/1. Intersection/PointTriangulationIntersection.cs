@@ -26,7 +26,7 @@ namespace Habrador_Computational_Geometry
                 Triangle2 t = new Triangle2(v1, v2, v3);
 
                 //Is the point in this triangle?
-                if (Intersections.PointTriangle(t, p, true))
+                if (_Intersections.PointTriangle(t, p, true))
                 {
                     intersectingTriangle = f;
 
@@ -172,7 +172,7 @@ namespace Habrador_Computational_Geometry
         {
             bool isToTheRight = false;
 
-            LeftOnRight pointPos = Geometry.IsPoint_Left_On_Right_OfVector(a, b, p);
+            LeftOnRight pointPos = _Geometry.IsPoint_Left_On_Right_OfVector(a, b, p);
 
             if (pointPos == LeftOnRight.Right || pointPos == LeftOnRight.On)
             {

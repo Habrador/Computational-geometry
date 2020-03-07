@@ -29,7 +29,9 @@ public class OtherController : MonoBehaviour
 
         //IsPointBetweenPoints(a, b, c);
 
-        ClosestPointOnLineSegment(a, b, c);
+        //ClosestPointOnLineSegment(a, b, c);
+
+        PassedWaypoint(a, b, c);
 
         //Gizmos.DrawWireSphere(pointATrans.position, 0.1f);
         //Gizmos.DrawWireSphere(pointBTrans.position, 0.1f);
@@ -38,9 +40,27 @@ public class OtherController : MonoBehaviour
 
 
 
+    private void PassedWaypoint(MyVector2 wp1, MyVector2 wp2, MyVector2 testPoint)
+    {
+        bool hasPassed = _Geometry.HasPassedWaypoint(wp1, wp2, testPoint);
+
+        Debug.Log(hasPassed);
+
+
+        //Diplay
+        TestAlgorithmsHelpMethods.DisplayArrow(wp1.ToVector3(), wp2.ToVector3(), 0.5f, Color.white);
+
+        Gizmos.color = hasPassed ? Color.red : Color.black;
+
+        Gizmos.DrawWireSphere(testPoint.ToVector3(), 0.5f);
+    }
+
+
+
     private void ClosestPointOnLineSegment(MyVector2 a, MyVector2 b, MyVector2 testPoint)
     {
-        MyVector2 closestPoint = Geometry.GetClosestPointOnLineSegment(a, b, testPoint);
+        MyVector2 closestPoint = _Geometry.GetClosestPointOnLineSegment(a, b, testPoint);
+
 
         //Diplay
         Gizmos.color = Color.white;
@@ -58,7 +78,7 @@ public class OtherController : MonoBehaviour
 
     private void IsPointBetweenPoints(MyVector2 a, MyVector2 b, MyVector2 testPoint)
     {
-        bool isBetween = Geometry.IsPointBetweenPoints(a, b, testPoint);
+        bool isBetween = _Geometry.IsPointBetweenPoints(a, b, testPoint);
 
         Debug.Log("Is between: " + isBetween);
 
@@ -82,7 +102,7 @@ public class OtherController : MonoBehaviour
         MyVector2 planePos = a + planeDir * 0.5f;
 
         //Positive if infront, negative if behind
-        float distanceToPlane = Geometry.DistanceFromPointToPlane(planeNormal, planePos, testPoint);
+        float distanceToPlane = _Geometry.DistanceFromPointToPlane(planeNormal, planePos, testPoint);
 
         Debug.Log("Distance: " + distanceToPlane);
 
@@ -107,7 +127,7 @@ public class OtherController : MonoBehaviour
     //Is a quadtrilateral convex
     private void IsQuadrilateralConvex(MyVector2 a, MyVector2 b, MyVector2 c, MyVector2 d)
     {
-        bool isConvex = Geometry.IsQuadrilateralConvex(a, b, c, d);
+        bool isConvex = _Geometry.IsQuadrilateralConvex(a, b, c, d);
 
         Debug.Log("Is convex " + isConvex);
 
@@ -127,14 +147,14 @@ public class OtherController : MonoBehaviour
     {
         Triangle2 t = new Triangle2(a, b, c);
 
-        bool isOrientedClockwise = Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3);
+        bool isOrientedClockwise = _Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3);
 
         Debug.Log("Is oriented clockwise: " + isOrientedClockwise);
 
         //We can also test if changing orientation is working
         t.ChangeOrientation();
 
-        bool isOrientedClockwiseAfterRotation = Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3);
+        bool isOrientedClockwiseAfterRotation = _Geometry.IsTriangleOrientedClockwise(t.p1, t.p2, t.p3);
 
         Debug.Log("Is oriented clockwise after changing orientation: " + isOrientedClockwiseAfterRotation);
 
@@ -163,7 +183,7 @@ public class OtherController : MonoBehaviour
 
         //Debug.Log("Is to left: " + isToLeft);
 
-        LeftOnRight value = Geometry.IsPoint_Left_On_Right_OfVector(a, b, p);
+        LeftOnRight value = _Geometry.IsPoint_Left_On_Right_OfVector(a, b, p);
 
         if (value == LeftOnRight.Left) { Debug.Log("Left"); }
         if (value == LeftOnRight.On) { Debug.Log("On"); }

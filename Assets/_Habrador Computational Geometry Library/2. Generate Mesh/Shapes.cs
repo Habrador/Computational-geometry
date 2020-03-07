@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Habrador_Computational_Geometry
+namespace Habrador_Computational_Geometry.MeshAlgorithms
 {
     //Generates geometric shapes, such as arrows, circles, lines, etc
     public static class Shapes
@@ -21,13 +21,6 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
-            if (resolution < 3)
-            {
-                Debug.Log("You cant make a circle with less than 3 points! FailFish");
-
-                return null;
-            }
-
             //Generate the point on the circle edge
             List<MyVector2> pointsOnCircleEdge = GenerateCirclePoints(center, radius, resolution);
 
@@ -39,7 +32,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Circle with a hole in it
-        public static HashSet<Triangle2> CircleHollow(MyVector2 center, float radius, int resolution, float width)
+        public static HashSet<Triangle2> CircleHollow(MyVector2 center, float innerRadius, int resolution, float width)
         {
             if (resolution < 3)
             {
@@ -48,8 +41,13 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
-            //Generate the point on the circle edge
-            List<MyVector2> pointsOnCircleEdge = GenerateCirclePoints(center, radius, resolution);
+            //We will later triangulate the circle by using the connected-lines algorithm
+            //where width is measured has half-width from the middle of the edge
+            //so the inner radius has to be modified with the half-width
+            float middleRadius = innerRadius + width * 0.5f;
+
+            //Generate the point on the circles edge between the inner radius and the outer radius
+            List<MyVector2> pointsOnCircleEdge = GenerateCirclePoints(center, middleRadius, resolution);
 
             //Triangulate
             HashSet<Triangle2> circleTriangles = ConnectedLineSegments(pointsOnCircleEdge, width, isConnected: true);
@@ -79,11 +77,10 @@ namespace Habrador_Computational_Geometry
 
                 pointsOnCircleEdge.Add(p);
 
-                angle += angleBetween;
+                //Minus to get correct orientation when displaying the mesh
+                angle -= angleBetween;
             }
 
-            //Flip to get correct orientation when displaying the mesh
-            pointsOnCircleEdge.Reverse();
 
             return pointsOnCircleEdge;
         }
@@ -278,7 +275,7 @@ namespace Habrador_Computational_Geometry
 
                 //Calculate the intersection point
                 //We know they are intersecting, so we don't need to test that
-                MyVector2 intersectionPoint = Intersections.GetPlanePlaneIntersectionPoint(beforePlanePos, beforeNormal, afterPlanePos, afterNormal);
+                MyVector2 intersectionPoint = _Intersections.GetPlanePlaneIntersectionPoint(beforePlanePos, beforeNormal, afterPlanePos, afterNormal);
 
                 return intersectionPoint;
             }

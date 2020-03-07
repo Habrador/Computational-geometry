@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Habrador_Computational_Geometry
+namespace Habrador_Computational_Geometry.MeshAlgorithms
 {
     //Generate a square grid where each cell consists of two triangles
     //The coordinate system starts in the middle

@@ -35,7 +35,7 @@ namespace Habrador_Computational_Geometry
                 //Which triangle is this point in?
                 foreach (Triangle2 t in triangles)
                 {
-                    if (Intersections.PointTriangle(t, currentPoint, includeBorder: true))
+                    if (_Intersections.PointTriangle(t, currentPoint, includeBorder: true))
                     {
                         //Split the triangle into three new triangles
                         //We ignore if it ends up on the edge of a triangle

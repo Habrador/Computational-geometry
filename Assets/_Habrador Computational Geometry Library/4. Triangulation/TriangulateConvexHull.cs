@@ -29,7 +29,7 @@ namespace Habrador_Computational_Geometry
 
                 //Is this a valid triangle?
                 //If a, b, c are on the same line, the triangle has no area and we can't add it
-                LeftOnRight pointRelation = Geometry.IsPoint_Left_On_Right_OfVector(a, b, c);
+                LeftOnRight pointRelation = _Geometry.IsPoint_Left_On_Right_OfVector(a, b, c);
 
                 if (pointRelation == LeftOnRight.On)
                 {
@@ -68,7 +68,7 @@ namespace Habrador_Computational_Geometry
                     foreach (Triangle2 t in triangles)
                     {
                         //Is this point in the triangle
-                        if (Intersections.PointTriangle(t, p, includeBorder: true))
+                        if (_Intersections.PointTriangle(t, p, includeBorder: true))
                         {
                             SplitTriangleEdge(t, p, triangles);
 
@@ -90,7 +90,7 @@ namespace Habrador_Computational_Geometry
             MyVector2 c = t.p3;
 
             //Which edge should we split?
-            if (Geometry.IsPoint_Left_On_Right_OfVector(a, b, p) == LeftOnRight.On)
+            if (_Geometry.IsPoint_Left_On_Right_OfVector(a, b, p) == LeftOnRight.On)
             {
                 Triangle2 t1_new = new Triangle2(a, c, p);
                 Triangle2 t2_new = new Triangle2(b, c, p);
@@ -100,7 +100,7 @@ namespace Habrador_Computational_Geometry
                 triangles.Add(t1_new);
                 triangles.Add(t2_new);
             }
-            else if (Geometry.IsPoint_Left_On_Right_OfVector(b, c, p) == LeftOnRight.On)
+            else if (_Geometry.IsPoint_Left_On_Right_OfVector(b, c, p) == LeftOnRight.On)
             {
                 Triangle2 t1_new = new Triangle2(b, a, p);
                 Triangle2 t2_new = new Triangle2(c, a, p);
@@ -110,7 +110,7 @@ namespace Habrador_Computational_Geometry
                 triangles.Add(t1_new);
                 triangles.Add(t2_new);
             }
-            else if (Geometry.IsPoint_Left_On_Right_OfVector(c, a, p) == LeftOnRight.On)
+            else if (_Geometry.IsPoint_Left_On_Right_OfVector(c, a, p) == LeftOnRight.On)
             {
                 Triangle2 t1_new = new Triangle2(c, b, p);
                 Triangle2 t2_new = new Triangle2(a, b, p);

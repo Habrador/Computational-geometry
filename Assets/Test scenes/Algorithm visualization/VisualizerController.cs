@@ -326,7 +326,7 @@ public class VisualizerController : MonoBehaviour
         //Generate the triangles
 
         //Big circle
-        MyVector2 center = Geometry.CalculateCircleCenter(a, b, c);
+        MyVector2 center = _Geometry.CalculateCircleCenter(a, b, c);
 
         float radius = MyVector2.Distance(center, a);
         
