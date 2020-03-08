@@ -21,6 +21,53 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //Vector operations
+        public static float Dot(MyVector3 a, MyVector3 b)
+        {
+            float dotProduct = (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+
+            return dotProduct;
+        }
+
+        public static float Magnitude(MyVector3 a)
+        {
+            float magnitude = Mathf.Sqrt(SqrMagnitude(a));
+
+            return magnitude;
+        }
+
+        public static float SqrMagnitude(MyVector3 a)
+        {
+            float sqrMagnitude = (a.x * a.x) + (a.y * a.y) + (a.z * a.z);
+
+            return sqrMagnitude;
+        }
+
+        public static float Distance(MyVector3 a, MyVector3 b)
+        {
+            float distance = Magnitude(a - b);
+
+            return distance;
+        }
+
+        public static float SqrDistance(MyVector3 a, MyVector3 b)
+        {
+            float distance = SqrMagnitude(a - b);
+
+            return distance;
+        }
+
+        public static MyVector3 Normalize(MyVector3 v)
+        {
+            float v_magnitude = Magnitude(v);
+
+            MyVector3 v_normalized = new MyVector3(v.x / v_magnitude, v.y / v_magnitude, v.z / v_magnitude);
+
+            return v_normalized;
+        }
+
+
+
         //Operator overloads
         public static MyVector3 operator +(MyVector3 a, MyVector3 b)
         {

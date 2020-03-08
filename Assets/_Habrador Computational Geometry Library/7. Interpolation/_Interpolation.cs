@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Interpolation between points with different algorithms
+    //These are in 3d, if you want them in 2d just set a coordinate to 0
     public static class _Interpolation
     {
         //
@@ -13,7 +14,7 @@ namespace Habrador_Computational_Geometry
 
         //https://en.wikipedia.org/wiki/B%C3%A9zier_curve
 
-        //Linear bezier - no handles so straight line
+        //Linear bezier - straight line
         public static MyVector3 BezierLinear(MyVector3 a, MyVector3 b, float t)
         {
             float lerpX = Lerp(a.x, b.x, t);
@@ -98,9 +99,10 @@ namespace Habrador_Computational_Geometry
         }
 
 
-        ////Exponential interpolation between 2 values
-        ////Which breaks at a = 0, so better to feed a "exponential t" to Lerp
-        ////From https://twitter.com/freyaholmer/status/1068293398073929728
+
+        //Exponential interpolation between 2 values
+        //Which breaks at a = 0, so better to feed a "exponential t" to Lerp
+        //From https://twitter.com/freyaholmer/status/1068293398073929728
         //public static float Eerp(float a, float b, float t)
         //{
         //    float interpolatedValue = a * Mathf.Pow(b / a, t);

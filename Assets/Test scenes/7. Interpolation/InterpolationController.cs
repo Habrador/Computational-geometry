@@ -25,7 +25,7 @@ public class InterpolationController : MonoBehaviour
 
         //Interpolate between cooldinates
 
-        //Exponential
+        //Exponential (BROKEN)
         //Eerp(posA, posB);
 
 
@@ -36,6 +36,8 @@ public class InterpolationController : MonoBehaviour
         //BezierQuadratic(posA, posB, handleA);
 
         //BezierCubic(posA, posB, handleA, handleB);
+
+        //BezierCubicEqualSteps(posA, posB, handleA, handleB);
 
         CatmullRom(posA, posB, handleA, handleB);
     }
@@ -115,7 +117,7 @@ public class InterpolationController : MonoBehaviour
 
         //Loop between 0 and 1 in steps, where 1 step is minimum
         //So if steps is 5 then the line will be cut in 5 sections
-        int steps = 10;
+        int steps = 5;
 
         float stepSize = 1f / (float)steps;
 
@@ -126,12 +128,13 @@ public class InterpolationController : MonoBehaviour
         {
             //Debug.Log(t);
 
-            MyVector3 interpolatedValue = _Interpolation.BezierCubic(posA, posB, handleA, handleB, t);
+            MyVector3 interpolatedPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, t);
 
-            interpolatedValues.Add(interpolatedValue.ToVector3());
+            interpolatedValues.Add(interpolatedPos.ToVector3());
 
             t += stepSize;
         }
+
 
 
         DisplayInterpolatedValues(interpolatedValues, useRandomColor: true);
@@ -142,7 +145,62 @@ public class InterpolationController : MonoBehaviour
     }
 
 
-    
+    private void BezierCubicEqualSteps(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
+    {
+        //Store the interpolated values so we later can display them
+        List<Vector3> actualPositions = new List<Vector3>();
+
+
+        //Step 1. Calculate the length of the entire curve
+        //This is needed to so we know how long we should walk each step
+        //float length = InterpolationHelpMethods.GetLengthNaiveCubicBezier(posA, posB, handleA, handleB, steps: 20, tEnd: 1f);
+
+        float length = InterpolationHelpMethods.GetLengthSimpsonsRule_CubicBezier(posA, posB, handleA, handleB, tStart: 0f, tEnd: 1f);
+
+        //Debug.Log(length + " " + lengthOther);
+
+      
+
+        
+
+        int steps = 5;
+
+        //Important not to confuse this with the step size we use to iterate t
+        //This step size is distance in m
+        float lengthStepSize = length / (float)steps;
+
+        float distanceTravelled = 0f;
+
+        for (int i = 0; i < steps + 1; i++)
+        {
+            float actualT = InterpolationHelpMethods.FindTValueToTravelDistance_CubicBezier(posA, posB, handleA, handleB, distanceTravelled, length);
+
+            //float dEst = MyVector3.Magnitude(InterpolationHelpMethods.EstimateDerivativeCubicBezier(posA, posB, handleA, handleB, t));
+            //float dAct = MyVector3.Magnitude(InterpolationHelpMethods.DerivativeCubicBezier(posA, posB, handleA, handleB, t));
+
+            //Debug.Log("Estimated derivative: " + dEst + " Actual derivative: " + dAct);
+
+            //Debug.Log("Distance " + distanceTravelled);
+
+            MyVector3 actualPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, actualT);
+
+            actualPositions.Add(actualPos.ToVector3());
+
+
+            distanceTravelled += lengthStepSize;
+        }
+
+
+
+        DisplayInterpolatedValues(actualPositions, useRandomColor: true);
+
+        //Display the start and end values and the handle points
+        DisplayHandle(handleA.ToVector3(), posA.ToVector3());
+        DisplayHandle(handleB.ToVector3(), posB.ToVector3());
+    }
+
+
+
     private void CatmullRom(MyVector3 a, MyVector3 b, MyVector3 c, MyVector3 d)
     {
         //Store the interpolated values so we later can display them

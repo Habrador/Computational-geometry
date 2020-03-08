@@ -170,9 +170,21 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 
 **Catmull-Rom splines**
 
+![Interpolation catmull rom](/_media/interpolation-catmull-rom.png?raw=true)	
 
 **Bezier curves**
 
+* Linear
+
+![Interpolation bezier linear](/_media/interpolation-bezier-linear.png?raw=true)	
+
+* Quadratic
+
+![Interpolation bezier quadratic](/_media/interpolation-bezier-quadratic.png?raw=true)	
+
+* Cubic
+
+![Interpolation bezier cubic](/_media/interpolation-bezier-cubic.png?raw=true)	
 
 
 ### 8. Other
