@@ -186,6 +186,8 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 
 ![Interpolation bezier cubic](/_media/interpolation-bezier-cubic.png?raw=true)	
 
+There's also methods so you can split up the curves into equal steps. 
+
 
 ### 8. Other
 

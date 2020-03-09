@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Habrador_Computational_Geometry;
+using UnityEditor;
 
 public class InterpolationController : MonoBehaviour
 {
@@ -11,6 +12,11 @@ public class InterpolationController : MonoBehaviour
     public Transform transHandleB;
 
     private int seed = 0;
+
+    //t slider for experiments
+    [Range(0f, 1f)]
+    public float tSliderValue = 0f;
+
 
 
     private void OnDrawGizmos()
@@ -37,9 +43,9 @@ public class InterpolationController : MonoBehaviour
 
         //BezierCubic(posA, posB, handleA, handleB);
 
-        //BezierCubicEqualSteps(posA, posB, handleA, handleB);
+        BezierCubicEqualSteps(posA, posB, handleA, handleB);
 
-        CatmullRom(posA, posB, handleA, handleB);
+        //CatmullRom(posA, handleA, handleB, posB);
     }
 
 
@@ -101,11 +107,26 @@ public class InterpolationController : MonoBehaviour
         }
 
 
+        //Display the curve
         DisplayInterpolatedValues(interpolatedValues, useRandomColor: true);
 
         //Display the start and end values and the handle points
         DisplayHandle(handle.ToVector3(), posA.ToVector3());
         DisplayHandle(handle.ToVector3(), posB.ToVector3());
+
+
+
+        //Display other related data
+        //Get the forwrd dir of the point at t and display it
+        MyVector3 forwardDir = _Interpolation.BezierQuadraticForwardDir(posA, posB, handle, tSliderValue);
+
+        MyVector3 slidePos = _Interpolation.BezierQuadratic(posA, posB, handle, tSliderValue);
+
+        TestAlgorithmsHelpMethods.DisplayArrow(slidePos.ToVector3(), (slidePos + forwardDir * 2f).ToVector3(), 0.2f, Color.blue);
+
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawWireSphere(slidePos.ToVector3(), 0.15f);
     }
 
 
@@ -117,7 +138,7 @@ public class InterpolationController : MonoBehaviour
 
         //Loop between 0 and 1 in steps, where 1 step is minimum
         //So if steps is 5 then the line will be cut in 5 sections
-        int steps = 5;
+        int steps = 20;
 
         float stepSize = 1f / (float)steps;
 
@@ -136,12 +157,32 @@ public class InterpolationController : MonoBehaviour
         }
 
 
-
+        //Display the curve
         DisplayInterpolatedValues(interpolatedValues, useRandomColor: true);
 
         //Display the start and end values and the handle points
         DisplayHandle(handleA.ToVector3(), posA.ToVector3());
         DisplayHandle(handleB.ToVector3(), posB.ToVector3());
+
+
+        //Display other related data
+        //Get the orientation of the point at t
+        InterpolationTransform trans = _Interpolation.BezierCubicTransform(posA, posB, handleA, handleB, tSliderValue);
+
+        //Multiply the orientation with a direction vector to rotate the direction
+        Vector3 forwardDir = trans.Forward.ToVector3();
+        //- right vector because in this test files we are looking from above
+        //so -right looks like up even though in the actual coordinate system it is -right
+        Vector3 upDir = -trans.Right.ToVector3();
+
+        Vector3 slidePos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, tSliderValue).ToVector3();
+
+        TestAlgorithmsHelpMethods.DisplayArrow(slidePos, slidePos + forwardDir * 2f, 0.2f, Color.blue);
+        TestAlgorithmsHelpMethods.DisplayArrow(slidePos, slidePos + upDir * 2f, 0.2f, Color.blue);
+
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawWireSphere(slidePos, 0.15f);
     }
 
 
@@ -169,11 +210,17 @@ public class InterpolationController : MonoBehaviour
         //This step size is distance in m
         float lengthStepSize = length / (float)steps;
 
+        float stepSize = 1f / (float)steps;
+
+        float t = 0f;
+
         float distanceTravelled = 0f;
 
         for (int i = 0; i < steps + 1; i++)
         {
-            float actualT = InterpolationHelpMethods.FindTValueToTravelDistance_CubicBezier(posA, posB, handleA, handleB, distanceTravelled, length);
+            //MyVector3 actualPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, t);
+        
+            MyVector3 actualPos = InterpolationHelpMethods.FindPointToTravelDistance_CubicBezier_Iterative(posA, posB, handleA, handleB, distanceTravelled, length);
 
             //float dEst = MyVector3.Magnitude(InterpolationHelpMethods.EstimateDerivativeCubicBezier(posA, posB, handleA, handleB, t));
             //float dAct = MyVector3.Magnitude(InterpolationHelpMethods.DerivativeCubicBezier(posA, posB, handleA, handleB, t));
@@ -182,21 +229,32 @@ public class InterpolationController : MonoBehaviour
 
             //Debug.Log("Distance " + distanceTravelled);
 
-            MyVector3 actualPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, actualT);
+            //MyVector3 actualPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, actualT);
 
             actualPositions.Add(actualPos.ToVector3());
 
 
             distanceTravelled += lengthStepSize;
+
+            t += stepSize;
         }
 
+        //List<MyVector3> positionsOnCurve = InterpolationHelpMethods.SplitCurve_CubicBezier(posA, posB, handleA, handleB, 20, tEnd: 1f);
 
+        //foreach (MyVector3 p in positionsOnCurve)
+        //{
+        //    Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
+        //}
 
         DisplayInterpolatedValues(actualPositions, useRandomColor: true);
 
         //Display the start and end values and the handle points
         DisplayHandle(handleA.ToVector3(), posA.ToVector3());
         DisplayHandle(handleB.ToVector3(), posB.ToVector3());
+
+
+        //Display the actual Bezier cubic for reference
+        Handles.DrawBezier(posA.ToVector3(), posB.ToVector3(), handleA.ToVector3(), handleB.ToVector3(), Color.blue, EditorGUIUtility.whiteTexture, 1f);
     }
 
 
