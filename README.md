@@ -246,3 +246,10 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 ## Socials
 
 Follow me on Twitter for more Unity stuff: https://twitter.com/eriknordeus
+
+
+## Updates
+
+**2020-03** 
+
+* Added interpolation such as Bezier curves and Catmull-Rom

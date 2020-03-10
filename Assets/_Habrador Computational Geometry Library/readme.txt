@@ -1,5 +1,3 @@
-:)
-
 This Computational Geometry Library is from www.habrador.com
 
-Version: 2019-04-26
+Version: 2020-03-09
