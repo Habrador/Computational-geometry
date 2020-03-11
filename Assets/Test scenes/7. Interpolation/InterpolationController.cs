@@ -219,8 +219,10 @@ public class InterpolationController : MonoBehaviour
         for (int i = 0; i < steps + 1; i++)
         {
             //MyVector3 actualPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, t);
-        
-            MyVector3 actualPos = InterpolationHelpMethods.FindPointToTravelDistance_CubicBezier_Iterative(posA, posB, handleA, handleB, distanceTravelled, length);
+
+            //MyVector3 actualPos = InterpolationHelpMethods.FindPointToTravelDistance_CubicBezier_Iterative(posA, posB, handleA, handleB, distanceTravelled, length);
+
+            MyVector3 actualPos = InterpolationHelpMethods.FindPointToTravelDistance_CubicBezier_Lookup(posA, posB, handleA, handleB, distanceTravelled, null);
 
             //float dEst = MyVector3.Magnitude(InterpolationHelpMethods.EstimateDerivativeCubicBezier(posA, posB, handleA, handleB, t));
             //float dAct = MyVector3.Magnitude(InterpolationHelpMethods.DerivativeCubicBezier(posA, posB, handleA, handleB, t));

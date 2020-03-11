@@ -6,6 +6,8 @@ Make sure all input coordinates are normalized to range 0-1 to avoid floating po
 
 Some of these algorithms are available in tutorial form here: https://www.habrador.com/tutorials/math/
 
+The code has been tested by using Unity 2018.4 LTS but should work with other versions. 
+
 ## Finished
 
 

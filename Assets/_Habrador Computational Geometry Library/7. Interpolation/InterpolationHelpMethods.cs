@@ -217,12 +217,14 @@ namespace Habrador_Computational_Geometry
 
         //The problem with the t-value and Bezier curves is that the t-value is NOT percentage along the curve
         //So sometimes we need to divide the curve into equal steps, for example if we generate a mesh along the curve
+        //So we have a distance along the curve and we want to find the t-value that generates that distance
 
         //Alternative 1
         //Use Newton–Raphsons method to find which t value we need to travel distance d on the curve
         //d is measured from the start of the curve in [m] so is not the same as paramete t which is [0, 1]
         //https://en.wikipedia.org/wiki/Newton%27s_method
         //https://www.youtube.com/watch?v=-mad4YPAn2U
+        //TODO: We can use the lookup table from the lookup-method in the newton-raphson method!
         public static MyVector3 FindPointToTravelDistance_CubicBezier_Iterative(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, float d, float totalLength)
         {
             //Need a start value to make the method start
@@ -295,84 +297,143 @@ namespace Habrador_Computational_Geometry
         //Alternative 2
         //Create a lookup-table with distances along the curve, then interpolate these distances
         //This is faster but less accurate than using the iterative Newton–Raphsons method
-        //We can use the lookup table in the newton-raphson method
+        //https://medium.com/@Acegikmo/the-ever-so-lovely-b%C3%A9zier-curve-eb27514da3bf
+        public static MyVector3 FindPointToTravelDistance_CubicBezier_Lookup(
+            MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, 
+            float d, List<float> accumulatedDistances)
+        {
+            //Step 1. Find accumulated distances along the curve by using the bad t-value
+            //This value can be pre-calculated
+            if (accumulatedDistances == null)
+            {
+                accumulatedDistances = GetAccumulatedDistances(pA, pB, hA, hB);
+            }
+
+            if (accumulatedDistances == null || accumulatedDistances.Count == 0)
+            {
+                Debug.Log("Cant interpolate to split bezier into equal steps");
+
+                _Interpolation.BezierCubic(pA, pB, hA, hB, 0f);
+            }
+
+
+
+            //Step 2. Iterate through the table, to find at what index we reach the desired distance
+            //It will most likely not end up exactly at an index, so we need to interpolate by using the 
+            //index to the left and the index to the right
+
+            //First we need special cases for end-points to avoid unnecessary calculations
+            if (d <= accumulatedDistances[0])
+            {
+                return _Interpolation.BezierCubic(pA, pB, hA, hB, 0f);
+            }
+            else if (d >= accumulatedDistances[accumulatedDistances.Count - 1])
+            {
+                return _Interpolation.BezierCubic(pA, pB, hA, hB, 1f);
+            }
+
+
+            //Find the index to the left
+            int indexLeft = 0;
+
+            for (int i = 0; i < accumulatedDistances.Count - 1; i++)
+            {
+                if (accumulatedDistances[i + 1] > d)
+                {
+                    indexLeft = i;
+
+                    break;
+                }
+            }
+
+            //Step 3. Interpolate to get the t-value
+            //Each distance also has a t-value we used to generate that distance
+            
+            //Each t in the list is increasing each step by: 
+            float stepSize = 1f / (float)(accumulatedDistances.Count - 1);
+
+            //With this step size we can calculate the t-value of the index
+            float tValueL = indexLeft * stepSize;
+            //The index right is just:
+            float tValueR = (indexLeft + 1) * stepSize;
+
+            //To interpolate we need a percentage between the left index and the right index in the distances array
+            float percentage = (d - accumulatedDistances[indexLeft]) / (accumulatedDistances[indexLeft + 1] - accumulatedDistances[indexLeft]);
+
+            float tGood = _Interpolation.Lerp(tValueL, tValueR, percentage);
+
+
+            //Step 4. Now we can calculate the point on the curve by using the new t
+            MyVector3 pointOnCurve = _Interpolation.BezierCubic(pA, pB, hA, hB, tGood);
+
+
+            return pointOnCurve;
+        }
+
 
 
         //
-        // Get actual t-value
+        // Get actual percentage along curve
         //
 
         //Parameter t is not always percentage along the curve
         //Sometimes we need to calculate the actual percentage if t had been percentage along the curve
         //From https://www.youtube.com/watch?v=o9RK6O2kOKo
-        public static float FindActualPercentageAlongCurve_CubicBezier(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, float tBad)
+        public static float FindPercentageAlongCurve_CubicBezier(
+            MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, 
+            float tBad, List<float> accumulatedDistances)
         {
-            //Step 1. Find positions on the curve by using the bad t-value
-            int steps = 20;
-
-            List<MyVector3> positionsOnCurve = SplitCurve_CubicBezier(pA, pB, hA, hB, steps, tEnd: 1f);
-
-
-            //Step 2. Calculate the cumulative distances along the curve for each position along the curve 
-            //we just calculated
-            List<float> distances = new List<float>();
-
-            float totalDistance = 0f;
-
-            distances.Add(totalDistance);
-
-            for (int i = 1; i < positionsOnCurve.Count; i++)
+            //Step 1. Find accumulated distances along the curve by using the bad t-value
+            //This value can be pre-calculated
+            if (accumulatedDistances == null)
             {
-                totalDistance += MyVector3.Distance(positionsOnCurve[i], positionsOnCurve[i - 1]);
-
-                distances.Add(totalDistance);
+                accumulatedDistances = GetAccumulatedDistances(pA, pB, hA, hB);
             }
 
-            //Debug.Log(distances[distances.Count - 1]);
+            //The length of the entire curve
+            float totalDistance = accumulatedDistances[accumulatedDistances.Count - 1];
 
-            //TODO Step 1 and 2 can be pre-calculated
 
-
-            //Step 3. Find the positions in the distances list tBad is closest to and interpolate between them
-            if (distances == null || distances.Count == 0)
+            //Step 2. Find the positions in the distances list tBad is closest to and interpolate between them
+            if (accumulatedDistances == null || accumulatedDistances.Count == 0)
             {
-                Debug.Log("Cant interpolate to split bezier into equal steps");
+                Debug.Log("Cant interpolate to find exact percentage along curve");
                 
                 return 0f;
             }
 
             //If we have just one value, just return it
-            if (distances.Count == 1)
+            if (accumulatedDistances.Count == 1)
             {
-                return distances[0] / totalDistance;
+                return accumulatedDistances[0] / totalDistance;
             }
 
 
             //Convert the t-value to an array position
             //t-value can be seen as percentage, so we get percentage along the list of values
             //If we have 5 values in the list, we have 4 buckets, so if t is 0.65, we get 0.65*4 = 2.6
-            float arrayPosBetween = tBad * (float)(distances.Count - 1);
+            float arrayPosBetween = tBad * (float)(accumulatedDistances.Count - 1);
             
             //Round up and down to get the actual array positions
             int arrayPosL = Mathf.FloorToInt(arrayPosBetween); //2 if we follow the example above 
             int arrayPosR = Mathf.FloorToInt(arrayPosBetween + 1f); //2.6 + 1 = 3.6 -> 3 
 
             //If we reached too high return the last value
-            if (arrayPosR >= distances.Count)
+            if (arrayPosR >= accumulatedDistances.Count)
             {
-                return distances[positionsOnCurve.Count - 1] / totalDistance;
+                return accumulatedDistances[accumulatedDistances.Count - 1] / totalDistance;
             }
             //Too low
             else if (arrayPosR < 0f)
             {
-                return distances[0] / totalDistance;
+                return accumulatedDistances[0] / totalDistance;
             }
 
             //Interpolate by lerping
             float percentage = arrayPosBetween - arrayPosL; //2.6 - 2 = 0.6 if we follow the example above 
 
             //(1f - t) * a + t * b; so if percentage is 0.6 we should get more of the one to the right
-            float interpolatedDistance = _Interpolation.Lerp(distances[arrayPosL], distances[arrayPosR], percentage);
+            float interpolatedDistance = _Interpolation.Lerp(accumulatedDistances[arrayPosL], accumulatedDistances[arrayPosR], percentage);
 
             //This is the actual t-value that we should have used to get to this distance
             //So if tBad is 0.8 it doesnt mean that we have travelled 80 percent along the curve
@@ -384,6 +445,39 @@ namespace Habrador_Computational_Geometry
             
 
             return tActual;
+        }
+
+
+
+        //
+        // Help method to calculate the accumulated total distances along the curve 
+        // by walking along it by using constant t-steps
+        //
+        public static List<float> GetAccumulatedDistances(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB)
+        {
+            //Step 1. Find positions on the curve by using the bad t-value
+            int steps = 20;
+
+            List<MyVector3> positionsOnCurve = SplitCurve_CubicBezier(pA, pB, hA, hB, steps, tEnd: 1f);
+
+
+            //Step 2. Calculate the cumulative distances along the curve for each position along the curve 
+            //we just calculated
+            List<float> accumulatedDistances = new List<float>();
+
+            float totalDistance = 0f;
+
+            accumulatedDistances.Add(totalDistance);
+
+            for (int i = 1; i < positionsOnCurve.Count; i++)
+            {
+                totalDistance += MyVector3.Distance(positionsOnCurve[i], positionsOnCurve[i - 1]);
+
+                accumulatedDistances.Add(totalDistance);
+            }
+
+
+            return accumulatedDistances;
         }
     }
 }
