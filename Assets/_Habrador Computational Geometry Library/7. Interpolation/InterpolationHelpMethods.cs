@@ -225,14 +225,14 @@ namespace Habrador_Computational_Geometry
         //https://en.wikipedia.org/wiki/Newton%27s_method
         //https://www.youtube.com/watch?v=-mad4YPAn2U
         //TODO: We can use the lookup table from the lookup-method in the newton-raphson method!
-        public static MyVector3 FindPointToTravelDistance_CubicBezier_Iterative(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, float d, float totalLength)
+        public static float c(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, float d, float totalLength)
         {
             //Need a start value to make the method start
             //Should obviously be between 0 and 1
             //We can say that a good starting point is the percentage of distance traveled
             //If this start value is not working you can use the Bisection Method to find a start value
             //https://en.wikipedia.org/wiki/Bisection_method
-            float t = d / totalLength;
+            float tGood = d / totalLength;
             
             //Need an error so we know when to stop the iteration
             float error = 0.001f;
@@ -245,25 +245,25 @@ namespace Habrador_Computational_Geometry
                 //The derivative and the length can be calculated in different ways
             
                 //The derivative vector at point t
-                MyVector3 derivativeVec = EstimateDerivative_CubicBezier(pA, pB, hA, hB, t);
+                MyVector3 derivativeVec = EstimateDerivative_CubicBezier(pA, pB, hA, hB, tGood);
                 //MyVector3 derivativeVec = DerivativeCubicBezier(pA, pB, hA, hB, t);
 
                 //The length of the curve to point t from the start
                 //float lengthTo_t = GetLengthNaive_CubicBezier(pA, pB, hA, hB, steps: 20, tEnd: t);
-                float lengthTo_t = GetLengthSimpsonsRule_CubicBezier(pA, pB, hA, hB, tStart: 0f, tEnd: t);
+                float lengthTo_t = GetLengthSimpsonsRule_CubicBezier(pA, pB, hA, hB, tStart: 0f, tEnd: tGood);
 
 
                 //Calculate a better t with Newton's method: x_n+1 = x_n + (f(x_n) / f'(x_n))
                 //Our f(x) = lengthTo_t - d = 0. We want them to be equal because we want to find the t value 
                 //that generates a distance(t) which is the same as the d we want. So when f(x) is close to zero we are happy
                 //When we take the derivative of f(x), d disappears which is why we are not subtracting it in the bottom
-                float tNext = t - ((lengthTo_t - d) / MyVector3.Magnitude(derivativeVec));
+                float tNext = tGood - ((lengthTo_t - d) / MyVector3.Magnitude(derivativeVec));
 
 
                 //Have we reached the desired accuracy?
-                float diff = tNext - t;
+                float diff = tNext - tGood;
 
-                t = tNext;
+                tGood = tNext;
 
                 //Have we found a t to get a distance which matches the distance we want?  
                 if (diff < error && diff > -error)
@@ -286,10 +286,8 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            //Now we can calculate the point on the curve by using the new t
-            MyVector3 pointOnCurve = _Interpolation.BezierCubic(pA, pB, hA, hB, t);
-
-            return pointOnCurve;
+            
+            return tGood;
         }
 
 
@@ -297,8 +295,9 @@ namespace Habrador_Computational_Geometry
         //Alternative 2
         //Create a lookup-table with distances along the curve, then interpolate these distances
         //This is faster but less accurate than using the iterative Newton–Raphsons method
+        //But the difference from far away is barely noticeable
         //https://medium.com/@Acegikmo/the-ever-so-lovely-b%C3%A9zier-curve-eb27514da3bf
-        public static MyVector3 FindPointToTravelDistance_CubicBezier_Lookup(
+        public static float Find_t_FromDistance_CubicBezier_Lookup(
             MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, 
             float d, List<float> accumulatedDistances)
         {
@@ -306,7 +305,7 @@ namespace Habrador_Computational_Geometry
             //This value can be pre-calculated
             if (accumulatedDistances == null)
             {
-                accumulatedDistances = GetAccumulatedDistances(pA, pB, hA, hB);
+                accumulatedDistances = GetAccumulatedDistances(pA, pB, hA, hB, steps: 100);
             }
 
             if (accumulatedDistances == null || accumulatedDistances.Count == 0)
@@ -325,11 +324,11 @@ namespace Habrador_Computational_Geometry
             //First we need special cases for end-points to avoid unnecessary calculations
             if (d <= accumulatedDistances[0])
             {
-                return _Interpolation.BezierCubic(pA, pB, hA, hB, 0f);
+                return 0f;
             }
             else if (d >= accumulatedDistances[accumulatedDistances.Count - 1])
             {
-                return _Interpolation.BezierCubic(pA, pB, hA, hB, 1f);
+                return 1f;
             }
 
 
@@ -363,11 +362,8 @@ namespace Habrador_Computational_Geometry
             float tGood = _Interpolation.Lerp(tValueL, tValueR, percentage);
 
 
-            //Step 4. Now we can calculate the point on the curve by using the new t
-            MyVector3 pointOnCurve = _Interpolation.BezierCubic(pA, pB, hA, hB, tGood);
 
-
-            return pointOnCurve;
+            return tGood;
         }
 
 
@@ -453,11 +449,9 @@ namespace Habrador_Computational_Geometry
         // Help method to calculate the accumulated total distances along the curve 
         // by walking along it by using constant t-steps
         //
-        public static List<float> GetAccumulatedDistances(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB)
+        public static List<float> GetAccumulatedDistances(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, int steps = 20)
         {
             //Step 1. Find positions on the curve by using the bad t-value
-            int steps = 20;
-
             List<MyVector3> positionsOnCurve = SplitCurve_CubicBezier(pA, pB, hA, hB, steps, tEnd: 1f);
 
 

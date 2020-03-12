@@ -31,10 +31,6 @@ public class InterpolationController : MonoBehaviour
 
         //Interpolate between cooldinates
 
-        //Exponential (BROKEN)
-        //Eerp(posA, posB);
-
-
         //Bezier curves
 
         //BezierLinear(posA, posB);
@@ -43,9 +39,13 @@ public class InterpolationController : MonoBehaviour
 
         //BezierCubic(posA, posB, handleA, handleB);
 
-        BezierCubicEqualSteps(posA, posB, handleA, handleB);
+        //BezierCubicEqualSteps(posA, posB, handleA, handleB);
 
         //CatmullRom(posA, handleA, handleB, posB);
+
+
+        //Interpolation between values
+        OtherInterpolations(posA, posB);
     }
 
 
@@ -219,10 +219,15 @@ public class InterpolationController : MonoBehaviour
         for (int i = 0; i < steps + 1; i++)
         {
             //MyVector3 actualPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, t);
+            
+            //Method 1
+            //float actualT = InterpolationHelpMethods.Find_t_FromDistance_CubicBezier_Iterative(posA, posB, handleA, handleB, distanceTravelled, length);
 
-            //MyVector3 actualPos = InterpolationHelpMethods.FindPointToTravelDistance_CubicBezier_Iterative(posA, posB, handleA, handleB, distanceTravelled, length);
+            //Method 2
+            float actualT = InterpolationHelpMethods.Find_t_FromDistance_CubicBezier_Lookup(
+                posA, posB, handleA, handleB, distanceTravelled, accumulatedDistances: null);
 
-            MyVector3 actualPos = InterpolationHelpMethods.FindPointToTravelDistance_CubicBezier_Lookup(posA, posB, handleA, handleB, distanceTravelled, null);
+            MyVector3 actualPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, actualT);
 
             //float dEst = MyVector3.Magnitude(InterpolationHelpMethods.EstimateDerivativeCubicBezier(posA, posB, handleA, handleB, t));
             //float dAct = MyVector3.Magnitude(InterpolationHelpMethods.DerivativeCubicBezier(posA, posB, handleA, handleB, t));
@@ -325,15 +330,15 @@ public class InterpolationController : MonoBehaviour
 
 
 
-    //Exponential interpolation
-    private void Eerp(Vector3 a, Vector3 b)
+    //Interpolation between values
+    private void OtherInterpolations(MyVector3 a, MyVector3 b)
     {
         //Store the interpolated values so we later can display them
         List<Vector3> interpolatedValues = new List<Vector3>();
 
         //Loop between 0 and 1 in steps, where 1 step is minimum
         //So if steps is 5 then the line will be cut in 5 sections
-        int steps = 5;
+        int steps = 10;
 
         float stepSize = 1f / (float)steps;
 
@@ -344,15 +349,35 @@ public class InterpolationController : MonoBehaviour
         {
             //Debug.Log(t);
 
-            //TODO will never go exactly between 0 and 1
-            float exponential_t = 1f - Mathf.Exp(t - 1f);
+            //Ease out
+            //float interpolatedValueX = _Interpolation.Sinerp(a.x, b.x, t);
+            //float interpolatedValueZ = _Interpolation.Sinerp(a.z, b.z, t);
 
-            float interpolatedValueX = _Interpolation.Lerp(a.x, b.x, exponential_t);
-            float interpolatedValueZ = _Interpolation.Lerp(a.z, b.z, exponential_t);
 
-            Vector3 interpolatedValue = new Vector3(interpolatedValueX, 0f, interpolatedValueZ);
+            //Ease in
+            //float interpolatedValueX = _Interpolation.Coserp(a.x, b.x, t);
+            //float interpolatedValueZ = _Interpolation.Coserp(a.z, b.z, t);
 
-            interpolatedValues.Add(interpolatedValue);
+
+            //Exponential
+            //float interpolatedValueX = _Interpolation.Eerp(a.x, b.x, t);
+            //float interpolatedValueZ = _Interpolation.Eerp(a.z, b.z, t);
+
+
+            //Smoothstep and Smootherstep
+            float interpolatedValueX = _Interpolation.Smoothersteperp(a.x, b.x, t);
+            float interpolatedValueZ = _Interpolation.Smoothersteperp(a.z, b.z, t);
+
+
+            //Similar to bezier cubic
+            //float handleA = 0f;
+            //float handleB = 0.5f;
+            //float interpolatedValueX = _Interpolation.CubicBezierErp(a.x, b.x, handleA, handleB, t);
+            //float interpolatedValueZ = _Interpolation.CubicBezierErp(a.z, b.z, handleA, handleB, t);
+
+            Vector3 interpolatedPos = new Vector3(interpolatedValueX, 0f, interpolatedValueZ);
+
+            interpolatedValues.Add(interpolatedPos);
 
             t += stepSize;
         }

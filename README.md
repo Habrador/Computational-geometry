@@ -4,7 +4,7 @@ This library consists of two folders. The idea is that one is for testing purpos
 
 Make sure all input coordinates are normalized to range 0-1 to avoid floating point precision issues! Normalizing methods exists in HelpMethods. This is not always needed but if you notice that an algorithm doesn't work, try to normalize the input coordinates. 
 
-Some of these algorithms are available in tutorial form here: https://www.habrador.com/tutorials/math/
+Some of these algorithms are available in tutorial form here: https://www.habrador.com/tutorials/math/ and here: https://www.habrador.com/tutorials/interpolation/
 
 The code has been tested by using Unity 2018.4 LTS but should work with other versions. 
 
