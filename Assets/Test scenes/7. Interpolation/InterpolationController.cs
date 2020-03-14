@@ -37,20 +37,22 @@ public class InterpolationController : MonoBehaviour
 
         //BezierQuadratic(posA, posB, handleA);
 
+        //BezierQuadraticEqualSteps(posA, posB, handleA);
+
         //BezierCubic(posA, posB, handleA, handleB);
 
-        //BezierCubicEqualSteps(posA, posB, handleA, handleB);
+        BezierCubicEqualSteps(posA, posB, handleA, handleB);
 
         //CatmullRom(posA, handleA, handleB, posB);
 
 
         //Interpolation between values
-        OtherInterpolations(posA, posB);
+        //OtherInterpolations(posA, posB);
     }
 
 
 
-    private void BezierLinear(MyVector3 a, MyVector3 b)
+    private void BezierLinear(MyVector3 posA, MyVector3 posB)
     {
         //Store the interpolated values so we later can display them
         List<Vector3> interpolatedValues = new List<Vector3>();
@@ -68,7 +70,7 @@ public class InterpolationController : MonoBehaviour
         {
             //Debug.Log(t);
 
-            MyVector3 interpolatedValue = _Interpolation.BezierLinear(a, b, t);
+            MyVector3 interpolatedValue = _Interpolation.BezierLinear(posA, posB, t);
 
             interpolatedValues.Add(interpolatedValue.ToVector3());
 
@@ -129,6 +131,89 @@ public class InterpolationController : MonoBehaviour
         Gizmos.DrawWireSphere(slidePos.ToVector3(), 0.15f);
     }
 
+    private void BezierQuadraticEqualSteps(MyVector3 posA, MyVector3 posB, MyVector3 handle)
+    {
+        //Store the interpolated values so we later can display them
+        List<Vector3> actualPositions = new List<Vector3>();
+
+        //Create a curve which is the data structure used in the following calculations
+        BezierQuadratic bezierQuadratic = new BezierQuadratic(posA, posB, handle);
+
+
+        //Step 1. Calculate the length of the entire curve
+        //This is needed to so we know how long we should walk each step
+        float lengthNaive = InterpolationHelpMethods.GetLength_Naive(bezierQuadratic, steps: 20, tEnd: 1f);
+
+        float lengthExact = InterpolationHelpMethods.GetLength_SimpsonsRule(bezierQuadratic, tStart: 0f, tEnd: 1f);
+
+        Debug.Log("Naive length: " + lengthNaive + " Exact length: " + lengthExact);
+
+
+
+
+
+        int steps = 5;
+
+        //Important not to confuse this with the step size we use to iterate t
+        //This step size is distance in m
+        float length = lengthNaive;
+
+        float lengthStepSize = length / (float)steps;
+
+        float stepSize = 1f / (float)steps;
+
+        float t = 0f;
+
+        float distanceTravelled = 0f;
+
+        for (int i = 0; i < steps + 1; i++)
+        {
+            //MyVector3 inaccuratePos = bezierCubic.GetInterpolatedValue(t);
+
+
+
+            //Calculate t to get to this distance
+            //Method 1
+            //float actualT = InterpolationHelpMethods.Find_t_FromDistance_Iterative(bezierQuadratic, distanceTravelled, length);
+            //Method 2
+            float actualT = InterpolationHelpMethods.Find_t_FromDistance_Lookup(bezierQuadratic, distanceTravelled, accumulatedDistances: null);
+
+            MyVector3 actualPos = bezierQuadratic.GetInterpolatedValue(actualT);
+
+            actualPositions.Add(actualPos.ToVector3());
+
+
+
+            //Test that the derivative calculations are working
+            float dEst = InterpolationHelpMethods.EstimateDerivative(bezierQuadratic, t);
+            float dAct = bezierQuadratic.ExactDerivative(t);
+
+            Debug.Log("Estimated derivative: " + dEst + " Actual derivative: " + dAct);
+
+
+
+            //Debug.Log("Distance " + distanceTravelled);
+
+            //Move on to next iteration
+            distanceTravelled += lengthStepSize;
+
+            t += stepSize;
+        }
+
+        //List<MyVector3> positionsOnCurve = InterpolationHelpMethods.SplitCurve(bezierQuadratic, 20, tEnd: 1f);
+
+        //foreach (MyVector3 p in positionsOnCurve)
+        //{
+        //    Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
+        //}
+
+        DisplayInterpolatedValues(actualPositions, useRandomColor: true);
+
+        //Display the start and end values and the handle points
+        DisplayHandle(handle.ToVector3(), posA.ToVector3());
+        DisplayHandle(handle.ToVector3(), posB.ToVector3());
+    }
+
 
 
     private void BezierCubic(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
@@ -167,7 +252,9 @@ public class InterpolationController : MonoBehaviour
 
         //Display other related data
         //Get the orientation of the point at t
-        InterpolationTransform trans = _Interpolation.BezierCubicTransform(posA, posB, handleA, handleB, tSliderValue);
+        BezierCubic bezierCubic = new BezierCubic(posA, posB, handleA, handleB);
+
+        InterpolationTransform trans = bezierCubic.GetTransform(tSliderValue);
 
         //Multiply the orientation with a direction vector to rotate the direction
         Vector3 forwardDir = trans.Forward.ToVector3();
@@ -191,14 +278,17 @@ public class InterpolationController : MonoBehaviour
         //Store the interpolated values so we later can display them
         List<Vector3> actualPositions = new List<Vector3>();
 
+        //Create a curve which is the data structure used in the following calculations
+        BezierCubic bezierCubic = new BezierCubic(posA, posB, handleA, handleB);
+
 
         //Step 1. Calculate the length of the entire curve
         //This is needed to so we know how long we should walk each step
-        //float length = InterpolationHelpMethods.GetLengthNaiveCubicBezier(posA, posB, handleA, handleB, steps: 20, tEnd: 1f);
+        float lengthNaive = InterpolationHelpMethods.GetLength_Naive(bezierCubic, steps: 20, tEnd: 1f);
 
-        float length = InterpolationHelpMethods.GetLengthSimpsonsRule_CubicBezier(posA, posB, handleA, handleB, tStart: 0f, tEnd: 1f);
+        float lengthExact = InterpolationHelpMethods.GetLength_SimpsonsRule(bezierCubic, tStart: 0f, tEnd: 1f);
 
-        //Debug.Log(length + " " + lengthOther);
+        Debug.Log("Naive length: " + lengthNaive + " Exact length: " + lengthExact);
 
       
 
@@ -208,6 +298,8 @@ public class InterpolationController : MonoBehaviour
 
         //Important not to confuse this with the step size we use to iterate t
         //This step size is distance in m
+        float length = lengthNaive;
+
         float lengthStepSize = length / (float)steps;
 
         float stepSize = 1f / (float)steps;
@@ -218,35 +310,39 @@ public class InterpolationController : MonoBehaviour
 
         for (int i = 0; i < steps + 1; i++)
         {
-            //MyVector3 actualPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, t);
-            
+            //MyVector3 inaccuratePos = bezierCubic.GetInterpolatedValue(t);
+
+
+
+            //Calculate t to get to this distance
             //Method 1
-            //float actualT = InterpolationHelpMethods.Find_t_FromDistance_CubicBezier_Iterative(posA, posB, handleA, handleB, distanceTravelled, length);
-
+            //float actualT = InterpolationHelpMethods.Find_t_FromDistance_Iterative(bezierCubic, distanceTravelled, length);
             //Method 2
-            float actualT = InterpolationHelpMethods.Find_t_FromDistance_CubicBezier_Lookup(
-                posA, posB, handleA, handleB, distanceTravelled, accumulatedDistances: null);
+            float actualT = InterpolationHelpMethods.Find_t_FromDistance_Lookup(bezierCubic, distanceTravelled, accumulatedDistances: null);
 
-            MyVector3 actualPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, actualT);
-
-            //float dEst = MyVector3.Magnitude(InterpolationHelpMethods.EstimateDerivativeCubicBezier(posA, posB, handleA, handleB, t));
-            //float dAct = MyVector3.Magnitude(InterpolationHelpMethods.DerivativeCubicBezier(posA, posB, handleA, handleB, t));
-
-            //Debug.Log("Estimated derivative: " + dEst + " Actual derivative: " + dAct);
-
-            //Debug.Log("Distance " + distanceTravelled);
-
-            //MyVector3 actualPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, actualT);
+            MyVector3 actualPos = bezierCubic.GetInterpolatedValue(actualT);
 
             actualPositions.Add(actualPos.ToVector3());
 
 
+
+            //Test that the derivative calculations are working
+            float dEst = InterpolationHelpMethods.EstimateDerivative(bezierCubic, t);
+            float dAct = bezierCubic.ExactDerivative(t);
+
+            Debug.Log("Estimated derivative: " + dEst + " Actual derivative: " + dAct);
+
+
+
+            //Debug.Log("Distance " + distanceTravelled);
+
+            //Move on to next iteration
             distanceTravelled += lengthStepSize;
 
             t += stepSize;
         }
 
-        //List<MyVector3> positionsOnCurve = InterpolationHelpMethods.SplitCurve_CubicBezier(posA, posB, handleA, handleB, 20, tEnd: 1f);
+        //List<MyVector3> positionsOnCurve = InterpolationHelpMethods.SplitCurve(bezierCubic, 20, tEnd: 1f);
 
         //foreach (MyVector3 p in positionsOnCurve)
         //{

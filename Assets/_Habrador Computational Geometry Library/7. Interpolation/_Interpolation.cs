@@ -71,28 +71,6 @@ namespace Habrador_Computational_Geometry
             return finalInterpolation;
         }
 
-        //Get the position and the orientation at t
-        public static InterpolationTransform BezierCubicTransform(MyVector3 posA, MyVector3 posB, MyVector3 handlePosA, MyVector3 handlePosB, float t)
-        {
-            //Same as when we calculate t
-            MyVector3 interpolation_1_2 = BezierQuadratic(posA, handlePosB, handlePosA, t);
-            MyVector3 interpolation_2_3 = BezierQuadratic(handlePosA, posB, handlePosB, t);
-
-            MyVector3 finalInterpolation = BezierLinear(interpolation_1_2, interpolation_2_3, t);
-
-            //This direction is always tangent to the curve
-            MyVector3 forwardDir = MyVector3.Normalize(interpolation_2_3 - interpolation_1_2);
-
-            //A simple way to get the other directions is to use LookRotation with just forward dir as parameter
-            //Then the up direction will always be the world up direction, and it calculates the right direction 
-            Quaternion orientation = Quaternion.LookRotation(forwardDir.ToVector3());
-
-
-            InterpolationTransform trans = new InterpolationTransform(finalInterpolation, orientation);
-
-            return trans;
-        }
-
 
 
         //

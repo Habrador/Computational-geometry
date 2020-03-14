@@ -14,7 +14,7 @@ namespace Habrador_Computational_Geometry
         //Steps is the number of sections we are going to split the curve in
         //So the number of interpolated values are steps + 1
         //tEnd is where we want to stop measuring if we dont want to split the entire curve, so tEnd is maximum of 1
-        public static List<MyVector3> SplitCurve_CubicBezier(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, int steps, float tEnd)
+        public static List<MyVector3> SplitCurve(Curve curve, int steps, float tEnd)
         {
             //Store the interpolated values so we later can display them
             List<MyVector3> interpolatedPositions = new List<MyVector3>();
@@ -30,7 +30,7 @@ namespace Habrador_Computational_Geometry
             {
                 //Debug.Log(t);
 
-                MyVector3 interpolatedValue = _Interpolation.BezierCubic(pA, pB, hA, hB, t);
+                MyVector3 interpolatedValue = curve.GetInterpolatedValue(t);
 
                 interpolatedPositions.Add(interpolatedValue);
 
@@ -49,10 +49,10 @@ namespace Habrador_Computational_Geometry
         //Get the length of the curve with a naive method where we divide the
         //curve into straight lines and then measure the length of each line
         //tEnd is 1 if we want to get the length of the entire curve
-        public static float GetLengthNaive_CubicBezier(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, int steps, float tEnd)
+        public static float GetLength_Naive(Curve curve, int steps, float tEnd)
         {
             //Split the ruve into positions with some steps resolution
-            List<MyVector3> CurvePoints = SplitCurve_CubicBezier(pA, pB, hA, hB, steps, tEnd);
+            List<MyVector3> CurvePoints = SplitCurve(curve, steps, tEnd);
 
 
             //Calculate the length by measuring the length of each step
@@ -73,7 +73,7 @@ namespace Habrador_Computational_Geometry
         //Get the length by using Simpson's Rule (not related to the television show)
         //https://www.youtube.com/watch?v=J_a4PXI_nLY
         //The basic idea is that we cut the curve into sections and each section is approximated by a polynom 
-        public static float GetLengthSimpsonsRule_CubicBezier(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB, float tStart, float tEnd)
+        public static float GetLength_SimpsonsRule(Curve curve, float tStart, float tEnd)
         {
             //Divide the curve into sections
             
@@ -87,8 +87,8 @@ namespace Habrador_Computational_Geometry
             //The main loop to calculate the length
 
             //Everything multiplied by 1
-            float derivativeStart = MyVector3.Magnitude(Derivative_CubicBezier(posA, posB, handleA, handleB, tStart));
-            float derivativeEnd = MyVector3.Magnitude(Derivative_CubicBezier(posA, posB, handleA, handleB, tEnd));
+            float derivativeStart = curve.CalculateDerivative(tStart);
+            float derivativeEnd = curve.CalculateDerivative(tEnd);
 
             float endPoints = derivativeStart + derivativeEnd;
 
@@ -99,7 +99,7 @@ namespace Habrador_Computational_Geometry
             {
                 float t = tStart + delta * i;
 
-                x4 += MyVector3.Magnitude(Derivative_CubicBezier(posA, posB, handleA, handleB, t));
+                x4 += curve.CalculateDerivative(t);
             }
 
 
@@ -109,7 +109,7 @@ namespace Habrador_Computational_Geometry
             {
                 float t = tStart + delta * i;
 
-                x2 += MyVector3.Magnitude(Derivative_CubicBezier(posA, posB, handleA, handleB, t));
+                x2 += curve.CalculateDerivative(t);
             }
 
 
@@ -119,96 +119,7 @@ namespace Habrador_Computational_Geometry
 
             return length;
         }
-
-
-
-        //
-        // Calculate the derivative at a point on a curve
-        //
-
-        //Alternative 1. Estimate the derivative at point t
-        //https://www.youtube.com/watch?v=jvYZNp5myXg
-        //https://www.alanzucconi.com/2017/04/10/robotic-arms/
-        public static MyVector3 EstimateDerivative_CubicBezier(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB, float t)
-        {
-            //We can estimate the derivative by taking a step in each direction of the point we are interested in
-            //Should be around this number
-            float derivativeStepSize = 0.0001f;
-
-            MyVector3 valueMinus = _Interpolation.BezierCubic(posA, posB, handleA, handleB, t - derivativeStepSize);
-            MyVector3 valuePlus = _Interpolation.BezierCubic(posA, posB, handleA, handleB, t + derivativeStepSize);
-
-            //Have to multiply by two because we are taking a step in each direction
-            MyVector3 derivativeVector = (valuePlus - valueMinus) * (1f / (derivativeStepSize * 2f));
-
-            return derivativeVector;
-        }
-
-
-
-        //Alternative 2. Actual derivative at point t
-        public static MyVector3 Derivative_CubicBezier(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB, float t)
-        {
-            MyVector3 A = posA;
-            MyVector3 B = handleA;
-            MyVector3 C = handleB;
-            MyVector3 D = posB;
-
-            //Layer 1
-            //(1-t)A + tB = A - At + Bt
-            //(1-t)B + tC = B - Bt + Ct
-            //(1-t)C + tD = C - Ct + Dt
-
-            //Layer 2
-            //(1-t)(A - At + Bt) + t(B - Bt + Ct) = A - At + Bt - At + At^2 - Bt^2 + Bt - Bt^2 + Ct^2 = A - 2At + 2Bt + At^2 - 2Bt^2 + Ct^2 
-            //(1-t)(B - Bt + Ct) + t(C - Ct + Dt) = B - Bt + Ct - Bt + Bt^2 - Ct^2 + Ct - Ct^2 + Dt^2 = B - 2Bt + 2Ct + Bt^2 - 2Ct^2 + Dt^2
-
-            //Layer 3
-            //(1-t)(A - 2At + 2Bt + At^2 - 2Bt^2 + Ct^2) + t(B - 2Bt + 2Ct + Bt^2 - 2Ct^2 + Dt^2)
-            //A - 2At + 2Bt + At^2 - 2Bt^2 + Ct^2 - At + 2At^2 - 2Bt^2 - At^3 + 2Bt^3 - Ct^3 + Bt - 2Bt^2 + 2Ct^2 + Bt^3 - 2Ct^3 + Dt^3
-            //A - 3At + 3Bt + 3At^2 - 6Bt^2 + 3Ct^2 - At^3 + 3Bt^3 - 3Ct^3 + Dt^3
-            //A - 3t(A - B) + t^2(3A - 6B + 3C) + t^3(-A + 3B - 3C + D)
-            //A - 3t(A - B) + t^2(3(A - 2B + C)) + t^3(-(A - 3(B - C) - D)
-
-            //The derivative: -3(A - B) + 2t(3(A - 2B + C)) + 3t^2(-(A - 3(B - C) - D)
-            //-3(A - B) + t(6(A - 2B + C)) + t^2(-3(A - 3(B - C) - D)
-
-            MyVector3 derivativeVector = t * t * (-3f * (A - 3f * (B - C) - D));
-
-            derivativeVector += t * (6f * (A - 2f * B + C));
-
-            derivativeVector += -3f * (A - B);
-
-            return derivativeVector;
-        }
-
-
-        public static MyVector3 Derivative_QuadraticBezier(MyVector3 posA, MyVector3 posB, MyVector3 handle, float t)
-        {
-            MyVector3 A = posA;
-            MyVector3 B = handle;
-            MyVector3 C = posB;
-
-            //Layer 1
-            //(1-t)A + tB = A - At + Bt
-            //(1-t)B + tC = B - Bt + Ct
-
-            //Layer 2
-            //(1-t)(A - At + Bt) + t(B - Bt + Ct)
-            //A - At + Bt - At + At^2 - Bt^2 + Bt - Bt^2 + Ct^2
-            //A - 2At + 2Bt + At^2 - 2Bt^2 + Ct^2 
-            //A - t(2(A - B)) + t^2(A - 2B + C)
-
-            //Derivative: -(2(A - B)) + t(2(A - 2B + C))
-
-            MyVector3 derivativeVector = t * (2f * (A - 2f * B + C));
-
-            derivativeVector += -2f * (A - B);
-
-
-            return derivativeVector;
-        }
-
+    
 
 
         //
@@ -225,7 +136,7 @@ namespace Habrador_Computational_Geometry
         //https://en.wikipedia.org/wiki/Newton%27s_method
         //https://www.youtube.com/watch?v=-mad4YPAn2U
         //TODO: We can use the lookup table from the lookup-method in the newton-raphson method!
-        public static float c(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, float d, float totalLength)
+        public static float Find_t_FromDistance_Iterative(Curve curve, float d, float totalLength)
         {
             //Need a start value to make the method start
             //Should obviously be between 0 and 1
@@ -243,21 +154,20 @@ namespace Habrador_Computational_Geometry
             while (true)
             {
                 //The derivative and the length can be calculated in different ways
-            
-                //The derivative vector at point t
-                MyVector3 derivativeVec = EstimateDerivative_CubicBezier(pA, pB, hA, hB, tGood);
-                //MyVector3 derivativeVec = DerivativeCubicBezier(pA, pB, hA, hB, t);
+
+                //The derivative at point t
+                float derivative = curve.CalculateDerivative(tGood);
 
                 //The length of the curve to point t from the start
                 //float lengthTo_t = GetLengthNaive_CubicBezier(pA, pB, hA, hB, steps: 20, tEnd: t);
-                float lengthTo_t = GetLengthSimpsonsRule_CubicBezier(pA, pB, hA, hB, tStart: 0f, tEnd: tGood);
+                float lengthTo_t = GetLength_SimpsonsRule(curve, tStart: 0f, tEnd: tGood);
 
 
                 //Calculate a better t with Newton's method: x_n+1 = x_n + (f(x_n) / f'(x_n))
                 //Our f(x) = lengthTo_t - d = 0. We want them to be equal because we want to find the t value 
                 //that generates a distance(t) which is the same as the d we want. So when f(x) is close to zero we are happy
                 //When we take the derivative of f(x), d disappears which is why we are not subtracting it in the bottom
-                float tNext = tGood - ((lengthTo_t - d) / MyVector3.Magnitude(derivativeVec));
+                float tNext = tGood - ((lengthTo_t - d) / derivative);
 
 
                 //Have we reached the desired accuracy?
@@ -297,22 +207,18 @@ namespace Habrador_Computational_Geometry
         //This is faster but less accurate than using the iterative Newton–Raphsons method
         //But the difference from far away is barely noticeable
         //https://medium.com/@Acegikmo/the-ever-so-lovely-b%C3%A9zier-curve-eb27514da3bf
-        public static float Find_t_FromDistance_CubicBezier_Lookup(
-            MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, 
-            float d, List<float> accumulatedDistances)
+        public static float Find_t_FromDistance_Lookup(Curve curve, float d, List<float> accumulatedDistances)
         {
             //Step 1. Find accumulated distances along the curve by using the bad t-value
             //This value can be pre-calculated
             if (accumulatedDistances == null)
             {
-                accumulatedDistances = GetAccumulatedDistances(pA, pB, hA, hB, steps: 100);
+                accumulatedDistances = GetAccumulatedDistances(curve, steps: 100);
             }
 
             if (accumulatedDistances == null || accumulatedDistances.Count == 0)
             {
-                Debug.Log("Cant interpolate to split bezier into equal steps");
-
-                _Interpolation.BezierCubic(pA, pB, hA, hB, 0f);
+                throw new System.Exception("Cant interpolate to split bezier into equal steps");
             }
 
 
@@ -375,15 +281,13 @@ namespace Habrador_Computational_Geometry
         //Parameter t is not always percentage along the curve
         //Sometimes we need to calculate the actual percentage if t had been percentage along the curve
         //From https://www.youtube.com/watch?v=o9RK6O2kOKo
-        public static float FindPercentageAlongCurve_CubicBezier(
-            MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, 
-            float tBad, List<float> accumulatedDistances)
+        public static float FindPercentageAlongCurve(Curve curve, float tBad, List<float> accumulatedDistances)
         {
             //Step 1. Find accumulated distances along the curve by using the bad t-value
             //This value can be pre-calculated
             if (accumulatedDistances == null)
             {
-                accumulatedDistances = GetAccumulatedDistances(pA, pB, hA, hB);
+                accumulatedDistances = GetAccumulatedDistances(curve);
             }
 
             //The length of the entire curve
@@ -449,10 +353,10 @@ namespace Habrador_Computational_Geometry
         // Help method to calculate the accumulated total distances along the curve 
         // by walking along it by using constant t-steps
         //
-        public static List<float> GetAccumulatedDistances(MyVector3 pA, MyVector3 pB, MyVector3 hA, MyVector3 hB, int steps = 20)
+        public static List<float> GetAccumulatedDistances(Curve curve, int steps = 20)
         {
             //Step 1. Find positions on the curve by using the bad t-value
-            List<MyVector3> positionsOnCurve = SplitCurve_CubicBezier(pA, pB, hA, hB, steps, tEnd: 1f);
+            List<MyVector3> positionsOnCurve = SplitCurve(curve, steps, tEnd: 1f);
 
 
             //Step 2. Calculate the cumulative distances along the curve for each position along the curve 
@@ -472,6 +376,32 @@ namespace Habrador_Computational_Geometry
 
 
             return accumulatedDistances;
+        }
+
+
+
+        //
+        // Estimate the derivative at point t
+        //
+        //https://www.youtube.com/watch?v=jvYZNp5myXg
+        //https://www.alanzucconi.com/2017/04/10/robotic-arms/
+        public static float EstimateDerivative(Curve curve, float t)
+        {
+            //We can estimate the derivative by taking a step in each direction of the point we are interested in
+            //Should be around this number
+            float derivativeStepSize = 0.0001f;
+
+            MyVector3 valueMinus = curve.GetInterpolatedValue(t - derivativeStepSize);
+            MyVector3 valuePlus = curve.GetInterpolatedValue(t + derivativeStepSize);
+
+            //Have to multiply by two because we are taking a step in each direction
+            MyVector3 derivativeVector = (valuePlus - valueMinus) * (1f / (derivativeStepSize * 2f));
+
+
+            float derivative = MyVector3.Magnitude(derivativeVector);
+
+
+            return derivative;
         }
     }
 }
