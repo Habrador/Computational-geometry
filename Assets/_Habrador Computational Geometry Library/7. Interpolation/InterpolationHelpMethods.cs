@@ -383,8 +383,7 @@ namespace Habrador_Computational_Geometry
         //
         // Estimate the derivative at point t
         //
-        //https://www.youtube.com/watch?v=jvYZNp5myXg
-        //https://www.alanzucconi.com/2017/04/10/robotic-arms/
+        //https://www.youtube.com/watch?v=pHMzNW8Agq4
         public static float EstimateDerivative(Curve curve, float t)
         {
             //We can estimate the derivative by taking a step in each direction of the point we are interested in

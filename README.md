@@ -141,7 +141,7 @@ You triangulate the points by using a "bad" triangulation method (which is in th
 
 **Constrained triangulation** 
 
-You add the constraints to the points and generate a Delaunay triangulation by using one of the above methods. Use this triangulation to find which edges interesect with the constraints. Then you flip these edges until they no longer interesect with the constraint. You finally remove the triangles that are "inside" of the constraint.   
+You add the constraints to the points and generate a Delaunay triangulation by using one of the above methods. Use this triangulation to find which edges interesect with the constraints. Then you flip these edges until they no longer interesect with the constraint. You finally remove the triangles that are "inside" of the constraint. It can currently handle just one hole, but in theory it can handle as many holes as possible, so I will add that in the future.    
 
 ![Triangulation Delaunay constrained](/_media/triangulation-delaunay-constrained.png?raw=true)	
 
@@ -238,6 +238,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Triangulation concave polygon by ear clipping (You can most likely achieve the same thing with Constrained Delaunay, so maybe unnecessary to implement)
 * Convex polygon intersection with SAT
 * Triangulate with marching squares
+* Irregular grid (Oskar Stålberg style)
 
 ### Stuff to fix
 
