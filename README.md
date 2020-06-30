@@ -248,7 +248,9 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 
 ## Socials
 
-Follow me on Twitter for more Unity stuff: https://twitter.com/eriknordeus
+* **Portfolio:** https://www.habrador.com
+
+* **Twitter:** https://twitter.com/eriknordeus
 
 
 ## Updates
