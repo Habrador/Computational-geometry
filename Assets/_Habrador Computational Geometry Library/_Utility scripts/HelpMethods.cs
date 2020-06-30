@@ -149,5 +149,32 @@ namespace Habrador_Computational_Geometry
 
             return data;
         }
+
+        //List<VoronoiCell2>
+        public static List<VoronoiCell2> UnNormalize(List<VoronoiCell2> data, AABB2 aabb, float dMax)
+        {
+            List<VoronoiCell2> unNormalizedData = new List<VoronoiCell2>();
+
+            foreach (VoronoiCell2 cell in data)
+            {
+                MyVector2 sitePosUnNormalized = HelpMethods.UnNormalize(cell.sitePos, aabb, dMax);
+
+                VoronoiCell2 cellUnNormalized = new VoronoiCell2(sitePosUnNormalized);
+
+                foreach (VoronoiEdge2 e in cell.edges)
+                {
+                    MyVector2 p1UnNormalized = HelpMethods.UnNormalize(e.p1, aabb, dMax);
+                    MyVector2 p2UnNormalized = HelpMethods.UnNormalize(e.p2, aabb, dMax);
+
+                    VoronoiEdge2 eUnNormalized = new VoronoiEdge2(p1UnNormalized, p2UnNormalized, sitePosUnNormalized);
+
+                    cellUnNormalized.edges.Add(eUnNormalized);
+                }
+
+                unNormalizedData.Add(cellUnNormalized);
+            }
+
+            return unNormalizedData;
+        }
     }
 }
