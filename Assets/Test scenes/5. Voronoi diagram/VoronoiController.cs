@@ -19,8 +19,8 @@ public class VoronoiController : MonoBehaviour
         // Init the sites
         //
 
-        //HashSet<Vector3> sites_3d = GetRandomSites();
-        HashSet<Vector3> sites_3d = GetCustomSites();
+        HashSet<Vector3> sites_3d = GetRandomSites();
+        //HashSet<Vector3> sites_3d = GetCustomSites();
 
         //3d to 2d
         HashSet<MyVector2> sites_2d = new HashSet<MyVector2>();
@@ -187,28 +187,39 @@ public class VoronoiController : MonoBehaviour
     {
         HashSet<Vector3> sites = new HashSet<Vector3>();
 
-        sites.Add(new Vector3(2.58301f, 0f, -2.07231092f));
-        sites.Add(new Vector3(4.260807f, 0f, -0.274704f));
-        sites.Add(new Vector3(8.839731f, 0f, -5.794293f));
-        sites.Add(new Vector3(-12.11187f, 0f, -3.3448925f));
-        sites.Add(new Vector3(8.466095f, 0f, 0.583772f));
-        sites.Add(new Vector3(3.597496f, 0f, -3.383692f));
-        sites.Add(new Vector3(3.421845f, 0f, -1.1747174f));
-        sites.Add(new Vector3(-7.763506f, 0f, -3.487227f));
-        sites.Add(new Vector3(-0.6644406f, 0f, -0.723027f));
-        sites.Add(new Vector3(7.997253f, 0f, 0.485325f));
-        sites.Add(new Vector3(3.234119f, 0f, -5.716683f));
-        sites.Add(new Vector3(11.37916f, 0f, 1.904939f));
-        sites.Add(new Vector3(11.13493f, 0f, -2.3131549f));
-        sites.Add(new Vector3(6.510168f, 0f, 5.292708f));
-        sites.Add(new Vector3(-2.473285f, 0f, 3.793113f));
-        sites.Add(new Vector3(-8.900781f, 0f, -3.143157f));
+        //sites.Add(new Vector3(2.58301f, 0f, -2.07231092f));
+        //sites.Add(new Vector3(4.260807f, 0f, -0.274704f));
+        //sites.Add(new Vector3(8.839731f, 0f, -5.794293f));
+        //sites.Add(new Vector3(-12.11187f, 0f, -3.3448925f));
+        //sites.Add(new Vector3(8.466095f, 0f, 0.583772f));
+        //sites.Add(new Vector3(3.597496f, 0f, -3.383692f));
+        //sites.Add(new Vector3(3.421845f, 0f, -1.1747174f));
+        //sites.Add(new Vector3(-7.763506f, 0f, -3.487227f));
+        //sites.Add(new Vector3(-0.6644406f, 0f, -0.723027f));
+        //sites.Add(new Vector3(7.997253f, 0f, 0.485325f));
+        //sites.Add(new Vector3(3.234119f, 0f, -5.716683f));
+        //sites.Add(new Vector3(11.37916f, 0f, 1.904939f));
+        //sites.Add(new Vector3(11.13493f, 0f, -2.3131549f));
+        //sites.Add(new Vector3(6.510168f, 0f, 5.292708f));
+        //sites.Add(new Vector3(-2.473285f, 0f, 3.793113f));
+        //sites.Add(new Vector3(-8.900781f, 0f, -3.143157f));
 
-        //Points outside of the screen for voronoi which has some cells that are infinite
-        float xMax = 12.40375f;
-        float xMin = -12.40375f;
-        float zMax = 5.945362f;
-        float zMin = -6.285754f;
+        ////Points outside of the screen for voronoi which has some cells that are infinite
+        //float xMax = 12.40375f;
+        //float xMin = -12.40375f;
+        //float zMax = 5.945362f;
+        //float zMin = -6.285754f;
+
+
+        sites.Add(new Vector3(8f, 0f, 0.5f));
+        sites.Add(new Vector3(8f, 0f, 2.5f));
+        //sites.Add(new Vector3(9f, 0f, 2.6f));
+
+        float xMax = 9f;
+        float xMin = -9f;
+        float zMax = 3f;
+        float zMin = -3f;
+
 
         float xBigSize = (xMax - xMin) * 5f;
         float zBigSize = (zMax - zMin) * 5f;
