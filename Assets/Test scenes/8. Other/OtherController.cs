@@ -31,11 +31,25 @@ public class OtherController : MonoBehaviour
 
         //ClosestPointOnLineSegment(a, b, c);
 
-        PassedWaypoint(a, b, c);
+        //PassedWaypoint(a, b, c);
 
-        //Gizmos.DrawWireSphere(pointATrans.position, 0.1f);
-        //Gizmos.DrawWireSphere(pointBTrans.position, 0.1f);
+        CenterOfCircle(a, b, c);
+
+        Gizmos.DrawWireSphere(pointATrans.position, 0.1f);
+        Gizmos.DrawWireSphere(pointBTrans.position, 0.1f);
+        Gizmos.DrawWireSphere(pointCTrans.position, 0.1f);
         //Gizmos.DrawWireSphere((pointATrans.position + pointBTrans.position) * 0.5f, 0.1f);
+    }
+
+
+
+    private void CenterOfCircle(MyVector2 a, MyVector2 b, MyVector2 c)
+    {
+        MyVector2 center = _Geometry.CalculateCircleCenter(a, b, c);
+
+        float radius = Vector3.Magnitude(a.ToVector3() - center.ToVector3());
+
+        Gizmos.DrawWireSphere(center.ToVector3(), radius);
     }
 
 
