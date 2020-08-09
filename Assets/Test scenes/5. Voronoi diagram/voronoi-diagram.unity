@@ -326,4 +326,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   seed: 155
   halfMapSize: 10
-  numberOfPoints: 2
+  numberOfPoints: 18

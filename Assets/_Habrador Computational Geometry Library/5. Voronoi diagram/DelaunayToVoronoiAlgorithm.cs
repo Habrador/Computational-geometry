@@ -41,7 +41,7 @@ namespace Habrador_Computational_Geometry
                 //The circumcenter is also known as a voronoi vertex, which is a position in the diagram where we are equally
                 //close to the surrounding sites
                 MyVector2 voronoiVertex = _Geometry.CalculateCircleCenter(v1, v2, v3);
-
+                //Debug.Log(voronoiVertex.x + " " + voronoiVertex.y);
                 //This will generate double edges - one belonging to each site, and could maybe be improved in the future
                 //by using the half-edge data structure
                 TryAddVoronoiEdgeFromTriangleEdge(e1, voronoiVertex, voronoiEdges);

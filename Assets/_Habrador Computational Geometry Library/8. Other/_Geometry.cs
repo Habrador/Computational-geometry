@@ -23,6 +23,74 @@ namespace Habrador_Computational_Geometry
         //http://paulbourke.net/geometry/circlesphere/
         public static MyVector2 CalculateCircleCenter(MyVector2 a, MyVector2 b, MyVector2 c)
         {
+            //Important note from the source: 
+            //"If either line is vertical then the corresponding slope is infinite. This can be solved by simply rearranging the order of the points so that vertical lines do not occur."
+            //We get a division by 0 if b.x = a.x and/or c.x = b.x when calculating ma and mb
+            //Combinations:
+            //abc
+            //acb
+            //bac
+            //bca
+            //cab
+            //cba
+            if (!IsPerpendicular(a, b, c))
+            {
+                return GetCircleCenter(a, b, c);
+            }
+            else if (!IsPerpendicular(a, c, b))
+            {
+                return GetCircleCenter(a, c, b);
+            }
+            else if (!IsPerpendicular(b, a, c))
+            {
+                return GetCircleCenter(b, a, c);
+            }
+            else if (!IsPerpendicular(b, c, a))
+            {
+                return GetCircleCenter(b, c, a);
+            }
+            else if (!IsPerpendicular(c, b, a))
+            {
+                return GetCircleCenter(c, b, a);
+            }
+            else if (!IsPerpendicular(c, a, b))
+            {
+                return GetCircleCenter(c, a, b);
+            }
+            else
+            {
+                Debug.LogWarning("Cant calculate circle center because all points are on same line");
+
+                return new MyVector2(-100f, -100f);
+            }
+        }
+
+
+        //Is connected with the above if we know a circle center can be calculated
+        private static MyVector2 GetCircleCenter(MyVector2 a, MyVector2 b, MyVector2 c)
+        {
+            float yDelta_a = b.y - a.y;
+            float xDelta_a = b.x - a.x;
+            float yDelta_b = c.y - b.y;
+            float xDelta_b = c.x - b.x;
+
+            float tolerance = 0.00001f;
+
+            //Check whether the lines are pependicular and parallel to x-y axis
+            //This is a special case and we have to calculate the circle center in another way
+            if (Mathf.Abs(xDelta_a) <= tolerance && Mathf.Abs(yDelta_b) <= tolerance)
+            {
+                //Debug.Log("The points are pependicular and parallel to x-y axis");
+                
+                float center_special_X = 0.5f * (b.x + c.x);
+                float center_special_Y = 0.5f * (a.y + b.y);
+
+                MyVector2 center_special = new MyVector2(center_special_X, center_special_Y);
+
+                return center_special;
+            }
+
+            //This assumes that we have tested that b.x != a.x and c.x != b.x
             float ma = (b.y - a.y) / (b.x - a.x);
             float mb = (c.y - b.y) / (c.x - b.x);
 
@@ -33,6 +101,50 @@ namespace Habrador_Computational_Geometry
             MyVector2 center = new MyVector2(centerX, centerY);
 
             return center;
+        }
+
+
+        //Is connected with the above to avoid division by 0
+        private static bool IsPerpendicular(MyVector2 p1, MyVector2 p2, MyVector2 p3)
+        {
+            float yDelta_a = p2.y - p1.y;
+            float xDelta_a = p2.x - p1.x;
+            float yDelta_b = p3.y - p2.y;
+            float xDelta_b = p3.x - p2.x;
+
+            float tolerance = 0.00001f;
+
+            //Check whether the line of the two points are vertical
+            if (Mathf.Abs(xDelta_a) <= tolerance && Mathf.Abs(yDelta_b) <= tolerance)
+            {
+                //Debug.Log("The points are pependicular and parallel to x-y axis");
+                return false;
+            }
+            
+            if (Mathf.Abs(yDelta_a) <= tolerance)
+            {
+                //Debug.Log("A line of two point are perpendicular to x-axis 1");
+                return true;
+            }
+            else if (Mathf.Abs(yDelta_b) <= tolerance)
+            {
+                //Debug.Log("A line of two point are perpendicular to x-axis 2");
+                return true;
+            }
+            else if (Mathf.Abs(xDelta_a) <= tolerance)
+            {
+                //Debug.Log("A line of two point are perpendicular to y-axis 1");
+                return true;
+            }
+            else if (Mathf.Abs(xDelta_b) <= tolerance)
+            {
+                //Debug.Log("A line of two point are perpendicular to y-axis 2");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
 
