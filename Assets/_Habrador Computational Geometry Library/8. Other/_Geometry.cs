@@ -18,10 +18,10 @@ namespace Habrador_Computational_Geometry
     public static class _Geometry
     {
         //
-        // Calculate the center of circle in 2d space given three coordinates
+        // Calculate the center of circle in 2d space given three coordinates (Complicated version)
         //
         //http://paulbourke.net/geometry/circlesphere/
-        public static MyVector2 CalculateCircleCenter(MyVector2 a, MyVector2 b, MyVector2 c)
+        public static MyVector2 CalculateCircleCenter_Alternative2(MyVector2 a, MyVector2 b, MyVector2 c)
         {
             //Important note from the source: 
             //"If either line is vertical then the corresponding slope is infinite. This can be solved by simply rearranging the order of the points so that vertical lines do not occur."
@@ -145,6 +145,52 @@ namespace Habrador_Computational_Geometry
             {
                 return false;
             }
+        }
+
+
+
+        //
+        // Calculate the center of circle in 2d space given three coordinates - Simple version
+        //
+        //From the book "Geometric Tools for Computer Graphics"
+        public static MyVector2 CalculateCircleCenter(MyVector2 a, MyVector2 b, MyVector2 c)
+        {
+            //Make sure the triangle a-b-c is counterclockwise
+            if (!IsTriangleOrientedClockwise(a, b, c))
+            {
+                //Swap two vertices to change orientation
+                (a, b) = (b, a);
+
+                //Debug.Log("Swapped vertices");
+            }
+
+
+            //The area of the triangle
+            float X_1 = b.x - a.x;
+            float X_2 = c.x - a.x;
+            float Y_1 = b.y - a.y;
+            float Y_2 = c.y - a.y;
+
+            float A = 0.5f * MathUtility.Det2(X_1, Y_1, X_2, Y_2);
+            
+            //Debug.Log(A);
+            
+
+            //The center coordinates:
+            float L_10 = MyVector2.Magnitude(b - a);
+            float L_20 = MyVector2.Magnitude(c - a);
+
+            float L_10_square = L_10 * L_10;
+            float L_20_square = L_20 * L_20;
+
+            float one_divided_by_4_A = 1f / (4f * A);
+
+            float x = a.x + one_divided_by_4_A * ((Y_2 * L_10_square) - (Y_1 * L_20_square));
+            float y = a.y + one_divided_by_4_A * ((X_1 * L_20_square) - (X_2 * L_10_square));
+
+            MyVector2 center = new MyVector2(x, y);
+
+            return center;
         }
 
 

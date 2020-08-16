@@ -46,6 +46,9 @@ public class OtherController : MonoBehaviour
     private void CenterOfCircle(MyVector2 a, MyVector2 b, MyVector2 c)
     {
         MyVector2 center = _Geometry.CalculateCircleCenter(a, b, c);
+        //MyVector2 center = _Geometry.CalculateCircleCenter_Alternative2(a, b, c);
+
+        //Debug.Log(center.x + " " + center.y);
 
         float radius = Vector3.Magnitude(a.ToVector3() - center.ToVector3());
 
