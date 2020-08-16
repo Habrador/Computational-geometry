@@ -172,16 +172,19 @@ namespace Habrador_Computational_Geometry
             float Y_2 = c.y - a.y;
 
             float A = 0.5f * MathUtility.Det2(X_1, Y_1, X_2, Y_2);
-            
+
             //Debug.Log(A);
-            
+
 
             //The center coordinates:
-            float L_10 = MyVector2.Magnitude(b - a);
-            float L_20 = MyVector2.Magnitude(c - a);
+            //float L_10 = MyVector2.Magnitude(b - a);
+            //float L_20 = MyVector2.Magnitude(c - a);
 
-            float L_10_square = L_10 * L_10;
-            float L_20_square = L_20 * L_20;
+            //float L_10_square = L_10 * L_10;
+            //float L_20_square = L_20 * L_20;
+
+            float L_10_square = MyVector2.SqrMagnitude(b - a);
+            float L_20_square = MyVector2.SqrMagnitude(c - a);
 
             float one_divided_by_4_A = 1f / (4f * A);
 
