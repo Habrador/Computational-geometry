@@ -22,11 +22,8 @@ namespace Habrador_Computational_Geometry
         //Change orientation of triangle from cw -> ccw or ccw -> cw
         public void ChangeOrientation()
         {
-            MyVector3 temp = this.p1;
-
-            this.p1 = this.p2;
-
-            this.p2 = temp;
+            //Swap two vertices
+            (p1, p2) = (p2, p1);
         }
     }
 
@@ -50,11 +47,8 @@ namespace Habrador_Computational_Geometry
         //Change orientation of triangle from cw -> ccw or ccw -> cw
         public void ChangeOrientation()
         {
-            MyVector2 temp = this.p1;
-
-            this.p1 = this.p2;
-
-            this.p2 = temp;
+            //Swap two vertices
+            (p1, p2) = (p2, p1);
         }
 
         //Find the max and min coordinates, which is useful when doing AABB intersections

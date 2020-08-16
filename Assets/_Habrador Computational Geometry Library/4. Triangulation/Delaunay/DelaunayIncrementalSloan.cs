@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace Habrador_Computational_Geometry
@@ -72,7 +73,7 @@ namespace Habrador_Computational_Geometry
             //Step 9.Reset the coordinates to their original values because they are currently in the range (0,1)
             //Is being done outside of this method
 
-
+            //TODO: replace this with StringBuilder 
             string meshDataString = "Delaunay with sloan created a triangulation with: ";
 
             meshDataString += "Faces: " + triangulationData.faces.Count;
