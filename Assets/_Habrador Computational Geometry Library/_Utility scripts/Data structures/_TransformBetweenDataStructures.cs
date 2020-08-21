@@ -152,7 +152,7 @@ namespace Habrador_Computational_Geometry
 
         //Version 1. Check that each vertex exists only once in the final mesh
         //Make sure the triangles have the correct orientation
-        public static Mesh Triangle3ToCompressedMesh(HashSet<Triangle3> triangles)
+        public static Mesh Triangle3ToCompressedMesh(HashSet<Triangle3> triangles, Mesh mesh = null)
         {
             if (triangles == null)
             {
@@ -212,7 +212,13 @@ namespace Habrador_Computational_Geometry
 
 
             //Step4. Create the final mesh
-            Mesh mesh = new Mesh();
+            if(mesh == null)
+            {
+                mesh = new Mesh();
+            }
+            {
+                mesh.Clear();
+            }
 
             //From MyVector3 to Vector3
             Vector3[] meshVerticesArray = new Vector3[meshVertices.Count];
@@ -238,7 +244,7 @@ namespace Habrador_Computational_Geometry
 
         //Version 2. Don't check for duplicate vertices, which can be good if we want a low-poly style mesh
         //Make sure the triangles have the correct orientation
-        public static Mesh Triangle3ToMesh(HashSet<Triangle3> triangles)
+        public static Mesh Triangle3ToMesh(HashSet<Triangle3> triangles, Mesh mesh = null)
         {
             //Create the list with all vertices and triangles
             List<MyVector3> meshVertices = new List<MyVector3>();
@@ -266,7 +272,14 @@ namespace Habrador_Computational_Geometry
             }
 
             //Create the final mesh
-            Mesh mesh = new Mesh();
+            if(mesh == null)
+            {
+                mesh = new Mesh();
+            }
+            else
+            {
+                mesh.Clear();
+            }
 
             //From MyVector3 to Vector3
             Vector3[] meshVerticesArray = new Vector3[meshVertices.Count];
@@ -291,7 +304,7 @@ namespace Habrador_Computational_Geometry
         //
 
         //meshHeight is the y coordinate in 3d space
-        public static Mesh Triangles2ToMesh(HashSet<Triangle2> triangles, bool useCompressedMesh, float meshHeight = 0f)
+        public static Mesh Triangles2ToMesh(HashSet<Triangle2> triangles, bool useCompressedMesh, float meshHeight = 0f, Mesh mesh = null)
         {
             //2d to 3d
             HashSet<Triangle3> triangles_3d = new HashSet<Triangle3>();
@@ -304,16 +317,61 @@ namespace Habrador_Computational_Geometry
             //To mesh
             if (useCompressedMesh)
             {
-                Mesh mesh = _TransformBetweenDataStructures.Triangle3ToCompressedMesh(triangles_3d);
+                mesh = _TransformBetweenDataStructures.Triangle3ToCompressedMesh(triangles_3d, mesh);
 
                 return mesh;
             }
             else
             {
-                Mesh mesh = _TransformBetweenDataStructures.Triangle3ToMesh(triangles_3d);
+                mesh = _TransformBetweenDataStructures.Triangle3ToMesh(triangles_3d, mesh);
 
                 return mesh;
             }
+        }
+
+        public static Mesh VoronoiCellToMesh(VoronoiCell2 cell, Mesh mesh = null)
+        {
+            Vector3 p1 = cell.sitePos.ToVector3();
+
+            Gizmos.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
+
+            List<Vector3> vertices = new List<Vector3>();
+
+            List<int> triangles = new List<int>();
+
+            vertices.Add(p1);
+
+            for (int j = 0; j < cell.edges.Count; j++)
+            {
+                Vector3 p2 = cell.edges[j].p1.ToVector3();
+                Vector3 p3 = cell.edges[j].p2.ToVector3();
+
+                //p3 before p2 to get correct orientation pr the triangle will be upside-down
+                vertices.Add(p3);
+                vertices.Add(p2);
+
+                triangles.Add(0);
+                triangles.Add(vertices.Count - 2);
+                triangles.Add(vertices.Count - 1);
+
+            }
+            
+            if(mesh == null)
+            {
+                mesh = new Mesh();
+            }
+            else
+            {
+                mesh.Clear();
+            }
+
+            mesh.vertices = vertices.ToArray();
+
+            mesh.triangles = triangles.ToArray();
+
+            mesh.RecalculateNormals();
+
+            return mesh;
         }
     }
 }

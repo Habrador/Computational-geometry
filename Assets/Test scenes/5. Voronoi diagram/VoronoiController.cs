@@ -130,56 +130,7 @@ public class VoronoiController : MonoBehaviour
         
             VoronoiCell2 cell = cells[i];
 
-            //Debug.Log(cell.edges.Count);
-
-            Vector3 p1 = cell.sitePos.ToVector3();
-
-            Gizmos.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
-
-            List<Vector3> vertices = new List<Vector3>();
-
-            List<int> triangles = new List<int>();
-
-            vertices.Add(p1);
-
-            for (int j = 0; j < cell.edges.Count; j++)
-            {
-                //if (j != 2)
-                //{
-                //    continue;
-                //}
-
-                Vector3 p2 = cell.edges[j].p1.ToVector3();
-                Vector3 p3 = cell.edges[j].p2.ToVector3();
-
-                //p3 before p2 to get correct orientation pr the triangle will be upside-down
-                vertices.Add(p3);
-                vertices.Add(p2);
-
-                triangles.Add(0);
-                triangles.Add(vertices.Count - 2);
-                triangles.Add(vertices.Count - 1);
-
-                //Gizmos.DrawLine(p2, p3);
-                //Gizmos.DrawLine(p1, p3);
-                //Gizmos.DrawLine(p1, p2);
-
-                //Vector3 lineCenter = (p3 - p2) * 0.5f;
-
-                //Vector3 lineDir = (p3 - p2).normalized;
-
-                //Vector3 lineNormal = new Vector3(lineDir.z, lineDir.y, -lineDir.x);
-
-                //Gizmos.DrawRay(lineCenter, lineNormal.normalized);
-            }
-
-            Mesh triangleMesh = new Mesh();
-
-            triangleMesh.vertices = vertices.ToArray();
-
-            triangleMesh.triangles = triangles.ToArray();
-
-            triangleMesh.RecalculateNormals();
+            Mesh triangleMesh = _TransformBetweenDataStructures.VoronoiCellToMesh(cell);
 
             Gizmos.DrawMesh(triangleMesh);
         }
