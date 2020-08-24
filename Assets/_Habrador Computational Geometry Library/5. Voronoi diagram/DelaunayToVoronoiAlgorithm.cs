@@ -19,11 +19,16 @@ namespace Habrador_Computational_Geometry
 
             //Generate the voronoi diagram
 
+            return GenerateVoronoiFromDelaunay(data);
+        }
+
+        public static List<VoronoiCell2> GenerateVoronoiFromDelaunay(HalfEdgeData2 delaunayData)
+        {
             //Step 1. For every delaunay edge, compute a voronoi edge
             //The voronoi edge is the edge connecting the circumcenters of two neighboring delaunay triangles
             List<VoronoiEdge2> voronoiEdges = new List<VoronoiEdge2>();
 
-            HashSet<HalfEdgeFace2> triangles = data.faces;
+            HashSet<HalfEdgeFace2> triangles = delaunayData.faces;
 
             foreach (HalfEdgeFace2 t in triangles)
             {
@@ -63,7 +68,8 @@ namespace Habrador_Computational_Geometry
                 //No cell was found so we need to create a new cell
                 if (cellPos == -1)
                 {
-                    VoronoiCell2 newCell = new VoronoiCell2(e.sitePos);
+                    VoronoiCell2 newCell = new VoronoiCell2(e.sitePos, e.color);
+                    //newCell.color = Color.green;// Random.ColorHSV(); // ToDo get color from halfedge vert
 
                     voronoiCells.Add(newCell);
 
@@ -117,7 +123,7 @@ namespace Habrador_Computational_Geometry
             MyVector2 voronoiVertexNeighbor = _Geometry.CalculateCircleCenter(v1, v2, v3);
 
             //Create a new vornoi edge between the voronoi vertices
-            VoronoiEdge2 edge = new VoronoiEdge2(voronoiVertex, voronoiVertexNeighbor, sitePos: e.prevEdge.v.position);
+            VoronoiEdge2 edge = new VoronoiEdge2(voronoiVertex, voronoiVertexNeighbor, e.prevEdge.v.position, e.prevEdge.v.color);
 
             allEdges.Add(edge);
         }

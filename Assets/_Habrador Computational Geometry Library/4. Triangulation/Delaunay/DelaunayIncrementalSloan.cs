@@ -91,7 +91,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Insert a new point in the triangulation we already have, so we need at least one triangle
-        public static void InsertNewPointInTriangulation(MyVector2 p, HalfEdgeData2 triangulationData, ref int missedPoints, ref int flippedEdges)
+        public static void InsertNewPointInTriangulation(MyVector2 p, HalfEdgeData2 triangulationData, ref int missedPoints, ref int flippedEdges, Color? color=null)
         {
             //Step 5. Insert the new point in the triangulation
             //Find the existing triangle the point is in
@@ -104,7 +104,7 @@ namespace Habrador_Computational_Geometry
             }
 
             //Delete this triangle and form 3 new triangles by connecting p to each of the vertices in the old triangle
-            HalfEdgeHelpMethods.SplitTriangleFaceAtPoint(f, p, triangulationData);
+            HalfEdgeHelpMethods.SplitTriangleFaceAtPoint(f, p, triangulationData, color);
 
 
             //Step 6. Initialize stack. Place all triangles which are adjacent to the edges opposite p on a LIFO stack
