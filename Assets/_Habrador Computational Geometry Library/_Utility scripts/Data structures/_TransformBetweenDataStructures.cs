@@ -22,6 +22,9 @@ namespace Habrador_Computational_Geometry
                 HalfEdgeVertex2 v1 = new HalfEdgeVertex2(t.p1);
                 HalfEdgeVertex2 v2 = new HalfEdgeVertex2(t.p2);
                 HalfEdgeVertex2 v3 = new HalfEdgeVertex2(t.p3);
+                v1.color = t.c1;
+                v2.color = t.c2;
+                v3.color = t.c3;
 
                 //The vertices the edge points to
                 HalfEdge2 he1 = new HalfEdge2(v1);
@@ -112,7 +115,7 @@ namespace Habrador_Computational_Geometry
                 MyVector2 p2 = face.edge.nextEdge.v.position;
                 MyVector2 p3 = face.edge.nextEdge.nextEdge.v.position;
 
-                Triangle2 t = new Triangle2(p1, p2, p3);
+                Triangle2 t = new Triangle2(p1, p2, p3, face.edge.v.color, face.edge.nextEdge.v.color, face.edge.nextEdge.nextEdge.v.color);
 
                 triangles.Add(t);
             }
@@ -252,6 +255,8 @@ namespace Habrador_Computational_Geometry
             //Create the list with all triangles
             List<int> meshTriangles = new List<int>();
 
+            List<Color32> meshColors = new List<Color32>();
+
             int arrayPos = 0;
 
             foreach (Triangle3 t in triangles)
@@ -263,6 +268,10 @@ namespace Habrador_Computational_Geometry
                 meshVertices.Add(v1);
                 meshVertices.Add(v2);
                 meshVertices.Add(v3);
+
+                meshColors.Add(t.c1);
+                meshColors.Add(t.c2);
+                meshColors.Add(t.c3);
 
                 meshTriangles.Add(arrayPos + 0);
                 meshTriangles.Add(arrayPos + 1);
@@ -292,6 +301,7 @@ namespace Habrador_Computational_Geometry
             }
 
             mesh.vertices = meshVerticesArray;
+            mesh.colors32 = meshColors.ToArray();
             mesh.triangles = meshTriangles.ToArray();
 
             return mesh;
@@ -329,33 +339,8 @@ namespace Habrador_Computational_Geometry
             }
         }
 
-        public static Mesh VoronoiCellToMesh(VoronoiCell2 cell, Mesh mesh = null)
+        public static Mesh VoronoiToMesh(List<VoronoiCell2> voronoiCells, Mesh mesh = null)
         {
-            Vector3 p1 = cell.sitePos.ToVector3();
-
-            Gizmos.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
-
-            List<Vector3> vertices = new List<Vector3>();
-
-            List<int> triangles = new List<int>();
-
-            vertices.Add(p1);
-
-            for (int j = 0; j < cell.edges.Count; j++)
-            {
-                Vector3 p2 = cell.edges[j].p1.ToVector3();
-                Vector3 p3 = cell.edges[j].p2.ToVector3();
-
-                //p3 before p2 to get correct orientation pr the triangle will be upside-down
-                vertices.Add(p3);
-                vertices.Add(p2);
-
-                triangles.Add(0);
-                triangles.Add(vertices.Count - 2);
-                triangles.Add(vertices.Count - 1);
-
-            }
-            
             if(mesh == null)
             {
                 mesh = new Mesh();
@@ -365,9 +350,69 @@ namespace Habrador_Computational_Geometry
                 mesh.Clear();
             }
 
-            mesh.vertices = vertices.ToArray();
+            for (int i = 0; i < voronoiCells.Count; i++)
+            {
+                VoronoiCell2 cell = voronoiCells[i];
+                mesh = VoronoiCellToMesh(cell, mesh, true);
+            }
+            return mesh;
+        }
 
+        public static Mesh VoronoiCellToMesh(VoronoiCell2 cell, Mesh mesh = null, bool appendToMesh = false)
+        {
+            Vector3 p1 = cell.sitePos.ToVector3();
+
+            List<Vector3> vertices;
+            List<int> triangles;
+            List<Color32> colors;
+
+            Color32 cellColor = cell.color;
+
+            if(mesh == null)
+            {
+                mesh = new Mesh();
+                vertices = new List<Vector3>();
+                triangles = new List<int>();
+                colors = new List<Color32>();
+            }
+            else
+            {
+                if(appendToMesh)
+                {
+                    vertices = new List<Vector3>(mesh.vertices);
+                    triangles = new List<int>(mesh.triangles);
+                    colors = new List<Color32>(mesh.colors32);
+                }
+                else
+                {
+                    mesh.Clear();
+                    vertices = new List<Vector3>();
+                    triangles = new List<int>();
+                    colors = new List<Color32>();
+                }
+            }
+
+            int p1Index = vertices.Count;
+            vertices.Add(p1); colors.Add(cellColor);
+
+            for (int j = 0; j < cell.edges.Count; j++)
+            {
+                Vector3 p2 = cell.edges[j].p1.ToVector3();
+                Vector3 p3 = cell.edges[j].p2.ToVector3();
+
+                //p3 before p2 to get correct orientation pr the triangle will be upside-down
+                vertices.Add(p3); colors.Add(cellColor);
+                vertices.Add(p2); colors.Add(cellColor);
+
+                triangles.Add(p1Index);
+                triangles.Add(vertices.Count - 2);
+                triangles.Add(vertices.Count - 1);
+
+            }
+
+            mesh.vertices = vertices.ToArray();
             mesh.triangles = triangles.ToArray();
+            mesh.colors32 = colors.ToArray();
 
             mesh.RecalculateNormals();
 

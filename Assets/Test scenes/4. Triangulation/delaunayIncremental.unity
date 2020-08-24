@@ -264,7 +264,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 41
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -327,13 +327,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86180527360e4ef44aed7515c4910031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  points: []
   bounds:
     serializedVersion: 2
     x: -2
-    y: -0.5
+    y: -1.125
     width: 4
-    height: 1
+    height: 2.25
 --- !u!4 &1171182122
 Transform:
   m_ObjectHideFlags: 0
@@ -366,7 +365,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 78152745138964de2aa3b0281a48e869, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

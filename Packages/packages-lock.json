@@ -77,7 +77,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.recorder": {
-      "version": "2.1.0-preview.1",
+      "version": "2.2.0-preview.4",
       "depth": 0,
       "source": "registry",
       "dependencies": {

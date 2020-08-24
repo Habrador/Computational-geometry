@@ -13,13 +13,15 @@ namespace Habrador_Computational_Geometry
 
         //All positions within a vornoi cell is closer to this position than any other position in the diagram
         public MyVector2 sitePos;
+        public Color32 color;
 
-        public VoronoiEdge2(MyVector2 p1, MyVector2 p2, MyVector2 sitePos)
+        public VoronoiEdge2(MyVector2 p1, MyVector2 p2, MyVector2 sitePos, Color32 color)
         {
             this.p1 = p1;
             this.p2 = p2;
 
             this.sitePos = sitePos;
+            this.color = color;
         }
     }
 
@@ -33,9 +35,12 @@ namespace Habrador_Computational_Geometry
 
         public List<VoronoiEdge2> edges = new List<VoronoiEdge2>();
 
-        public VoronoiCell2(MyVector2 sitePos)
+        public Color32 color;
+
+        public VoronoiCell2(MyVector2 sitePos, Color32 color)
         {
             this.sitePos = sitePos;
+            this.color = color;
         }
     }
 }

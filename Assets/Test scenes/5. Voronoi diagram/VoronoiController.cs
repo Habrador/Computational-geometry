@@ -131,7 +131,7 @@ public class VoronoiController : MonoBehaviour
             VoronoiCell2 cell = cells[i];
 
             Mesh triangleMesh = _TransformBetweenDataStructures.VoronoiCellToMesh(cell);
-
+            Gizmos.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
             Gizmos.DrawMesh(triangleMesh);
         }
     }
