@@ -16,7 +16,8 @@ namespace Habrador_Computational_Geometry.Marching_Squares
 
 
         //For displaying the contour (the edge of the mesh)
-        //public List<>
+        public List<Edge2> contourEdges;
+
 
 
         public SquareGrid(int[,] map, float squareSize)

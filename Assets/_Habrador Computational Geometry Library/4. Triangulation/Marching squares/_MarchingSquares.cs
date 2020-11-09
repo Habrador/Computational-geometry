@@ -10,9 +10,11 @@ namespace Habrador_Computational_Geometry
     public static class MarchingSquares
     {
         //For the mesh
-        public static List<MyVector2> vertices;
+        private static List<MyVector2> vertices;
 
-        public static List<int> triangles;
+        private static List<int> triangles;
+
+        private static List<Edge2> contourEdges;
 
 
         //The map consists of 0 or 1, where 1 means solid (or active)
@@ -43,10 +45,14 @@ namespace Habrador_Computational_Geometry
             //which is what the Marching Squares needs to generate a mesh at this square
             SquareGrid squareGrid = new SquareGrid(map, squareSize);
 
-            //Init the mesh
+
+            //Init the lists
             vertices = new List<MyVector2>();
 
             triangles = new List<int>();
+
+            contourEdges = new List<Edge2>();
+
 
             //Loop through and triangulate each square
             int xLength = squareGrid.squares.GetLength(0);
@@ -63,9 +69,13 @@ namespace Habrador_Computational_Geometry
             }
 
             //Assign the vertices and triangles to the grid
+            //The code gets cleaner if we have these lists in both this class and SquareGrid
             squareGrid.triangles = new List<int>(triangles);
 
             squareGrid.vertices = new List<MyVector2>(vertices);
+
+            squareGrid.contourEdges = new List<Edge2>(contourEdges); 
+
 
             return squareGrid;
         }
@@ -86,51 +96,81 @@ namespace Habrador_Computational_Geometry
                 case 1:
                     //BL is active
                     MeshFromPoints(s.B, s.BL, s.L);
+
+                    contourEdges.Add(new Edge2(s.B.pos, s.L.pos));
                     break;
                 case 2:
                     MeshFromPoints(s.BR, s.B, s.R);
+
+                    contourEdges.Add(new Edge2(s.B.pos, s.R.pos));
                     break;
                 case 4:
                     MeshFromPoints(s.TR, s.R, s.T);
+
+                    contourEdges.Add(new Edge2(s.R.pos, s.T.pos));
                     break;
                 case 8:
                     MeshFromPoints(s.T, s.L, s.TL);
+
+                    contourEdges.Add(new Edge2(s.T.pos, s.L.pos));
                     break;
 
                 //2 corners are active
                 case 3:
                     //BR and BL are active
                     MeshFromPoints(s.R, s.BR, s.BL, s.L);
+
+                    contourEdges.Add(new Edge2(s.L.pos, s.R.pos));
                     break;
                 case 6:
                     MeshFromPoints(s.BR, s.B, s.T, s.TR);
+
+                    contourEdges.Add(new Edge2(s.B.pos, s.T.pos));
                     break;
                 case 9:
                     MeshFromPoints(s.B, s.BL, s.TL, s.T);
+
+                    contourEdges.Add(new Edge2(s.B.pos, s.T.pos));
                     break;
                 case 12:
                     MeshFromPoints(s.R, s.L, s.TL, s.TR);
+
+                    contourEdges.Add(new Edge2(s.R.pos, s.L.pos));
                     break;
                 case 5:
                     //BL and TR are active
                     MeshFromPoints(s.R, s.B, s.BL, s.L, s.T, s.TR);
+
+                    contourEdges.Add(new Edge2(s.B.pos, s.R.pos));
+                    contourEdges.Add(new Edge2(s.L.pos, s.T.pos));
                     break;
                 case 10:
                     MeshFromPoints(s.R, s.BR, s.B, s.L, s.TL, s.T);
+
+                    contourEdges.Add(new Edge2(s.B.pos, s.L.pos));
+                    contourEdges.Add(new Edge2(s.T.pos, s.R.pos));
                     break;
 
                 //3 corners are active
                 case 7:
                     MeshFromPoints(s.T, s.TR, s.BR, s.BL, s.L);
+
+                    contourEdges.Add(new Edge2(s.T.pos, s.L.pos));
                     break;
                 case 11:
                     MeshFromPoints(s.R, s.BR, s.BL, s.TL, s.T);
+
+                    contourEdges.Add(new Edge2(s.R.pos, s.T.pos));
                     break;
                 case 13:
                     MeshFromPoints(s.R, s.B, s.BL, s.TL, s.TR);
+
+                    contourEdges.Add(new Edge2(s.B.pos, s.R.pos));
                     break;
                 case 14:
                     MeshFromPoints(s.TR, s.BR, s.B, s.L, s.TL);
+
+                    contourEdges.Add(new Edge2(s.B.pos, s.L.pos));
                     break;
 
                 //4 corners are active

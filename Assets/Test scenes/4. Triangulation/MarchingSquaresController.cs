@@ -60,6 +60,8 @@ public class MarchingSquaresController : MonoBehaviour
 
         DisplayGeneratedMesh();
 
+        DisplayContourEdges();
+
         //Blue means solid, red means empty
         DisplayMarchingSquaresData();
     }
@@ -154,5 +156,24 @@ public class MarchingSquaresController : MonoBehaviour
         //mesh.RecalculateNormals();
 
         TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
+    }
+
+
+
+    private void DisplayContourEdges()
+    {
+        if (grid == null)
+        {
+            return;
+        }
+
+        List<Edge2> edges = grid.contourEdges;
+
+        Gizmos.color = Color.white;
+
+        foreach (Edge2 e in edges)
+        {
+            Gizmos.DrawLine(e.p1.ToVector3(), e.p2.ToVector3());
+        }
     }
 }

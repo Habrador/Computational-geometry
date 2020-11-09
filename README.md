@@ -60,7 +60,11 @@ The code has been tested by using Unity 2018.4 LTS but should work with other ve
 
 **Mesh shapes:** Arrow, circles, lines
 
-![Mesh shapes](/_media/mesh-shapes.png?raw=true)	
+![Mesh shapes](/_media/mesh-shapes.png?raw=true)
+
+**Marching squares:**
+
+![Mesh shapes](/_media/marching-squares.png?raw=true)		
 
 
 ### 3. Convex Hull
