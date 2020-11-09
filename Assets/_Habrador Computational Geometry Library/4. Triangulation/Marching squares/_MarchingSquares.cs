@@ -6,6 +6,7 @@ using Habrador_Computational_Geometry.Marching_Squares;
 namespace Habrador_Computational_Geometry
 {
     //Based on Procedural Cave Generation (E02. Marching Squares): https://www.youtube.com/watch?v=yOgIncKp0BE
+    //and Coding in the Cabana 5: Marching Squares https://www.youtube.com/watch?v=0ZONMNUKTfU
     public static class MarchingSquares
     {
         //For the mesh
@@ -17,9 +18,25 @@ namespace Habrador_Computational_Geometry
         //The map consists of 0 or 1, where 1 means solid
         //squareSize is how big each square in the grid is 
         //The map should be created so that 0,0 is negative X and negative Z, which should maybe change in the future?
-        //Maybe more general to be nodebased so we dont have to care about the grid, but marching squares is always on a grid
         public static SquareGrid GenerateMesh(int[,] map, float squareSize)
         {
+            //Validate input
+            if (map == null)
+            {
+                Debug.LogError("The Marching Squares Map doesnt exist");
+
+                return null;
+            }
+
+            if (map.GetLength(0) <= 0 || map.GetLength(1) <= 0)
+            {
+                Debug.LogError("The Marching Squares Map is too small");
+
+                return null;
+            }
+
+
+
             //Create the data grid to make it easier to triangulate
             SquareGrid squareGrid = new SquareGrid(map, squareSize);
 
@@ -30,6 +47,7 @@ namespace Habrador_Computational_Geometry
 
             int xLength = squareGrid.squares.GetLength(0);
             int zLength = squareGrid.squares.GetLength(1);
+
 
             for (int x = 0; x < xLength; x++)
             {
@@ -159,6 +177,7 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //Create a triangle based on three nodes
         private static void CreateTriangle(Node a, Node b, Node c)
         {
             triangles.Add(a.vertexIndex);

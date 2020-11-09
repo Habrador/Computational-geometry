@@ -9,6 +9,7 @@ namespace Habrador_Computational_Geometry.Marching_Squares
     {
         public Square[,] squares;
 
+        //So we can create a Unity mesh
         public List<Vector3> vertices;
 
         public List<int> triangles;
@@ -17,7 +18,7 @@ namespace Habrador_Computational_Geometry.Marching_Squares
         public SquareGrid(int[,] map, float squareSize)
         {
             //Init
-            //Its more general to say we dont know if the map is a square
+            //It's more general to say we dont know if the map is a square
             int nodeCountX = map.GetLength(0);
             int nodeCountZ = map.GetLength(1);
 
@@ -25,7 +26,7 @@ namespace Habrador_Computational_Geometry.Marching_Squares
             float mapWidthZ = nodeCountZ * squareSize;
 
 
-            //Step 1. First create the control nodes
+            //Step 1. Create the control nodes
             ControlNode[,] controlNodes = new ControlNode[nodeCountX, nodeCountZ];
 
             for (int x = 0; x < nodeCountX; x++)

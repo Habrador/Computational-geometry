@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Habrador_Computational_Geometry;
+//using Habrador_Computational_Geometry.Marching_Squares;
 
 
 //Based on Procedural Cave Generation (E02. Marching Squares): https://www.youtube.com/watch?v=yOgIncKp0BE
 public class MarchingSquaresController : MonoBehaviour 
 {
-    public int mapSize;
+    public int mapSizeX;
+    public int mapSizeZ;
 
     //Used in cellular automata
     [Range(0, 100)]
@@ -19,22 +21,16 @@ public class MarchingSquaresController : MonoBehaviour
 
     private int[,] map;
 
-    private MarchingSquares.SquareGrid grid;
+    private Habrador_Computational_Geometry.Marching_Squares.SquareGrid grid;
 
 
 
 
     public void GenerateMap()
     {
-        map = new int[mapSize, mapSize];
+        map = new int[mapSizeX, mapSizeZ];
 
-        RandomFillMap();
-
-        //Smooth the map to create a cave shape
-        for (int i = 0; i < numberOfSmooths; i++)
-        {
-            SmoothMap();
-        }
+        FillMapRandomly();
 
         //Generate the mesh with marching squares
         grid = MarchingSquares.GenerateMesh(map, 1f);
@@ -43,17 +39,17 @@ public class MarchingSquaresController : MonoBehaviour
 
 
     //Fill the map randomly and add a border
-    private void RandomFillMap()
+    private void FillMapRandomly()
     {
         Random.InitState(seed);
 
-        for (int x = 0; x < mapSize; x++)
+        for (int x = 0; x < mapSizeX; x++)
         {
-            for (int z = 0; z < mapSize; z++)
+            for (int z = 0; z < mapSizeZ; z++)
             {
                 //Set each tile to either 0 or 1
                 //The border is always wall
-                if (x == 0 || x == mapSize - 1 || z == 0 || z == mapSize - 1)
+                if (x == 0 || x == mapSizeX - 1 || z == 0 || z == mapSizeZ - 1)
                 {
                     map[x, z] = 1;
                 }
@@ -67,128 +63,106 @@ public class MarchingSquaresController : MonoBehaviour
 
 
 
-    //Smooth the map to create a cave shape
-    private void SmoothMap()
-    {
-        //Should use old values when counting neighbors or the count will not be correct
-        //if we are updating the walls as we count them
-        int[,] oldMapValues = map.Clone() as int[,];
-    
-        //Dont look at the walls, which is why we start at 1
-        for (int x = 1; x < mapSize - 1; x++)
-        {
-            for (int z = 1; z < mapSize - 1; z++)
-            {
-                int wallCount = GetSurroundingWallCount(x, z, oldMapValues);
-
-                //4 is maximum because we are looking at the North-West wall, etc
-                if (wallCount > 4)
-                {
-                    map[x, z] = 1;
-                }
-                else if (wallCount < 4)
-                {
-                    map[x, z] = 0;
-                }
-            }
-        }
-    }
-
-
-
-    //How many neighbors around this cell are walls?
-    private int GetSurroundingWallCount(int cellX, int cellZ, int[,] oldMapValues)
-    {
-        int wallCount = 0;
-
-        for (int neighborX = cellX - 1; neighborX <= cellX + 1; neighborX ++)
-        {
-            for (int neighborZ = cellZ - 1; neighborZ <= cellZ + 1; neighborZ++)
-            {
-                //Dont look at itself
-                //Dont need to worry about outside of grid because we are checking at cells inside the walls
-                //so we cant end up outside of the grid
-                //Should be || and not && because we are not checking the 8 surrounding walls, but the 4 diagonals
-                if (neighborX != cellX || neighborZ != cellZ)
-                {
-                    wallCount += oldMapValues[neighborX, neighborZ];
-                }
-            }
-        }
-
-        return wallCount;
-    }
-
-
-
     //Debug
     private void OnDrawGizmos()
     {
-        //DIsplay the map
-        //if (map != null)
-        //{
-        //    for (int x = 0; x < mapSize; x++)
-        //    {
-        //        for (int z = 0; z < mapSize; z++)
-        //        {
-        //            Gizmos.color = (map[x, z] == 1) ? Color.black : Color.white;
+        DisplayMap();
 
-        //            Vector3 pos = new Vector3(-mapSize * 0.5f + x + 0.5f, 0f, -mapSize * 0.5f + z + 0.5f);
+        //Blue means solid, red means empty
+        DisplayMarchingSquaresData();
 
-        //            Gizmos.DrawCube(pos, Vector3.one);
-        //        }
-        //    }
-        //}
+        //DisplayMesh();
+    }
 
-        //Display the marching squares
-        if (grid != null)
+
+
+    private void DisplayMap()
+    {
+        if (map == null)
         {
-            int xLength = grid.squares.GetLength(0);
-            int zLength = grid.squares.GetLength(1);
+            return;
+        }
 
-            for (int x = 0; x < xLength; x++)
+
+        int xLength = map.GetLength(0);
+        int zLength = map.GetLength(1);
+
+
+        for (int x = 0; x < xLength; x++)
+        {
+            for (int z = 0; z < zLength; z++)
             {
-                for (int z = 0; z < zLength; z++)
-                {
-                    MarchingSquares.Square square = grid.squares[x, z];
+                Gizmos.color = (map[x, z] == 1) ? Color.blue : Color.red;
 
-                    Gizmos.color = square.TL.isActive ? Color.blue : Color.red;
-                    Gizmos.DrawSphere(square.TL.pos, 0.2f);
+                Vector3 pos = new Vector3(-xLength * 0.5f + x + 0.5f, 0f, -zLength * 0.5f + z + 0.5f);
 
-                    Gizmos.color = square.TR.isActive ? Color.blue : Color.red;
-                    Gizmos.DrawSphere(square.TR.pos, 0.2f);
-
-                    Gizmos.color = square.BL.isActive ? Color.blue : Color.red;
-                    Gizmos.DrawSphere(square.BL.pos, 0.2f);
-
-                    Gizmos.color = square.BR.isActive ? Color.blue : Color.red;
-                    Gizmos.DrawSphere(square.BR.pos, 0.2f);
-
-
-                    //Gizmos.color = Color.green;
-
-                    //Gizmos.DrawSphere(square.T.pos, 0.1f);
-                    //Gizmos.DrawSphere(square.L.pos, 0.1f);
-                    //Gizmos.DrawSphere(square.B.pos, 0.1f);
-                    //Gizmos.DrawSphere(square.R.pos, 0.1f);
-                }
+                Gizmos.DrawCube(pos, Vector3.one);
             }
         }
+    }
 
 
 
-        //Display the mesh
-        if (grid != null)
+    private void DisplayMarchingSquaresData()
+    {
+        if (grid == null)
         {
-            Mesh mesh = new Mesh();
-
-            mesh.vertices = grid.vertices.ToArray();
-
-            mesh.triangles = grid.triangles.ToArray();
-
-            mesh.RecalculateNormals();
-
-            TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
+            return;
         }
+
+
+        int xLength = grid.squares.GetLength(0);
+        int zLength = grid.squares.GetLength(1);
+
+        for (int x = 0; x < xLength; x++)
+        {
+            for (int z = 0; z < zLength; z++)
+            {
+                Habrador_Computational_Geometry.Marching_Squares.Square square = grid.squares[x, z];
+
+                float sphereRadius = 0.1f;
+
+                Gizmos.color = square.TL.isActive ? Color.blue : Color.red;
+                Gizmos.DrawSphere(square.TL.pos, sphereRadius);
+
+                Gizmos.color = square.TR.isActive ? Color.blue : Color.red;
+                Gizmos.DrawSphere(square.TR.pos, sphereRadius);
+
+                Gizmos.color = square.BL.isActive ? Color.blue : Color.red;
+                Gizmos.DrawSphere(square.BL.pos, sphereRadius);
+
+                Gizmos.color = square.BR.isActive ? Color.blue : Color.red;
+                Gizmos.DrawSphere(square.BR.pos, sphereRadius);
+
+
+                //Gizmos.color = Color.green;
+
+                //Gizmos.DrawSphere(square.T.pos, 0.1f);
+                //Gizmos.DrawSphere(square.L.pos, 0.1f);
+                //Gizmos.DrawSphere(square.B.pos, 0.1f);
+                //Gizmos.DrawSphere(square.R.pos, 0.1f);
+            }
+        }
+    }
+
+
+
+    private void DisplayMesh()
+    {
+        if (grid == null)
+        {
+            return;
+        }
+
+
+        Mesh mesh = new Mesh();
+
+        mesh.vertices = grid.vertices.ToArray();
+
+        mesh.triangles = grid.triangles.ToArray();
+
+        mesh.RecalculateNormals();
+
+        TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
     }
 }
