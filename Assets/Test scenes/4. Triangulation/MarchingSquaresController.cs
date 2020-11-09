@@ -112,16 +112,16 @@ public class MarchingSquaresController : MonoBehaviour
                 float sphereRadius = 0.05f;
 
                 Gizmos.color = square.TL.isActive ? Color.blue : Color.red;
-                Gizmos.DrawSphere(square.TL.pos, sphereRadius);
+                Gizmos.DrawSphere(square.TL.pos.ToVector3(), sphereRadius);
 
                 Gizmos.color = square.TR.isActive ? Color.blue : Color.red;
-                Gizmos.DrawSphere(square.TR.pos, sphereRadius);
+                Gizmos.DrawSphere(square.TR.pos.ToVector3(), sphereRadius);
 
                 Gizmos.color = square.BL.isActive ? Color.blue : Color.red;
-                Gizmos.DrawSphere(square.BL.pos, sphereRadius);
+                Gizmos.DrawSphere(square.BL.pos.ToVector3(), sphereRadius);
 
                 Gizmos.color = square.BR.isActive ? Color.blue : Color.red;
-                Gizmos.DrawSphere(square.BR.pos, sphereRadius);
+                Gizmos.DrawSphere(square.BR.pos.ToVector3(), sphereRadius);
 
 
                 //Gizmos.color = Color.green;
@@ -145,13 +145,13 @@ public class MarchingSquaresController : MonoBehaviour
         }
 
 
-        Mesh mesh = new Mesh();
+        Mesh mesh = grid.GenerateUnityMesh(0f);
 
-        mesh.vertices = grid.vertices.ToArray();
+        //mesh.vertices = grid.vertices.ToArray();
 
-        mesh.triangles = grid.triangles.ToArray();
+        //mesh.triangles = grid.triangles.ToArray();
 
-        mesh.RecalculateNormals();
+        //mesh.RecalculateNormals();
 
         TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
     }

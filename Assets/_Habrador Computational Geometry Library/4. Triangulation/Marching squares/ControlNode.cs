@@ -14,13 +14,13 @@ namespace Habrador_Computational_Geometry.Marching_Squares
         //These nodes are in the middle between two corners
         public Node above, right;
 
-        public ControlNode(Vector3 pos, bool isActive, float squareSize) : base(pos)
+        public ControlNode(MyVector2 pos, bool isActive, float squareSize) : base(pos)
         {
             this.isActive = isActive;
 
-            this.above = new Node(base.pos + Vector3.forward * squareSize * 0.5f);
+            this.above = new Node(base.pos + new MyVector2(0f, 1f) * squareSize * 0.5f);
 
-            this.right = new Node(base.pos + Vector3.right * squareSize * 0.5f);
+            this.right = new Node(base.pos + new MyVector2(1f, 0f) * squareSize * 0.5f);
         }
     }
 }

@@ -9,8 +9,8 @@ namespace Habrador_Computational_Geometry.Marching_Squares
     {
         public Square[,] squares;
 
-        //For creatig a Unity mesh
-        public List<Vector3> vertices;
+        //For creating a Unity mesh
+        public List<MyVector2> vertices;
 
         public List<int> triangles;
 
@@ -41,7 +41,7 @@ namespace Habrador_Computational_Geometry.Marching_Squares
                     float xPos = -mapWidthX * 0.5f + x * squareSize + squareSize * 0.5f;
                     float zPos = -mapWidthZ * 0.5f + z * squareSize + squareSize * 0.5f;
 
-                    Vector3 pos = new Vector3(xPos, 0f, zPos);
+                    MyVector2 pos = new MyVector2(xPos, zPos);
 
                     bool isActive = map[x, z] == 1;
 
@@ -66,6 +66,32 @@ namespace Habrador_Computational_Geometry.Marching_Squares
                     squares[x, z] = new Square(TL, TR, BR, BL);
                 }
             }
+        }
+
+
+
+        //Marching squares is a 2d algorithm, so we need a height to display it in 3d
+        public Mesh GenerateUnityMesh(float meshHeight)
+        {
+            Mesh mesh = new Mesh();
+
+            //Convert from 2d to 3d
+            Vector3[] meshVertices = new Vector3[vertices.Count];
+
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                Vector3 v = vertices[i].ToVector3(meshHeight);
+
+                meshVertices[i] = v;
+            }
+
+            mesh.vertices = meshVertices;
+
+            mesh.triangles = triangles.ToArray();
+
+            mesh.RecalculateNormals();
+
+            return mesh;
         }
     }
 }

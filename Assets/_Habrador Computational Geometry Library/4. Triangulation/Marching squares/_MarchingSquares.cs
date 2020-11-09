@@ -10,7 +10,7 @@ namespace Habrador_Computational_Geometry
     public static class MarchingSquares
     {
         //For the mesh
-        public static List<Vector3> vertices;
+        public static List<MyVector2> vertices;
 
         public static List<int> triangles;
 
@@ -44,7 +44,7 @@ namespace Habrador_Computational_Geometry
             SquareGrid squareGrid = new SquareGrid(map, squareSize);
 
             //Init the mesh
-            vertices = new List<Vector3>();
+            vertices = new List<MyVector2>();
 
             triangles = new List<int>();
 
@@ -65,7 +65,7 @@ namespace Habrador_Computational_Geometry
             //Assign the vertices and triangles to the grid
             squareGrid.triangles = new List<int>(triangles);
 
-            squareGrid.vertices = new List<Vector3>(vertices);
+            squareGrid.vertices = new List<MyVector2>(vertices);
 
             return squareGrid;
         }
