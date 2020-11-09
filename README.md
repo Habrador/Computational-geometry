@@ -241,8 +241,9 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Voronoi point-by-point
 * Triangulation concave polygon by ear clipping (You can most likely achieve the same thing with Constrained Delaunay, so maybe unnecessary to implement)
 * Convex polygon intersection with SAT
-* Triangulate with marching squares
 * Irregular grid (Oskar Stålberg style)
+* Mesh decals
+* Extrude mesh along Bezier and Catmull-Rom
 
 ### Stuff to fix
 
@@ -251,14 +252,12 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * The Delaunay algorithm "flip edges" might have problems with colinear points
 
 
-## Socials
 
-* **Portfolio:** https://www.habrador.com
+## Big Updates
 
-* **Twitter:** https://twitter.com/eriknordeus
+**2020-03** 
 
-
-## Updates
+* Added marching squares
 
 **2020-03** 
 
