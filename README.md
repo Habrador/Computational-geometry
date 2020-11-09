@@ -60,11 +60,7 @@ The code has been tested by using Unity 2018.4 LTS but should work with other ve
 
 **Mesh shapes:** Arrow, circles, lines
 
-![Mesh shapes](/_media/mesh-shapes.png?raw=true)
-
-**Marching squares:**
-
-![Mesh shapes](/_media/marching-squares.png?raw=true)		
+![Mesh shapes](/_media/mesh-shapes.png?raw=true)	
 
 
 ### 3. Convex Hull
@@ -125,6 +121,11 @@ You have some points you want to triangulate, you follow the steps:
 3. Add the rest of the points one-by-one by splitting the triangles they end up in into three new triangles.
 
 ![Triangulation point-by-point](/_media/triangulation-point-by-point.png?raw=true)	
+
+
+**Marching squares:**
+
+![Mesh shapes](/_media/marching-squares.png?raw=true)	
 
 
 #### 4.1 Delaunay triangulation
