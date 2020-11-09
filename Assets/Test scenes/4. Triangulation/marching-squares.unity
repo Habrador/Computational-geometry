@@ -158,7 +158,7 @@ MonoBehaviour:
   mapSizeX: 20
   mapSizeZ: 10
   randomFillPercent: 39
-  seed: 119
+  seed: 115
 --- !u!1 &518264663
 GameObject:
   m_ObjectHideFlags: 0
