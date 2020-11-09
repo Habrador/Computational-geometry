@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028334, g: 0.2257134, b: 0.30692226, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -155,9 +155,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c38075b7d33e4594e9b5fcb0b877800a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: 20
+  mapSizeX: 20
+  mapSizeZ: 15
   randomFillPercent: 39
-  numberOfSmooths: 8
   seed: 117
 --- !u!1 &518264663
 GameObject:

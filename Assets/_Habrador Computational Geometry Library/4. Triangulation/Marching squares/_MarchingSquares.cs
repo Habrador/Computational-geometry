@@ -15,9 +15,9 @@ namespace Habrador_Computational_Geometry
         public static List<int> triangles;
 
 
-        //The map consists of 0 or 1, where 1 means solid
+        //The map consists of 0 or 1, where 1 means solid (or active)
         //squareSize is how big each square in the grid is 
-        //The map should be created so that 0,0 is negative X and negative Z, which should maybe change in the future?
+        //The map will be centered in 2d space around (x = 0, z = 0)
         public static SquareGrid GenerateMesh(int[,] map, float squareSize)
         {
             //Validate input
@@ -28,7 +28,8 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
-            if (map.GetLength(0) <= 0 || map.GetLength(1) <= 0)
+            //We need at least 4 nodes (1 square) to create a mesh
+            if (map.GetLength(0) <= 1 || map.GetLength(1) <= 1)
             {
                 Debug.LogError("The Marching Squares Map is too small");
 
@@ -37,29 +38,31 @@ namespace Habrador_Computational_Geometry
 
 
 
-            //Create the data grid to make it easier to triangulate
+            //Create the data grid to make it easier to generate the mesh
+            //Each square has 4 corners, which are either solid or empty, 
+            //which is what the Marching Squares needs to generate a mesh at this square
             SquareGrid squareGrid = new SquareGrid(map, squareSize);
 
-            //Triangulate
+            //Init the mesh
             vertices = new List<Vector3>();
 
             triangles = new List<int>();
 
+            //Loop through and triangulate each square
             int xLength = squareGrid.squares.GetLength(0);
             int zLength = squareGrid.squares.GetLength(1);
-
 
             for (int x = 0; x < xLength; x++)
             {
                 for (int z = 0; z < zLength; z++)
                 {
-                    Square square = squareGrid.squares[x, z];
+                    Square thisSquare = squareGrid.squares[x, z];
 
-                    TriangulateSquare(square);
+                    TriangulateSquare(thisSquare);
                 }
             }
 
-            //Assign the static vertices and triangles to the grid
+            //Assign the vertices and triangles to the grid
             squareGrid.triangles = new List<int>(triangles);
 
             squareGrid.vertices = new List<Vector3>(vertices);
@@ -69,16 +72,19 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Triangulate a square with marching squares
+        //Triangulate a single square with Marching Squares
+        //Each square has 4 corners, so we have 16 different possible meshes we can use to triangulate this square
         private static void TriangulateSquare(Square s)
         {
             switch (s.configuration)
             {
+                //0 corners are active = no mesh
                 case 0:
                     break;
 
-                //1 point is active
+                //1 corner is active
                 case 1:
+                    //BL is active
                     MeshFromPoints(s.B, s.BL, s.L);
                     break;
                 case 2:
@@ -91,8 +97,9 @@ namespace Habrador_Computational_Geometry
                     MeshFromPoints(s.T, s.L, s.TL);
                     break;
 
-                //2 points are active
+                //2 corners are active
                 case 3:
+                    //BR and BL are active
                     MeshFromPoints(s.R, s.BR, s.BL, s.L);
                     break;
                 case 6:
@@ -105,13 +112,14 @@ namespace Habrador_Computational_Geometry
                     MeshFromPoints(s.R, s.L, s.TL, s.TR);
                     break;
                 case 5:
+                    //BL and TR are active
                     MeshFromPoints(s.R, s.B, s.BL, s.L, s.T, s.TR);
                     break;
                 case 10:
                     MeshFromPoints(s.R, s.BR, s.B, s.L, s.TL, s.T);
                     break;
 
-                //3 points are active
+                //3 corners are active
                 case 7:
                     MeshFromPoints(s.T, s.TR, s.BR, s.BL, s.L);
                     break;
@@ -125,9 +133,10 @@ namespace Habrador_Computational_Geometry
                     MeshFromPoints(s.TR, s.BR, s.B, s.L, s.TL);
                     break;
 
-                //4 points active
+                //4 corners are active
+                //Notice that we are ignoring the middle-vertices between the corners
                 case 15:
-                    MeshFromPoints(s.TR, s.BR, s.BL, s.BL, s.TL);
+                    MeshFromPoints(s.TR, s.BR, s.BL, s.TL);
                     break;
             }
         }
@@ -135,11 +144,14 @@ namespace Habrador_Computational_Geometry
 
 
         //Triangulate unknown number of points
+        //The "points" are points on the convex hull of the triangles belongin to this square
+        //so this is the same idea as when we triangulate a convex hull
         private static void MeshFromPoints(params Node[] points)
         {
+            //Make sure each point becomes a vertex in the mesh
             AssignVertices(points);
 
-            //Similar to triangulating a convex hull if we know the points on the hull
+            //Create the triangles of the final mesh
             if (points.Length >= 3)
             {
                 CreateTriangle(points[0], points[1], points[2]);
@@ -163,8 +175,10 @@ namespace Habrador_Computational_Geometry
         //Each node has a vertexIndex which we can use to avoid duplicates
         private static void AssignVertices(Node[] points)
         {
+            //Loop through all points on the convex hull
             for (int i = 0; i < points.Length; i++)
             {
+                //This point is not a member of the mesh so assign it 
                 if (points[i].vertexIndex == -1)
                 {
                     //Add it

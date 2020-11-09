@@ -10,7 +10,8 @@ namespace Habrador_Computational_Geometry.Marching_Squares
     {
         public bool isActive;
 
-        //Each switch needs a reference to two nodes that determines the position of the mesh
+        //Each node needs a reference to two other nodes, which are needed when we generate the mesh
+        //These nodes are in the middle between two corners
         public Node above, right;
 
         public ControlNode(Vector3 pos, bool isActive, float squareSize) : base(pos)

@@ -2,23 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Habrador_Computational_Geometry;
-//using Habrador_Computational_Geometry.Marching_Squares;
 
 
-//Based on Procedural Cave Generation (E02. Marching Squares): https://www.youtube.com/watch?v=yOgIncKp0BE
+//Generate a mesh by using the Marching Squares Algorithm
 public class MarchingSquaresController : MonoBehaviour 
 {
     public int mapSizeX;
     public int mapSizeZ;
 
-    //Used in cellular automata
+    //Used to generate test data
     [Range(0, 100)]
     public int randomFillPercent;
-    [Range(0, 20)]
-    public int numberOfSmooths;
-
+    //To get the same test data
     public int seed;
 
+    //So we can display the map in OnDrawGizmos
     private int[,] map;
 
     private Habrador_Computational_Geometry.Marching_Squares.SquareGrid grid;
@@ -32,13 +30,13 @@ public class MarchingSquaresController : MonoBehaviour
 
         FillMapRandomly();
 
-        //Generate the mesh with marching squares
+        //Generate the mesh with marching squares algorithm
         grid = MarchingSquares.GenerateMesh(map, 1f);
     }
 
 
 
-    //Fill the map randomly and add a border
+    //Fill the map randomly
     private void FillMapRandomly()
     {
         Random.InitState(seed);
@@ -47,16 +45,7 @@ public class MarchingSquaresController : MonoBehaviour
         {
             for (int z = 0; z < mapSizeZ; z++)
             {
-                //Set each tile to either 0 or 1
-                //The border is always wall
-                if (x == 0 || x == mapSizeX - 1 || z == 0 || z == mapSizeZ - 1)
-                {
-                    map[x, z] = 1;
-                }
-                else
-                {
-                    map[x, z] = (Random.Range(0f, 100f) < randomFillPercent) ? 1 : 0;
-                }
+                map[x, z] = (Random.Range(0f, 100f) < randomFillPercent) ? 1 : 0;
             }
         }
     }
@@ -66,12 +55,13 @@ public class MarchingSquaresController : MonoBehaviour
     //Debug
     private void OnDrawGizmos()
     {
-        DisplayMap();
+        //Blue means solid, red means empty
+        //DisplayMap();
+
+        DisplayGeneratedMesh();
 
         //Blue means solid, red means empty
         DisplayMarchingSquaresData();
-
-        //DisplayMesh();
     }
 
 
@@ -86,7 +76,6 @@ public class MarchingSquaresController : MonoBehaviour
 
         int xLength = map.GetLength(0);
         int zLength = map.GetLength(1);
-
 
         for (int x = 0; x < xLength; x++)
         {
@@ -120,7 +109,7 @@ public class MarchingSquaresController : MonoBehaviour
             {
                 Habrador_Computational_Geometry.Marching_Squares.Square square = grid.squares[x, z];
 
-                float sphereRadius = 0.1f;
+                float sphereRadius = 0.05f;
 
                 Gizmos.color = square.TL.isActive ? Color.blue : Color.red;
                 Gizmos.DrawSphere(square.TL.pos, sphereRadius);
@@ -147,7 +136,8 @@ public class MarchingSquaresController : MonoBehaviour
 
 
 
-    private void DisplayMesh()
+    //The mesh we generate with the Marching Squares algorithm
+    private void DisplayGeneratedMesh()
     {
         if (grid == null)
         {
