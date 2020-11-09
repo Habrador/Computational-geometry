@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Habrador_Computational_Geometry.Marching_Squares;
 
 namespace Habrador_Computational_Geometry
 {
     //Based on Procedural Cave Generation (E02. Marching Squares): https://www.youtube.com/watch?v=yOgIncKp0BE
-    public class MarchingSquares
+    public static class MarchingSquares
     {
         //For the mesh
         public static List<Vector3> vertices;
@@ -163,147 +164,6 @@ namespace Habrador_Computational_Geometry
             triangles.Add(a.vertexIndex);
             triangles.Add(b.vertexIndex);
             triangles.Add(c.vertexIndex);
-        }
-
-
-
-        //Will hold an entire marching squares grid, so we can create multiple of these with different data
-        public class SquareGrid
-        {
-            public Square[,] squares;
-
-            public List<Vector3> vertices;
-
-            public List<int> triangles;
-
-
-            public SquareGrid(int[,] map, float squareSize)
-            {
-                //Init
-                //Its more general to say we dont know if the map is a square
-                int nodeCountX = map.GetLength(0);
-                int nodeCountZ = map.GetLength(1);
-
-                float mapWidthX = nodeCountX * squareSize;
-                float mapWidthZ = nodeCountZ * squareSize;
-
-
-                //Step 1. First create the control nodes
-                ControlNode[,] controlNodes = new ControlNode[nodeCountX, nodeCountZ];
-
-                for (int x = 0; x < nodeCountX; x++)
-                {
-                    for (int z = 0; z < nodeCountZ; z++)
-                    {
-                        float xPos = -mapWidthX * 0.5f + x * squareSize + squareSize * 0.5f;
-                        float zPos = -mapWidthZ * 0.5f + z * squareSize + squareSize * 0.5f;
-
-                        Vector3 pos = new Vector3(xPos, 0f, zPos);
-
-                        bool isActive = map[x, z] == 1;
-
-                        controlNodes[x, z] = new ControlNode(pos, isActive, squareSize);
-                    }
-                }
-
-
-                //Step 2. Create the squares which consists of 4 control nodes, so there will be 1 less square than nodes
-                squares = new Square[nodeCountX - 1, nodeCountZ - 1];
-
-                for (int x = 0; x < nodeCountX - 1; x++)
-                {
-                    for (int z = 0; z < nodeCountZ - 1; z++)
-                    {
-                        //The control nodes were created from BL
-                        squares[x, z] = new Square(
-                            controlNodes[x + 0, z + 1],
-                            controlNodes[x + 1, z + 1],
-                            controlNodes[x + 1, z + 0],
-                            controlNodes[x + 0, z + 0]
-                            );
-                    }
-                }
-            }
-        }
-
-
-
-        //A square with control nodes in the corners and nodes on the edges between the corners
-        //We need all 8 to determine the position and size of the mesh as this square
-        public class Square
-        {
-            //The nodes that determines the size of the mesh
-            public ControlNode TL, TR, BL, BR;
-            //The midpoint nodes that are between the control nodes that determines the corners of the mesh
-            public Node L, T, R, B;
-            //The marching square configuration for this square (16 possibilities)
-            public int configuration = 0;
-
-            public Square(ControlNode TL, ControlNode TR, ControlNode BR, ControlNode BL)
-            {
-                this.TL = TL;
-                this.TR = TR;
-                this.BL = BL;
-                this.BR = BR;
-
-                this.L = BL.above;
-                this.T = TL.right;
-                this.R = BR.above;
-                this.B = BL.right;
-
-                if (TL.isActive)
-                {
-                    configuration += 8;
-                }
-                if (TR.isActive)
-                {
-                    configuration += 4;
-                }
-                if (BL.isActive)
-                {
-                    configuration += 1;
-                }
-                if (BR.isActive)
-                {
-                    configuration += 2;
-                }
-            }
-        }
-
-
-
-        //The corners in the mesh
-        public class Node
-        {
-            public Vector3 pos;
-            //Index in the mesh
-            public int vertexIndex = -1;
-
-            public Node(Vector3 pos)
-            {
-                this.pos = pos;
-            }
-        }
-
-
-
-        //The corner switches that determines which mesh to pick
-        //These are determined by the map we send to the algorithm, where each node can be either 1 or 0
-        public class ControlNode : Node
-        {
-            public bool isActive;
-
-            //Each switch needs a reference to two nodes that determines the position of the mesh
-            public Node above, right;
-
-            public ControlNode(Vector3 pos, bool isActive, float squareSize) : base(pos)
-            {
-                this.isActive = isActive;
-
-                this.above = new Node(base.pos + Vector3.forward * squareSize * 0.5f);
-
-                this.right = new Node(base.pos + Vector3.right * squareSize * 0.5f);
-            }
         }
     }
 }
