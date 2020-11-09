@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry.Marching_Squares
 {
     //Will hold an entire marching squares grid, so we can create multiple of these with different data
+    //Will also hold other useful information such as contour edges
     public class SquareGrid
     {
         public Square[,] squares;

@@ -156,9 +156,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapSizeX: 20
-  mapSizeZ: 15
+  mapSizeZ: 10
   randomFillPercent: 39
-  seed: 118
+  seed: 119
 --- !u!1 &518264663
 GameObject:
   m_ObjectHideFlags: 0

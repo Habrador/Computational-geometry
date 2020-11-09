@@ -5,6 +5,8 @@ using Habrador_Computational_Geometry.Marching_Squares;
 
 namespace Habrador_Computational_Geometry
 {
+    //Generate a mesh based with the Marching Squares Algorithm
+    //Will also return other useful information, such as contour edges, which identifies the mesh's border
     //Based on Procedural Cave Generation (E02. Marching Squares): https://www.youtube.com/watch?v=yOgIncKp0BE
     //and Coding in the Cabana 5: Marching Squares https://www.youtube.com/watch?v=0ZONMNUKTfU
     public static class MarchingSquares
