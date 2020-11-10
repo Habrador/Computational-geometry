@@ -14,13 +14,18 @@ namespace Habrador_Computational_Geometry.Marching_Squares
         //These nodes are in the middle between two corners
         public Node above, right;
 
-        public ControlNode(MyVector2 pos, bool isActive, float squareSize) : base(pos)
+        //Each node might have a value, which is useful if we want to smooth
+        public float value;
+
+        public ControlNode(MyVector2 pos, bool isActive, float squareSize, float value) : base(pos)
         {
             this.isActive = isActive;
 
             this.above = new Node(base.pos + new MyVector2(0f, 1f) * squareSize * 0.5f);
 
             this.right = new Node(base.pos + new MyVector2(1f, 0f) * squareSize * 0.5f);
+
+            this.value = value;
         }
     }
 }

@@ -20,7 +20,7 @@ public class MarchingSquaresController : MonoBehaviour
     public int seed;
 
     //So we can display the map in OnDrawGizmos
-    private int[,] map;
+    private float[,] map;
 
     private Habrador_Computational_Geometry.Marching_Squares.SquareGrid grid;
 
@@ -39,12 +39,12 @@ public class MarchingSquaresController : MonoBehaviour
         int squaresX = Mathf.FloorToInt(mapSizeX / squareSize);
         int squaresZ = Mathf.FloorToInt(mapSizeZ / squareSize);
 
-        map = new int[squaresX, squaresZ];
+        map = new float[squaresX, squaresZ];
 
         FillMapRandomly();
 
         //Generate the mesh with marching squares algorithm
-        grid = MarchingSquares.GenerateMesh(map, squareSize);
+        grid = MarchingSquares.GenerateMesh(map, squareSize, shouldSmooth: false);
     }
 
 
@@ -61,7 +61,7 @@ public class MarchingSquaresController : MonoBehaviour
         {
             for (int z = 0; z < squaresZ; z++)
             {
-                map[x, z] = (Random.Range(0f, 100f) < randomFillPercent) ? 1 : 0;
+                map[x, z] = (Random.Range(0f, 100f) < randomFillPercent) ? 1f : 0f;
             }
         }
     }

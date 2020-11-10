@@ -159,7 +159,7 @@ MonoBehaviour:
   circleParent: {fileID: 1153041706}
   seed: 1
   mapSize: 20
-  squareSize: 0.1
+  squareSize: 0.2
   metaballFactor: 1
 --- !u!1 &750620522
 GameObject:

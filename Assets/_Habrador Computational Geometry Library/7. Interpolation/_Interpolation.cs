@@ -26,6 +26,16 @@ namespace Habrador_Computational_Geometry
             return interpolatedPos;
         }
 
+        public static MyVector2 BezierLinear(MyVector2 a, MyVector2 b, float t)
+        {
+            float lerpX = Lerp(a.x, b.x, t);
+            float lerpY = Lerp(a.y, b.y, t);
+
+            MyVector2 interpolatedPos = new MyVector2(lerpX, lerpY);
+
+            return interpolatedPos;
+        }
+
 
         //Quadratic bezier - one handle
         public static MyVector3 BezierQuadratic(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)

@@ -9,6 +9,7 @@ namespace Habrador_Computational_Geometry
     //Will also return other useful information, such as contour edges, which identifies the mesh's border
     //Based on Procedural Cave Generation (E02. Marching Squares): https://www.youtube.com/watch?v=yOgIncKp0BE
     //and Coding in the Cabana 5: Marching Squares https://www.youtube.com/watch?v=0ZONMNUKTfU
+    //and smoothing from Metaballs and Marching Squares http://jamie-wong.com/2014/08/19/metaballs-and-marching-squares/
     public static class MarchingSquares
     {
         //For the mesh
@@ -22,7 +23,7 @@ namespace Habrador_Computational_Geometry
         //The map consists of 0 or 1, where 1 means solid (or active)
         //squareSize is how big each square in the grid is 
         //The map will be centered in 2d space around (x = 0, z = 0)
-        public static SquareGrid GenerateMesh(int[,] map, float squareSize)
+        public static SquareGrid GenerateMesh(float[,] map, float squareSize, bool shouldSmooth)
         {
             //Validate input
             if (map == null)
@@ -65,6 +66,11 @@ namespace Habrador_Computational_Geometry
                 for (int z = 0; z < zLength; z++)
                 {
                     Square thisSquare = squareGrid.squares[x, z];
+
+                    if (shouldSmooth)
+                    {
+                        SmoothSquare(thisSquare);
+                    }
 
                     TriangulateSquare(thisSquare);
                 }
@@ -239,6 +245,41 @@ namespace Habrador_Computational_Geometry
             triangles.Add(a.vertexIndex);
             triangles.Add(b.vertexIndex);
             triangles.Add(c.vertexIndex);
+        }
+
+
+
+        //Smooth the points that are between the corners of a square, to get a smoother mesh
+        //They are currently halfway between the corners
+        private static void SmoothSquare(Square square)
+        {
+            MyVector2 R_inter = GetLerpedMidpoint(square.TR.pos, square.TR.value, square.BR.pos, square.BR.value);
+            MyVector2 B_inter = GetLerpedMidpoint(square.BR.pos, square.BR.value, square.BL.pos, square.BL.value);
+            MyVector2 L_inter = GetLerpedMidpoint(square.BL.pos, square.BL.value, square.TL.pos, square.TL.value);
+            MyVector2 T_inter = GetLerpedMidpoint(square.TL.pos, square.TL.value, square.TR.pos, square.TR.value);
+
+            square.R.pos = R_inter;
+            square.B.pos = B_inter;
+            square.L.pos = L_inter;
+            square.T.pos = T_inter;
+        }
+
+
+
+        private static MyVector2 GetLerpedMidpoint(MyVector2 v1, float weight1, MyVector2 v2, float weight2)
+        {
+            float weight = (1f - weight1) / (weight2 - weight1);
+
+            //MyVector2 interpolatedPos =  v1 + (v2 - v1) * weight;
+
+            MyVector2 interpolatedPos = _Interpolation.BezierLinear(v1, v2, weight);
+
+            //float interX = _Interpolation.Sinerp(v1.x, v2.x, weight);
+            //float interY = _Interpolation.Sinerp(v1.y, v2.y, weight);
+
+            //MyVector2 interpolatedPos = new MyVector2(interX, interY);
+
+            return interpolatedPos;
         }
     }
 }

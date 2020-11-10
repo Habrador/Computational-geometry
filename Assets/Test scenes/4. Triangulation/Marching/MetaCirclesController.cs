@@ -21,7 +21,7 @@ public class MetaCirclesController : MonoBehaviour
     public float metaballFactor = 1f;
 
     //So we can display the map in OnDrawGizmos
-    private int[,] map;
+    private float[,] map;
 
     private Habrador_Computational_Geometry.Marching_Squares.SquareGrid grid;
 
@@ -41,12 +41,12 @@ public class MetaCirclesController : MonoBehaviour
 
         int squares = Mathf.FloorToInt(mapSize / squareSize);
     
-        map = new int[squares, squares];
+        map = new float[squares, squares];
         
         FillMap();
 
         //Generate the mesh with marching squares algorithm
-        grid = MarchingSquares.GenerateMesh(map, squareSize);
+        grid = MarchingSquares.GenerateMesh(map, squareSize, shouldSmooth: true);
     }
 
 
@@ -118,10 +118,12 @@ public class MetaCirclesController : MonoBehaviour
                     sum += (radius * radius) / (Mathf.Pow((pos.x - circlePos.x), 2f) + Mathf.Pow((pos.z - circlePos.z), 2f));
                 }
 
-                if (sum >= metaballFactor)
-                {
-                    map[x, z] = 1;
-                }
+                //if (sum >= metaballFactor)
+                //{
+                //    map[x, z] = 1;
+                //}
+
+                map[x, z] = sum;
             }
         }
     }
@@ -212,7 +214,8 @@ public class MetaCirclesController : MonoBehaviour
 
         Mesh mesh = grid.GenerateUnityMesh(0f);
 
-        TestAlgorithmsHelpMethods.DisplayMesh(mesh, Color.black);
+        //TestAlgorithmsHelpMethods.DisplayMesh(mesh, Color.black);
+        TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
     }
 
 

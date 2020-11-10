@@ -21,7 +21,7 @@ namespace Habrador_Computational_Geometry.Marching_Squares
 
 
 
-        public SquareGrid(int[,] map, float squareSize)
+        public SquareGrid(float[,] map, float squareSize)
         {
             //Init
             int nodeCountX = map.GetLength(0);
@@ -47,9 +47,9 @@ namespace Habrador_Computational_Geometry.Marching_Squares
 
                     MyVector2 pos = new MyVector2(xPos, zPos);
 
-                    bool isActive = map[x, z] == 1;
+                    bool isActive = map[x, z] >= 1f - Mathf.Epsilon;
 
-                    controlNodes[x, z] = new ControlNode(pos, isActive, squareSize);
+                    controlNodes[x, z] = new ControlNode(pos, isActive, squareSize, map[x, z]);
                 }
             }
 
