@@ -154,6 +154,12 @@ Triangulates points in a 2D grid.
 
 ![Mesh shapes](/_media/marching-squares.png?raw=true)
 
+**Metacircles:**
+
+Metacircles are like Metaballs but in 2D. Is using Marching squares.  
+
+![Mesh shapes](/_media/metacircles.png?raw=true)
+
 
 ### 5. Voronoi diagram
 
@@ -260,9 +266,10 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 
 ## Big Updates
 
-**2020-03** 
+**2020-11** 
 
-* Added marching squares
+* Added Marching Squares
+* Added Metacircles 
 
 **2020-03** 
 
