@@ -158,8 +158,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapSizeX: 20
   mapSizeZ: 10
-  squareSize: 0.5
-  randomFillPercent: 39
+  squareSize: 1
+  randomFillPercent: 50
   seed: 115
 --- !u!1 &518264663
 GameObject:

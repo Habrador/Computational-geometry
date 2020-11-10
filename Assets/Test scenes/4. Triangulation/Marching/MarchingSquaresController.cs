@@ -7,9 +7,10 @@ using Habrador_Computational_Geometry;
 //Generate a mesh by using the Marching Squares Algorithm
 public class MarchingSquaresController : MonoBehaviour 
 {
+    //The size of the map
     public int mapSizeX;
     public int mapSizeZ;
-    //The total size of the map in m in x direction is: mapSizeX * squareSize
+    //The size of a square in the map
     public float squareSize;
 
     //Used to generate test data
@@ -28,7 +29,17 @@ public class MarchingSquaresController : MonoBehaviour
 
     public void GenerateMap()
     {
-        map = new int[mapSizeX, mapSizeZ];
+        if (squareSize <= 0f)
+        {
+            Debug.LogError("Square size has to be greate than 0");
+        
+            return;
+        }
+    
+        int squaresX = Mathf.FloorToInt(mapSizeX / squareSize);
+        int squaresZ = Mathf.FloorToInt(mapSizeZ / squareSize);
+
+        map = new int[squaresX, squaresZ];
 
         FillMapRandomly();
 
@@ -43,9 +54,12 @@ public class MarchingSquaresController : MonoBehaviour
     {
         Random.InitState(seed);
 
-        for (int x = 0; x < mapSizeX; x++)
+        int squaresX = map.GetLength(0);
+        int squaresZ = map.GetLength(1);
+
+        for (int x = 0; x < squaresX; x++)
         {
-            for (int z = 0; z < mapSizeZ; z++)
+            for (int z = 0; z < squaresZ; z++)
             {
                 map[x, z] = (Random.Range(0f, 100f) < randomFillPercent) ? 1 : 0;
             }
@@ -158,12 +172,6 @@ public class MarchingSquaresController : MonoBehaviour
 
 
         Mesh mesh = grid.GenerateUnityMesh(0f);
-
-        //mesh.vertices = grid.vertices.ToArray();
-
-        //mesh.triangles = grid.triangles.ToArray();
-
-        //mesh.RecalculateNormals();
 
         TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
     }
