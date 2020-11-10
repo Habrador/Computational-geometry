@@ -33,12 +33,30 @@ public class OtherController : MonoBehaviour
 
         //PassedWaypoint(a, b, c);
 
-        CenterOfCircle(a, b, c);
+        //CenterOfCircle(a, b, c);
+
+        AngeBetweenVectors(a, b, c);
 
         Gizmos.DrawWireSphere(pointATrans.position, 0.1f);
         Gizmos.DrawWireSphere(pointBTrans.position, 0.1f);
         Gizmos.DrawWireSphere(pointCTrans.position, 0.1f);
         //Gizmos.DrawWireSphere((pointATrans.position + pointBTrans.position) * 0.5f, 0.1f);
+    }
+
+
+
+    //Calculate the angle between Vector a and b both originating from c
+    private void AngeBetweenVectors(MyVector2 a, MyVector2 b, MyVector2 c)
+    {
+        Gizmos.DrawLine(pointCTrans.position, pointATrans.position);
+        Gizmos.DrawLine(pointCTrans.position, pointBTrans.position);
+
+        MyVector2 from = a - c;
+        MyVector2 to = b - c;
+
+        float angle = MathUtility.AngleFromToCCW(from, to);
+
+        Debug.Log(angle * Mathf.Rad2Deg);
     }
 
 

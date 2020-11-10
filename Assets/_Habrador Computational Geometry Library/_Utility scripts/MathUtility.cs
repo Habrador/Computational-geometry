@@ -57,19 +57,64 @@ namespace Habrador_Computational_Geometry
         // Returns the determinant of the 2x2 matrix defined as
         // | x1 x2 |
         // | y1 y2 |
+        //det(a_normalized, b_normalized) = sin(alpha) so it's similar to the dot product
+        //Vector alignment dot det
+        //Same:            1   0
+        //Perpendicular:   0  -1
+        //Opposite:       -1   0
+        //Perpendicular:   0   1
         public static float Det2(float x1, float x2, float y1, float y2)
         {
-            return (x1 * y2 - y1 * x2);
+            return x1 * y2 - y1 * x2;
+        }
+
+        public static float Det2(MyVector2 a, MyVector2 b)
+        {
+            return a.x * b.y - a.y * b.x;
         }
 
 
 
-        //Calculate an angle measured in 360 degrees
-        //Vector3.Angle is measured in 180 degrees
+        //Calculate the angle between two vectors 
+        //This angle should be measured in 360 degrees (Vector3.Angle is measured in 180 degrees)
+        
+        //Alternative 1 in 3d space [degrees]
         //From should be Vector3.forward if you measure y angle, and to is the direction
         public static float CalculateAngle(Vector3 from, Vector3 to)
         {
             return Quaternion.FromToRotation(from, to).eulerAngles.y;
+        }
+
+        //Alternative 2 in 2d space [radians]
+        public static float AngleFromToCCW(MyVector2 from, MyVector2 to)
+        {
+            //The determinant is similar to the dot product
+            //The dot product is always 0 no matter in which direction the perpendicular vector is pointing
+            //But the determinant is -1 or 1 depending on which way the perpendicular vector is pointing (up or down)
+            //AngleBetween goes from 0 to 180 so we can now determine if we need to compensate to get 360 degrees
+            if (MathUtility.Det2(from, to) > 0f)
+            {
+                return AngleBetween(from, to);
+            }
+            else
+            {
+                return (Mathf.PI * 2f) - AngleBetween(from, to);
+            }
+        }
+
+        //The angle between two vectors 0 <= angle <= 180
+        //Same as Vector2.Angle() but we are using MyVector2
+        public static float AngleBetween(MyVector2 from, MyVector2 to)
+        {
+            //dot(a_normalized, b_normalized) = cos(alpha) -> acos(dot(a_normalized, b_normalized)) = alpha
+            float dot = MyVector2.Dot(MyVector2.Normalize(from), MyVector2.Normalize(to));
+
+            //This shouldn't happen but may happen because of floating point precision issues
+            dot = Mathf.Clamp(dot, -1f, 1f);
+
+            float angleRad = Mathf.Acos(dot);
+
+            return angleRad;
         }
 
 
