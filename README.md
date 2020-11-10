@@ -121,12 +121,7 @@ You have some points you want to triangulate, you follow the steps:
 3. Add the rest of the points one-by-one by splitting the triangles they end up in into three new triangles.
 
 ![Triangulation point-by-point](/_media/triangulation-point-by-point.png?raw=true)	
-
-
-**Marching squares:**
-
-![Mesh shapes](/_media/marching-squares.png?raw=true)	
-
+	
 
 #### 4.1 Delaunay triangulation
 
@@ -149,6 +144,15 @@ You triangulate the points by using a "bad" triangulation method (which is in th
 You add the constraints to the points and generate a Delaunay triangulation by using one of the above methods. Use this triangulation to find which edges interesect with the constraints. Then you flip these edges until they no longer interesect with the constraint. You finally remove the triangles that are "inside" of the constraint. It can currently handle just one hole, but in theory it can handle as many holes as possible, so I will add that in the future.    
 
 ![Triangulation Delaunay constrained](/_media/triangulation-delaunay-constrained.png?raw=true)	
+
+
+#### 4.2 Marching algorithms
+
+**Marching squares:**
+
+Triangulates points in a 2D grid. 
+
+![Mesh shapes](/_media/marching-squares.png?raw=true)
 
 
 ### 5. Voronoi diagram

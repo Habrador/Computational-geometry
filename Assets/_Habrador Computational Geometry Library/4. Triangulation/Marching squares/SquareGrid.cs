@@ -27,8 +27,10 @@ namespace Habrador_Computational_Geometry.Marching_Squares
             int nodeCountX = map.GetLength(0);
             int nodeCountZ = map.GetLength(1);
 
-            float mapWidthX = nodeCountX * squareSize;
-            float mapWidthZ = nodeCountZ * squareSize;
+            float halfMapWidthX = nodeCountX * squareSize * 0.5f;
+            float halfMapWidthZ = nodeCountZ * squareSize * 0.5f;
+
+            float halfSquareSize = squareSize * 0.5f;
 
 
             //Step 1. Create the control nodes which have a position and a state if they are active or not
@@ -40,8 +42,8 @@ namespace Habrador_Computational_Geometry.Marching_Squares
                 for (int z = 0; z < nodeCountZ; z++)
                 {
                     //Center the map around (0,0)
-                    float xPos = -mapWidthX * 0.5f + x * squareSize + squareSize * 0.5f;
-                    float zPos = -mapWidthZ * 0.5f + z * squareSize + squareSize * 0.5f;
+                    float xPos = -halfMapWidthX + x * squareSize + halfSquareSize;
+                    float zPos = -halfMapWidthZ + z * squareSize + halfSquareSize;
 
                     MyVector2 pos = new MyVector2(xPos, zPos);
 

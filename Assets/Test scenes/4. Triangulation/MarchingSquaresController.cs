@@ -9,6 +9,8 @@ public class MarchingSquaresController : MonoBehaviour
 {
     public int mapSizeX;
     public int mapSizeZ;
+    //The total size of the map in m in x direction is: mapSizeX * squareSize
+    public float squareSize;
 
     //Used to generate test data
     [Range(0, 100)]
@@ -31,7 +33,7 @@ public class MarchingSquaresController : MonoBehaviour
         FillMapRandomly();
 
         //Generate the mesh with marching squares algorithm
-        grid = MarchingSquares.GenerateMesh(map, 1f);
+        grid = MarchingSquares.GenerateMesh(map, squareSize);
     }
 
 
@@ -56,7 +58,7 @@ public class MarchingSquaresController : MonoBehaviour
     private void OnDrawGizmos()
     {
         //Blue means solid, red means empty
-        //DisplayMap();
+        DisplayMap();
 
         DisplayGeneratedMesh();
 
@@ -76,18 +78,26 @@ public class MarchingSquaresController : MonoBehaviour
         }
 
 
-        int xLength = map.GetLength(0);
-        int zLength = map.GetLength(1);
+        int nodeCountX = map.GetLength(0);
+        int nodeCountZ = map.GetLength(1);
 
-        for (int x = 0; x < xLength; x++)
+        float halfMapWidthX = nodeCountX * squareSize * 0.5f;
+        float halfMapWidthZ = nodeCountZ * squareSize * 0.5f;
+
+        float halfSquareSize = squareSize * 0.5f;
+
+        for (int x = 0; x < nodeCountX; x++)
         {
-            for (int z = 0; z < zLength; z++)
+            for (int z = 0; z < nodeCountZ; z++)
             {
                 Gizmos.color = (map[x, z] == 1) ? Color.blue : Color.red;
 
-                Vector3 pos = new Vector3(-xLength * 0.5f + x + 0.5f, 0f, -zLength * 0.5f + z + 0.5f);
+                float xPos = -halfMapWidthX + x * squareSize + halfSquareSize;
+                float zPos = -halfMapWidthZ + z * squareSize + halfSquareSize;
 
-                Gizmos.DrawCube(pos, Vector3.one);
+                Vector3 pos = new Vector3(xPos, 0f, zPos);
+
+                Gizmos.DrawCube(pos, Vector3.one * squareSize * 0.9f);
             }
         }
     }
