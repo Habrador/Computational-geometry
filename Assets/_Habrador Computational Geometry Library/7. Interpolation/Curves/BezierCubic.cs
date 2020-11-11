@@ -5,101 +5,7 @@ using UnityEngine;
 //A collection of classes to make the methods more general
 namespace Habrador_Computational_Geometry
 {
-    //Base class
-    public abstract class Curve
-    {
-        //All child classes need to have these methods
-        public abstract MyVector3 GetInterpolatedPosition(float t);
-
-        public abstract float CalculateDerivative(float t);
-    }
-
-
-
-    //
-    // Bezier Quadratic
-    //
-    public class BezierQuadratic : Curve
-    {
-        //Start and end point
-        public MyVector3 posA;
-        public MyVector3 posB;
-        //Handle connected to start and end points
-        public MyVector3 handle;
-
-
-        public BezierQuadratic(MyVector3 posA, MyVector3 posB, MyVector3 handle)
-        {
-            this.posA = posA;
-            this.posB = posB;
-            
-            this.handle = handle;
-        }
-
-
-
-        //Get interpolated value at point t
-        public override MyVector3 GetInterpolatedPosition(float t)
-        {
-            MyVector3 interpolatedValue = _Interpolation.BezierQuadratic(posA, posB, handle, t);
-
-            return interpolatedValue;
-        }
-
-
-
-        //
-        // Derivative
-        //
-
-        public override float CalculateDerivative(float t)
-        {
-            //Choose how to calculate the derivative
-            //float derivative = InterpolationHelpMethods.EstimateDerivative(this, t);
-
-            float derivative = ExactDerivative(t);
-
-            return derivative;
-        }
-
-
-
-        //Derivative at point t
-        public float ExactDerivative(float t)
-        {
-            MyVector3 A = posA;
-            MyVector3 B = handle;
-            MyVector3 C = posB;
-
-            //Layer 1
-            //(1-t)A + tB = A - At + Bt
-            //(1-t)B + tC = B - Bt + Ct
-
-            //Layer 2
-            //(1-t)(A - At + Bt) + t(B - Bt + Ct)
-            //A - At + Bt - At + At^2 - Bt^2 + Bt - Bt^2 + Ct^2
-            //A - 2At + 2Bt + At^2 - 2Bt^2 + Ct^2 
-            //A - t(2(A - B)) + t^2(A - 2B + C)
-
-            //Derivative: -(2(A - B)) + t(2(A - 2B + C))
-
-            MyVector3 derivativeVector = t * (2f * (A - 2f * B + C));
-
-            derivativeVector += -2f * (A - B);
-
-
-            float derivative = MyVector3.Magnitude(derivativeVector);
-
-
-            return derivative;
-        }
-    }
-
-
-
-    //
-    // Bezier Cubic
-    //
+    //Bezier with two handles
     public class BezierCubic : Curve
     {
         //Start and end points
@@ -120,13 +26,48 @@ namespace Habrador_Computational_Geometry
         }
 
 
+        //
+        // Position and forward dir
+        //
 
-        //Get interpolated position at point t
-        public override MyVector3 GetInterpolatedPosition(float t)
+        //Get interpolated position on the curve at point t
+        public override MyVector3 GetPosition(float t)
         {
-            MyVector3 interpolatedValue = _Interpolation.BezierCubic(posA, posB, handleA, handleB, t);
+            MyVector3 interpolatedValue = GetPosition(posA, posB, handleA, handleB, t);
 
             return interpolatedValue;
+        }
+
+        public static MyVector3 GetPosition(MyVector3 posA, MyVector3 posB, MyVector3 handlePosA, MyVector3 handlePosB, float t)
+        {
+            //MyVector3 interpolation_1 = BezierLinear(posA, handlePosA, t);
+            //MyVector3 interpolation_2 = BezierLinear(handlePosA, handlePosB, t);
+            //MyVector3 interpolation_3 = BezierLinear(handlePosB, posB, t);
+
+            //MyVector3 interpolation_1_2 = BezierLinear(interpolation_1, interpolation_2, t);
+            //MyVector3 interpolation_2_3 = BezierLinear(interpolation_2, interpolation_3, t);
+
+            //Above can be simplified if we are utilizing the quadratic bezier
+            MyVector3 interpolation_1_2 = BezierQuadratic.GetPosition(posA, handlePosB, handlePosA, t);
+            MyVector3 interpolation_2_3 = BezierQuadratic.GetPosition(handlePosA, posB, handlePosB, t);
+
+            MyVector3 finalInterpolation = BezierLinear.GetPosition(interpolation_1_2, interpolation_2_3, t);
+
+            return finalInterpolation;
+        }
+
+
+        //Get the forward direction at a point on the Bezier Cubic
+        //This direction is always tangent to the curve
+        public static MyVector3 GetForwardDir(MyVector3 posA, MyVector3 posB, MyVector3 handlePosA, MyVector3 handlePosB, float t)
+        {
+            //Same as when we calculate t
+            MyVector3 interpolation_1_2 = BezierQuadratic.GetPosition(posA, handlePosB, handlePosA, t);
+            MyVector3 interpolation_2_3 = BezierQuadratic.GetPosition(handlePosA, posB, handlePosB, t);
+
+            MyVector3 forwardDir = MyVector3.Normalize(interpolation_2_3 - interpolation_1_2);
+
+            return forwardDir;
         }
 
 
@@ -209,19 +150,29 @@ namespace Habrador_Computational_Geometry
         public InterpolationTransform GetTransform(float t)
         {
             //The position on the curve at point t
-            MyVector3 pos = GetInterpolatedPosition(t);
+            MyVector3 pos = GetPosition(t);
 
             //This forward direction (tangent) on the curve at point t
-            MyVector3 forwardDir = _Interpolation.BezierCubicForwardDir(posA, posB, handleA, handleB, t);
+            MyVector3 forwardDir = GetForwardDir(posA, posB, handleA, handleB, t);
 
 
-            //The position and the tangent are easy to find, what's difficult to find is the normal because a line doesn't have a normal
+            //The position and the tangent are easy to find, what's difficult to find is the normal because a line doesn't have a single normal
 
+            //To get the normal in 2d, we can just flip two coordinates in the forward vector
+            //MyVector3 tangent = new MyVector3(-forwardDir.z, 0f, forwardDir.x);
+
+
+            //In 3d there are multiple alternatives
+
+            //Alternative 1
 
             //A simple way to get the other directions is to use LookRotation with just forward dir as parameter
             //Then the up direction will always be the world up direction, and it calculates the right direction 
             //This idea is not working for all possible curve orientations
             Quaternion orientation = Quaternion.LookRotation(forwardDir.ToVector3());
+
+            //This is the same as providing a reference vector which is up
+            //Quaternion orientation = InterpolationTransform.GetOrientationByUsingUpRef(forwardDir, Vector3.up.ToMyVector3());
 
 
             InterpolationTransform trans = new InterpolationTransform(pos, orientation);

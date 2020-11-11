@@ -272,7 +272,7 @@ namespace Habrador_Computational_Geometry
 
             //MyVector2 interpolatedPos =  v1 + (v2 - v1) * weight;
 
-            MyVector2 interpolatedPos = _Interpolation.BezierLinear(v1, v2, weight);
+            MyVector2 interpolatedPos = BezierLinear.GetPosition(v1, v2, weight);
 
             //float interX = _Interpolation.Sinerp(v1.x, v2.x, weight);
             //float interY = _Interpolation.Sinerp(v1.y, v2.y, weight);

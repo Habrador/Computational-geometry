@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
+    //This struct should provide a Transform (position and orientation) suitable for curves like Bezier
     public struct InterpolationTransform
     {
         public MyVector3 position;
@@ -17,22 +18,31 @@ namespace Habrador_Computational_Geometry
             this.orientation = orientation;
         }
 
-        //If we have a forward and an up reference vector
-        //So this is not going to work if we have loops
-        //tangent is same as forward
-        public InterpolationTransform(MyVector3 position, MyVector3 tangent, MyVector3 up)
-        {
-            this.position = position;
 
-            MyVector3 biNormal = MyVector3.Normalize(MyVector3.Cross(up, tangent));
+
+        //
+        // Calculate orientation by using different methods
+        //
+
+        //If we have a forward (tangent) and an "up" reference vector
+        //So this is not going to work if we have loops
+        //From "Unite 2015 - A coder's guide to spline-based procedural geometry" https://www.youtube.com/watch?v=o9RK6O2kOKo
+        public static Quaternion GetOrientationByUsingUpRef(MyVector3 tangent, MyVector3 upRef)
+        {
+            MyVector3 biNormal = MyVector3.Normalize(MyVector3.Cross(upRef, tangent));
 
             MyVector3 normal = MyVector3.Normalize(MyVector3.Cross(tangent, biNormal));
 
-            this.orientation = Quaternion.LookRotation(tangent.ToVector3(), normal.ToVector3());
+            Quaternion orientation = Quaternion.LookRotation(tangent.ToVector3(), normal.ToVector3());
+
+            return orientation;
         }
 
 
-        //Get orientations
+
+        //
+        // Get directions from orientation
+        //
 
         //Forward
         public MyVector3 Forward

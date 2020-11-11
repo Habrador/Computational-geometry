@@ -41,7 +41,7 @@ public class InterpolationController : MonoBehaviour
 
         //BezierCubic(posA, posB, handleA, handleB);
 
-        BezierCubicEqualSteps(posA, posB, handleA, handleB);
+        BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
 
         //CatmullRom(posA, handleA, handleB, posB);
 
@@ -52,7 +52,7 @@ public class InterpolationController : MonoBehaviour
 
 
 
-    private void BezierLinear(MyVector3 posA, MyVector3 posB)
+    private void BezierLinearTest(MyVector3 posA, MyVector3 posB)
     {
         //Store the interpolated values so we later can display them
         List<Vector3> interpolatedValues = new List<Vector3>();
@@ -70,7 +70,7 @@ public class InterpolationController : MonoBehaviour
         {
             //Debug.Log(t);
 
-            MyVector3 interpolatedValue = _Interpolation.BezierLinear(posA, posB, t);
+            MyVector3 interpolatedValue = BezierLinear.GetPosition(posA, posB, t);
 
             interpolatedValues.Add(interpolatedValue.ToVector3());
 
@@ -83,7 +83,7 @@ public class InterpolationController : MonoBehaviour
 
 
 
-    private void BezierQuadratic(MyVector3 posA, MyVector3 posB, MyVector3 handle)
+    private void BezierQuadraticTest(MyVector3 posA, MyVector3 posB, MyVector3 handle)
     {
         //Store the interpolated values so we later can display them
         List<Vector3> interpolatedValues = new List<Vector3>();
@@ -101,7 +101,7 @@ public class InterpolationController : MonoBehaviour
         {
             //Debug.Log(t);
 
-            MyVector3 interpolatedValue = _Interpolation.BezierQuadratic(posA, posB, handle, t);
+            MyVector3 interpolatedValue = BezierQuadratic.GetPosition(posA, posB, handle, t);
 
             interpolatedValues.Add(interpolatedValue.ToVector3());
 
@@ -120,9 +120,9 @@ public class InterpolationController : MonoBehaviour
 
         //Display other related data
         //Get the forwrd dir of the point at t and display it
-        MyVector3 forwardDir = _Interpolation.BezierQuadraticForwardDir(posA, posB, handle, tSliderValue);
+        MyVector3 forwardDir = BezierQuadratic.GetForwardDir(posA, posB, handle, tSliderValue);
 
-        MyVector3 slidePos = _Interpolation.BezierQuadratic(posA, posB, handle, tSliderValue);
+        MyVector3 slidePos = BezierQuadratic.GetPosition(posA, posB, handle, tSliderValue);
 
         TestAlgorithmsHelpMethods.DisplayArrow(slidePos.ToVector3(), (slidePos + forwardDir * 2f).ToVector3(), 0.2f, Color.blue);
 
@@ -131,7 +131,9 @@ public class InterpolationController : MonoBehaviour
         Gizmos.DrawWireSphere(slidePos.ToVector3(), 0.15f);
     }
 
-    private void BezierQuadraticEqualSteps(MyVector3 posA, MyVector3 posB, MyVector3 handle)
+
+
+    private void BezierQuadraticEqualStepsTest(MyVector3 posA, MyVector3 posB, MyVector3 handle)
     {
         //Store the interpolated values so we later can display them
         List<Vector3> actualPositions = new List<Vector3>();
@@ -178,7 +180,7 @@ public class InterpolationController : MonoBehaviour
             //Method 2
             float actualT = InterpolationHelpMethods.Find_t_FromDistance_Lookup(bezierQuadratic, distanceTravelled, accumulatedDistances: null);
 
-            MyVector3 actualPos = bezierQuadratic.GetInterpolatedPosition(actualT);
+            MyVector3 actualPos = bezierQuadratic.GetPosition(actualT);
 
             actualPositions.Add(actualPos.ToVector3());
 
@@ -216,7 +218,7 @@ public class InterpolationController : MonoBehaviour
 
 
 
-    private void BezierCubic(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
+    private void BezierCubicTest(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
     {
         //Store the interpolated values so we later can display them
         List<Vector3> interpolatedValues = new List<Vector3>();
@@ -234,7 +236,7 @@ public class InterpolationController : MonoBehaviour
         {
             //Debug.Log(t);
 
-            MyVector3 interpolatedPos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, t);
+            MyVector3 interpolatedPos = BezierCubic.GetPosition(posA, posB, handleA, handleB, t);
 
             interpolatedValues.Add(interpolatedPos.ToVector3());
 
@@ -262,7 +264,7 @@ public class InterpolationController : MonoBehaviour
         //so -right looks like up even though in the actual coordinate system it is -right
         Vector3 upDir = -trans.Right.ToVector3();
 
-        Vector3 slidePos = _Interpolation.BezierCubic(posA, posB, handleA, handleB, tSliderValue).ToVector3();
+        Vector3 slidePos = BezierCubic.GetPosition(posA, posB, handleA, handleB, tSliderValue).ToVector3();
 
         TestAlgorithmsHelpMethods.DisplayArrow(slidePos, slidePos + forwardDir * 2f, 0.2f, Color.blue);
         TestAlgorithmsHelpMethods.DisplayArrow(slidePos, slidePos + upDir * 2f, 0.2f, Color.blue);
@@ -273,7 +275,7 @@ public class InterpolationController : MonoBehaviour
     }
 
 
-    private void BezierCubicEqualSteps(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
+    private void BezierCubicEqualStepsTest(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
     {
         //Store the interpolated values so we later can display them
         List<Vector3> actualPositions = new List<Vector3>();
@@ -288,7 +290,7 @@ public class InterpolationController : MonoBehaviour
 
         float lengthExact = InterpolationHelpMethods.GetLength_SimpsonsRule(bezierCubic, tStart: 0f, tEnd: 1f);
 
-        Debug.Log("Naive length: " + lengthNaive + " Exact length: " + lengthExact);
+        //Debug.Log("Naive length: " + lengthNaive + " Exact length: " + lengthExact);
 
 
         //If we want to display the tangent at each position on the curve
@@ -321,25 +323,26 @@ public class InterpolationController : MonoBehaviour
             //Method 2
             float actualT = InterpolationHelpMethods.Find_t_FromDistance_Lookup(bezierCubic, distanceTravelled, accumulatedDistances: null);
 
-            MyVector3 actualPos = bezierCubic.GetInterpolatedPosition(actualT);
+            MyVector3 actualPos = bezierCubic.GetPosition(actualT);
 
             actualPositions.Add(actualPos.ToVector3());
 
 
             //Test that the derivative calculations are working
-            float dEst = InterpolationHelpMethods.EstimateDerivative(bezierCubic, t);
-            float dAct = bezierCubic.ExactDerivative(t);
+            //float dEst = InterpolationHelpMethods.EstimateDerivative(bezierCubic, t);
+            //float dAct = bezierCubic.ExactDerivative(t);
 
-            Debug.Log("Estimated derivative: " + dEst + " Actual derivative: " + dAct);
+            //Debug.Log("Estimated derivative: " + dEst + " Actual derivative: " + dAct);
 
 
             //Calculate the tangent at each position
-            MyVector3 tangentDir = _Interpolation.BezierCubicForwardDir(posA, posB, handleA, handleB, actualT);
+            MyVector3 tangentDir = BezierCubic.GetForwardDir(posA, posB, handleA, handleB, actualT);
 
             tangents.Add(tangentDir.ToVector3());
 
 
             //Debug.Log("Distance " + distanceTravelled);
+
 
             //Move on to next iteration
             distanceTravelled += lengthStepSize;
@@ -348,7 +351,7 @@ public class InterpolationController : MonoBehaviour
         }
 
 
-        //DIsplay stuff
+        //Display stuff
 
         //List<MyVector3> positionsOnCurve = InterpolationHelpMethods.SplitCurve(bezierCubic, 20, tEnd: 1f);
 
@@ -374,7 +377,7 @@ public class InterpolationController : MonoBehaviour
 
 
 
-    private void CatmullRom(MyVector3 a, MyVector3 b, MyVector3 c, MyVector3 d)
+    private void CatmullRomTest(MyVector3 a, MyVector3 b, MyVector3 c, MyVector3 d)
     {
         //Store the interpolated values so we later can display them
         List<Vector3> interpolatedValues = new List<Vector3>();
