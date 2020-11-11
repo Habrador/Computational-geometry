@@ -48,7 +48,7 @@ namespace Habrador_Computational_Geometry
             return finalInterpolation;
         }
 
-        //Get the forward direction do the Bezier Quadratic
+        //Get the forward direction at a point on the Bezier Quadratic
         //This direction is always tangent to the curve
         public static MyVector3 BezierQuadraticForwardDir(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
@@ -79,6 +79,19 @@ namespace Habrador_Computational_Geometry
             MyVector3 finalInterpolation = BezierLinear(interpolation_1_2, interpolation_2_3, t);
 
             return finalInterpolation;
+        }
+
+        //Get the forward direction at a point on the Bezier Cubic
+        //This direction is always tangent to the curve
+        public static MyVector3 BezierCubicForwardDir(MyVector3 posA, MyVector3 posB, MyVector3 handlePosA, MyVector3 handlePosB, float t)
+        {
+            //Same as when we calculate t
+            MyVector3 interpolation_1_2 = BezierQuadratic(posA, handlePosB, handlePosA, t);
+            MyVector3 interpolation_2_3 = BezierQuadratic(handlePosA, posB, handlePosB, t);
+
+            MyVector3 forwardDir = MyVector3.Normalize(interpolation_2_3 - interpolation_1_2);
+
+            return forwardDir;
         }
 
 

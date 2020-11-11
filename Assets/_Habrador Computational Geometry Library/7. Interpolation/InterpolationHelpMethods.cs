@@ -30,7 +30,7 @@ namespace Habrador_Computational_Geometry
             {
                 //Debug.Log(t);
 
-                MyVector3 interpolatedValue = curve.GetInterpolatedValue(t);
+                MyVector3 interpolatedValue = curve.GetInterpolatedPosition(t);
 
                 interpolatedPositions.Add(interpolatedValue);
 
@@ -390,8 +390,8 @@ namespace Habrador_Computational_Geometry
             //Should be around this number
             float derivativeStepSize = 0.0001f;
 
-            MyVector3 valueMinus = curve.GetInterpolatedValue(t - derivativeStepSize);
-            MyVector3 valuePlus = curve.GetInterpolatedValue(t + derivativeStepSize);
+            MyVector3 valueMinus = curve.GetInterpolatedPosition(t - derivativeStepSize);
+            MyVector3 valuePlus = curve.GetInterpolatedPosition(t + derivativeStepSize);
 
             //Have to multiply by two because we are taking a step in each direction
             MyVector3 derivativeVector = (valuePlus - valueMinus) * (1f / (derivativeStepSize * 2f));

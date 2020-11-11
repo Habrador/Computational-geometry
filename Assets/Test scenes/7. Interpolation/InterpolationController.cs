@@ -178,7 +178,7 @@ public class InterpolationController : MonoBehaviour
             //Method 2
             float actualT = InterpolationHelpMethods.Find_t_FromDistance_Lookup(bezierQuadratic, distanceTravelled, accumulatedDistances: null);
 
-            MyVector3 actualPos = bezierQuadratic.GetInterpolatedValue(actualT);
+            MyVector3 actualPos = bezierQuadratic.GetInterpolatedPosition(actualT);
 
             actualPositions.Add(actualPos.ToVector3());
 
@@ -283,16 +283,17 @@ public class InterpolationController : MonoBehaviour
 
 
         //Step 1. Calculate the length of the entire curve
-        //This is needed to so we know how long we should walk each step
+        //This is needed so we know for how long we should walk each step
         float lengthNaive = InterpolationHelpMethods.GetLength_Naive(bezierCubic, steps: 20, tEnd: 1f);
 
         float lengthExact = InterpolationHelpMethods.GetLength_SimpsonsRule(bezierCubic, tStart: 0f, tEnd: 1f);
 
         Debug.Log("Naive length: " + lengthNaive + " Exact length: " + lengthExact);
 
-      
 
-        
+        //If we want to display the tangent at each position on the curve
+        List<Vector3> tangents = new List<Vector3>();
+
 
         int steps = 5;
 
@@ -314,16 +315,15 @@ public class InterpolationController : MonoBehaviour
 
 
 
-            //Calculate t to get to this distance
+            //Calculate the t needed to get to this distance along the curve
             //Method 1
             //float actualT = InterpolationHelpMethods.Find_t_FromDistance_Iterative(bezierCubic, distanceTravelled, length);
             //Method 2
             float actualT = InterpolationHelpMethods.Find_t_FromDistance_Lookup(bezierCubic, distanceTravelled, accumulatedDistances: null);
 
-            MyVector3 actualPos = bezierCubic.GetInterpolatedValue(actualT);
+            MyVector3 actualPos = bezierCubic.GetInterpolatedPosition(actualT);
 
             actualPositions.Add(actualPos.ToVector3());
-
 
 
             //Test that the derivative calculations are working
@@ -333,6 +333,11 @@ public class InterpolationController : MonoBehaviour
             Debug.Log("Estimated derivative: " + dEst + " Actual derivative: " + dAct);
 
 
+            //Calculate the tangent at each position
+            MyVector3 tangentDir = _Interpolation.BezierCubicForwardDir(posA, posB, handleA, handleB, actualT);
+
+            tangents.Add(tangentDir.ToVector3());
+
 
             //Debug.Log("Distance " + distanceTravelled);
 
@@ -341,6 +346,9 @@ public class InterpolationController : MonoBehaviour
 
             t += stepSize;
         }
+
+
+        //DIsplay stuff
 
         //List<MyVector3> positionsOnCurve = InterpolationHelpMethods.SplitCurve(bezierCubic, 20, tEnd: 1f);
 
@@ -358,6 +366,10 @@ public class InterpolationController : MonoBehaviour
 
         //Display the actual Bezier cubic for reference
         Handles.DrawBezier(posA.ToVector3(), posB.ToVector3(), handleA.ToVector3(), handleB.ToVector3(), Color.blue, EditorGUIUtility.whiteTexture, 1f);
+
+
+        //Display the tangents
+        DisplayDirections(actualPositions, tangents, 1f, Color.red);
     }
 
 
@@ -540,4 +552,14 @@ public class InterpolationController : MonoBehaviour
         Gizmos.DrawWireSphere(handlePos, 0.2f);
     }
     
+
+
+    //Display rays
+    private void DisplayDirections(List<Vector3> startPos, List<Vector3> rayDir, float rayLength, Color color)
+    {
+        for (int i = 0; i < startPos.Count; i++)
+        {
+            Debug.DrawRay(startPos[i], rayDir[i] * rayLength, color);
+        }
+    }
 }
