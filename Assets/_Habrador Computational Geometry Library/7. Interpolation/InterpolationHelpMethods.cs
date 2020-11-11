@@ -14,7 +14,7 @@ namespace Habrador_Computational_Geometry
         //Steps is the number of sections we are going to split the curve in
         //So the number of interpolated values are steps + 1
         //tEnd is where we want to stop measuring if we dont want to split the entire curve, so tEnd is maximum of 1
-        public static List<MyVector3> SplitCurve(Curve curve, int steps, float tEnd)
+        public static List<MyVector3> SplitCurve(_Curve curve, int steps, float tEnd)
         {
             //Store the interpolated values so we later can display them
             List<MyVector3> interpolatedPositions = new List<MyVector3>();
@@ -49,7 +49,7 @@ namespace Habrador_Computational_Geometry
         //Get the length of the curve with a naive method where we divide the
         //curve into straight lines and then measure the length of each line
         //tEnd is 1 if we want to get the length of the entire curve
-        public static float GetLength_Naive(Curve curve, int steps, float tEnd)
+        public static float GetLength_Naive(_Curve curve, int steps, float tEnd)
         {
             //Split the ruve into positions with some steps resolution
             List<MyVector3> CurvePoints = SplitCurve(curve, steps, tEnd);
@@ -73,7 +73,7 @@ namespace Habrador_Computational_Geometry
         //Get the length by using Simpson's Rule (not related to the television show)
         //https://www.youtube.com/watch?v=J_a4PXI_nLY
         //The basic idea is that we cut the curve into sections and each section is approximated by a polynom 
-        public static float GetLength_SimpsonsRule(Curve curve, float tStart, float tEnd)
+        public static float GetLength_SimpsonsRule(_Curve curve, float tStart, float tEnd)
         {
             //Divide the curve into sections
             
@@ -136,7 +136,7 @@ namespace Habrador_Computational_Geometry
         //https://en.wikipedia.org/wiki/Newton%27s_method
         //https://www.youtube.com/watch?v=-mad4YPAn2U
         //TODO: We can use the lookup table from the lookup-method in the newton-raphson method!
-        public static float Find_t_FromDistance_Iterative(Curve curve, float d, float totalLength)
+        public static float Find_t_FromDistance_Iterative(_Curve curve, float d, float totalLength)
         {
             //Need a start value to make the method start
             //Should obviously be between 0 and 1
@@ -207,7 +207,7 @@ namespace Habrador_Computational_Geometry
         //This is faster but less accurate than using the iterative Newton–Raphsons method
         //But the difference from far away is barely noticeable
         //https://medium.com/@Acegikmo/the-ever-so-lovely-b%C3%A9zier-curve-eb27514da3bf
-        public static float Find_t_FromDistance_Lookup(Curve curve, float d, List<float> accumulatedDistances)
+        public static float Find_t_FromDistance_Lookup(_Curve curve, float d, List<float> accumulatedDistances)
         {
             //Step 1. Find accumulated distances along the curve by using the bad t-value
             //This value can be pre-calculated
@@ -281,7 +281,7 @@ namespace Habrador_Computational_Geometry
         //Parameter t is not always percentage along the curve
         //Sometimes we need to calculate the actual percentage if t had been percentage along the curve
         //From https://www.youtube.com/watch?v=o9RK6O2kOKo
-        public static float FindPercentageAlongCurve(Curve curve, float tBad, List<float> accumulatedDistances)
+        public static float FindPercentageAlongCurve(_Curve curve, float tBad, List<float> accumulatedDistances)
         {
             //Step 1. Find accumulated distances along the curve by using the bad t-value
             //This value can be pre-calculated
@@ -353,7 +353,7 @@ namespace Habrador_Computational_Geometry
         // Help method to calculate the accumulated total distances along the curve 
         // by walking along it by using constant t-steps
         //
-        public static List<float> GetAccumulatedDistances(Curve curve, int steps = 20)
+        public static List<float> GetAccumulatedDistances(_Curve curve, int steps = 20)
         {
             //Step 1. Find positions on the curve by using the bad t-value
             List<MyVector3> positionsOnCurve = SplitCurve(curve, steps, tEnd: 1f);
@@ -384,7 +384,7 @@ namespace Habrador_Computational_Geometry
         // Estimate the derivative at point t
         //
         //https://www.youtube.com/watch?v=pHMzNW8Agq4
-        public static float EstimateDerivative(Curve curve, float t)
+        public static float EstimateDerivative(_Curve curve, float t)
         {
             //We can estimate the derivative by taking a step in each direction of the point we are interested in
             //Should be around this number

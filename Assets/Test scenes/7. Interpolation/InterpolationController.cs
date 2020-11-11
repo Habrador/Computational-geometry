@@ -33,17 +33,17 @@ public class InterpolationController : MonoBehaviour
 
         //Bezier curves
 
-        //BezierLinear(posA, posB);
+        //BezierLinearTest(posA, posB);
 
-        //BezierQuadratic(posA, posB, handleA);
+        //BezierQuadraticTest(posA, posB, handleA);
 
-        //BezierQuadraticEqualSteps(posA, posB, handleA);
+        //BezierQuadraticEqualStepsTest(posA, posB, handleA);
 
-        //BezierCubic(posA, posB, handleA, handleB);
+        //BezierCubicTest(posA, posB, handleA, handleB);
 
         BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
 
-        //CatmullRom(posA, handleA, handleB, posB);
+        //CatmullRomTest(posA, handleA, handleB, posB);
 
 
         //Interpolation between values
@@ -411,7 +411,7 @@ public class InterpolationController : MonoBehaviour
     }
 
     //Get values between two points for CatmullRom
-    private static List<Vector3> GetCatmullRomPoints(MyVector3 a, MyVector3 b, MyVector3 c, MyVector3 d)
+    private static List<Vector3> GetCatmullRomPoints(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
     {
         //Store the interpolated values so we later can display them
         List<Vector3> interpolatedValues = new List<Vector3>();
@@ -429,7 +429,7 @@ public class InterpolationController : MonoBehaviour
         {
             //Debug.Log(t);
 
-            MyVector3 interpolatedValue = _Interpolation.CatmullRom(a, b, c, d, t);
+            MyVector3 interpolatedValue = CatmullRom.GetPosition(posA, posB, handleA, handleB, t);
 
             interpolatedValues.Add(interpolatedValue.ToVector3());
 

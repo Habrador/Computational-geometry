@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Bezier with zero handles
-    public class BezierLinear : Curve
+    public class BezierLinear : _Curve
     {
         //Start and end point
         public MyVector3 posA;

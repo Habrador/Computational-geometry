@@ -4,51 +4,9 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
-    //Interpolation between points with different algorithms
-    //These are in 3d, if you want them in 2d just set a coordinate to 0
+    //Interpolation between values with different algorithms
     public static class _Interpolation
-    {
-        //
-        // Bezier Curves
-        //
-
-        //https://en.wikipedia.org/wiki/B%C3%A9zier_curve
-
-        
-
-
-
-        //
-        // Catmull-Rom curve
-        //
-
-        //The curve has a start and end point (p1 and p2), and the shape is determined also by two handle points (p0 and p3)
-        //The difference from the bezier case is that you can make it so the curve is going through these handle points
-        //So if you have a set of points and want a smooth path between these points, you don't have to bother with handles
-        //to determine the shape of the curve
-        //http://www.iquilezles.org/www/articles/minispline/minispline.htm
-        public static MyVector3 CatmullRom(MyVector3 p0, MyVector3 p1, MyVector3 p2, MyVector3 p3, float t)
-        {
-            t = Mathf.Clamp01(t);
-
-            //The coefficients of the cubic polynomial (except the 0.5f * which I added later for performance)
-            MyVector3 a = 2f * p1;
-            MyVector3 b = p2 - p0;
-            MyVector3 c = 2f * p0 - 5f * p1 + 4f * p2 - p3;
-            MyVector3 d = -p0 + 3f * p1 - 3f * p2 + p3;
-
-            //The cubic polynomial: a + b * t + c * t^2 + d * t^3
-            MyVector3 interpolatedPos = 0.5f * (a + (b * t) + (c * t * t) + (d * t * t * t));
-
-            return interpolatedPos;
-        }
-
-
-
-        //
-        // Interpolate between values
-        //
-
+    {  
         //Linear interpolation - if t is constant then the step between each value is constant
         public static float Lerp(float a, float b, float t)
         {
