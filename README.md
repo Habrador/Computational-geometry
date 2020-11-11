@@ -247,7 +247,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Convex hull: Graham scan
 * Triangulate with Marching cubes
 * Cut 3d mesh with plane
-* Metaballs
+* Metaballs by using Marching cubes
 * Voronoi with Fortune's algorithm
 * Voronoi point-by-point
 * Triangulation concave polygon by ear clipping (You can most likely achieve the same thing with Constrained Delaunay, so maybe unnecessary to implement)
@@ -256,6 +256,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Mesh decals
 * Extrude mesh along Bezier and Catmull-Rom
 * Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want
+* A way to generate an infinite delaunay triangulation (for terrains etc)
 
 ### Stuff to fix
 
