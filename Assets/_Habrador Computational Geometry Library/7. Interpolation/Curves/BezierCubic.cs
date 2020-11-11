@@ -169,7 +169,7 @@ namespace Habrador_Computational_Geometry
             //A simple way to get the other directions is to use LookRotation with just forward dir as parameter
             //Then the up direction will always be the world up direction, and it calculates the right direction 
             //This idea is not working for all possible curve orientations
-            Quaternion orientation = Quaternion.LookRotation(forwardDir.ToVector3());
+            MyQuaternion orientation = new MyQuaternion(forwardDir);
 
             //This is the same as providing a reference vector which is up
             //Quaternion orientation = InterpolationTransform.GetOrientationByUsingUpRef(forwardDir, Vector3.up.ToMyVector3());
