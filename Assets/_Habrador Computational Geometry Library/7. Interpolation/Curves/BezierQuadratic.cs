@@ -25,7 +25,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Position on the curve at point t
+        // Position at point t
         //
 
         public override MyVector3 GetPosition(float t)
@@ -71,7 +71,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Forward direction on the curve at point t (This direction is always tangent to the curve)
+        // Forward direction (tangent) at point t
         //
 
         public static MyVector3 GetForwardDir(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
@@ -85,7 +85,7 @@ namespace Habrador_Computational_Geometry
 
             //Alternative 2
             //The forward dir is also the derivative vector
-            MyVector3 forwardDir = MyVector3.Normalize(ExactDerivativeVec(posA, posB, handlePos, t));
+            MyVector3 forwardDir = MyVector3.Normalize(DerivativeVec(posA, posB, handlePos, t));
 
             return forwardDir;
         }
@@ -100,21 +100,23 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Derivative on the curve at point t
+        // Derivative at point t
         //
 
         public override float GetDerivative(float t)
         {
-            //Alternative 1
+            //Alternative 1. Estimated
             //float derivative = InterpolationHelpMethods.EstimateDerivative(this, t);
 
-            //Alternative 2
-            float derivative = ExactDerivative(t);
+            //Alternative 2. Exact
+            MyVector3 derivativeVec = DerivativeVec(posA, posB, handlePos, t);
+
+            float derivative = MyVector3.Magnitude(derivativeVec);
 
             return derivative;
         }
 
-        public static MyVector3 ExactDerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
+        public static MyVector3 DerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
             MyVector3 A = posA;
             MyVector3 B = handlePos;
@@ -128,15 +130,6 @@ namespace Habrador_Computational_Geometry
             derivativeVector += t * (2f * (A - 2f * B + C));
 
             return derivativeVector;
-        }
-
-        public float ExactDerivative(float t)
-        {
-            MyVector3 derivativeVec = ExactDerivativeVec(posA, posB, handlePos, t);
-
-            float derivative = MyVector3.Magnitude(derivativeVec);
-
-            return derivative;
         }
     }
 }

@@ -78,7 +78,7 @@ public class InterpolationController : MonoBehaviour
         }
 
 
-        DisplayInterpolatedValues(interpolatedValues, useRandomColor: true);
+        DisplayInterpolation.DisplayCurve(interpolatedValues, useRandomColor: true);
     }
 
 
@@ -110,11 +110,11 @@ public class InterpolationController : MonoBehaviour
 
 
         //Display the curve
-        DisplayInterpolatedValues(interpolatedValues, useRandomColor: true);
+        DisplayInterpolation.DisplayCurve(interpolatedValues, useRandomColor: true);
 
         //Display the start and end values and the handle points
-        DisplayHandle(handle.ToVector3(), posA.ToVector3());
-        DisplayHandle(handle.ToVector3(), posB.ToVector3());
+        DisplayInterpolation.DisplayHandle(handle.ToVector3(), posA.ToVector3());
+        DisplayInterpolation.DisplayHandle(handle.ToVector3(), posB.ToVector3());
 
 
 
@@ -152,8 +152,6 @@ public class InterpolationController : MonoBehaviour
 
 
 
-
-
         int steps = 5;
 
         //Important not to confuse this with the step size we use to iterate t
@@ -188,7 +186,7 @@ public class InterpolationController : MonoBehaviour
 
             //Test that the derivative calculations are working
             float dEst = InterpolationHelpMethods.EstimateDerivative(bezierQuadratic, t);
-            float dAct = bezierQuadratic.ExactDerivative(t);
+            float dAct = bezierQuadratic.GetDerivative(t);
 
             Debug.Log("Estimated derivative: " + dEst + " Actual derivative: " + dAct);
 
@@ -209,11 +207,11 @@ public class InterpolationController : MonoBehaviour
         //    Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
         //}
 
-        DisplayInterpolatedValues(actualPositions, useRandomColor: true);
+        DisplayInterpolation.DisplayCurve(actualPositions, useRandomColor: true);
 
         //Display the start and end values and the handle points
-        DisplayHandle(handle.ToVector3(), posA.ToVector3());
-        DisplayHandle(handle.ToVector3(), posB.ToVector3());
+        DisplayInterpolation.DisplayHandle(handle.ToVector3(), posA.ToVector3());
+        DisplayInterpolation.DisplayHandle(handle.ToVector3(), posB.ToVector3());
     }
 
 
@@ -245,11 +243,11 @@ public class InterpolationController : MonoBehaviour
 
 
         //Display the curve
-        DisplayInterpolatedValues(interpolatedValues, useRandomColor: true);
+        DisplayInterpolation.DisplayCurve(interpolatedValues, useRandomColor: true);
 
         //Display the start and end values and the handle points
-        DisplayHandle(handleA.ToVector3(), posA.ToVector3());
-        DisplayHandle(handleB.ToVector3(), posB.ToVector3());
+        DisplayInterpolation.DisplayHandle(handleA.ToVector3(), posA.ToVector3());
+        DisplayInterpolation.DisplayHandle(handleB.ToVector3(), posB.ToVector3());
 
 
         //Display other related data
@@ -293,8 +291,10 @@ public class InterpolationController : MonoBehaviour
         //Debug.Log("Naive length: " + lengthNaive + " Exact length: " + lengthExact);
 
 
-        //If we want to display the tangent at each position on the curve
+        //Save the tangent at each position on the curve
         List<Vector3> tangents = new List<Vector3>();
+        //Save the normal at each position on the curve
+        List<InterpolationTransform> orientations = new List<InterpolationTransform>();
 
 
         int steps = 5;
@@ -340,6 +340,9 @@ public class InterpolationController : MonoBehaviour
 
             tangents.Add(tangentDir.ToVector3());
 
+            InterpolationTransform orientation = bezierCubic.GetTransform(actualT);
+
+            orientations.Add(orientation);
 
             //Debug.Log("Distance " + distanceTravelled);
 
@@ -360,19 +363,24 @@ public class InterpolationController : MonoBehaviour
         //    Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
         //}
 
-        DisplayInterpolatedValues(actualPositions, useRandomColor: true);
+        //DisplayInterpolation.DisplayCurve(actualPositions, useRandomColor: true);
+
+        DisplayInterpolation.DisplayCurve(actualPositions, Color.gray);
 
         //Display the start and end values and the handle points
-        DisplayHandle(handleA.ToVector3(), posA.ToVector3());
-        DisplayHandle(handleB.ToVector3(), posB.ToVector3());
+        DisplayInterpolation.DisplayHandle(handleA.ToVector3(), posA.ToVector3());
+        DisplayInterpolation.DisplayHandle(handleB.ToVector3(), posB.ToVector3());
 
 
         //Display the actual Bezier cubic for reference
-        Handles.DrawBezier(posA.ToVector3(), posB.ToVector3(), handleA.ToVector3(), handleB.ToVector3(), Color.blue, EditorGUIUtility.whiteTexture, 1f);
+        Handles.DrawBezier(posA.ToVector3(), posB.ToVector3(), handleA.ToVector3(), handleB.ToVector3(), Color.black, EditorGUIUtility.whiteTexture, 1f);
 
 
         //Display the tangents
-        DisplayDirections(actualPositions, tangents, 1f, Color.red);
+        //DisplayInterpolation.DisplayDirections(actualPositions, tangents, 1f, Color.red);
+
+        //Display the orientation
+        DisplayInterpolation.DisplayOrientations(orientations, 1f);
     }
 
 
@@ -398,7 +406,7 @@ public class InterpolationController : MonoBehaviour
 
 
 
-        DisplayInterpolatedValues(interpolatedValues, useRandomColor: true);
+        DisplayInterpolation.DisplayCurve(interpolatedValues, useRandomColor: true);
 
         Gizmos.color = Color.white;
 
@@ -494,75 +502,6 @@ public class InterpolationController : MonoBehaviour
         }
 
 
-        DisplayInterpolatedValues(interpolatedValues, useRandomColor: true);
-    }
-
-
-
-    //
-    // Help methods
-    //
-
-    //Display interpolated values
-    private void DisplayInterpolatedValues(List<Vector3> values, bool useRandomColor)
-    {
-        DisplayInterpolatedValues(values, useRandomColor: true, Color.white);
-    }
-
-    private void DisplayInterpolatedValues(List<Vector3> values, Color color)
-    {
-        DisplayInterpolatedValues(values, useRandomColor: false, color);
-    }
-
-    private void DisplayInterpolatedValues(List<Vector3> values, bool useRandomColor, Color color)
-    {
-        //Draw lines
-        Random.InitState(seed);
-    
-        for (int i = 1; i < values.Count; i++)
-        {
-            if (!useRandomColor)
-            {
-                Gizmos.color = color;
-            }
-            else
-            {
-                Gizmos.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
-            }
-
-            Gizmos.DrawLine(values[i - 1], values[i]);
-        }
-
-
-        //Draw points
-        Gizmos.color = Color.black;
-
-        for (int i = 0; i < values.Count; i++)
-        {
-            Gizmos.DrawWireSphere(values[i], 0.05f);
-        }
-    }
-
-
-
-    //Display handle points
-    private void DisplayHandle(Vector3 handlePos, Vector3 curvePos)
-    {
-        Gizmos.color = Color.white;
-
-        Gizmos.DrawLine(handlePos, curvePos);
-
-        Gizmos.DrawWireSphere(handlePos, 0.2f);
-    }
-    
-
-
-    //Display rays
-    private void DisplayDirections(List<Vector3> startPos, List<Vector3> rayDir, float rayLength, Color color)
-    {
-        for (int i = 0; i < startPos.Count; i++)
-        {
-            Debug.DrawRay(startPos[i], rayDir[i] * rayLength, color);
-        }
+        DisplayInterpolation.DisplayCurve(interpolatedValues, useRandomColor: true);
     }
 }

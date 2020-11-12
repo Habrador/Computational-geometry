@@ -27,7 +27,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Position on the curve at point t
+        // Position at point t
         //
 
         public override MyVector3 GetPosition(float t)
@@ -92,7 +92,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Forward direction on the curve at point t
+        // Forward direction (tangent) at point t
         //
 
         //This direction is always tangent to the curve
@@ -107,7 +107,7 @@ namespace Habrador_Computational_Geometry
 
             //Alternative 2
             //The forward dir is also the derivative vector
-            MyVector3 forwardDir = MyVector3.Normalize(ExactDerivativeVec(posA, posB, handlePosA, handlePosB, t));
+            MyVector3 forwardDir = MyVector3.Normalize(DerivativeVec(posA, posB, handlePosA, handlePosB, t));
 
             return forwardDir;
         }
@@ -122,21 +122,24 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Derivative on the curve at point t
+        // Derivatives at point t
         //
 
+        //Assumed to be the first derivative
         public override float GetDerivative(float t)
         {
-            //Alternative 1
+            //Alternative 1. Estimated
             //float derivative = InterpolationHelpMethods.EstimateDerivative(this, t);
 
-            //Alternative 2
-            float derivative = ExactDerivative(t);
+            //Alternative 2. Exact
+            MyVector3 derivativeVec = DerivativeVec(posA, posB, handlePosA, handlePosB, t);
+
+            float derivative = MyVector3.Magnitude(derivativeVec);
 
             return derivative;
         }
 
-        public static MyVector3 ExactDerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePosA, MyVector3 handlePosB, float t)
+        public static MyVector3 DerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePosA, MyVector3 handlePosB, float t)
         {
             MyVector3 A = posA;
             MyVector3 B = handlePosA;
@@ -156,13 +159,24 @@ namespace Habrador_Computational_Geometry
             return derivativeVector;
         }
 
-        public float ExactDerivative(float t)
+
+        //Second derivative
+        public static MyVector3 SecondDerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePosA, MyVector3 handlePosB, float t)
         {
-            MyVector3 derivativeVec = ExactDerivativeVec(posA, posB, handlePosA, handlePosB, t);
+            MyVector3 A = posA;
+            MyVector3 B = handlePosA;
+            MyVector3 C = handlePosB;
+            MyVector3 D = posB;
 
-            float derivative = MyVector3.Magnitude(derivativeVec);
+            //The second derivative of the equation we use when finding position along the curve at t: 
+            //6(A - 2B + C) + 2t(-3(A - 3(B - C) - D))
+            //6(A - 2B + C) + t(-6(A - 3(B - C) - D))
 
-            return derivative;
+            MyVector3 secondDerivativeVec = 6f * (A - 2 * B + C);
+
+            secondDerivativeVec += t * (-6f * (A - 3f * (B - C) - D));
+
+            return secondDerivativeVec;
         }
 
 
@@ -173,10 +187,10 @@ namespace Habrador_Computational_Geometry
 
         public InterpolationTransform GetTransform(float t)
         {
-            //The position on the curve at point t
+            //Position on the curve at point t
             MyVector3 pos = GetPosition(t);
 
-            //This forward direction (tangent) on the curve at point t
+            //Forward direction (tangent) on the curve at point t
             MyVector3 forwardDir = GetForwardDir(posA, posB, handlePosA, handlePosB, t);
 
 
@@ -188,15 +202,21 @@ namespace Habrador_Computational_Geometry
 
             //In 3d there are multiple alternatives
 
-            //Alternative 1
+            //Alternative 1. Use ref vector to know which direction is up
 
             //A simple way to get the other directions is to use LookRotation with just forward dir as parameter
             //Then the up direction will always be the world up direction, and it calculates the right direction 
             //This idea is not working for all possible curve orientations
-            MyQuaternion orientation = new MyQuaternion(forwardDir);
+            //MyQuaternion orientation = new MyQuaternion(forwardDir);
 
             //This is the same as providing a reference vector which is up
-            //Quaternion orientation = InterpolationTransform.GetOrientationByUsingUpRef(forwardDir, Vector3.up.ToMyVector3());
+            MyQuaternion orientation = InterpolationTransform.GetOrientationByUsingUpRef(forwardDir, Vector3.up.ToMyVector3());
+
+
+            //Alternative 2. Frenet normal. Use the tagent we have and a tangent next to it
+            //MyVector3 secondDerivativeVec = SecondDerivativeVec(posA, posB, handlePosA, handlePosB, t);
+
+            //MyQuaternion orientation = InterpolationTransform.GetOrientationByUsingFrenetNormal(forwardDir, secondDerivativeVec);
 
 
             InterpolationTransform trans = new InterpolationTransform(pos, orientation);
