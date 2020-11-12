@@ -54,7 +54,6 @@ namespace Habrador_Computational_Geometry
             //Split the ruve into positions with some steps resolution
             List<MyVector3> CurvePoints = SplitCurve(curve, steps, tEnd);
 
-
             //Calculate the length by measuring the length of each step
             float length = 0f;
 
@@ -350,12 +349,11 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Help method to calculate the accumulated total distances along the curve 
-        // by walking along it by using constant t-steps
+        // Calculate the accumulated total distances along the curve by walking along it with constant t-steps
         //
         public static List<float> GetAccumulatedDistances(_Curve curve, int steps = 20)
         {
-            //Step 1. Find positions on the curve by using the bad t-value
+            //Step 1. Find positions on the curve by using the inaccurate t-value
             List<MyVector3> positionsOnCurve = SplitCurve(curve, steps, tEnd: 1f);
 
 
