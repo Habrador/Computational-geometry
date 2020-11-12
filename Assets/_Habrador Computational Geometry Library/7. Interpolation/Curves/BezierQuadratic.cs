@@ -12,46 +12,55 @@ namespace Habrador_Computational_Geometry
         public MyVector3 posA;
         public MyVector3 posB;
         //Handle connected to start and end points
-        public MyVector3 handle;
+        public MyVector3 handlePos;
 
 
-        public BezierQuadratic(MyVector3 posA, MyVector3 posB, MyVector3 handle)
+        public BezierQuadratic(MyVector3 posA, MyVector3 posB, MyVector3 handlePos)
         {
             this.posA = posA;
             this.posB = posB;
             
-            this.handle = handle;
+            this.handlePos = handlePos;
         }
 
 
         //
-        // Position and forward dir
+        // Position on the curve at point t
         //
 
-        //Get interpolated position at point t
         public override MyVector3 GetPosition(float t)
         {
-            MyVector3 interpolatedValue = GetPosition(posA, posB, handle, t);
+            MyVector3 interpolatedValue = GetPosition(posA, posB, handlePos, t);
 
             return interpolatedValue;
         }
 
         public static MyVector3 GetPosition(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
-            MyVector3 interpolation_posA_handlePos = BezierLinear.GetPosition(posA, handlePos, t);
-            MyVector3 interpolation_handlePos_posB = BezierLinear.GetPosition(handlePos, posB, t);
+            //MyVector3 interpolation_posA_handlePos = BezierLinear.GetPosition(posA, handlePos, t);
+            //MyVector3 interpolation_handlePos_posB = BezierLinear.GetPosition(handlePos, posB, t);
 
-            MyVector3 finalInterpolation = BezierLinear.GetPosition(interpolation_posA_handlePos, interpolation_handlePos_posB, t);
+            //MyVector3 finalInterpolation = BezierLinear.GetPosition(interpolation_posA_handlePos, interpolation_handlePos_posB, t);
+
+            //Above can be simplified by putting it into one big equation (See how where we calculate the derivative)
+            MyVector3 A = posA;
+            MyVector3 B = handlePos;
+            MyVector3 C = posB;
+
+            MyVector3 finalInterpolation = A - t * (2f * (A - B)) + Mathf.Pow(t, 2f) * (A - 2f * B + C);
 
             return finalInterpolation;
         }
 
 
-        //Get the forward direction at a point on the Bezier Quadratic
-        //This direction is always tangent to the curve
+
+        //
+        // Forward direction on the curve at point t (This direction is always tangent to the curve)
+        //
+
         public static MyVector3 GetForwardDir(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
-            //Same as when we calculate t
+            //Same as when we calculate position from t
             MyVector3 interpolation_posA_handlePos = BezierLinear.GetPosition(posA, handlePos, t);
             MyVector3 interpolation_handlePos_posB = BezierLinear.GetPosition(handlePos, posB, t);
 
@@ -60,29 +69,34 @@ namespace Habrador_Computational_Geometry
             return forwardDir;
         }
 
-
-
-        //
-        // Derivative
-        //
-
-        public override float CalculateDerivative(float t)
+        public MyVector3 GetForwardDir(float t)
         {
-            //Choose how to calculate the derivative
+            MyVector3 forwardDir = GetForwardDir(posA, posB, handlePos, t);
+
+            return forwardDir;
+        }
+
+
+
+        //
+        // Derivative on the curve at point t
+        //
+
+        public override float GetDerivative(float t)
+        {
+            //Alternative 1
             //float derivative = InterpolationHelpMethods.EstimateDerivative(this, t);
 
+            //Alternative 2
             float derivative = ExactDerivative(t);
 
             return derivative;
         }
 
-
-
-        //Derivative at point t
         public float ExactDerivative(float t)
         {
             MyVector3 A = posA;
-            MyVector3 B = handle;
+            MyVector3 B = handlePos;
             MyVector3 C = posB;
 
             //Layer 1

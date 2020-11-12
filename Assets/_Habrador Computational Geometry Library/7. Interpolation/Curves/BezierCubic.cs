@@ -12,8 +12,8 @@ namespace Habrador_Computational_Geometry
         public MyVector3 posA;
         public MyVector3 posB;
         //Handles connected to the start and end points
-        public MyVector3 handleA;
-        public MyVector3 handleB;
+        public MyVector3 handlePosA;
+        public MyVector3 handlePosB;
 
 
         public BezierCubic(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
@@ -21,19 +21,18 @@ namespace Habrador_Computational_Geometry
             this.posA = posA;
             this.posB = posB;
 
-            this.handleA = handleA;
-            this.handleB = handleB;
+            this.handlePosA = handleA;
+            this.handlePosB = handleB;
         }
 
 
         //
-        // Position and forward dir
+        // Position on the curve at point t
         //
 
-        //Get interpolated position on the curve at point t
         public override MyVector3 GetPosition(float t)
         {
-            MyVector3 interpolatedValue = GetPosition(posA, posB, handleA, handleB, t);
+            MyVector3 interpolatedValue = GetPosition(posA, posB, handlePosA, handlePosB, t);
 
             return interpolatedValue;
         }
@@ -47,21 +46,39 @@ namespace Habrador_Computational_Geometry
             //MyVector3 interpolation_1_2 = BezierLinear(interpolation_1, interpolation_2, t);
             //MyVector3 interpolation_2_3 = BezierLinear(interpolation_2, interpolation_3, t);
 
-            //Above can be simplified if we are utilizing the quadratic bezier
-            MyVector3 interpolation_1_2 = BezierQuadratic.GetPosition(posA, handlePosB, handlePosA, t);
-            MyVector3 interpolation_2_3 = BezierQuadratic.GetPosition(handlePosA, posB, handlePosB, t);
 
-            MyVector3 finalInterpolation = BezierLinear.GetPosition(interpolation_1_2, interpolation_2_3, t);
+            //Above can be simplified if we are utilizing the quadratic bezier
+            //MyVector3 interpolation_1_2 = BezierQuadratic.GetPosition(posA, handlePosB, handlePosA, t);
+            //MyVector3 interpolation_2_3 = BezierQuadratic.GetPosition(handlePosA, posB, handlePosB, t);
+
+            //MyVector3 finalInterpolation = BezierLinear.GetPosition(interpolation_1_2, interpolation_2_3, t);
+
+
+            //Above can be simplified by putting it into one big equation (See how where we calculate the derivative)
+            MyVector3 A = posA;
+            MyVector3 B = handlePosA;
+            MyVector3 C = handlePosB;
+            MyVector3 D = posB;
+
+            MyVector3 finalInterpolation = A - 3f * t * (A - B);
+
+            finalInterpolation += Mathf.Pow(t, 2f) * (3f * (A - 2f * B + C));
+            
+            finalInterpolation += Mathf.Pow(t, 3f) * (-(A - 3f * (B - C) - D));
 
             return finalInterpolation;
         }
 
 
-        //Get the forward direction at a point on the Bezier Cubic
+
+        //
+        // Forward direction on the curve at point t
+        //
+
         //This direction is always tangent to the curve
         public static MyVector3 GetForwardDir(MyVector3 posA, MyVector3 posB, MyVector3 handlePosA, MyVector3 handlePosB, float t)
         {
-            //Same as when we calculate t
+            //Same as when we calculate position from t
             MyVector3 interpolation_1_2 = BezierQuadratic.GetPosition(posA, handlePosB, handlePosA, t);
             MyVector3 interpolation_2_3 = BezierQuadratic.GetPosition(handlePosA, posB, handlePosB, t);
 
@@ -70,44 +87,35 @@ namespace Habrador_Computational_Geometry
             return forwardDir;
         }
 
-
-
-        ////Get interpolated tangent at point t
-        //public MyVector3 GetInterpolatedTangent(float t)
-        //{
-        //    //Same as when we calculate t
-        //    MyVector3 interpolation_1_2 = _Interpolation.BezierQuadratic(posA, handleB, handleA, t);
-        //    MyVector3 interpolation_2_3 = _Interpolation.BezierQuadratic(posA, posB, handleB, t);
-
-        //    //This direction is always tangent to the curve
-        //    MyVector3 forwardDir = MyVector3.Normalize(interpolation_2_3 - interpolation_1_2);
-
-        //    return forwardDir;
-        //}
-
-
-
-        //
-        // Derivative
-        //
-        public override float CalculateDerivative(float t)
+        public MyVector3 GetForwardDir(float t)
         {
-            //Choose how to calculate the derivative
+            MyVector3 forwardDir = GetForwardDir(posA, posB, handlePosA, handlePosB, t);
+
+            return forwardDir;
+        }
+
+
+
+        //
+        // Derivative on the curve at point t
+        //
+
+        public override float GetDerivative(float t)
+        {
+            //Alternative 1
             //float derivative = InterpolationHelpMethods.EstimateDerivative(this, t);
 
+            //Alternative 2
             float derivative = ExactDerivative(t);
 
             return derivative;
         }
 
-
-
-        //Actual derivative at point t
         public float ExactDerivative(float t)
         {
             MyVector3 A = posA;
-            MyVector3 B = handleA;
-            MyVector3 C = handleB;
+            MyVector3 B = handlePosA;
+            MyVector3 C = handlePosB;
             MyVector3 D = posB;
 
             //Layer 1
@@ -145,7 +153,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Get a Transform (includes position and orientation) at point t
+        // Transform (position and orientation) at point t
         //
         public InterpolationTransform GetTransform(float t)
         {
@@ -153,7 +161,7 @@ namespace Habrador_Computational_Geometry
             MyVector3 pos = GetPosition(t);
 
             //This forward direction (tangent) on the curve at point t
-            MyVector3 forwardDir = GetForwardDir(posA, posB, handleA, handleB, t);
+            MyVector3 forwardDir = GetForwardDir(posA, posB, handlePosA, handlePosB, t);
 
 
             //The position and the tangent are easy to find, what's difficult to find is the normal because a line doesn't have a single normal

@@ -87,8 +87,8 @@ namespace Habrador_Computational_Geometry
             //The main loop to calculate the length
 
             //Everything multiplied by 1
-            float derivativeStart = curve.CalculateDerivative(tStart);
-            float derivativeEnd = curve.CalculateDerivative(tEnd);
+            float derivativeStart = curve.GetDerivative(tStart);
+            float derivativeEnd = curve.GetDerivative(tEnd);
 
             float endPoints = derivativeStart + derivativeEnd;
 
@@ -99,7 +99,7 @@ namespace Habrador_Computational_Geometry
             {
                 float t = tStart + delta * i;
 
-                x4 += curve.CalculateDerivative(t);
+                x4 += curve.GetDerivative(t);
             }
 
 
@@ -109,7 +109,7 @@ namespace Habrador_Computational_Geometry
             {
                 float t = tStart + delta * i;
 
-                x2 += curve.CalculateDerivative(t);
+                x2 += curve.GetDerivative(t);
             }
 
 
@@ -156,7 +156,7 @@ namespace Habrador_Computational_Geometry
                 //The derivative and the length can be calculated in different ways
 
                 //The derivative at point t
-                float derivative = curve.CalculateDerivative(tGood);
+                float derivative = curve.GetDerivative(tGood);
 
                 //The length of the curve to point t from the start
                 //float lengthTo_t = GetLengthNaive_CubicBezier(pA, pB, hA, hB, steps: 20, tEnd: t);

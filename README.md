@@ -255,7 +255,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Irregular grid (Oskar Stålberg style)
 * Mesh decals
 * Extrude mesh along Bezier and Catmull-Rom
-* Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want
+* Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want (https://twitter.com/mattstark256)
 * A way to generate an infinite delaunay triangulation (for terrains etc)
 
 ### Stuff to fix

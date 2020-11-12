@@ -11,6 +11,6 @@ namespace Habrador_Computational_Geometry
         //All child classes need to have these methods
         public abstract MyVector3 GetPosition(float t);
 
-        public abstract float CalculateDerivative(float t);
+        public abstract float GetDerivative(float t);
     }
 }

@@ -69,7 +69,7 @@ namespace Habrador_Computational_Geometry
         // Derivative
         //
 
-        public override float CalculateDerivative(float t)
+        public override float GetDerivative(float t)
         {
             throw new System.NotImplementedException();
         }
