@@ -209,7 +209,7 @@ namespace Habrador_Computational_Geometry
             //This idea is not working for all possible curve orientations
             //MyQuaternion orientation = new MyQuaternion(forwardDir);
 
-            //This is the same as providing a reference vector which is up
+            //Your own reference up vector
             MyQuaternion orientation = InterpolationTransform.GetOrientationByUsingUpRef(forwardDir, Vector3.up.ToMyVector3());
 
 
