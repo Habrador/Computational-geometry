@@ -73,5 +73,10 @@ namespace Habrador_Computational_Geometry
         {
             throw new System.NotImplementedException();
         }
+
+        public override MyVector3 GetTangent(float t)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

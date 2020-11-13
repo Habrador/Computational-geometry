@@ -91,4 +91,21 @@ public static class DisplayInterpolation
             Gizmos.DrawRay(orientation.position.ToVector3(), orientation.Up.ToVector3() * rayLength);
         }
     }
+
+
+
+    //Display accurate Bezier Quadratic
+    public static void DisplayBezierQuadratic(BezierQuadratic curve, Color color)
+    {
+        int steps = 100;
+
+        List<MyVector3> positionsOnCurve = InterpolationHelpMethods.SplitCurve(curve, steps, tEnd: 1f);
+
+        //Gizmos.color = color;
+
+        for (int i = 1; i < positionsOnCurve.Count; i++)
+        {
+            Debug.DrawLine(positionsOnCurve[i].ToVector3(), positionsOnCurve[i - 1].ToVector3(), color);
+        }
+    }
 }

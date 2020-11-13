@@ -17,10 +17,98 @@ namespace Habrador_Computational_Geometry
             this.orientation = orientation;
         }
 
+        
+
+        //
+        // Transform (position and orientation) at point t
+        //
+
+        //Calculate a transform at a single point
+        public static InterpolationTransform GetTransform(_Curve curve, float t)
+        {
+            //Position on the curve at point t
+            MyVector3 pos = curve.GetPosition(t);
+
+            //Forward direction (tangent) on the curve at point t
+            MyVector3 forwardDir = curve.GetTangent(t);
+
+
+            //The position and the tangent are easy to find, what's difficult to find is the normal because a line doesn't have a single normal
+
+            //To get the normal in 2d, we can just flip two coordinates in the forward vector and set one to negative
+            //MyVector3 normal = new MyVector3(-forwardDir.z, 0f, forwardDir.x);
+
+
+            //In 3d there are multiple alternatives
+
+            //Alternative 1. Use ref vector to know which direction is up
+
+            //A simple way to get the other directions is to use LookRotation with just forward dir as parameter
+            //Then the up direction will always be the world up direction, and it calculates the right direction 
+            //This idea is not working for all possible curve orientations
+            //MyQuaternion orientation = new MyQuaternion(forwardDir);
+
+            //Your own reference up vector
+            MyQuaternion orientation = InterpolationTransform.GetOrientation_UpRef(forwardDir, Vector3.up.ToMyVector3());
+
+
+            //Alternative 2. Frenet normal. Use the tagent we have and a tangent next to it
+            //MyVector3 secondDerivativeVec = SecondDerivativeVec(posA, posB, handlePosA, handlePosB, t);
+
+            //MyQuaternion orientation = InterpolationTransform.GetOrientationByUsingFrenetNormal(forwardDir, secondDerivativeVec);
+
+
+            InterpolationTransform trans = new InterpolationTransform(pos, orientation);
+
+            return trans;
+        }
+
+
+        //Get all transforms at all positions
+        //Some generate-transform-algorithms require more than one point, such as the "Rotation Minimising Frame"
+        public static List<InterpolationTransform> GetTransforms(_Curve curve, List<float> tValues)
+        {
+            List<InterpolationTransform> orientations = new List<InterpolationTransform>();
+
+            for (int i = 0; i < tValues.Count; i++)
+            {
+                float t = tValues[i];
+
+                //The position and tangent
+                MyVector3 position = curve.GetPosition(t);
+                MyVector3 tangent = curve.GetTangent(t);
+
+                //The first point needs to be initalized with an orientation
+                if (i == 0)
+                {
+                    //Just use one of the other algorithms available to generate a transform at a single position
+                    MyQuaternion orientation = InterpolationTransform.GetOrientation_UpRef(tangent, Vector3.up.ToMyVector3());
+
+                    InterpolationTransform transform = new InterpolationTransform(position, orientation);
+
+                    orientations.Add(transform);
+                }
+                //For all other points on the curve
+                else
+                {
+                    //To calculate the transform for this point, we need data from the previous point on the curve
+                    InterpolationTransform previousTransform = orientations[i - 1];
+
+                    MyQuaternion orientation = InterpolationTransform.GetOrientation_RotationFrame(position, tangent, previousTransform);
+
+                    InterpolationTransform transform = new InterpolationTransform(position, orientation);
+
+                    orientations.Add(transform);
+                }
+            }
+
+            return orientations;
+        }
+
 
 
         //
-        // Calculate orientation by using different methods
+        // Calculate orientation at point t by using different methods
         //
 
         //You can read about these methods here:

@@ -90,7 +90,7 @@ namespace Habrador_Computational_Geometry
             return tangent;
         }
 
-        public MyVector3 GetTangent(float t)
+        public override MyVector3 GetTangent(float t)
         {
             MyVector3 tangent = GetTangent(posA, posB, handlePos, t);
 
@@ -128,6 +128,20 @@ namespace Habrador_Computational_Geometry
             MyVector3 derivativeVector = -(2f * (A - B));
 
             derivativeVector += t * (2f * (A - 2f * B + C));
+
+            return derivativeVector;
+        }
+
+        public static MyVector3 SecondDerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
+        {
+            MyVector3 A = posA;
+            MyVector3 B = handlePos;
+            MyVector3 C = posB;
+
+            //The derivative of the equation we use when finding position along the curve at t: 
+            //2(A - 2B + C)
+
+            MyVector3 derivativeVector = 2f * (A - 2f * B + C);
 
             return derivativeVector;
         }
