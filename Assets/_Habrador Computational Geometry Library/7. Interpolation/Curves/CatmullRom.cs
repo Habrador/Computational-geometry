@@ -71,12 +71,55 @@ namespace Habrador_Computational_Geometry
 
         public override float GetDerivative(float t)
         {
-            throw new System.NotImplementedException();
+            MyVector3 derivativeVec = GetDerivativeVec(posA, posB, handleA, handleB, t);
+
+            float derivative = MyVector3.Magnitude(derivativeVec);
+
+            return derivative;
+        }
+
+        public static MyVector3 GetDerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB, float t)
+        {
+            MyVector3 p0 = handleA;
+            MyVector3 p1 = posA;
+            MyVector3 p2 = posB;
+            MyVector3 p3 = handleB;
+
+            t = Mathf.Clamp01(t);
+
+            //The coefficients of the cubic polynomial (except the 0.5f * which is added later for performance)
+            MyVector3 a = 2f * p1;
+            MyVector3 b = p2 - p0;
+            MyVector3 c = 2f * p0 - 5f * p1 + 4f * p2 - p3;
+            MyVector3 d = -p0 + 3f * p1 - 3f * p2 + p3;
+
+            //Position is: a + b * t + c * t^2 + d * t^3
+            //Derivative: b + t*2c + t^2 * 3d
+
+            MyVector3 derivativeVec = b + t * 2f * c + t * t * 3f * d;
+
+            return derivativeVec;
+        }
+
+
+
+        //
+        // Tangent
+        //
+
+        public static MyVector3 GetTangent(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB, float t)
+        {
+            //The tangent is also the derivative vector
+            MyVector3 tangent = MyVector3.Normalize(GetDerivativeVec(posA, posB, handleA, handleB, t));
+
+            return tangent;
         }
 
         public override MyVector3 GetTangent(float t)
         {
-            throw new System.NotImplementedException();
+            MyVector3 tangent = GetTangent(posA, posB, handleA, handleB, t);
+
+            return tangent;
         }
     }
 }
