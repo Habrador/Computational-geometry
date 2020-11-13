@@ -271,35 +271,14 @@ public class InterpolationController : MonoBehaviour
         }
 
 
-        //Display the curve
+        //The curve
         DisplayInterpolation.DisplayCurve(interpolatedValues, useRandomColor: true);
 
-        //Display the start and end values and the handle points
+        //The start and end values and the handle points
         DisplayInterpolation.DisplayHandle(handleA.ToVector3(), posA.ToVector3());
         DisplayInterpolation.DisplayHandle(handleB.ToVector3(), posB.ToVector3());
-
-
-        //Display other related data
-        //Get the orientation of the point at t
-        BezierCubic bezierCubic = new BezierCubic(posA, posB, handleA, handleB);
-
-        InterpolationTransform trans = InterpolationTransform.GetTransform(bezierCubic, tSliderValue);
-
-        //Multiply the orientation with a direction vector to rotate the direction
-        Vector3 forwardDir = trans.Forward.ToVector3();
-        //- right vector because in this test files we are looking from above
-        //so -right looks like up even though in the actual coordinate system it is -right
-        Vector3 upDir = -trans.Right.ToVector3();
-
-        Vector3 slidePos = BezierCubic.GetPosition(posA, posB, handleA, handleB, tSliderValue).ToVector3();
-
-        TestAlgorithmsHelpMethods.DisplayArrow(slidePos, slidePos + forwardDir * 2f, 0.2f, Color.blue);
-        TestAlgorithmsHelpMethods.DisplayArrow(slidePos, slidePos + upDir * 2f, 0.2f, Color.blue);
-
-        Gizmos.color = Color.red;
-
-        Gizmos.DrawWireSphere(slidePos, 0.15f);
     }
+
 
 
     private void BezierCubicEqualStepsTest(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
@@ -403,29 +382,22 @@ public class InterpolationController : MonoBehaviour
 
         //Display stuff
 
-        //List<MyVector3> positionsOnCurve = InterpolationHelpMethods.SplitCurve(bezierCubic, 20, tEnd: 1f);
-
-        //foreach (MyVector3 p in positionsOnCurve)
-        //{
-        //    Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
-        //}
-
-        //Display the curve which is split into steps
+        //The curve which is split into steps
         //DisplayInterpolation.DisplayCurve(actualPositions, useRandomColor: true);
 
         DisplayInterpolation.DisplayCurve(actualPositions, Color.gray);
 
-        //Display the start and end values and the handle points
+        //The start and end values and the handle points
         DisplayInterpolation.DisplayHandle(handleA.ToVector3(), posA.ToVector3());
         DisplayInterpolation.DisplayHandle(handleB.ToVector3(), posB.ToVector3());
 
-        //Display the actual Bezier cubic for reference
+        //The actual Bezier cubic for reference
         Handles.DrawBezier(posA.ToVector3(), posB.ToVector3(), handleA.ToVector3(), handleB.ToVector3(), Color.black, EditorGUIUtility.whiteTexture, 1f);
 
-        //Display the tangents
+        //The tangents
         //DisplayInterpolation.DisplayDirections(actualPositions, tangents, 1f, Color.red);
 
-        //Display the orientation
+        //The orientation
         //DisplayInterpolation.DisplayOrientations(orientations, 1f);
         DisplayInterpolation.DisplayOrientations(orientationsFrame, 1f);
     }
