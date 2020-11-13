@@ -126,35 +126,8 @@ namespace Habrador_Computational_Geometry
         // Get directions from orientation
         //
 
-        //Forward
         public MyVector3 Forward => orientation.Forward;
         public MyVector3 Right   => orientation.Right;
         public MyVector3 Up      => orientation.Up;
-
-        //public MyVector3 Forward
-        //{
-        //    get
-        //    {
-        //        return orientation.Forward;
-        //    }
-        //}
-
-        //Right
-        //public MyVector3 Right
-        //{
-        //    get
-        //    {
-        //        return orientation.Right;
-        //    }
-        //}
-
-        ////Up
-        //public MyVector3 Up
-        //{
-        //    get
-        //    {
-        //        return orientation.Up;
-        //    }
-        //}
     }
 }

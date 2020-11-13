@@ -50,40 +50,9 @@ namespace Habrador_Computational_Geometry
         // Get directions from orientation
         //
 
-        //Forward
-        public MyVector3 Forward
-        {
-            get
-            {
-                //Multiply the orientation with a direction vector to rotate the direction
-                Vector3 forwardDir = quaternion * Vector3.forward;
-
-                return forwardDir.ToMyVector3();
-            }
-        }
-
-        //Right
-        public MyVector3 Right
-        {
-            get
-            {
-                //Multiply the orientation with a direction vector to rotate the direction
-                Vector3 rightDir = quaternion * Vector3.right;
-
-                return rightDir.ToMyVector3();
-            }
-        }
-
-        //Up
-        public MyVector3 Up
-        {
-            get
-            {
-                //Multiply the orientation with a direction vector to rotate the direction
-                Vector3 upDir = quaternion * Vector3.up;
-
-                return upDir.ToMyVector3();
-            }
-        }
+        //If you multiply the orientation with a direction vector you will rotate the direction
+        public MyVector3 Forward => (quaternion * Vector3.forward).ToMyVector3();
+        public MyVector3 Right   => (quaternion * Vector3.right).ToMyVector3();
+        public MyVector3 Up      => (quaternion * Vector3.up).ToMyVector3();
     }
 }
