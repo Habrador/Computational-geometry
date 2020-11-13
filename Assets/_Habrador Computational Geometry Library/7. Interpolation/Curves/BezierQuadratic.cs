@@ -71,30 +71,30 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Forward direction (tangent) at point t
+        // Tangent at point t (Forward direction if we travel along the curve)
         //
 
-        public static MyVector3 GetForwardDir(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
+        public static MyVector3 GetTangent(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
             //Alternative 1
             //Same as when we calculate position from t
             //MyVector3 interpolation_posA_handlePos = BezierLinear.GetPosition(posA, handlePos, t);
             //MyVector3 interpolation_handlePos_posB = BezierLinear.GetPosition(handlePos, posB, t);
 
-            //MyVector3 forwardDir = MyVector3.Normalize(interpolation_handlePos_posB - interpolation_posA_handlePos);
+            //MyVector3 tangent = MyVector3.Normalize(interpolation_handlePos_posB - interpolation_posA_handlePos);
 
             //Alternative 2
-            //The forward dir is also the derivative vector
-            MyVector3 forwardDir = MyVector3.Normalize(DerivativeVec(posA, posB, handlePos, t));
+            //The tangent is also the derivative vector
+            MyVector3 tangent = MyVector3.Normalize(DerivativeVec(posA, posB, handlePos, t));
 
-            return forwardDir;
+            return tangent;
         }
 
-        public MyVector3 GetForwardDir(float t)
+        public MyVector3 GetTangent(float t)
         {
-            MyVector3 forwardDir = GetForwardDir(posA, posB, handlePos, t);
+            MyVector3 tangent = GetTangent(posA, posB, handlePos, t);
 
-            return forwardDir;
+            return tangent;
         }
 
 

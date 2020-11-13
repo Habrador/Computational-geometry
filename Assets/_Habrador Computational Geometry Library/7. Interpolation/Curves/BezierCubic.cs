@@ -92,31 +92,31 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Forward direction (tangent) at point t
+        // Tangent at point t (Forward direction if we travel along the curve)
         //
 
         //This direction is always tangent to the curve
-        public static MyVector3 GetForwardDir(MyVector3 posA, MyVector3 posB, MyVector3 handlePosA, MyVector3 handlePosB, float t)
+        public static MyVector3 GetTangent(MyVector3 posA, MyVector3 posB, MyVector3 handlePosA, MyVector3 handlePosB, float t)
         {
             //Alternative 1
             //Same as when we calculate position from t
             //MyVector3 interpolation_1_2 = BezierQuadratic.GetPosition(posA, handlePosB, handlePosA, t);
             //MyVector3 interpolation_2_3 = BezierQuadratic.GetPosition(handlePosA, posB, handlePosB, t);
 
-            //MyVector3 forwardDir = MyVector3.Normalize(interpolation_2_3 - interpolation_1_2);
+            //MyVector3 tangent = MyVector3.Normalize(interpolation_2_3 - interpolation_1_2);
 
             //Alternative 2
-            //The forward dir is also the derivative vector
-            MyVector3 forwardDir = MyVector3.Normalize(DerivativeVec(posA, posB, handlePosA, handlePosB, t));
+            //The tangent is also the derivative vector
+            MyVector3 tangent = MyVector3.Normalize(DerivativeVec(posA, posB, handlePosA, handlePosB, t));
 
-            return forwardDir;
+            return tangent;
         }
 
-        public MyVector3 GetForwardDir(float t)
+        public MyVector3 GetTangent(float t)
         {
-            MyVector3 forwardDir = GetForwardDir(posA, posB, handlePosA, handlePosB, t);
+            MyVector3 tangent = GetTangent(posA, posB, handlePosA, handlePosB, t);
 
-            return forwardDir;
+            return tangent;
         }
 
 
@@ -125,7 +125,7 @@ namespace Habrador_Computational_Geometry
         // Derivatives at point t
         //
 
-        //Assumed to be the first derivative
+        //First derivative
         public override float GetDerivative(float t)
         {
             //Alternative 1. Estimated
@@ -185,13 +185,14 @@ namespace Habrador_Computational_Geometry
         // Transform (position and orientation) at point t
         //
 
+        //Calculate a transform at a single point
         public InterpolationTransform GetTransform(float t)
         {
             //Position on the curve at point t
             MyVector3 pos = GetPosition(t);
 
             //Forward direction (tangent) on the curve at point t
-            MyVector3 forwardDir = GetForwardDir(posA, posB, handlePosA, handlePosB, t);
+            MyVector3 forwardDir = GetTangent(posA, posB, handlePosA, handlePosB, t);
 
 
             //The position and the tangent are easy to find, what's difficult to find is the normal because a line doesn't have a single normal
@@ -222,6 +223,48 @@ namespace Habrador_Computational_Geometry
             InterpolationTransform trans = new InterpolationTransform(pos, orientation);
 
             return trans;
+        }
+
+
+        //Get all transforms at all positions
+        //Some generate-transform-algorithms requires more than one point, such as the "Rotation Minimising Frame"
+        public List<InterpolationTransform> GetTransforms(List<float> tValues)
+        {
+            List<InterpolationTransform> orientations = new List<InterpolationTransform>();
+
+            for (int i = 0; i < tValues.Count; i++)
+            {
+                float t = tValues[i];
+
+                //The position and tangent
+                MyVector3 position = GetPosition(t);
+                MyVector3 tangent = GetTangent(t);
+
+                //The first point needs to be initalized with an orientation
+                if (i == 0)
+                {
+                    //Just use one of the other algorithms available to generate a transform at a single position
+                    MyQuaternion orientation = InterpolationTransform.GetOrientationByUsingUpRef(tangent, Vector3.up.ToMyVector3());
+
+                    InterpolationTransform transform = new InterpolationTransform(position, orientation);
+
+                    orientations.Add(transform);
+                }
+                //For all other points on the curve
+                else
+                {
+                    //To calculate the transform for this point, we need data from the previous point on the curve
+                    InterpolationTransform previousTransform = orientations[i - 1];
+
+                    MyQuaternion orientation = InterpolationTransform.GetOrientationByUsingFrame(position, tangent, previousTransform);
+
+                    InterpolationTransform transform = new InterpolationTransform(position, orientation);
+
+                    orientations.Add(transform);
+                }
+            }
+
+            return orientations;
         }
     }
 }

@@ -29,9 +29,7 @@ public class InterpolationController : MonoBehaviour
         MyVector3 handleB = transHandleB.position.ToMyVector3();
 
 
-        //Interpolate between cooldinates
-
-        //Bezier curves
+        //Interpolate between coordinates in 3d 
 
         //BezierLinearTest(posA, posB);
 
@@ -120,7 +118,7 @@ public class InterpolationController : MonoBehaviour
 
         //Display other related data
         //Get the forwrd dir of the point at t and display it
-        MyVector3 forwardDir = BezierQuadratic.GetForwardDir(posA, posB, handle, tSliderValue);
+        MyVector3 forwardDir = BezierQuadratic.GetTangent(posA, posB, handle, tSliderValue);
 
         MyVector3 slidePos = BezierQuadratic.GetPosition(posA, posB, handle, tSliderValue);
 
@@ -225,7 +223,7 @@ public class InterpolationController : MonoBehaviour
         //So if steps is 5 then the line will be cut in 5 sections
         int steps = 20;
 
-        float stepSize = 1f / (float)steps;
+        float t_stepSize = 1f / (float)steps;
 
         float t = 0f;
 
@@ -238,7 +236,7 @@ public class InterpolationController : MonoBehaviour
 
             interpolatedValues.Add(interpolatedPos.ToVector3());
 
-            t += stepSize;
+            t += t_stepSize;
         }
 
 
@@ -275,9 +273,6 @@ public class InterpolationController : MonoBehaviour
 
     private void BezierCubicEqualStepsTest(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
     {
-        //Store the interpolated values so we later can display them
-        List<Vector3> actualPositions = new List<Vector3>();
-
         //Create a curve which is the data structure used in the following calculations
         BezierCubic bezierCubic = new BezierCubic(posA, posB, handleA, handleB);
 
@@ -291,21 +286,20 @@ public class InterpolationController : MonoBehaviour
         //Debug.Log("Naive length: " + lengthNaive + " Exact length: " + lengthExact);
 
 
-        //Save the tangent at each position on the curve
-        List<Vector3> tangents = new List<Vector3>();
-        //Save the normal at each position on the curve
-        List<InterpolationTransform> orientations = new List<InterpolationTransform>();
+        //Step 2. Convert the t's to be percentage along the curve
+        //Save the accurate t at each position on the curve
+        List<float> accurateTs = new List<float>();
 
-
+        //The number of sections we want to divide the curve into
         int steps = 5;
 
         //Important not to confuse this with the step size we use to iterate t
         //This step size is distance in m
-        float length = lengthNaive;
+        float curveLength = lengthNaive;
 
-        float lengthStepSize = length / (float)steps;
+        float curveLength_stepSize = curveLength / (float)steps;
 
-        float stepSize = 1f / (float)steps;
+        float t_stepSize = 1f / (float)steps;
 
         float t = 0f;
 
@@ -313,19 +307,17 @@ public class InterpolationController : MonoBehaviour
 
         for (int i = 0; i < steps + 1; i++)
         {
-            //MyVector3 inaccuratePos = bezierCubic.GetInterpolatedValue(t);
-
-
+            //MyVector3 inaccuratePos = bezierCubic.GetPosition(t);
 
             //Calculate the t needed to get to this distance along the curve
             //Method 1
-            //float actualT = InterpolationHelpMethods.Find_t_FromDistance_Iterative(bezierCubic, distanceTravelled, length);
+            //float accurateT = InterpolationHelpMethods.Find_t_FromDistance_Iterative(bezierCubic, distanceTravelled, length);
             //Method 2
-            float actualT = InterpolationHelpMethods.Find_t_FromDistance_Lookup(bezierCubic, distanceTravelled, accumulatedDistances: null);
+            float accurateT = InterpolationHelpMethods.Find_t_FromDistance_Lookup(bezierCubic, distanceTravelled, accumulatedDistances: null);
 
-            MyVector3 actualPos = bezierCubic.GetPosition(actualT);
+            accurateTs.Add(accurateT);
 
-            actualPositions.Add(actualPos.ToVector3());
+            //Debug.Log(accurateT);
 
 
             //Test that the derivative calculations are working
@@ -334,24 +326,48 @@ public class InterpolationController : MonoBehaviour
 
             //Debug.Log("Estimated derivative: " + dEst + " Actual derivative: " + dAct);
 
-
-            //Calculate the tangent at each position
-            MyVector3 tangentDir = BezierCubic.GetForwardDir(posA, posB, handleA, handleB, actualT);
-
-            tangents.Add(tangentDir.ToVector3());
-
-            InterpolationTransform orientation = bezierCubic.GetTransform(actualT);
-
-            orientations.Add(orientation);
-
             //Debug.Log("Distance " + distanceTravelled);
 
 
             //Move on to next iteration
-            distanceTravelled += lengthStepSize;
+            distanceTravelled += curveLength_stepSize;
 
-            t += stepSize;
+            t += t_stepSize;
         }
+
+
+        //Step3. Use the new t's to get information from the curve
+
+        //The interpolated positions
+        List<Vector3> actualPositions = new List<Vector3>();
+        //Save the tangent at each position on the curve
+        List<Vector3> tangents = new List<Vector3>();
+        //Save the orientation, which includes the tangent
+        List<InterpolationTransform> orientations = new List<InterpolationTransform>();
+
+        for (int i = 0; i < accurateTs.Count; i++)
+        {
+            float accurateT = accurateTs[i];
+
+            //Position on the curve
+            MyVector3 actualPos = bezierCubic.GetPosition(accurateT);
+
+            actualPositions.Add(actualPos.ToVector3());
+
+            //Tangent at each position
+            MyVector3 tangentDir = BezierCubic.GetTangent(posA, posB, handleA, handleB, accurateT);
+
+            tangents.Add(tangentDir.ToVector3());
+
+            //Orientation, which includes both position and tangent
+            InterpolationTransform orientation = bezierCubic.GetTransform(accurateT);
+
+            orientations.Add(orientation);
+        }
+
+
+        //The orientation at each position by using "Rotation Minimising Frame"
+        List<InterpolationTransform> orientationsFrame = bezierCubic.GetTransforms(accurateTs);
 
 
         //Display stuff
@@ -363,6 +379,7 @@ public class InterpolationController : MonoBehaviour
         //    Gizmos.DrawWireSphere(p.ToVector3(), 0.1f);
         //}
 
+        //Display the curve which is split into steps
         //DisplayInterpolation.DisplayCurve(actualPositions, useRandomColor: true);
 
         DisplayInterpolation.DisplayCurve(actualPositions, Color.gray);
@@ -371,16 +388,15 @@ public class InterpolationController : MonoBehaviour
         DisplayInterpolation.DisplayHandle(handleA.ToVector3(), posA.ToVector3());
         DisplayInterpolation.DisplayHandle(handleB.ToVector3(), posB.ToVector3());
 
-
         //Display the actual Bezier cubic for reference
         Handles.DrawBezier(posA.ToVector3(), posB.ToVector3(), handleA.ToVector3(), handleB.ToVector3(), Color.black, EditorGUIUtility.whiteTexture, 1f);
-
 
         //Display the tangents
         //DisplayInterpolation.DisplayDirections(actualPositions, tangents, 1f, Color.red);
 
         //Display the orientation
-        DisplayInterpolation.DisplayOrientations(orientations, 1f);
+        //DisplayInterpolation.DisplayOrientations(orientations, 1f);
+        DisplayInterpolation.DisplayOrientations(orientationsFrame, 1f);
     }
 
 

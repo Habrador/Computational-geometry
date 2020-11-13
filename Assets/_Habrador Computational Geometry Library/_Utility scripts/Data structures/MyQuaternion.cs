@@ -20,6 +20,31 @@ namespace Habrador_Computational_Geometry
             this.quaternion = Quaternion.LookRotation(forward.ToVector3(), up.ToVector3());
         }
 
+        public MyQuaternion(Quaternion quaternion)
+        {
+            this.quaternion = quaternion;
+        }
+
+
+
+        //
+        // Quaternion operations
+        //
+
+        //Rotate a quaternion some degrees around some axis
+        public static MyQuaternion RotateQuaternion(MyQuaternion oldQuaternion, float angleInDegrees, MyVector3 rotationAxis)
+        {        
+            Quaternion rotationQuaternion = Quaternion.AngleAxis(angleInDegrees, rotationAxis.ToVector3());
+
+            //To rotate a quaternion you just multiply it with the rotation quaternion
+            Quaternion newQuaternion = oldQuaternion.quaternion * rotationQuaternion;
+
+            MyQuaternion myNewQuaternion = new MyQuaternion(newQuaternion);
+
+            return myNewQuaternion;
+        }
+
+
 
         //
         // Get directions from orientation
