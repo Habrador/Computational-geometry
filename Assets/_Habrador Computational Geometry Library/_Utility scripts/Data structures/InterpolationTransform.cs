@@ -106,6 +106,9 @@ namespace Habrador_Computational_Geometry
         }
 
 
+        //Method that can take curve sections and returns the orientation for each point on the entire curve 
+
+
 
         //
         // Calculate orientation at point t by using different methods
