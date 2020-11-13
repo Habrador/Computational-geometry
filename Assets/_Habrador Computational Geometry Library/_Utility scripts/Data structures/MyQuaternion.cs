@@ -37,7 +37,8 @@ namespace Habrador_Computational_Geometry
             Quaternion rotationQuaternion = Quaternion.AngleAxis(angleInDegrees, rotationAxis.ToVector3());
 
             //To rotate a quaternion you just multiply it with the rotation quaternion
-            Quaternion newQuaternion = oldQuaternion.quaternion * rotationQuaternion;
+            //Important that rotationQuaternion is first!
+            Quaternion newQuaternion = rotationQuaternion * oldQuaternion.quaternion;
 
             MyQuaternion myNewQuaternion = new MyQuaternion(newQuaternion);
 

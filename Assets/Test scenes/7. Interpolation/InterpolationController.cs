@@ -301,7 +301,7 @@ public class InterpolationController : MonoBehaviour
         List<float> accurateTs = new List<float>();
 
         //The number of sections we want to divide the curve into
-        int steps = 5;
+        int steps = 6;
 
         //Important not to confuse this with the step size we use to iterate t
         //This step size is distance in m

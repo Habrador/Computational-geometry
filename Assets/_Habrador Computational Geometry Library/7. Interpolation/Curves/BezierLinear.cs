@@ -26,32 +26,45 @@ namespace Habrador_Computational_Geometry
 
         public override MyVector3 GetPosition(float t)
         {
-            MyVector3 interpolatedValue = GetPosition(posA, posB, t);
+            MyVector3 interpolatedPos = GetPosition(posA, posB, t);
 
-            return interpolatedValue;
+            return interpolatedPos;
         }
 
         //Linear bezier - straight line
+        //3d
         public static MyVector3 GetPosition(MyVector3 a, MyVector3 b, float t)
         {
-            float lerpX = _Interpolation.Lerp(a.x, b.x, t);
-            float lerpY = _Interpolation.Lerp(a.y, b.y, t);
-            float lerpZ = _Interpolation.Lerp(a.z, b.z, t);
+            //float lerpX = _Interpolation.Lerp(a.x, b.x, t);
+            //float lerpY = _Interpolation.Lerp(a.y, b.y, t);
+            //float lerpZ = _Interpolation.Lerp(a.z, b.z, t);
 
-            MyVector3 interpolatedPos = new MyVector3(lerpX, lerpY, lerpZ);
+            //MyVector3 interpolatedPos = new MyVector3(lerpX, lerpY, lerpZ);
+
+            //Above is same as
+            //(1-t)A + tB = A - At + Bt
+
+            MyVector3 interpolatedPos = a - a * t + b * t;
 
             return interpolatedPos;
         }
 
+        //2d
         public static MyVector2 GetPosition(MyVector2 a, MyVector2 b, float t)
         {
-            float lerpX = _Interpolation.Lerp(a.x, b.x, t);
-            float lerpY = _Interpolation.Lerp(a.y, b.y, t);
+            //float lerpX = _Interpolation.Lerp(a.x, b.x, t);
+            //float lerpY = _Interpolation.Lerp(a.y, b.y, t);
 
-            MyVector2 interpolatedPos = new MyVector2(lerpX, lerpY);
+            //MyVector2 interpolatedPos = new MyVector2(lerpX, lerpY);
+
+            //Above is same as
+            //(1-t)A + tB = A - At + Bt
+
+            MyVector2 interpolatedPos = a - a * t + b * t;
 
             return interpolatedPos;
         }
+
 
 
         //
@@ -60,8 +73,27 @@ namespace Habrador_Computational_Geometry
 
         public override float GetDerivative(float t)
         {
-            throw new System.NotImplementedException();
+            MyVector3 derivativeVec = GetDerivativeVec(posA, posB);
+
+            float derivative = MyVector3.Magnitude(derivativeVec);
+
+            return derivative;
         }
+
+        public static MyVector3 GetDerivativeVec(MyVector3 posA, MyVector3 posB)
+        {
+            //Pos: A - At + Bt
+            //Derivative: -A + B
+
+            MyVector3 derivativeVec = -posA + posB;
+
+            return derivativeVec;
+        }
+
+
+        //
+        // Tangent
+        //
 
         public override MyVector3 GetTangent(float t)
         {

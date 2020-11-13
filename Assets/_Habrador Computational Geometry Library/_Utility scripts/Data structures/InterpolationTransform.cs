@@ -186,7 +186,7 @@ namespace Habrador_Computational_Geometry
 
             
             //This version is from Game Programming Gems 2: The Parallel Transport Frame
-            //They generate a similar result (but not exactly the same), but this one is easier to understand
+            //They generate the same result and this one is easier to understand
 
             //The two tangents
             MyVector3 T1 = previousTransform.Forward;
@@ -205,6 +205,7 @@ namespace Habrador_Computational_Geometry
 
             MyQuaternion orientation = F2;
             
+
             return orientation;
         }
 
