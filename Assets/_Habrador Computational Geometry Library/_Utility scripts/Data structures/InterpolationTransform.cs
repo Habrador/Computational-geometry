@@ -23,15 +23,15 @@ namespace Habrador_Computational_Geometry
         // Calculate orientation by using different methods
         //
 
-        //You can read about these methods:
+        //You can read about these methods here:
         //https://pomax.github.io/bezierinfo/#pointvectors3d
-        //Game Programming Gems 2: The Parallel Transport Frame 
+        //Game Programming Gems 2: The Parallel Transport Frame (p. 215)
 
         //"Fixed Up"
         //Just pick an "up" reference vector
         //From "Unite 2015 - A coder's guide to spline-based procedural geometry" https://www.youtube.com/watch?v=o9RK6O2kOKo
         //Is not going to work if we have loops, but should work if you make "2d" roads like in cities skylines so no roller coasters
-        public static MyQuaternion GetOrientationByUsingUpRef(MyVector3 tangent, MyVector3 upRef)
+        public static MyQuaternion GetOrientation_UpRef(MyVector3 tangent, MyVector3 upRef)
         {
             tangent = MyVector3.Normalize(tangent);
             
@@ -46,7 +46,7 @@ namespace Habrador_Computational_Geometry
 
         //"Frenet Normal" (also known as Frenet Frame)
         //Works in many cases (but sometimes the frame may flip because of changes in the second derivative) 
-        public static MyQuaternion GetOrientationByUsingFrenetNormal(MyVector3 tangent, MyVector3 secondDerivativeVec)
+        public static MyQuaternion GetOrientation_FrenetNormal(MyVector3 tangent, MyVector3 secondDerivativeVec)
         {
             MyVector3 a = MyVector3.Normalize(tangent);
 
@@ -67,8 +67,8 @@ namespace Habrador_Computational_Geometry
         //"Rotation Minimising Frame" (also known as "Parallel Transport Frame" or "Bishop Frame")
         //Gets its stability by incrementally rotating a coordinate system (= frame) as it is translate along the curve
         //Has to be computed for the entire curve because we need the previous frame (previousTransform) belonging to a point before this point
-        //Is initalized by using one of the previous methods
-        public static MyQuaternion GetOrientationByUsingFrame(MyVector3 position, MyVector3 tangent, InterpolationTransform previousTransform)
+        //Is initalized by using "Fixed Up" or "Frenet Normal"
+        public static MyQuaternion GetOrientation_RotationFrame(MyVector3 position, MyVector3 tangent, InterpolationTransform previousTransform)
         {
             /*
             //This version is from https://pomax.github.io/bezierinfo/#pointvectors3d
@@ -99,11 +99,15 @@ namespace Habrador_Computational_Geometry
             
             //This version is from Game Programming Gems 2: The Parallel Transport Frame
             //They generate a similar result (but not exactly the same), but this one is easier to understand
+
+            //The two tangents
             MyVector3 T1 = previousTransform.Forward;
             MyVector3 T2 = tangent;
 
+            //You move T1 to the new position, so A is a vector going from the new position
             MyVector3 A = MyVector3.Cross(T1, T2);
 
+            //This is the angle between T1 and T2
             float alpha = Mathf.Acos(MyVector3.Dot(T1, T2) / (MyVector3.Magnitude(T1) * MyVector3.Magnitude(T2)));
 
             //Now rotate the previous frame around axis A with angle alpha

@@ -211,7 +211,7 @@ namespace Habrador_Computational_Geometry
             //MyQuaternion orientation = new MyQuaternion(forwardDir);
 
             //Your own reference up vector
-            MyQuaternion orientation = InterpolationTransform.GetOrientationByUsingUpRef(forwardDir, Vector3.up.ToMyVector3());
+            MyQuaternion orientation = InterpolationTransform.GetOrientation_UpRef(forwardDir, Vector3.up.ToMyVector3());
 
 
             //Alternative 2. Frenet normal. Use the tagent we have and a tangent next to it
@@ -244,7 +244,7 @@ namespace Habrador_Computational_Geometry
                 if (i == 0)
                 {
                     //Just use one of the other algorithms available to generate a transform at a single position
-                    MyQuaternion orientation = InterpolationTransform.GetOrientationByUsingUpRef(tangent, Vector3.up.ToMyVector3());
+                    MyQuaternion orientation = InterpolationTransform.GetOrientation_UpRef(tangent, Vector3.up.ToMyVector3());
 
                     InterpolationTransform transform = new InterpolationTransform(position, orientation);
 
@@ -256,7 +256,7 @@ namespace Habrador_Computational_Geometry
                     //To calculate the transform for this point, we need data from the previous point on the curve
                     InterpolationTransform previousTransform = orientations[i - 1];
 
-                    MyQuaternion orientation = InterpolationTransform.GetOrientationByUsingFrame(position, tangent, previousTransform);
+                    MyQuaternion orientation = InterpolationTransform.GetOrientation_RotationFrame(position, tangent, previousTransform);
 
                     InterpolationTransform transform = new InterpolationTransform(position, orientation);
 
