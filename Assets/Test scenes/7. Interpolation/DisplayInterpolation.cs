@@ -101,4 +101,12 @@ public static class DisplayInterpolation
             Gizmos.DrawRay(orientation.position.ToVector3(), orientation.Up.ToVector3() * rayLength);
         }
     }
+
+
+
+    //Display mesh extruded along a curve
+    public static void DisplayMesh()
+    {
+
+    }
 }

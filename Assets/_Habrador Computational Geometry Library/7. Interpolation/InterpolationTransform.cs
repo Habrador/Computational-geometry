@@ -221,5 +221,20 @@ namespace Habrador_Computational_Geometry
         public MyVector3 Forward => orientation.Forward;
         public MyVector3 Right   => orientation.Right;
         public MyVector3 Up      => orientation.Up;
+
+
+
+        //
+        // Transform between coordinate systems
+        //
+
+        //So if input is MyVector3.Right * 2f then we should get a point in world space on the curve 
+        //at this position moved along the x-axis 2m
+        public MyVector3 LocalToWorld(MyVector3 localPos)
+        {
+            MyVector3 worldPos = position + MyQuaternion.RotateVector(orientation, localPos);
+
+            return worldPos;
+        }
     }
 }

@@ -39,9 +39,9 @@ public class InterpolationController : MonoBehaviour
 
         //BezierCubicTest(posA, posB, handleA, handleB);
 
-        //BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
+        BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
 
-        CatmullRomTest(posA, posB, handleA, handleB);
+        //CatmullRomTest(posA, posB, handleA, handleB);
 
 
         //Interpolation between values
@@ -401,6 +401,13 @@ public class InterpolationController : MonoBehaviour
         //The orientation
         //DisplayInterpolation.DisplayOrientations(orientations, 1f);
         DisplayInterpolation.DisplayOrientations(orientationsFrame, 1f);
+
+        //Extrude mesh along the curve
+        InterpolationTransform testTrans = orientationsFrame[1];
+
+        MyVector3 pos = testTrans.LocalToWorld(MyVector3.Up * 2f);
+
+        Gizmos.DrawSphere(pos.ToVector3(), 0.1f);
     }
 
 

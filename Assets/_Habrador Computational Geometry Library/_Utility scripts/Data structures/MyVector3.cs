@@ -21,7 +21,9 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Vector operations
+        //
+        // Vector operations
+        //
         public static float Dot(MyVector3 a, MyVector3 b)
         {
             float dotProduct = (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
@@ -79,7 +81,20 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Operator overloads
+        //
+        // Directions by using Unity's coordinate system
+        //
+
+        public static MyVector3 Right   => new MyVector3(1f, 0f, 0f);
+        public static MyVector3 Forward => new MyVector3(0f, 0f, 1f);
+        public static MyVector3 Up      => new MyVector3(0f, 1f, 0f);
+
+
+
+        //
+        // Operator overloads
+        //
+
         public static MyVector3 operator +(MyVector3 a, MyVector3 b)
         {
             return new MyVector3(a.x + b.x, a.y + b.y, a.z + b.z);
