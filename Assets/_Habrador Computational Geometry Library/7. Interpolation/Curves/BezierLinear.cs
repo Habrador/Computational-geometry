@@ -35,6 +35,8 @@ namespace Habrador_Computational_Geometry
         //3d
         public static MyVector3 GetPosition(MyVector3 a, MyVector3 b, float t)
         {
+            t = Mathf.Clamp01(t);
+
             //float lerpX = _Interpolation.Lerp(a.x, b.x, t);
             //float lerpY = _Interpolation.Lerp(a.y, b.y, t);
             //float lerpZ = _Interpolation.Lerp(a.z, b.z, t);
@@ -52,6 +54,8 @@ namespace Habrador_Computational_Geometry
         //2d
         public static MyVector2 GetPosition(MyVector2 a, MyVector2 b, float t)
         {
+            t = Mathf.Clamp01(t);
+
             //float lerpX = _Interpolation.Lerp(a.x, b.x, t);
             //float lerpY = _Interpolation.Lerp(a.y, b.y, t);
 

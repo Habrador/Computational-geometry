@@ -38,6 +38,8 @@ namespace Habrador_Computational_Geometry
         //Uses de Casteljau's algorithm 
         public static MyVector3 GetPosition(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
+            t = Mathf.Clamp01(t);
+
             //MyVector3 interpolation_posA_handlePos = BezierLinear.GetPosition(posA, handlePos, t);
             //MyVector3 interpolation_handlePos_posB = BezierLinear.GetPosition(handlePos, posB, t);
 
@@ -76,6 +78,8 @@ namespace Habrador_Computational_Geometry
 
         public static MyVector3 GetTangent(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
+            t = Mathf.Clamp01(t);
+
             //Alternative 1
             //Same as when we calculate position from t
             //MyVector3 interpolation_posA_handlePos = BezierLinear.GetPosition(posA, handlePos, t);
@@ -118,6 +122,8 @@ namespace Habrador_Computational_Geometry
 
         public static MyVector3 DerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
+            t = Mathf.Clamp01(t);
+
             MyVector3 A = posA;
             MyVector3 B = handlePos;
             MyVector3 C = posB;
@@ -134,6 +140,8 @@ namespace Habrador_Computational_Geometry
 
         public static MyVector3 SecondDerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
+            t = Mathf.Clamp01(t);
+
             MyVector3 A = posA;
             MyVector3 B = handlePos;
             MyVector3 C = posB;

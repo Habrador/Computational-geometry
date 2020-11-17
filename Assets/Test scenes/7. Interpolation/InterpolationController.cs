@@ -39,9 +39,9 @@ public class InterpolationController : MonoBehaviour
 
         //BezierCubicTest(posA, posB, handleA, handleB);
 
-        BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
+        //BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
 
-        //CatmullRomTest(posA, posB, handleA, handleB);
+        CatmullRomTest(posA, posB, handleA, handleB);
 
 
         //Interpolation between values
@@ -439,11 +439,11 @@ public class InterpolationController : MonoBehaviour
 
 
         //Display
-        DisplayInterpolation.DisplayCurve(positions, useRandomColor: true);
-        //DisplayInterpolation.DisplayCurve(positions, Color.black);
+        //DisplayInterpolation.DisplayCurve(positions, useRandomColor: true);
+        DisplayInterpolation.DisplayCurve(positions, Color.black);
 
         //The actual curve for comparison
-        DisplayInterpolation.DisplayCurve(catmullRomCurve, Color.black);
+        DisplayInterpolation.DisplayCurve(catmullRomCurve, Color.gray);
 
         //The control points
         //The start and end values and the handle points
