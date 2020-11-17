@@ -17,6 +17,9 @@ public class InterpolationController : MonoBehaviour
     [Range(0f, 1f)]
     public float tSliderValue = 0f;
 
+    //Mesh profile to test how to extrude mesh along curve
+    public MeshProfile meshProfile;
+
 
 
     private void OnDrawGizmos()
@@ -403,11 +406,14 @@ public class InterpolationController : MonoBehaviour
         DisplayInterpolation.DisplayOrientations(orientationsFrame, 1f);
 
         //Extrude mesh along the curve
-        InterpolationTransform testTrans = orientationsFrame[1];
+        //InterpolationTransform testTrans = orientationsFrame[1];
 
-        MyVector3 pos = testTrans.LocalToWorld(MyVector3.Up * 2f);
+        //MyVector3 pos = testTrans.LocalToWorld(MyVector3.Up * 2f);
+        //MyVector3 pos = testTrans.LocalToWorld(MyVector3.Right * 2f);
 
-        Gizmos.DrawSphere(pos.ToVector3(), 0.1f);
+        //Gizmos.DrawSphere(pos.ToVector3(), 0.1f);
+
+        DisplayInterpolation.DisplayExtrudedMesh(orientationsFrame, meshProfile);
     }
 
 

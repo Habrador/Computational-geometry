@@ -105,8 +105,28 @@ public static class DisplayInterpolation
 
 
     //Display mesh extruded along a curve
-    public static void DisplayMesh()
+    public static void DisplayExtrudedMesh(List<InterpolationTransform> transforms, MeshProfile profile)
     {
+        if (profile == null)
+        {
+            Debug.Log("You need to assign a mesh profile");
 
+            return;
+        }
+
+        InterpolationTransform testTrans = transforms[1];
+
+        float profileScale = 0.5f;
+
+        for (int i = 0; i < profile.vertices.Length; i++)
+        {
+            MyVector2 localPos2d = profile.vertices[i].point;
+
+            MyVector3 localPos = new MyVector3(localPos2d.x, localPos2d.y, 0f);
+        
+            MyVector3 pos = testTrans.LocalToWorld(localPos * profileScale);
+
+            Gizmos.DrawSphere(pos.ToVector3(), 0.1f);
+        }
     }
 }

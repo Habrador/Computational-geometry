@@ -6,6 +6,7 @@ namespace Habrador_Computational_Geometry
 {
     //Unity loves to automatically cast beween Vector2 and Vector3
     //Because theres no way to stop it, its better to use a custom struct 
+    [System.Serializable]
     public struct MyVector3
     {
         public float x;
