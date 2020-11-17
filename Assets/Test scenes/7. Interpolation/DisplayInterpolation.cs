@@ -9,42 +9,51 @@ public static class DisplayInterpolation
     //Display interpolated values
     public static void DisplayCurve(List<Vector3> values, bool useRandomColor)
     {
-        DisplayCurve(values, useRandomColor: true, Color.white);
+        DisplayCurve(values, useRandomColor: true, Color.white, true);
     }
 
     public static void DisplayCurve(List<Vector3> values, Color color)
     {
-        DisplayCurve(values, useRandomColor: false, color);
+        DisplayCurve(values, useRandomColor: false, color, true);
     }
 
-    public static void DisplayCurve(List<Vector3> values, bool useRandomColor, Color color)
+    //Display curve with high resolution, which is useful if we want to compare the actual curve with a curve split into steps
+    //Unity has built-in Handles.DrawBezier but doesn't exist for other curve types
+    public static void DisplayCurve(_Curve curve, Color color)
+    {
+        int steps = 200;
+
+        List<MyVector3> positionsOnCurve = InterpolationHelpMethods.SplitCurve(curve, steps, tEnd: 1f);
+
+        List<Vector3> positionsOnCurveStandardized = positionsOnCurve.ConvertAll(x => x.ToVector3()); 
+
+        DisplayCurve(positionsOnCurveStandardized, false, color, false);
+    }
+
+    public static void DisplayCurve(List<Vector3> values, bool useRandomColor, Color color, bool drawPoints)
     {
         //Draw lines
         Random.InitState(0);
 
         for (int i = 1; i < values.Count; i++)
         {
-            if (!useRandomColor)
-            {
-                Gizmos.color = color;
-            }
-            else
-            {
-                Gizmos.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
-            }
+            Gizmos.color = !useRandomColor ? color: new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
 
             Gizmos.DrawLine(values[i - 1], values[i]);
         }
 
 
-        //Draw points
-        Gizmos.color = Color.black;
-
-        for (int i = 0; i < values.Count; i++)
+        //Draw each position with a circle
+        if (drawPoints)
         {
-            Gizmos.DrawWireSphere(values[i], 0.05f);
+            Gizmos.color = Color.black;
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                Gizmos.DrawWireSphere(values[i], 0.05f);
+            }
         }
-    }
+    }   
 
 
 
@@ -76,6 +85,7 @@ public static class DisplayInterpolation
     //Display orientations
     public static void DisplayOrientations(List<InterpolationTransform> orientations, float rayLength)
     {
+        //Same colors as Unitys coordinate system
         foreach (InterpolationTransform orientation in orientations)
         {
             Gizmos.color = Color.blue;
@@ -89,23 +99,6 @@ public static class DisplayInterpolation
             Gizmos.color = Color.green;
 
             Gizmos.DrawRay(orientation.position.ToVector3(), orientation.Up.ToVector3() * rayLength);
-        }
-    }
-
-
-
-    //Display accurate Bezier Quadratic
-    public static void DisplayBezierQuadratic(BezierQuadratic curve, Color color)
-    {
-        int steps = 100;
-
-        List<MyVector3> positionsOnCurve = InterpolationHelpMethods.SplitCurve(curve, steps, tEnd: 1f);
-
-        //Gizmos.color = color;
-
-        for (int i = 1; i < positionsOnCurve.Count; i++)
-        {
-            Debug.DrawLine(positionsOnCurve[i].ToVector3(), positionsOnCurve[i - 1].ToVector3(), color);
         }
     }
 }

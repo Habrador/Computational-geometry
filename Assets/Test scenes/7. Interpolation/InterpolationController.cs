@@ -39,9 +39,9 @@ public class InterpolationController : MonoBehaviour
 
         //BezierCubicTest(posA, posB, handleA, handleB);
 
-        //BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
+        BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
 
-        CatmullRomTest(posA, posB, handleA, handleB);
+        //CatmullRomTest(posA, posB, handleA, handleB);
 
 
         //Interpolation between values
@@ -227,7 +227,8 @@ public class InterpolationController : MonoBehaviour
         //Display
 
         //Unity doesnt have a built-in method to display an accurate Qudratic bezier, so we have to create our own
-        DisplayInterpolation.DisplayBezierQuadratic(bezierQuadratic, Color.black);
+        //DisplayInterpolation.DisplayBezierQuadratic(bezierQuadratic, Color.black);
+        DisplayInterpolation.DisplayCurve(bezierQuadratic, Color.black);
 
         //DisplayInterpolation.DisplayCurve(actualPositions, useRandomColor: true);
         DisplayInterpolation.DisplayCurve(actualPositions, Color.gray);
@@ -384,7 +385,6 @@ public class InterpolationController : MonoBehaviour
 
         //The curve which is split into steps
         //DisplayInterpolation.DisplayCurve(actualPositions, useRandomColor: true);
-
         DisplayInterpolation.DisplayCurve(actualPositions, Color.gray);
 
         //The start and end values and the handle points
@@ -392,7 +392,8 @@ public class InterpolationController : MonoBehaviour
         DisplayInterpolation.DisplayHandle(handleB.ToVector3(), posB.ToVector3());
 
         //The actual Bezier cubic for reference
-        Handles.DrawBezier(posA.ToVector3(), posB.ToVector3(), handleA.ToVector3(), handleB.ToVector3(), Color.black, EditorGUIUtility.whiteTexture, 1f);
+        DisplayInterpolation.DisplayCurve(bezierCubic, Color.black);
+        //Handles.DrawBezier(posA.ToVector3(), posB.ToVector3(), handleA.ToVector3(), handleB.ToVector3(), Color.black, EditorGUIUtility.whiteTexture, 1f);
 
         //The tangents
         //DisplayInterpolation.DisplayDirections(actualPositions, tangents, 1f, Color.red);
@@ -406,105 +407,51 @@ public class InterpolationController : MonoBehaviour
 
     private void CatmullRomTest(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
     {
+        CatmullRom catmullRomCurve = new CatmullRom(posA, posB, handleA, handleB);
+    
         //Store the interpolated values so we later can display them
         List<Vector3> positions = new List<Vector3>();
         List<Vector3> tangents = new List<Vector3>();
 
-        //interpolatedValues.AddRange(GetCatmullRomPoints(posA, posB, handleA, handleB));
+        //Loop between 0 and 1 in steps, where 1 step is minimum
+        //So if steps is 5 then the line will be cut in 5 sections
+        int steps = 5;
 
-        //Make a connected shape by using all 4 points
-        List<MyVector3> controlPoints = new List<MyVector3>() { handleA, posA, posB, handleB };
+        float stepSize = 1f / (float)steps;
 
-        //Loop through all curve sections
-        for (int i = 0; i < controlPoints.Count; i++)
+        float t = 0f;
+
+        //+1 becuase wa also have to include the first point
+        for (int i = 0; i < steps + 1; i++)
         {
-            MyVector3 p0 = controlPoints[MathUtility.ClampListIndex(i - 1, controlPoints.Count)];
-            MyVector3 p1 = controlPoints[MathUtility.ClampListIndex(i + 0, controlPoints.Count)];
-            MyVector3 p2 = controlPoints[MathUtility.ClampListIndex(i + 1, controlPoints.Count)];
-            MyVector3 p3 = controlPoints[MathUtility.ClampListIndex(i + 2, controlPoints.Count)];
+            //Debug.Log(t);
 
-            positions.AddRange(GetCatmullRomPoints(p0, p1, p2, p3));
+            MyVector3 interpolatedPos = CatmullRom.GetPosition(posA, posB, handleA, handleB, t);
 
-            tangents.AddRange(GetCatmullRomTangents(p0, p1, p2, p3));
+            positions.Add(interpolatedPos.ToVector3());
+
+            MyVector3 interpolatedTangent = CatmullRom.GetTangent(posA, posB, handleA, handleB, t);
+
+            tangents.Add(interpolatedTangent.ToVector3());
+
+            t += stepSize;
         }
 
 
         //Display
-        //DisplayInterpolation.DisplayCurve(positions, useRandomColor: true);
-        DisplayInterpolation.DisplayCurve(positions, Color.black);
+        DisplayInterpolation.DisplayCurve(positions, useRandomColor: true);
+        //DisplayInterpolation.DisplayCurve(positions, Color.black);
+
+        //The actual curve for comparison
+        DisplayInterpolation.DisplayCurve(catmullRomCurve, Color.black);
 
         //The control points
-        Gizmos.color = Color.white;
-
-        float radius = 0.1f;
-
-        Gizmos.DrawWireSphere(posA.ToVector3(), radius);
-        Gizmos.DrawWireSphere(posB.ToVector3(), radius);
-        Gizmos.DrawWireSphere(handleA.ToVector3(), radius);
-        Gizmos.DrawWireSphere(handleB.ToVector3(), radius);
-
+        //The start and end values and the handle points
+        DisplayInterpolation.DisplayHandle(handleA.ToVector3(), posA.ToVector3());
+        DisplayInterpolation.DisplayHandle(handleB.ToVector3(), posB.ToVector3());
 
         //Other stuff
         DisplayInterpolation.DisplayDirections(positions, tangents, 1f, Color.blue);
-    }
-
-    //Get values between two points for CatmullRom
-    private List<Vector3> GetCatmullRomPoints(MyVector3 handleA, MyVector3 posA, MyVector3 posB, MyVector3 handleB)
-    {
-        //Store the interpolated values so we later can display them
-        List<Vector3> interpolatedValues = new List<Vector3>();
-
-        //Loop between 0 and 1 in steps, where 1 step is minimum
-        //So if steps is 5 then the line will be cut in 5 sections
-        int steps = 5;
-
-        float stepSize = 1f / (float)steps;
-
-        float t = 0f;
-
-        //+1 becuase wa also have to include the first point
-        for (int i = 0; i < steps + 1; i++)
-        {
-            //Debug.Log(t);
-
-            MyVector3 interpolatedValue = CatmullRom.GetPosition(posA, posB, handleA, handleB, t);
-
-            interpolatedValues.Add(interpolatedValue.ToVector3());
-
-            t += stepSize;
-        }
-
-        return interpolatedValues;
-    }
-
-    //Get values between two points for CatmullRom
-    private List<Vector3> GetCatmullRomTangents(MyVector3 handleA, MyVector3 posA, MyVector3 posB, MyVector3 handleB)
-    {
-        //Store the interpolated values so we later can display them
-        List<Vector3> interpolatedValues = new List<Vector3>();
-
-        //Loop between 0 and 1 in steps, where 1 step is minimum
-        //So if steps is 5 then the line will be cut in 5 sections
-        int steps = 5;
-
-        float stepSize = 1f / (float)steps;
-
-        float t = 0f;
-
-        //+1 becuase wa also have to include the first point
-        for (int i = 0; i < steps + 1; i++)
-        {
-            //Debug.Log(t);
-
-            //MyVector3 interpolatedValue = CatmullRom.GetPosition(posA, posB, handleA, handleB, t);
-            MyVector3 interpolatedValue = CatmullRom.GetTangent(posA, posB, handleA, handleB, t);
-
-            interpolatedValues.Add(interpolatedValue.ToVector3());
-
-            t += stepSize;
-        }
-
-        return interpolatedValues;
     }
 
 
