@@ -31,6 +31,8 @@ public class InterpolationController : MonoBehaviour
         MyVector3 handleA = transHandleA.position.ToMyVector3();
         MyVector3 handleB = transHandleB.position.ToMyVector3();
 
+        InterpolationTransform myTransA = new InterpolationTransform(posA, new MyQuaternion(transPointA.rotation));
+        InterpolationTransform myTransB = new InterpolationTransform(posB, new MyQuaternion(transPointB.rotation));
 
         //Interpolate between coordinates in 3d 
 
@@ -42,7 +44,9 @@ public class InterpolationController : MonoBehaviour
 
         //BezierCubicTest(posA, posB, handleA, handleB);
 
-        BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
+        //BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
+
+        BezierCubicTest_Transform(myTransA, myTransB, transPointA.localScale.z, transPointB.localScale.z);
 
         //CatmullRomTest(posA, posB, handleA, handleB);
 
@@ -414,6 +418,60 @@ public class InterpolationController : MonoBehaviour
         //Gizmos.DrawSphere(pos.ToVector3(), 0.1f);
 
         DisplayInterpolation.DisplayExtrudedMesh(orientationsFrame, meshProfile);
+    }
+
+
+
+    private void BezierCubicTest_Transform(InterpolationTransform transA, InterpolationTransform transB, float scaleA, float scaleB)
+    {
+        MyVector3 posA = transA.position;
+        MyVector3 posB = transB.position;
+
+        //The forward vector should move along from a to b
+        MyVector3 handleA = posA + transA.Forward * scaleA;
+        MyVector3 handleB = posB + -transB.Forward * scaleB;
+
+        BezierCubic curve = new BezierCubic(posA, posB, handleA, handleB);
+
+        //Store the interpolated values so we later can display them
+        List<Vector3> positions = new List<Vector3>();
+        //Save the orientation, which includes the tangent
+        List<InterpolationTransform> orientations = new List<InterpolationTransform>();
+
+        //Loop between 0 and 1 in steps, where 1 step is minimum
+        //So if steps is 5 then the line will be cut in 5 sections
+        int steps = 10;
+
+        float t_stepSize = 1f / (float)steps;
+
+        float t = 0f;
+
+        //+1 becuase wa also have to include the first point
+        for (int i = 0; i < steps + 1; i++)
+        {
+            //Debug.Log(t);
+
+            MyVector3 interpolatedPos = BezierCubic.GetPosition(posA, posB, handleA, handleB, t);
+
+            positions.Add(interpolatedPos.ToVector3());
+
+            InterpolationTransform interpolatedOrientation = InterpolationTransform.GetTransform_Interpolate(curve, t, transA.Up, transB.Up);
+
+            orientations.Add(interpolatedOrientation);
+
+            t += t_stepSize;
+        }
+
+
+        //The curve
+        DisplayInterpolation.DisplayCurve(positions, useRandomColor: true);
+
+        //The start and end values and the handle points
+        DisplayInterpolation.DisplayHandle(handleA.ToVector3(), posA.ToVector3());
+        DisplayInterpolation.DisplayHandle(handleB.ToVector3(), posB.ToVector3());
+
+        //Display transform
+        DisplayInterpolation.DisplayOrientations(orientations, 1f);
     }
 
 

@@ -52,10 +52,27 @@ namespace Habrador_Computational_Geometry
             //MyQuaternion orientation = new MyQuaternion(forwardDir);
 
             //Your own reference up vector
-            //This could be an interpolation between the start and end up-vector if you know them (which you do if you put a Unity transform at the start and end). If you use Unity's transform, you can also say that z-scale if the offset of the handle which might simplify things
-            //MyVector3 upRef = Vector3.Lerp(startUp, endUp, t).normalized;
             MyQuaternion orientation = InterpolationTransform.GetOrientation_UpRef(forwardDir, Vector3.up.ToMyVector3());
 
+
+            InterpolationTransform trans = new InterpolationTransform(pos, orientation);
+
+            return trans;
+        }
+
+        //Similar to Alternative 1, but we know the up vector at both the start and end position
+        //Then we can interpolate between those vectors
+        public static InterpolationTransform GetTransform_Interpolate(_Curve curve, float t, MyVector3 upRefA, MyVector3 upRefB)
+        {
+            //Position on the curve at point t
+            MyVector3 pos = curve.GetPosition(t);
+
+            //Forward direction (tangent) on the curve at point t
+            MyVector3 forwardDir = curve.GetTangent(t);
+
+            MyVector3 interpolatedUpDir = MyVector3.Normalize(BezierLinear.GetPosition(upRefA, upRefB, t));
+
+            MyQuaternion orientation = InterpolationTransform.GetOrientation_UpRef(forwardDir, interpolatedUpDir);
 
             InterpolationTransform trans = new InterpolationTransform(pos, orientation);
 
