@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2ed8e75c71ce1ac4d8f8d4c7af46a54e, type: 3}
-  m_Name: Mesh profile
+  m_Name: 2d road profile
   m_EditorClassIdentifier: 
   vertices:
   - point:
@@ -80,7 +80,7 @@ MonoBehaviour:
       x: -5
       y: -1
     normal:
-      x: 1
+      x: -1
       y: 0
     u: 0
   - point:

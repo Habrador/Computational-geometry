@@ -4,12 +4,19 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
-    //This struct should provide a Transform (position and orientation) suitable for curves like Bezier in 3d space
-    public struct InterpolationTransform
+    //Generate a Transform (position and orientation) suitable for curves like Bezier in 3d space
+    public class InterpolationTransform
     {
         public MyVector3 position;
         
         public MyQuaternion orientation;
+
+        public enum GenerateOrientationAlternative
+        {
+            UpRef,
+            FrenetNormal,
+            RotationMinimisingFrame
+        }
 
         public InterpolationTransform(MyVector3 position, MyQuaternion orientation)
         {
@@ -17,31 +24,27 @@ namespace Habrador_Computational_Geometry
             this.orientation = orientation;
         }
 
-        
+
 
         //
         // Transform (position and orientation) at point t
         //
 
-        //Calculate a transform at a single point
-        public static InterpolationTransform GetTransform(_Curve curve, float t)
+        //The position and the tangent are easy to find, what's difficult to find is the normal because a line doesn't have a single normal
+
+        //To get the normal in 2d, we can just flip two coordinates in the forward vector and set one to negative
+        //MyVector3 normal = new MyVector3(-forwardDir.z, 0f, forwardDir.x);
+
+        //In 3d there are multiple alternatives:
+
+        //Alternative 1. Use ref vector to know which direction is up
+        public static InterpolationTransform GetTransform_RefUp(_Curve curve, float t)
         {
             //Position on the curve at point t
             MyVector3 pos = curve.GetPosition(t);
 
             //Forward direction (tangent) on the curve at point t
             MyVector3 forwardDir = curve.GetTangent(t);
-
-
-            //The position and the tangent are easy to find, what's difficult to find is the normal because a line doesn't have a single normal
-
-            //To get the normal in 2d, we can just flip two coordinates in the forward vector and set one to negative
-            //MyVector3 normal = new MyVector3(-forwardDir.z, 0f, forwardDir.x);
-
-
-            //In 3d there are multiple alternatives
-
-            //Alternative 1. Use ref vector to know which direction is up
 
             //A simple way to get the other directions is to use LookRotation with just forward dir as parameter
             //Then the up direction will always be the world up direction, and it calculates the right direction 
@@ -52,10 +55,24 @@ namespace Habrador_Computational_Geometry
             MyQuaternion orientation = InterpolationTransform.GetOrientation_UpRef(forwardDir, Vector3.up.ToMyVector3());
 
 
-            //Alternative 2. Frenet normal. Use the tagent we have and a tangent next to it
-            //MyVector3 secondDerivativeVec = SecondDerivativeVec(posA, posB, handlePosA, handlePosB, t);
+            InterpolationTransform trans = new InterpolationTransform(pos, orientation);
 
-            //MyQuaternion orientation = InterpolationTransform.GetOrientationByUsingFrenetNormal(forwardDir, secondDerivativeVec);
+            return trans;
+        }
+
+
+        //Alternative 2. Frenet normal. Use the tagent we have and a tangent next to it
+        public static InterpolationTransform GetTransform_FrenetNormal(_Curve curve, float t)
+        {
+            //Position on the curve at point t
+            MyVector3 pos = curve.GetPosition(t);
+
+            //Forward direction (tangent) on the curve at point t
+            MyVector3 forwardDir = curve.GetTangent(t);
+
+            MyVector3 secondDerivativeVec = curve.GetSecondDerivativeVec(t);
+
+            MyQuaternion orientation = InterpolationTransform.GetOrientation_FrenetNormal(forwardDir, secondDerivativeVec);
 
 
             InterpolationTransform trans = new InterpolationTransform(pos, orientation);
@@ -64,9 +81,35 @@ namespace Habrador_Computational_Geometry
         }
 
 
+        //Alternative 3. Rotation Minimising Frame
+        public static InterpolationTransform GetTransform_RotationMinimisingFrame(MyVector3 position, MyVector3 tangent, InterpolationTransform previousTransform)
+        {
+            //The first point needs to be initalized with an orientation
+            if (previousTransform == null)
+            {
+                //Just use one of the other algorithms available to generate a transform at a single position
+                MyQuaternion orientation = InterpolationTransform.GetOrientation_UpRef(tangent, Vector3.up.ToMyVector3());
+
+                InterpolationTransform transform = new InterpolationTransform(position, orientation);
+
+                return transform;
+            }
+            //For all other points on the curve
+            else
+            {
+                //To calculate the orientation for this point, we need data from the previous point on the curve
+                MyQuaternion orientation = InterpolationTransform.GetOrientation_RotationFrame(position, tangent, previousTransform);
+
+                InterpolationTransform transform = new InterpolationTransform(position, orientation);
+
+                return transform;
+            }
+        }
+
+
         //Get all transforms at all positions
         //Some generate-transform-algorithms require more than one point, such as the "Rotation Minimising Frame"
-        public static List<InterpolationTransform> GetTransforms(_Curve curve, List<float> tValues)
+        public static List<InterpolationTransform> GetTransforms(_Curve curve, List<float> tValues, GenerateOrientationAlternative orientationAlternative)
         {
             List<InterpolationTransform> orientations = new List<InterpolationTransform>();
 
@@ -78,25 +121,24 @@ namespace Habrador_Computational_Geometry
                 MyVector3 position = curve.GetPosition(t);
                 MyVector3 tangent = curve.GetTangent(t);
 
-                //The first point needs to be initalized with an orientation
-                if (i == 0)
+                //Generate an orientation with one of the possible alternatives
+                if (orientationAlternative == GenerateOrientationAlternative.RotationMinimisingFrame)
                 {
-                    //Just use one of the other algorithms available to generate a transform at a single position
-                    MyQuaternion orientation = InterpolationTransform.GetOrientation_UpRef(tangent, Vector3.up.ToMyVector3());
+                    InterpolationTransform previousTransform = (i == 0) ? null : orientations[i - 1];
 
-                    InterpolationTransform transform = new InterpolationTransform(position, orientation);
+                    InterpolationTransform transform = InterpolationTransform.GetTransform_RotationMinimisingFrame(position, tangent, previousTransform);
 
                     orientations.Add(transform);
                 }
-                //For all other points on the curve
-                else
+                else if (orientationAlternative == GenerateOrientationAlternative.FrenetNormal)
                 {
-                    //To calculate the transform for this point, we need data from the previous point on the curve
-                    InterpolationTransform previousTransform = orientations[i - 1];
+                    InterpolationTransform transform = InterpolationTransform.GetTransform_FrenetNormal(curve, t);
 
-                    MyQuaternion orientation = InterpolationTransform.GetOrientation_RotationFrame(position, tangent, previousTransform);
-
-                    InterpolationTransform transform = new InterpolationTransform(position, orientation);
+                    orientations.Add(transform);
+                }
+                else if (orientationAlternative == GenerateOrientationAlternative.UpRef)
+                {
+                    InterpolationTransform transform = InterpolationTransform.GetTransform_RefUp(curve, t);
 
                     orientations.Add(transform);
                 }
@@ -111,7 +153,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Calculate orientation at point t by using different methods
+        // Orientation at point t
         //
 
         //You can read about these methods here:
@@ -145,7 +187,7 @@ namespace Habrador_Computational_Geometry
             MyVector3 b = MyVector3.Normalize(a + secondDerivativeVec);
 
             //A vector that we use as the "axis of rotation" for turning the tangent a quarter circle to get the normal
-            MyVector3 r = MyVector3.Normalize(MyVector3.Cross(b, a));
+            MyVector3 r = MyVector3.Normalize(MyVector3.Cross(a, b));
 
             //The normal vector should be perpendicular to the plane that the tangent and the axis of rotation lie in
             MyVector3 normal = MyVector3.Normalize(MyVector3.Cross(r, a));
@@ -228,16 +270,22 @@ namespace Habrador_Computational_Geometry
         // Transform between coordinate systems
         //
 
+        //Transform a position from local to world
         //If input is MyVector3.Right * 2f then we should get a point in world space on the curve 
         //at this position moved along the local x-axis 2m
-        public MyVector3 LocalToWorld(MyVector3 localPos)
+        public MyVector3 LocalToWorld_Pos(MyVector3 localPos)
         {
             MyVector3 worldPos = position + MyQuaternion.RotateVector(orientation, localPos);
 
-            //Same as: 
-            //MyVector3 worldPos = position + orientation.Right * 2f;
-
             return worldPos;
+        }
+
+        //Transform a direction from local to world
+        public MyVector3 LocalToWorld_Dir(MyVector3 localDir)
+        {
+            MyVector3 worldDir = MyQuaternion.RotateVector(orientation, localDir);
+
+            return worldDir;
         }
     }
 }

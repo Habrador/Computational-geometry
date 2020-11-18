@@ -257,6 +257,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Extrude mesh along Bezier and Catmull-Rom
 * Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want (https://twitter.com/mattstark256)
 * A way to generate an infinite delaunay triangulation (for terrains etc)
+* Remove or clarify the conversions between 2d and 3d
 
 ### Stuff to fix
 

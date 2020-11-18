@@ -94,6 +94,11 @@ namespace Habrador_Computational_Geometry
             return derivativeVec;
         }
 
+        public override MyVector3 GetSecondDerivativeVec(float t)
+        {
+            throw new System.NotImplementedException();
+        }
+
 
         //
         // Tangent
@@ -103,5 +108,7 @@ namespace Habrador_Computational_Geometry
         {
             throw new System.NotImplementedException();
         }
+
+        
     }
 }

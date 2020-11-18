@@ -25,7 +25,7 @@ public class GenerateMeshController : MonoBehaviour
 
             foreach (Triangle2 t in grid)
             {
-                Triangle3 t_3d = new Triangle3(t.p1.ToMyVector3(), t.p2.ToMyVector3(), t.p3.ToMyVector3());
+                Triangle3 t_3d = new Triangle3(t.p1.ToMyVector3_Yis3D(), t.p2.ToMyVector3_Yis3D(), t.p3.ToMyVector3_Yis3D());
 
                 grid_3d.Add(t_3d);
             }

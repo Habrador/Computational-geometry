@@ -99,7 +99,7 @@ public class VoronoiController : MonoBehaviour
             //    continue;
             //}
         
-            triangles_3d.Add(new Triangle3(t.p1.ToMyVector3(), t.p2.ToMyVector3(), t.p3.ToMyVector3()));
+            triangles_3d.Add(new Triangle3(t.p1.ToMyVector3_Yis3D(), t.p2.ToMyVector3_Yis3D(), t.p3.ToMyVector3_Yis3D()));
 
             //Debug.Log($"p1: {t.p1.x} {t.p1.y} p2: {t.p2.x} {t.p2.y} p3: {t.p3.x} {t.p3.y}");
 

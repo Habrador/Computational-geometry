@@ -220,7 +220,7 @@ public class InterpolationController : MonoBehaviour
 
 
             //Orientation, which includes both position and tangent
-            InterpolationTransform orientation = InterpolationTransform.GetTransform(bezierQuadratic, accurateT);
+            InterpolationTransform orientation = InterpolationTransform.GetTransform_RefUp(bezierQuadratic, accurateT);
 
             orientations.Add(orientation);
         }
@@ -305,7 +305,7 @@ public class InterpolationController : MonoBehaviour
         List<float> accurateTs = new List<float>();
 
         //The number of sections we want to divide the curve into
-        int steps = 6;
+        int steps = 20;
 
         //Important not to confuse this with the step size we use to iterate t
         //This step size is distance in m
@@ -357,7 +357,7 @@ public class InterpolationController : MonoBehaviour
         //Save the tangent at each position on the curve
         List<Vector3> tangents = new List<Vector3>();
         //Save the orientation, which includes the tangent
-        List<InterpolationTransform> orientations = new List<InterpolationTransform>();
+        //List<InterpolationTransform> orientations = new List<InterpolationTransform>();
 
         for (int i = 0; i < accurateTs.Count; i++)
         {
@@ -374,14 +374,14 @@ public class InterpolationController : MonoBehaviour
             tangents.Add(tangentDir.ToVector3());
 
             //Orientation, which includes both position and tangent
-            InterpolationTransform orientation = InterpolationTransform.GetTransform(bezierCubic, accurateT);
+            //InterpolationTransform orientation = InterpolationTransform.GetTransform(bezierCubic, accurateT);
 
-            orientations.Add(orientation);
+            //orientations.Add(orientation);
         }
 
 
-        //The orientation at each position by using "Rotation Minimising Frame"
-        List<InterpolationTransform> orientationsFrame = InterpolationTransform.GetTransforms(bezierCubic, accurateTs);
+        //The orientation at each t position
+        List<InterpolationTransform> orientationsFrame = InterpolationTransform.GetTransforms(bezierCubic, accurateTs, InterpolationTransform.GenerateOrientationAlternative.RotationMinimisingFrame);
 
 
         //Display stuff
@@ -413,7 +413,7 @@ public class InterpolationController : MonoBehaviour
 
         //Gizmos.DrawSphere(pos.ToVector3(), 0.1f);
 
-        DisplayInterpolation.DisplayExtrudedMesh(orientationsFrame, meshProfile);
+        //DisplayInterpolation.DisplayExtrudedMesh(orientationsFrame, meshProfile);
     }
 
 

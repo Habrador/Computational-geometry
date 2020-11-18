@@ -125,6 +125,11 @@ namespace Habrador_Computational_Geometry
             return derivativeVec;
         }
 
+        public override MyVector3 GetSecondDerivativeVec(float t)
+        {
+            return GetSecondDerivativeVec(posA, posB, handleA, handleB, t);
+        }
+
 
 
         //

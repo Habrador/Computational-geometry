@@ -89,7 +89,7 @@ namespace Habrador_Computational_Geometry
 
             //Alternative 2
             //The tangent is also the derivative vector
-            MyVector3 tangent = MyVector3.Normalize(DerivativeVec(posA, posB, handlePos, t));
+            MyVector3 tangent = MyVector3.Normalize(GetDerivativeVec(posA, posB, handlePos, t));
 
             return tangent;
         }
@@ -113,14 +113,14 @@ namespace Habrador_Computational_Geometry
             //float derivative = InterpolationHelpMethods.EstimateDerivative(this, t);
 
             //Alternative 2. Exact
-            MyVector3 derivativeVec = DerivativeVec(posA, posB, handlePos, t);
+            MyVector3 derivativeVec = GetDerivativeVec(posA, posB, handlePos, t);
 
             float derivative = MyVector3.Magnitude(derivativeVec);
 
             return derivative;
         }
 
-        public static MyVector3 DerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
+        public static MyVector3 GetDerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
             t = Mathf.Clamp01(t);
 
@@ -138,7 +138,7 @@ namespace Habrador_Computational_Geometry
             return derivativeVector;
         }
 
-        public static MyVector3 SecondDerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
+        public static MyVector3 GetSecondDerivativeVec(MyVector3 posA, MyVector3 posB, MyVector3 handlePos, float t)
         {
             t = Mathf.Clamp01(t);
 
@@ -152,6 +152,11 @@ namespace Habrador_Computational_Geometry
             MyVector3 derivativeVector = 2f * (A - 2f * B + C);
 
             return derivativeVector;
+        }
+
+        public override MyVector3 GetSecondDerivativeVec(float t)
+        {
+            return GetSecondDerivativeVec(posA, posB, handlePos, t);
         }
     }
 }

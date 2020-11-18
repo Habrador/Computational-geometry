@@ -47,8 +47,8 @@ namespace Habrador_Computational_Geometry
             return new Vector3(v.x, yPos, v.y);
         }
 
-        //MyVector2 -> MyVector3
-        public static MyVector3 ToMyVector3(this MyVector2 v, float yPos = 0f)
+        //MyVector2 -> MyVector3 (2d x is 3d x, 2d y is 3d z)
+        public static MyVector3 ToMyVector3_Yis3D(this MyVector2 v, float yPos = 0f)
         {
             return new MyVector3(v.x, yPos, v.y);
         }

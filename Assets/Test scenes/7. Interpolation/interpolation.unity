@@ -235,7 +235,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 759434768}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.42, y: 0, z: -3.21}
+  m_LocalPosition: {x: -0.95, y: 4.37, z: -7.35}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -275,6 +275,7 @@ MonoBehaviour:
   transHandleA: {fileID: 1871846293}
   transHandleB: {fileID: 1565061568}
   tSliderValue: 0.564
+  meshProfile: {fileID: 11400000, guid: 3d31502714c4a7f4b84ba213628b85c8, type: 2}
 --- !u!4 &1339194092
 Transform:
   m_ObjectHideFlags: 0
@@ -313,7 +314,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1565061567}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.02, y: 0, z: 0.61}
+  m_LocalPosition: {x: -2.79, y: 13.65, z: 0.61}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

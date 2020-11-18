@@ -298,7 +298,7 @@ namespace Habrador_Computational_Geometry
 
             foreach (Triangle2 t in triangles)
             {
-                triangles_3d.Add(new Triangle3(t.p1.ToMyVector3(meshHeight), t.p2.ToMyVector3(meshHeight), t.p3.ToMyVector3(meshHeight)));
+                triangles_3d.Add(new Triangle3(t.p1.ToMyVector3_Yis3D(meshHeight), t.p2.ToMyVector3_Yis3D(meshHeight), t.p3.ToMyVector3_Yis3D(meshHeight)));
             }
 
             //To mesh

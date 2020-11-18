@@ -13,6 +13,8 @@ namespace Habrador_Computational_Geometry
 
         public abstract float GetDerivative(float t);
 
+        public abstract MyVector3 GetSecondDerivativeVec(float t);
+
         public abstract MyVector3 GetTangent(float t);
 
         //public abstract InterpolationTransform GetTransform(float t);
