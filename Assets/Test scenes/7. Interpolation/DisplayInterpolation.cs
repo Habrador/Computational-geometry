@@ -181,10 +181,10 @@ public static class DisplayInterpolation
             int profileIndexNext = (step + 1) * profile.vertices.Length;
 
             //Each line has 2 points 
-            for (int line = 0; line < profile.lineIndices.Length; line+=2)
+            for (int line = 0; line < profile.lineIndices.Length; line++)
             {
-                int lineIndexA = profile.lineIndices[line];
-                int lineIndexB = profile.lineIndices[line + 1];
+                int lineIndexA = profile.lineIndices[line].x;
+                int lineIndexB = profile.lineIndices[line].y;
 
                 //Now we can identify the vertex we need in the list of all vertices in the entire mesh
                 //The current profile
@@ -252,10 +252,10 @@ public static class DisplayInterpolation
         //Display how the points are connected with lines
         Gizmos.color = Color.white;
 
-        for (int i = 0; i < profile.lineIndices.Length; i += 2)
+        for (int i = 0; i < profile.lineIndices.Length; i++)
         {
-            Vector3 pos_1 = positions_3d[profile.lineIndices[i]];
-            Vector3 pos_2 = positions_3d[profile.lineIndices[i + 1]];
+            Vector3 pos_1 = positions_3d[profile.lineIndices[i].x];
+            Vector3 pos_2 = positions_3d[profile.lineIndices[i].y];
 
             Gizmos.DrawLine(pos_1, pos_2);
         }

@@ -13,9 +13,8 @@ namespace Habrador_Computational_Geometry
 
         //So we know how the vertices are connected
         //Sometimes we have multiple vertices at the same coordinate to get a sharp corner and those shouldnt be connected with a mesh
-        //These should be MyVector2Int because a line has always two points
         //When adding these you should step around the profile clockwise to make it easier to make a mesh
-        public int[] lineIndices;
+        public MyVector2Int[] lineIndices;
     }
 
 
