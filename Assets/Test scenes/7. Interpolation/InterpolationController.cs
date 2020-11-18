@@ -413,7 +413,7 @@ public class InterpolationController : MonoBehaviour
 
         //Gizmos.DrawSphere(pos.ToVector3(), 0.1f);
 
-        //DisplayInterpolation.DisplayExtrudedMesh(orientationsFrame, meshProfile);
+        DisplayInterpolation.DisplayExtrudedMesh(orientationsFrame, meshProfile);
     }
 
 
