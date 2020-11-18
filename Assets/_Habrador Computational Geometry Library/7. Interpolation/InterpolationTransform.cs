@@ -52,6 +52,8 @@ namespace Habrador_Computational_Geometry
             //MyQuaternion orientation = new MyQuaternion(forwardDir);
 
             //Your own reference up vector
+            //This could be an interpolation between the start and end up-vector if you know them (which you do if you put a Unity transform at the start and end). If you use Unity's transform, you can also say that z-scale if the offset of the handle which might simplify things
+            //MyVector3 upRef = Vector3.Lerp(startUp, endUp, t).normalized;
             MyQuaternion orientation = InterpolationTransform.GetOrientation_UpRef(forwardDir, Vector3.up.ToMyVector3());
 
 
