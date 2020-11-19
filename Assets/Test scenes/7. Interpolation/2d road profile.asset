@@ -126,8 +126,8 @@ MonoBehaviour:
       y: 1
     u: 0
   lineIndices:
-  - x: 0
-    y: 15
+  - x: 15
+    y: 0
   - x: 1
     y: 2
   - x: 3

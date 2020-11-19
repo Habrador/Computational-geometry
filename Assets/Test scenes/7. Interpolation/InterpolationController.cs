@@ -19,6 +19,8 @@ public class InterpolationController : MonoBehaviour
 
     //Mesh profile to test how to extrude mesh along curve
     public MeshProfile meshProfile;
+    //Where we attach a mesh (Gizmos.DrawMesh is generating odd results in 3d)
+    public MeshFilter displayMeshFilter;
 
 
 
@@ -34,17 +36,18 @@ public class InterpolationController : MonoBehaviour
         InterpolationTransform myTransA = new InterpolationTransform(posA, new MyQuaternion(transPointA.rotation));
         InterpolationTransform myTransB = new InterpolationTransform(posB, new MyQuaternion(transPointB.rotation));
 
+
         //Interpolate between coordinates in 3d 
 
         //BezierLinearTest(posA, posB);
 
         //BezierQuadraticTest(posA, posB, handleA);
 
-        //BezierQuadraticEqualStepsTest(posA, posB, handleA);
+        //BezierQuadraticTest_EqualSteps(posA, posB, handleA);
 
         //BezierCubicTest(posA, posB, handleA, handleB);
 
-        //BezierCubicEqualStepsTest(posA, posB, handleA, handleB);
+        //BezierCubicTest_EqualSteps(posA, posB, handleA, handleB);
 
         BezierCubicTest_Transform(myTransA, myTransB, transPointA.localScale.z, transPointB.localScale.z);
 
@@ -138,7 +141,7 @@ public class InterpolationController : MonoBehaviour
 
 
 
-    private void BezierQuadraticEqualStepsTest(MyVector3 posA, MyVector3 posB, MyVector3 handle)
+    private void BezierQuadraticTest_EqualSteps(MyVector3 posA, MyVector3 posB, MyVector3 handle)
     {
         //Create a curve which is the data structure used in the following calculations
         BezierQuadratic bezierQuadratic = new BezierQuadratic(posA, posB, handle);
@@ -224,7 +227,7 @@ public class InterpolationController : MonoBehaviour
 
 
             //Orientation, which includes both position and tangent
-            InterpolationTransform orientation = InterpolationTransform.GetTransform_RefUp(bezierQuadratic, accurateT);
+            InterpolationTransform orientation = InterpolationTransform.GetTransform_UpRef(bezierQuadratic, accurateT, MyVector3.Up);
 
             orientations.Add(orientation);
         }
@@ -289,7 +292,7 @@ public class InterpolationController : MonoBehaviour
 
 
 
-    private void BezierCubicEqualStepsTest(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
+    private void BezierCubicTest_EqualSteps(MyVector3 posA, MyVector3 posB, MyVector3 handleA, MyVector3 handleB)
     {
         //Create a curve which is the data structure used in the following calculations
         BezierCubic bezierCubic = new BezierCubic(posA, posB, handleA, handleB);
@@ -385,7 +388,9 @@ public class InterpolationController : MonoBehaviour
 
 
         //The orientation at each t position
-        List<InterpolationTransform> orientationsFrame = InterpolationTransform.GetTransforms(bezierCubic, accurateTs, InterpolationTransform.GenerateOrientationAlternative.RotationMinimisingFrame);
+        MyVector3 startUpRef = MyVector3.Up;
+
+        List<InterpolationTransform> orientationsFrames = InterpolationTransform.GetTransforms_RotationMinimisingFrame(bezierCubic, accurateTs, startUpRef);
 
 
         //Display stuff
@@ -407,21 +412,22 @@ public class InterpolationController : MonoBehaviour
 
         //The orientation
         //DisplayInterpolation.DisplayOrientations(orientations, 1f);
-        DisplayInterpolation.DisplayOrientations(orientationsFrame, 1f);
+        DisplayInterpolation.DisplayOrientations(orientationsFrames, 1f);
 
         //Extrude mesh along the curve
-        //InterpolationTransform testTrans = orientationsFrame[1];
+        //InterpolationTransform testTrans = orientationsFrames[1];
 
         //MyVector3 pos = testTrans.LocalToWorld(MyVector3.Up * 2f);
         //MyVector3 pos = testTrans.LocalToWorld(MyVector3.Right * 2f);
 
         //Gizmos.DrawSphere(pos.ToVector3(), 0.1f);
 
-        DisplayInterpolation.DisplayExtrudedMesh(orientationsFrame, meshProfile);
+        //DisplayInterpolation.DisplayExtrudedMesh(orientationsFrames, meshProfile);
     }
 
 
 
+    //Uses transforms as start and end position, the length of the handles is determines by the z scale of each transform
     private void BezierCubicTest_Transform(InterpolationTransform transA, InterpolationTransform transB, float scaleA, float scaleB)
     {
         MyVector3 posA = transA.position;
@@ -433,14 +439,13 @@ public class InterpolationController : MonoBehaviour
 
         BezierCubic curve = new BezierCubic(posA, posB, handleA, handleB);
 
-        //Store the interpolated values so we later can display them
+        //The interpolated values 
         List<Vector3> positions = new List<Vector3>();
-        //Save the orientation, which includes the tangent
-        List<InterpolationTransform> orientations = new List<InterpolationTransform>();
+        List<float> tValues = new List<float>();
 
         //Loop between 0 and 1 in steps, where 1 step is minimum
         //So if steps is 5 then the line will be cut in 5 sections
-        int steps = 10;
+        int steps = 30;
 
         float t_stepSize = 1f / (float)steps;
 
@@ -455,12 +460,19 @@ public class InterpolationController : MonoBehaviour
 
             positions.Add(interpolatedPos.ToVector3());
 
-            InterpolationTransform interpolatedOrientation = InterpolationTransform.GetTransform_Interpolate(curve, t, transA.Up, transB.Up);
-
-            orientations.Add(interpolatedOrientation);
+            tValues.Add(t);
 
             t += t_stepSize;
         }
+
+        //Different orientation algorithms
+        List<InterpolationTransform> orientations = InterpolationTransform.GetTransforms_InterpolateBetweenUpVectors(curve, tValues, transA.Up, transB.Up);
+
+        //List<InterpolationTransform> orientations = InterpolationTransform.GetTransforms_UpRef(curve, tValues, transA.Up);
+
+        //List<InterpolationTransform> orientations = InterpolationTransform.GetTransforms_FrenetNormal(curve, tValues);
+
+        //List<InterpolationTransform> orientations = InterpolationTransform.GetTransforms_RotationMinimisingFrame(curve, tValues, transA.Up);
 
 
         //The curve
@@ -472,6 +484,14 @@ public class InterpolationController : MonoBehaviour
 
         //Display transform
         DisplayInterpolation.DisplayOrientations(orientations, 1f);
+
+        //Mesh
+        Mesh extrudedMesh = ExtrudeMeshAlongCurve.GenerateMesh(orientations, meshProfile, 0.25f);
+
+        if (extrudedMesh != null && displayMeshFilter != null)
+        {
+            displayMeshFilter.sharedMesh = extrudedMesh;
+        }
     }
 
 
