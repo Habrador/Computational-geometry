@@ -49,9 +49,9 @@ public class InterpolationController : MonoBehaviour
 
         //BezierCubicTest_EqualSteps(posA, posB, handleA, handleB);
 
-        BezierCubicTest_Transform(myTransA, myTransB, transPointA.localScale.z, transPointB.localScale.z);
+        //BezierCubicTest_Transform(myTransA, myTransB, transPointA.localScale.z, transPointB.localScale.z);
 
-        //CatmullRomTest(posA, posB, handleA, handleB);
+        CatmullRomTest(posA, posB, handleA, handleB);
 
 
         //Interpolation between values
@@ -132,7 +132,9 @@ public class InterpolationController : MonoBehaviour
 
         MyVector3 slidePos = BezierQuadratic.GetPosition(posA, posB, handle, tSliderValue);
 
-        TestAlgorithmsHelpMethods.DisplayArrow(slidePos.ToVector3(), (slidePos + forwardDir * 2f).ToVector3(), 0.2f, Color.blue);
+        Gizmos.color = Color.blue;
+
+        Gizmos.DrawRay(slidePos.ToVector3(), forwardDir.ToVector3());
 
         Gizmos.color = Color.red;
 
@@ -466,13 +468,13 @@ public class InterpolationController : MonoBehaviour
         }
 
         //Different orientation algorithms
-        List<InterpolationTransform> orientations = InterpolationTransform.GetTransforms_InterpolateBetweenUpVectors(curve, tValues, transA.Up, transB.Up);
+        List<InterpolationTransform> transforms = InterpolationTransform.GetTransforms_InterpolateBetweenUpVectors(curve, tValues, transA.Up, transB.Up);
 
-        //List<InterpolationTransform> orientations = InterpolationTransform.GetTransforms_UpRef(curve, tValues, transA.Up);
+        //List<InterpolationTransform> transforms = InterpolationTransform.GetTransforms_UpRef(curve, tValues, transA.Up);
 
-        //List<InterpolationTransform> orientations = InterpolationTransform.GetTransforms_FrenetNormal(curve, tValues);
+        //List<InterpolationTransform> transforms = InterpolationTransform.GetTransforms_FrenetNormal(curve, tValues);
 
-        //List<InterpolationTransform> orientations = InterpolationTransform.GetTransforms_RotationMinimisingFrame(curve, tValues, transA.Up);
+        //List<InterpolationTransform> transforms = InterpolationTransform.GetTransforms_RotationMinimisingFrame(curve, tValues, transA.Up);
 
 
         //The curve
@@ -483,10 +485,10 @@ public class InterpolationController : MonoBehaviour
         DisplayInterpolation.DisplayHandle(handleB.ToVector3(), posB.ToVector3());
 
         //Display transform
-        DisplayInterpolation.DisplayOrientations(orientations, 1f);
+        DisplayInterpolation.DisplayOrientations(transforms, 1f);
 
         //Mesh
-        Mesh extrudedMesh = ExtrudeMeshAlongCurve.GenerateMesh(orientations, meshProfile, 0.25f);
+        Mesh extrudedMesh = ExtrudeMeshAlongCurve.GenerateMesh(transforms, meshProfile, 0.25f);
 
         if (extrudedMesh != null && displayMeshFilter != null)
         {
@@ -503,6 +505,7 @@ public class InterpolationController : MonoBehaviour
         //Store the interpolated values so we later can display them
         List<Vector3> positions = new List<Vector3>();
         List<Vector3> tangents = new List<Vector3>();
+        List<float> tValues = new List<float>();
 
         //Loop between 0 and 1 in steps, where 1 step is minimum
         //So if steps is 5 then the line will be cut in 5 sections
@@ -525,8 +528,13 @@ public class InterpolationController : MonoBehaviour
 
             tangents.Add(interpolatedTangent.ToVector3());
 
+            tValues.Add(t);
+
             t += stepSize;
         }
+
+
+        List<InterpolationTransform> transforms = InterpolationTransform.GetTransforms_RotationMinimisingFrame(catmullRomCurve, tValues, MyVector3.Up);
 
 
         //Display
@@ -542,7 +550,9 @@ public class InterpolationController : MonoBehaviour
         DisplayInterpolation.DisplayHandle(handleB.ToVector3(), posB.ToVector3());
 
         //Other stuff
-        DisplayInterpolation.DisplayDirections(positions, tangents, 1f, Color.blue);
+        //DisplayInterpolation.DisplayDirections(positions, tangents, 1f, Color.blue);
+
+        DisplayInterpolation.DisplayOrientations(transforms, 1f);
     }
 
 
