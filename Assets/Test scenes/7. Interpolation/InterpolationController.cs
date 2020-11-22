@@ -49,9 +49,9 @@ public class InterpolationController : MonoBehaviour
 
         //BezierCubicTest_EqualSteps(posA, posB, handleA, handleB);
 
-        //BezierCubicTest_Transform(myTransA, myTransB, transPointA.localScale.z, transPointB.localScale.z);
+        BezierCubicTest_Transform(myTransA, myTransB, transPointA.localScale.z, transPointB.localScale.z);
 
-        CatmullRomTest(posA, posB, handleA, handleB);
+        //CatmullRomTest(posA, posB, handleA, handleB);
 
 
         //Interpolation between values

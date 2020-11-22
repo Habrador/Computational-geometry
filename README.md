@@ -251,28 +251,30 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 
 ## TODO
 
-### Algorithms to implement
+### Stuff to implement
 
 * Dynamic constrained delaunay triangulation
 * Convex hull: Graham scan
 * Triangulate with Marching cubes
-* Cut 3d mesh with plane
+* Cut 3d mesh with plane (which requires triangulation by ear clipping)
 * Metaballs by using Marching cubes
-* Voronoi with Fortune's algorithm
-* Voronoi point-by-point
-* Triangulation concave polygon by ear clipping (You can most likely achieve the same thing with Constrained Delaunay, so maybe unnecessary to implement)
-* Convex polygon intersection with SAT
+* Voronoi: Fortune's algorithm
+* Voronoi: point-by-point
+* Triangulation by ear clipping (You can most likely achieve the same thing with Constrained Delaunay, so maybe unnecessary to implement)
+* Convex polygon-polygon intersection with SAT
 * Irregular grid (Oskar Stålberg style)
 * Mesh decals
 * Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want (https://twitter.com/mattstark256)
 * A way to generate an infinite delaunay triangulation (for terrains etc)
-* Remove or clarify the conversions between 2d and 3d
+
 
 ### Stuff to fix
 
 * Optimize Constrained Delaunay - there's a faster method to find edges that intersects with the constrained edge. I also think the method where triangles within the constrain is removed can be faster. 
+* Add multiple holes to Constrained Delaunay
 * Make a test scene to test that the "find which triangle a point is in by triangulation walk" is working
 * The Delaunay algorithm "flip edges" might have problems with colinear points
+* Remove or clarify the conversions between 2d and 3d
 
 
 
