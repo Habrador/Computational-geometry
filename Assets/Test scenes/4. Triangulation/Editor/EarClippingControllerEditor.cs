@@ -34,17 +34,17 @@ public class EarClippingControllerEditor : Editor
         HandleUtility.AddDefaultControl(0);
 
         //Move the points
-        //List<Vector3> points = triangulatePoints.constraints;
+        List<Transform> transforms = triangulatePoints.GetAllPoints();
 
-        //if (constraints != null)
-        //{
-        //    for (int i = 0; i < constraints.Count; i++)
-        //    {
-        //        Vector3 newPos = MovePoint(constraints[i]);
+        if (transforms != null)
+        {
+            for (int i = 0; i < transforms.Count; i++)
+            {
+                Vector3 newPos = MovePoint(transforms[i].position);
 
-        //        constraints[i] = newPos;
-        //    }
-        //}
+                transforms[i].position = newPos;
+            }
+        }
     }
 
 
