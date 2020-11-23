@@ -266,6 +266,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Mesh decals
 * Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want (https://twitter.com/mattstark256)
 * A way to generate an infinite delaunay triangulation (for terrains etc)
+* Triangulation of polygon by "Horizontal decomposition into trapezoids"
 
 
 ### Stuff to fix
