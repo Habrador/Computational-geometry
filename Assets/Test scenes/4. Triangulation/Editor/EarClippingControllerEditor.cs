@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(DelaunayController))]
-public class DelaunayControllerEditor : Editor
+[CustomEditor(typeof(EarClippingController))]
+public class EarClippingControllerEditor : Editor
 {
-    private DelaunayController triangulatePoints;
+    private EarClippingController triangulatePoints;
 
 
 
     private void OnEnable()
     {
-        triangulatePoints = target as DelaunayController;
+        triangulatePoints = target as EarClippingController;
 
         //Hide the main GOs move/rot/scale handle
         Tools.hidden = true;
@@ -33,18 +33,18 @@ public class DelaunayControllerEditor : Editor
         //So you we cant click on anything else in the scene
         HandleUtility.AddDefaultControl(0);
 
-        //Move the constrains points
-        List<Vector3> constraints = triangulatePoints.constraints;
+        //Move the points
+        //List<Vector3> points = triangulatePoints.constraints;
 
-        if (constraints != null)
-        {
-            for (int i = 0; i < constraints.Count; i++)
-            {
-                Vector3 newPos = MovePoint(constraints[i]);
+        //if (constraints != null)
+        //{
+        //    for (int i = 0; i < constraints.Count; i++)
+        //    {
+        //        Vector3 newPos = MovePoint(constraints[i]);
 
-                constraints[i] = newPos;
-            }
-        }
+        //        constraints[i] = newPos;
+        //    }
+        //}
     }
 
 
