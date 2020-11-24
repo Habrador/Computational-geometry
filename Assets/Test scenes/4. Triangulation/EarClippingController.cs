@@ -8,6 +8,9 @@ public class EarClippingController : MonoBehaviour
 {
     public Transform hullParent;
 
+    //So we can generate these in a separate method and display them in draw gizmos 
+    private HashSet<Triangle2> triangulation;
+
 
 
     public void GenerateTriangulation()
@@ -24,25 +27,34 @@ public class EarClippingController : MonoBehaviour
         //Ear Clipping is a 2d algorithm so convert
         List<MyVector2> pointsOnHull_2d = pointsOnHull.Select(p => new MyVector2(p.x, p.z)).ToList();
 
-        HashSet<Triangle2> triangles = EarClipping.Triangulate(pointsOnHull_2d);
+        triangulation = EarClipping.Triangulate(pointsOnHull_2d);
 
-        //Display
-        if (triangles != null)
-        {
-            Debug.Log("Number of triangles from ear clipping: " + triangles.Count);
-
-            //Convert from triangle to mesh
-            Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangles, false);
-
-            TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
-        }
+        Debug.Log("Number of triangles from ear clipping: " + triangulation.Count);
     }
 
 
 
     private void OnDrawGizmos()
     {
-        DisplayHull();    
+        DisplayHull();
+
+        DisplayTriangles();
+    }
+
+
+
+    private void DisplayTriangles()
+    {
+        if (triangulation == null)
+        {
+            return;
+        }
+
+
+        //Convert from triangle to mesh
+        Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangulation, false);
+
+        TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
     }
 
 

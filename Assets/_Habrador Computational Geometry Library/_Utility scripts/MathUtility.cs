@@ -86,6 +86,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //Alternative 2 in 2d space [radians]
+        //The vectors dont have to be normlized (but you might run into floating point precision issues if they are too big?)
         public static float AngleFromToCCW(MyVector2 from, MyVector2 to)
         {
             //The determinant is similar to the dot product
