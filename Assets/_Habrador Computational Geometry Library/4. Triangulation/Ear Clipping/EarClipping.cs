@@ -52,7 +52,7 @@ namespace Habrador_Computational_Geometry
             //The convex vertices (interior angle smaller than 180 degrees)
             //The reflect vertices (interior angle greater than 180 degrees) so should maybe be called concave vertices?
             //Interior angle is the angle between two vectors inside the polygon if we move around the polygon counter-clockwise
-            //If they are neither we assume they are convex
+            //If they are neither we assume they are reflect (or we will end up with odd triangulations)
             HashSet<LinkedVertex> convexVerts = new HashSet<LinkedVertex>();
             HashSet<LinkedVertex> reflectVers = new HashSet<LinkedVertex>();
 
@@ -117,13 +117,13 @@ namespace Habrador_Computational_Geometry
                 }
 
 
-                //If we are not finished we have to reconfigure the data structure
+                //If we are not finished so we have to reconfigure the data structure
 
                 //Remove the ear we used to build a triangle
                 convexVerts.Remove(ear);
                 earVerts.Remove(ear);
 
-                //Reconnect the vertices
+                //Reconnect the vertices because one vertex has now been removed
                 v_prev.nextLinkedVertex = v_next;
                 v_next.prevLinkedVertex = v_prev;
 
@@ -211,18 +211,18 @@ namespace Habrador_Computational_Geometry
 
             //If any of the other vertices is within this triangle, then this vertex is not an ear
             //We only need to check the reflex vertices
-            foreach (LinkedVertex otherLinkedVertex in reflectVertices)
+            foreach (LinkedVertex otherVertex in reflectVertices)
             {
-                MyVector2 otherVertex = otherLinkedVertex.pos;
+                MyVector2 test_p = otherVertex.pos;
 
                 //Dont compare with any of the vertices the triangle consist of
-                if (otherVertex.Equals(p_prev) || otherVertex.Equals(p) || otherVertex.Equals(p_next))
+                if (test_p.Equals(p_prev) || test_p.Equals(p) || test_p.Equals(p_next))
                 {
                     continue;
                 }
 
                 //If a relect vertex intersects with the triangle, then this vertex is not an ear
-                if (_Intersections.PointTriangle(t, otherVertex, includeBorder: true))
+                if (_Intersections.PointTriangle(t, test_p, includeBorder: true))
                 {
                     return false;
                 }
@@ -257,8 +257,9 @@ namespace Habrador_Computational_Geometry
             //The interior angle is the opposite of the outside angle
             float interiorAngle = (Mathf.PI * 2f) - angle;
 
-            //This means that a vertex on a straight line will be convex
-            if (interiorAngle <= Mathf.PI)
+            //This means that a vertex on a straight line will be concave
+            //If colinear points are convex, we end up with odd triangulations
+            if (interiorAngle < Mathf.PI)
             {
                 return true;
             }

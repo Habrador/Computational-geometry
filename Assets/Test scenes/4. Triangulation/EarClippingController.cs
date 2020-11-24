@@ -36,9 +36,9 @@ public class EarClippingController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        DisplayHull();
-
         DisplayTriangles();
+
+        DisplayHull();
     }
 
 
