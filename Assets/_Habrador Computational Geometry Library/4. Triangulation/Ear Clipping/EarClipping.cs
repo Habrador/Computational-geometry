@@ -52,6 +52,7 @@ namespace Habrador_Computational_Geometry
             //The convex vertices (interior angle smaller than 180 degrees)
             //The reflect vertices (interior angle greater than 180 degrees) so should maybe be called concave vertices?
             //Interior angle is the angle between two vectors inside the polygon if we move around the polygon counter-clockwise
+            //If they are neither we assume they are convex
             HashSet<LinkedVertex> convexVerts = new HashSet<LinkedVertex>();
             HashSet<LinkedVertex> reflectVers = new HashSet<LinkedVertex>();
 
@@ -241,10 +242,15 @@ namespace Habrador_Computational_Geometry
             MyVector2 p = v.pos;
             MyVector2 p_next = v.nextLinkedVertex.pos;
 
-            //The angle between these vectors
+            //Two vectors going from the vertex
             MyVector2 p_to_p_prev = p_prev - p;
             MyVector2 p_to_p_next = p_next - p;
 
+            //These dont have to be normalized but should tp be on the safe side
+            p_to_p_prev = MyVector2.Normalize(p_to_p_prev);
+            p_to_p_next = MyVector2.Normalize(p_to_p_next);
+
+            //The angle between the two vectors [rad]
             //This will calculate the outside angle
             float angle = MathUtility.AngleFromToCCW(p_to_p_prev, p_to_p_next);
 
