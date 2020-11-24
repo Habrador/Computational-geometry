@@ -12,7 +12,7 @@ namespace Habrador_Computational_Geometry
     //One can maybe do it in O(n) time but no such version is known
     public static class EarClipping
     {
-        //The points on the hull (vertices) should be ordered counter-clockwise
+        //The points on the hull (vertices) should be ordered counter-clockwise (and no doubles)
         public static HashSet<Triangle2> Triangulate(List<MyVector2> vertices)
         {
             //The final triangles
@@ -47,6 +47,8 @@ namespace Habrador_Computational_Geometry
                 v.prevLinkedVertex = verticesLinked[MathUtility.ClampListIndex(i - 1, verticesLinked.Count)];
                 v.nextLinkedVertex = verticesLinked[MathUtility.ClampListIndex(i + 1, verticesLinked.Count)];
             }
+
+            Debug.Log("Number of vertices: " + CountLinkedVertices(verticesLinked[0]));
             
 
 
@@ -78,12 +80,12 @@ namespace Habrador_Computational_Geometry
             HashSet<LinkedVertex> earVerts = new HashSet<LinkedVertex>();
 
             //An ear is always a convex vertex
-            foreach (LinkedVertex convexVertex in convexVerts)
+            foreach (LinkedVertex v in convexVerts)
             {
                 //We also only need to test if a reflex vertex is intersecting with the triangle the ear is forming
-                if (IsVertexEar(convexVertex, reflectVerts))
+                if (IsVertexEar(v, reflectVerts))
                 {
-                    earVerts.Add(convexVertex);
+                    earVerts.Add(v);
                 }
             }
 
@@ -118,7 +120,7 @@ namespace Habrador_Computational_Geometry
 
                 triangulation.Add(t);
 
-                //Check if we are finished
+                //Check if we have found all triangles
                 //This should also prevent us from getting stuck in an infinite loop
                 if (triangulation.Count >= maxTriangles)
                 {
@@ -126,7 +128,7 @@ namespace Habrador_Computational_Geometry
                 }
 
 
-                //If we are not finished so we have to reconfigure the data structure
+                //If we havent found all triangles we have to reconfigure the data structure
 
                 //Remove the ear we used to build a triangle
                 convexVerts.Remove(ear);
@@ -172,7 +174,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Help method to reconfigure an adjacent vertex that was used to build a triangle
+        //Reconfigure an adjacent vertex that was used to build a triangle
         private static void ReconfigureAdjacentVertex(LinkedVertex v, HashSet<LinkedVertex> convexVerts, HashSet<LinkedVertex> reflectVerts, HashSet<LinkedVertex> earVerts, int test)
         {
             //If the adjacent vertex was reflect, it may now be convex and possible a new ear
@@ -189,7 +191,7 @@ namespace Habrador_Computational_Geometry
                     }
                 }
             }
-            //If an adjacent vertex was convex, it will remain convex
+            //If an adjacent vertex was convex, it will always still be convex
             else
             {
                 bool isEar = IsVertexEar(v, reflectVerts);
@@ -226,7 +228,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Help method to check if a vertex is an ear
+        //Is a vertex an ear=
         private static bool IsVertexEar(LinkedVertex vertex, HashSet<LinkedVertex> reflectVertices)
         {
             //Consider the triangle
@@ -262,7 +264,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Help method to check if a vertex is convex (if not its concave)
+        //Is a vertex is convex (if not its concave)?
         private static bool IsVertexConvex(LinkedVertex v)
         {
             MyVector2 p_prev = v.prevLinkedVertex.pos;
@@ -270,12 +272,9 @@ namespace Habrador_Computational_Geometry
             MyVector2 p_next = v.nextLinkedVertex.pos;
 
             //Two vectors going from the vertex
+            //You (most likely) don't need to normalize these
             MyVector2 p_to_p_prev = p_prev - p;
             MyVector2 p_to_p_next = p_next - p;
-
-            //These dont have to be normalized but should tp be on the safe side
-            p_to_p_prev = MyVector2.Normalize(p_to_p_prev);
-            p_to_p_next = MyVector2.Normalize(p_to_p_next);
 
             //The angle between the two vectors [rad]
             //This will calculate the outside angle
@@ -294,6 +293,37 @@ namespace Habrador_Computational_Geometry
             {
                 return false;
             }
+        }
+
+
+
+        //Count vertices that are linked to each other in a looping way
+        private static int CountLinkedVertices(LinkedVertex startVertex)
+        {
+            int counter = 1;
+
+            LinkedVertex currentVertex = startVertex;
+
+            while (true)
+            {
+                currentVertex = currentVertex.nextLinkedVertex;
+            
+                if (currentVertex == startVertex)
+                {
+                    break;
+                }
+            
+                counter += 1;
+            
+                if (counter > 50000)
+                {
+                    Debug.Log("Stuck in infinite loop!");
+
+                    break;
+                }
+            }
+
+            return counter;
         }
 
 

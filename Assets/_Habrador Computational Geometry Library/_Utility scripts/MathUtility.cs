@@ -87,8 +87,14 @@ namespace Habrador_Computational_Geometry
 
         //Alternative 2 in 2d space [radians]
         //The vectors dont have to be normlized (but you might run into floating point precision issues if they are too big?)
-        public static float AngleFromToCCW(MyVector2 from, MyVector2 to)
+        public static float AngleFromToCCW(MyVector2 from, MyVector2 to, bool shouldNormalize = false)
         {
+            if (shouldNormalize)
+            {
+                from = MyVector2.Normalize(from);
+                to = MyVector2.Normalize(to);
+            }
+        
             //The determinant is similar to the dot product
             //The dot product is always 0 no matter in which direction the perpendicular vector is pointing
             //But the determinant is -1 or 1 depending on which way the perpendicular vector is pointing (up or down)
