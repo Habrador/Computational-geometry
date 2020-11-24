@@ -28,12 +28,14 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            //Step 0. Create a linked list connecting all vertices with each other which will make the calculations easier
+            //Step 0. Create a linked list connecting all vertices with each other which will make the calculations easier and faster
             List<LinkedVertex> verticesLinked = new List<LinkedVertex>();
 
             for (int i = 0; i < vertices.Count; i++)
             {
-                verticesLinked.Add(new LinkedVertex(vertices[i]));
+                LinkedVertex v = new LinkedVertex(vertices[i]);
+
+                verticesLinked.Add(v);
             }
 
             //Link them
@@ -49,9 +51,9 @@ namespace Habrador_Computational_Geometry
             //Step 1. Find:
             //The convex vertices (interior angle smaller than 180 degrees)
             //The reflect vertices (interior angle greater than 180 degrees) so should maybe be called concave vertices?
-            //Interior angle is the angle between two vectors inside the polygon
-            HashSet<LinkedVertex> convexVertices = new HashSet<LinkedVertex>();
-            HashSet<LinkedVertex> reflectVertices = new HashSet<LinkedVertex>();
+            //Interior angle is the angle between two vectors inside the polygon if we move around the polygon counter-clockwise
+            HashSet<LinkedVertex> convexVerts = new HashSet<LinkedVertex>();
+            HashSet<LinkedVertex> reflectVers = new HashSet<LinkedVertex>();
 
             foreach (LinkedVertex v in verticesLinked)
             {
@@ -59,24 +61,25 @@ namespace Habrador_Computational_Geometry
 
                 if (isConvex)
                 {
-                    convexVertices.Add(v);
+                    convexVerts.Add(v);
                 }
                 else
                 {
-                    reflectVertices.Add(v);
+                    reflectVers.Add(v);
                 }
             }
 
 
-            //Step 2. Find the ears
-            List<LinkedVertex> earVertices = new List<LinkedVertex>();
+            //Step 2. Find the initial ears
+            HashSet<LinkedVertex> earVerts = new HashSet<LinkedVertex>();
 
-            //An ear is always one or more of the convex vertices, so we only need to check those
-            foreach (LinkedVertex convexVertex in convexVertices)
+            //An ear is always a convex vertex
+            foreach (LinkedVertex convexVertex in convexVerts)
             {
-                if (IsVertexEar(convexVertex, reflectVertices))
+                //We also only need to test if a reflex vertex is intersecting with the triangle the ear is forming
+                if (IsVertexEar(convexVertex, reflectVers))
                 {
-                    earVertices.Add(convexVertex);
+                    earVerts.Add(convexVertex);
                 }
             }
 
@@ -89,16 +92,12 @@ namespace Habrador_Computational_Geometry
             //Step 3. Build the triangles
             int safety = 0;
 
+            int verticesToTriangulate = verticesLinked.Count;
+
             while (true)
             {
-                if (earVertices.Count == 2)
-                {
-                    break;
-                }
-
-
                 //Pick an ear vertex and form a triangle
-                LinkedVertex ear = earVertices[0];
+                LinkedVertex ear = GetValueFromHashSet(earVerts);
 
                 LinkedVertex v_prev = ear.prevLinkedVertex;
                 LinkedVertex v_next = ear.nextLinkedVertex;
@@ -107,68 +106,35 @@ namespace Habrador_Computational_Geometry
 
                 triangulation.Add(t);
 
+                verticesToTriangulate -= 1;
 
-                //Reconfigure the data structure
+                //Check if we are finished
+                //This should also prevent us from getting stuck in an infinite loop
+                if (verticesToTriangulate <= 2)
+                {
+                    break;
+                }
 
-                //Remove the ear from the list of all convex vertices
-                convexVertices.Remove(ear);
-                earVertices.Remove(ear);
 
+                //If we are not finished we have to reconfigure the data structure
+
+                //Remove the ear we used to build a triangle
+                convexVerts.Remove(ear);
+                earVerts.Remove(ear);
 
                 //Reconnect the vertices
                 v_prev.nextLinkedVertex = v_next;
                 v_next.prevLinkedVertex = v_prev;
-                
-                //If an adjacent vertex was convex, it will remain convex, so do nothing
 
-                //If an adjacent vertex was an ear it may no longer be an ear
-                if (earVertices.Contains(v_prev))
-                {
-                    if (!IsVertexEar(v_prev, reflectVertices))
-                    {
-                        earVertices.Remove(v_prev);
-                    }
-                }
-                if (earVertices.Contains(v_next))
-                {
-                    if (!IsVertexEar(v_next, reflectVertices))
-                    {
-                        earVertices.Remove(v_next);
-                    }
-                }
+                //Reconfigure the adjacent vertices
+                ReconfigureAdjacentVertex(v_prev, convexVerts, reflectVers, earVerts);
+                ReconfigureAdjacentVertex(v_next, convexVerts, reflectVers, earVerts);
 
-                //If an adjacent vertex was reflect, it may now be convex and possible a new ear
-                if (reflectVertices.Contains(v_prev))
-                {
-                    if (IsVertexConvex(v_prev))
-                    {
-                        reflectVertices.Remove(v_prev);
-                        convexVertices.Add(v_prev);
-
-                        if (IsVertexEar(v_prev, reflectVertices))
-                        {
-                            earVertices.Add(v_prev);
-                        }
-                    }
-                }
-                if (reflectVertices.Contains(v_next))
-                {
-                    if (IsVertexConvex(v_next))
-                    {
-                        reflectVertices.Remove(v_next);
-                        convexVertices.Add(v_next);
-
-                        if (IsVertexEar(v_next, reflectVertices))
-                        {
-                            earVertices.Add(v_next);
-                        }
-                    }
-                }
 
 
                 safety += 1;
 
-                if (safety > 5000)
+                if (safety > 50000)
                 {
                     Debug.Log("Ear Clipping is stuck in an infinite loop!");
 
@@ -178,6 +144,56 @@ namespace Habrador_Computational_Geometry
 
 
             return triangulation;
+        }
+
+
+
+        //Help method to reconfigure an adjacent vertex that was used to build a triangle
+        private static void ReconfigureAdjacentVertex(LinkedVertex v, HashSet<LinkedVertex> convexVerts, HashSet<LinkedVertex> reflectVerts, HashSet<LinkedVertex> earVerts)
+        {
+            //If the adjacent vertex was reflect, it may now be convex and possible a new ear
+            if (reflectVerts.Contains(v))
+            {
+                if (IsVertexConvex(v))
+                {
+                    reflectVerts.Remove(v);
+                    convexVerts.Add(v);
+
+                    if (IsVertexEar(v, reflectVerts))
+                    {
+                        earVerts.Add(v);
+                    }
+                }
+            }
+            //If an adjacent vertex was convex, it will remain convex
+            else
+            {
+                //But if the vertex was an ear it may no longer be an ear
+                if (earVerts.Contains(v))
+                {
+                    if (!IsVertexEar(v, reflectVerts))
+                    {
+                        earVerts.Remove(v);
+                    }
+                }
+            }
+        }
+
+
+
+        //Help method to just get a vertex from a HashSet
+        private static LinkedVertex GetValueFromHashSet(HashSet<LinkedVertex> vertices)
+        {
+            LinkedVertex vertex = null;
+
+            foreach (LinkedVertex v in vertices)
+            {
+                vertex = v;
+
+                break;
+            }
+
+            return vertex;
         }
 
 
