@@ -15,10 +15,6 @@ namespace Habrador_Computational_Geometry
         //The points on the hull (vertices) should be ordered counter-clockwise (and no doubles)
         public static HashSet<Triangle2> Triangulate(List<MyVector2> vertices)
         {
-            //The final triangles
-            HashSet<Triangle2> triangulation = new HashSet<Triangle2>();
-
-
             //Validate the data
             if (vertices == null || vertices.Count <= 2)
             {
@@ -48,7 +44,7 @@ namespace Habrador_Computational_Geometry
                 v.nextLinkedVertex = verticesLinked[MathUtility.ClampListIndex(i + 1, verticesLinked.Count)];
             }
 
-            Debug.Log("Number of vertices: " + CountLinkedVertices(verticesLinked[0]));
+            //Debug.Log("Number of vertices: " + CountLinkedVertices(verticesLinked[0]));
             
 
 
@@ -96,10 +92,14 @@ namespace Habrador_Computational_Geometry
 
 
             //Step 3. Build the triangles
-            int safety = 0;
+            HashSet<Triangle2> triangulation = new HashSet<Triangle2>();
 
             //We know how many triangles we will get (#vertices - 2) which is true for all simple polygons
+            //This can be used to stop the algorithm
             int maxTriangles = verticesLinked.Count - 2;
+
+            //Because we use a while loop, having an extra safety is always good so we dont get stuck in infinite loop
+            int safety = 0;
 
             while (true)
             {
@@ -177,14 +177,16 @@ namespace Habrador_Computational_Geometry
         //Reconfigure an adjacent vertex that was used to build a triangle
         private static void ReconfigureAdjacentVertex(LinkedVertex v, HashSet<LinkedVertex> convexVerts, HashSet<LinkedVertex> reflectVerts, HashSet<LinkedVertex> earVerts, int test)
         {
-            //If the adjacent vertex was reflect, it may now be convex and possible a new ear
+            //If the adjacent vertex was reflect...
             if (reflectVerts.Contains(v))
             {
+                //it may now be convex...
                 if (IsVertexConvex(v))
                 {
                     reflectVerts.Remove(v);
                     convexVerts.Add(v);
 
+                    //and possible a new ear
                     if (IsVertexEar(v, reflectVerts))
                     {
                         earVerts.Add(v);
@@ -228,7 +230,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Is a vertex an ear=
+        //Is a vertex an ear?
         private static bool IsVertexEar(LinkedVertex vertex, HashSet<LinkedVertex> reflectVertices)
         {
             //Consider the triangle
