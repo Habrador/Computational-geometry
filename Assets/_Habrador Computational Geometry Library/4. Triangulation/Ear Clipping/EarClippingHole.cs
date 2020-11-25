@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace Habrador_Computational_Geometry
 {
@@ -34,10 +35,10 @@ namespace Habrador_Computational_Geometry
 
                 holes.Add(connectedVerts);
             }
-        
+
 
             //Sort the holes by their max x-value, from highest to lowest
-        
+            holes = holes.OrderByDescending(o => o.maxX_Vert.x).ToList();
 
             foreach (ConnectedVertices hole in holes)
             {
@@ -165,7 +166,6 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            //MyVector2 actualVisibleVertex = visibleVertex;
 
             float minAngle = Mathf.Infinity;
 
@@ -198,7 +198,8 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-            //Debug.DrawLine(actualVisibleVertex.ToVector3(), Vector3.zero, Color.blue, 2f);
+            Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.blue, 2f);
+
 
             //Step 5. Modify the vertices list to add the hole at this visibleVertex
 
@@ -240,7 +241,7 @@ namespace Habrador_Computational_Geometry
 
             verticesHull.InsertRange(hull_VisibleVertex_ListPos + 1, hole.vertices);
 
-            Debug.Log($"Number of vertices on the hull after adding holes: {verticesHull.Count}");
+            Debug.Log($"Number of vertices on the hull after adding a hole: {verticesHull.Count}");
         }
 
     }
