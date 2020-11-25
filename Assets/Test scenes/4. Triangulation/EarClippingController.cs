@@ -9,7 +9,7 @@ public class EarClippingController : MonoBehaviour
     //The parent to the points that form the hull (should be ordered counter-clockwise)
     public Transform hullParent;
     //The parent to the points that form a single hole (should be ordered clockwise)
-    public Transform holeParent_1;
+    public List<Transform> holeParents;
 
     //So we can generate these in a separate method and display them in draw gizmos 
     private HashSet<Triangle2> triangulation;
@@ -18,9 +18,9 @@ public class EarClippingController : MonoBehaviour
 
     public void GenerateTriangulation()
     {
-        List<Vector3> pointsOnHull = GetPointsFromParent(hullParent);
+        List<Vector3> hullVertices = GetPointsFromParent(hullParent);
 
-        if (pointsOnHull == null)
+        if (hullVertices == null)
         {
             Debug.Log("We have no points on the hull");
 
@@ -28,26 +28,35 @@ public class EarClippingController : MonoBehaviour
         }
 
         //Ear Clipping is a 2d algorithm so convert
-        List<MyVector2> pointsOnHull_2d = pointsOnHull.Select(p => new MyVector2(p.x, p.z)).ToList();
+        List<MyVector2> hullVertices_2d = hullVertices.Select(p => new MyVector2(p.x, p.z)).ToList();
 
 
         //Holes
-        List<Vector3> pointsHole_1 = GetPointsFromParent(holeParent_1);
+        List<List<MyVector2>> allHoleVertices = new List<List<MyVector2>>(); 
 
-        List<MyVector2> pointsHole_2d = null;
+        foreach (Transform holeParentTrans in holeParents)
+        {
+            List<Vector3> holeVertices = GetPointsFromParent(holeParentTrans);
 
-        if (pointsHole_1 != null)
-        {
-            pointsHole_2d = pointsHole_1.Select(p => new MyVector2(p.x, p.z)).ToList();
+            List<MyVector2> holeVertices_2d = null;
+
+            if (holeVertices != null)
+            {
+                holeVertices_2d = holeVertices.Select(p => new MyVector2(p.x, p.z)).ToList();
+
+                allHoleVertices.Add(holeVertices_2d);
+            }
+            else
+            {
+                Debug.Log("A hole has no points");
+            }
         }
-        else
-        {
-            Debug.Log("A hole has no points");
-        }
+
+        
 
 
         //Triangulate
-        triangulation = EarClipping.Triangulate(pointsOnHull_2d, pointsHole_2d);
+        triangulation = EarClipping.Triangulate(hullVertices_2d, allHoleVertices);
 
         Debug.Log($"Number of triangles from ear clipping: {triangulation.Count}");
     }
@@ -59,8 +68,11 @@ public class EarClippingController : MonoBehaviour
         DisplayTriangles();
 
         DisplayConnectedPoints(hullParent, Color.white);
-        
-        DisplayConnectedPoints(holeParent_1, Color.white);
+
+        foreach (Transform holeParent in holeParents)
+        {
+            DisplayConnectedPoints(holeParent, Color.white);
+        }
     }
 
 
@@ -131,10 +143,13 @@ public class EarClippingController : MonoBehaviour
 
 
         //Holes
-        List<Transform> childPointsHole_1 = GetChildTransformsFromParent(holeParent_1);
+        foreach (Transform holeParent in holeParents)
+        {
+            List<Transform> childPointsHole = GetChildTransformsFromParent(holeParent);
 
-        if (childPointsHole_1 != null) allPoints.AddRange(childPointsHole_1);
-        
+            if (childPointsHole != null) allPoints.AddRange(childPointsHole);
+        }
+
 
         return allPoints;
     }

@@ -8,7 +8,19 @@ namespace Habrador_Computational_Geometry
     public static class EarClippingHole
     {
         //Merge holes with hull so we get one big list of vertices we can triangulate
-        public static void MergeHolesWithHull(List<MyVector2> verticesHull, List<MyVector2> verticesHole)
+        public static void MergeHolesWithHull(List<MyVector2> verticesHull, List<List<MyVector2>> allHoleVertices)
+        {
+            foreach (List<MyVector2> hole in allHoleVertices)
+            {
+                MergeHoleWithHull(verticesHull, hole);
+            }
+        
+        }
+
+
+
+        //Merge a single hole with the hull
+        private static void MergeHoleWithHull(List<MyVector2> verticesHull, List<MyVector2> verticesHole)
         {
             //Validate data
             if (verticesHole == null || verticesHole.Count <= 2)
@@ -139,7 +151,7 @@ namespace Habrador_Computational_Geometry
                 }
 
                 MyVector2 p_prev = verticesHull[MathUtility.ClampListIndex(i - 1, verticesHull.Count)];
-                
+
                 MyVector2 p_next = verticesHull[MathUtility.ClampListIndex(i + 1, verticesHull.Count)];
 
                 if (!EarClipping.IsVertexConvex(p_prev, p, p_next))

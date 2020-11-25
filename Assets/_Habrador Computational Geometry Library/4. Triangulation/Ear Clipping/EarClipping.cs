@@ -14,7 +14,7 @@ namespace Habrador_Computational_Geometry
     public static class EarClipping
     {
         //The points on the hull (vertices) should be ordered counter-clockwise (and no doubles)
-        public static HashSet<Triangle2> Triangulate(List<MyVector2> vertices, List<MyVector2> holeVertices = null)
+        public static HashSet<Triangle2> Triangulate(List<MyVector2> vertices, List<List<MyVector2>> allHoleVertices = null)
         {
             //Validate the data
             if (vertices == null || vertices.Count <= 2)
@@ -27,9 +27,9 @@ namespace Habrador_Computational_Geometry
 
 
             //Step -1. Merge the holes with the points on the hull into one list
-            if (holeVertices != null)
+            if (allHoleVertices != null && allHoleVertices.Count > 0)
             {
-                EarClippingHole.MergeHolesWithHull(vertices, holeVertices);
+                EarClippingHole.MergeHolesWithHull(vertices, allHoleVertices);
             }
 
 
