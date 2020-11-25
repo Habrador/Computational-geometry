@@ -6,7 +6,10 @@ using System.Linq;
 
 public class EarClippingController : MonoBehaviour
 {
+    //The parent to the points that form the hull (should be ordered counter-clockwise)
     public Transform hullParent;
+    //The parent to the points that form a single hole (should be ordered clockwise)
+    public Transform holeParent_1;
 
     //So we can generate these in a separate method and display them in draw gizmos 
     private HashSet<Triangle2> triangulation;
@@ -38,7 +41,9 @@ public class EarClippingController : MonoBehaviour
     {
         DisplayTriangles();
 
-        DisplayHull();
+        DisplayConnectedPoints(hullParent, Color.white);
+        
+        DisplayConnectedPoints(holeParent_1, Color.white);
     }
 
 
@@ -59,9 +64,9 @@ public class EarClippingController : MonoBehaviour
 
 
 
-    private void DisplayHull()
+    private void DisplayConnectedPoints(Transform parentToPoints, Color color)
     {
-        List<Vector3> pointsOnHull = GetPointsFromParent(hullParent);
+        List<Vector3> pointsOnHull = GetPointsFromParent(parentToPoints);
 
         if (pointsOnHull == null)
         {
@@ -72,17 +77,25 @@ public class EarClippingController : MonoBehaviour
 
         //Debug.Log(pointsOnHull.Count);
 
-        Gizmos.color = Color.white;
+        Gizmos.color = color;
 
-       for (int i = 0; i < pointsOnHull.Count; i++)
-       {
+        for (int i = 0; i < pointsOnHull.Count; i++)
+        {
             Vector3 p1 = pointsOnHull[MathUtility.ClampListIndex(i - 1, pointsOnHull.Count)];
             Vector3 p2 = pointsOnHull[MathUtility.ClampListIndex(i + 0, pointsOnHull.Count)];
 
-            Gizmos.DrawLine(p1, p2);
+            //Direction is important so we should display an arrow show the order of the points
+            if (i == 0)
+            {
+                TestAlgorithmsHelpMethods.DisplayArrow(p1, p2, 0.2f, color);
+            }
+            else
+            {
+                Gizmos.DrawLine(p1, p2);
+            }
 
             Gizmos.DrawWireSphere(p1, 0.1f);
-       }
+        }
     }
 
 
@@ -95,15 +108,16 @@ public class EarClippingController : MonoBehaviour
     
 
         //Points on the hull
-        List<Transform> pointsOnHull = GetTransformsFromParent(hullParent);
+        List<Transform> childPointsOnHull = GetChildTransformsFromParent(hullParent);
 
-        if (pointsOnHull != null)
-        {
-            allPoints.AddRange(pointsOnHull);
-        }
+        if (childPointsOnHull != null) allPoints.AddRange(childPointsOnHull);
 
 
         //Holes
+        List<Transform> childPointsHole_1 = GetChildTransformsFromParent(holeParent_1);
+
+        if (childPointsHole_1 != null) allPoints.AddRange(childPointsHole_1);
+        
 
         return allPoints;
     }
@@ -133,7 +147,7 @@ public class EarClippingController : MonoBehaviour
         return childrenPositions;
     }
 
-    public List<Transform> GetTransformsFromParent(Transform parentTrans)
+    public List<Transform> GetChildTransformsFromParent(Transform parentTrans)
     {
         if (parentTrans == null)
         {
