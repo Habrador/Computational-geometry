@@ -30,7 +30,24 @@ public class EarClippingController : MonoBehaviour
         //Ear Clipping is a 2d algorithm so convert
         List<MyVector2> pointsOnHull_2d = pointsOnHull.Select(p => new MyVector2(p.x, p.z)).ToList();
 
-        triangulation = EarClipping.Triangulate(pointsOnHull_2d);
+
+        //Holes
+        List<Vector3> pointsHole_1 = GetPointsFromParent(holeParent_1);
+
+        List<MyVector2> pointsHole_2d = null;
+
+        if (pointsHole_1 != null)
+        {
+            pointsHole_2d = pointsHole_1.Select(p => new MyVector2(p.x, p.z)).ToList();
+        }
+        else
+        {
+            Debug.Log("A hole has no points");
+        }
+
+
+        //Triangulate
+        triangulation = EarClipping.Triangulate(pointsOnHull_2d, pointsHole_2d);
 
         Debug.Log("Number of triangles from ear clipping: " + triangulation.Count);
     }
