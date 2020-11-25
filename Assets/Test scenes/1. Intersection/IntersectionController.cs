@@ -148,7 +148,7 @@ public class IntersectionController : MonoBehaviour
         MyVector2 l2_p1 = t2_p1_trans.position.ToMyVector2();
         MyVector2 l2_p2 = t2_p2_trans.position.ToMyVector2();
 
-        bool isIntersecting = _Intersections.LineLine(l1_p1, l1_p2, l2_p1, l2_p2, shouldIncludeEndPoints: true);
+        bool isIntersecting = _Intersections.LineLine(l1_p1, l1_p2, l2_p1, l2_p2, includeEndPoints: true);
 
         //Display
 
