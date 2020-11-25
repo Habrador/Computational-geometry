@@ -90,7 +90,8 @@ A good paper on this algorithm is "Implementing Quickhull" from Valve by Dirk Gr
 
 ### 4. Triangulation
 
-**Triangulate convex polygon.**
+
+#### 4.1 Triangulate convex polygon
 
 You have points on a convex hull you want to triangulate. You have four options here if you have colinear points (points on the same line): 
 1. Triangulate the convex hull while ignoring the colinear points. The area covered will be the same anyway.
@@ -100,6 +101,17 @@ You have points on a convex hull you want to triangulate. You have four options 
 
 ![Triangulation convex polygon](/_media/triangulation-convex-polygon.png?raw=true)	
 
+
+#### 4.2 Triangulate concave polygon 
+	
+**Ear Clipping**
+
+Can currently only handle holes - not hole-in-holes
+
+![Ear Clipping](/_media/ear-clipping.png?raw=true)
+
+
+#### 4.3 Triangulate points
 
 **Triangulate points with "visible edge" algorithm.**
 
@@ -120,10 +132,10 @@ You have some points you want to triangulate, you follow the steps:
 2. Triangulate the convex hull with one of several algorithms mentioned above.
 3. Add the rest of the points one-by-one by splitting the triangles they end up in into three new triangles.
 
-![Triangulation point-by-point](/_media/triangulation-point-by-point.png?raw=true)	
-	
+![Triangulation point-by-point](/_media/triangulation-point-by-point.png?raw=true)		
 
-#### 4.1 Delaunay triangulation
+
+#### 4.4 Delaunay triangulation
 
 **"point-by-point" method** 
 
@@ -260,7 +272,6 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Metaballs by using Marching cubes
 * Voronoi: Fortune's algorithm
 * Voronoi: point-by-point
-* Triangulation by ear clipping (You can most likely achieve the same thing with Constrained Delaunay, so maybe unnecessary to implement)
 * Convex polygon-polygon intersection with SAT
 * Irregular grid (Oskar Stålberg style)
 * Mesh decals
@@ -276,6 +287,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Make a test scene to test that the "find which triangle a point is in by triangulation walk" is working
 * The Delaunay algorithm "flip edges" might have problems with colinear points
 * Remove or clarify the conversions between 2d and 3d
+* Ear Clipping with holes-in-holes
 
 
 
@@ -286,6 +298,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Added Marching Squares
 * Added Metacircles
 * Added extrude mesh along curve 
+* Added triangulation by Ear Clipping
 
 **2020-03** 
 
