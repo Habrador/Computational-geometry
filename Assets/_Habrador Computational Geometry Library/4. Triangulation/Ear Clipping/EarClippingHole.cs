@@ -72,6 +72,13 @@ namespace Habrador_Computational_Geometry
                 MyVector2 p1_hull = verticesHull[i];
                 MyVector2 p2_hull = verticesHull[MathUtility.ClampListIndex(i + 1, verticesHull.Count)];
 
+                //We dont need to check this line if its to the left of the point on the hole
+                //If so they cant intersect
+                if (p1_hull.x < hole_MaxX_Vert.x && p2_hull.x < hole_MaxX_Vert.x)
+                {
+                    continue;
+                }
+
                 bool isIntersecting = _Intersections.LineLine(lineStart, lineEnd, p1_hull, p2_hull, true);
 
                 //Here we can maybe add a check if any of the vertices is on the line
@@ -122,9 +129,16 @@ namespace Habrador_Computational_Geometry
 
             for (int i = 0; i < verticesHull.Count; i++)
             {
-                MyVector2 p_prev = verticesHull[MathUtility.ClampListIndex(i - 1, verticesHull.Count)];
-
                 MyVector2 p = verticesHull[i];
+
+                //We dont need to check this vertex if its to the left of the point on the hull
+                //because that vertex can't be within the triangle
+                if (p.x < hole_MaxX_Vert.x)
+                {
+                    continue;
+                }
+
+                MyVector2 p_prev = verticesHull[MathUtility.ClampListIndex(i - 1, verticesHull.Count)];
                 
                 MyVector2 p_next = verticesHull[MathUtility.ClampListIndex(i + 1, verticesHull.Count)];
 
@@ -135,9 +149,11 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            MyVector2 actualVisibleVertex = visibleVertex;
+            //MyVector2 actualVisibleVertex = visibleVertex;
 
             float minAngle = Mathf.Infinity;
+
+            float minDistSqr = Mathf.Infinity;
 
             foreach (MyVector2 v in reflectVertices)
             {
@@ -149,7 +165,19 @@ namespace Habrador_Computational_Geometry
                     {
                         minAngle = angle;
 
-                        actualVisibleVertex = v;
+                        visibleVertex = v;
+                    }
+                    //If the angle is the same, then pick the vertex which is the closest to the point on the hull
+                    if (angle == minAngle)
+                    {
+                        float distSqr = MyVector2.SqrDistance(v, hole_MaxX_Vert);
+
+                        if (distSqr < minDistSqr)
+                        {
+                            visibleVertex = v;
+
+                            minDistSqr = distSqr;
+                        }
                     }
                 }
             }
@@ -171,7 +199,7 @@ namespace Habrador_Computational_Geometry
 
             //Add the two extra vertices we need
             verticesHole.Add(verticesHole[0]);
-            verticesHole.Add(actualVisibleVertex);
+            verticesHole.Add(visibleVertex);
 
 
             //Step 6. Merge the hole with the hull
@@ -179,7 +207,7 @@ namespace Habrador_Computational_Geometry
 
             for (int i = 0; i < verticesHull.Count; i++)
             {
-                if (actualVisibleVertex.Equals(verticesHull[i]))
+                if (visibleVertex.Equals(verticesHull[i]))
                 {
                     hull_VisibleVertex_ListPos = i;
 
@@ -196,7 +224,7 @@ namespace Habrador_Computational_Geometry
 
             verticesHull.InsertRange(hull_VisibleVertex_ListPos + 1, verticesHole);
 
-            Debug.Log(verticesHull.Count);
+            Debug.Log($"Number of vertices on the hull after adding holes: {verticesHull.Count}");
         }
 
     }

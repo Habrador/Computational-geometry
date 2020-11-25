@@ -49,7 +49,7 @@ public class EarClippingController : MonoBehaviour
         //Triangulate
         triangulation = EarClipping.Triangulate(pointsOnHull_2d, pointsHole_2d);
 
-        Debug.Log("Number of triangles from ear clipping: " + triangulation.Count);
+        Debug.Log($"Number of triangles from ear clipping: {triangulation.Count}");
     }
 
 
