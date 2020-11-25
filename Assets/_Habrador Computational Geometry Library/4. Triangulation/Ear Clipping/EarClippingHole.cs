@@ -159,7 +159,8 @@ namespace Habrador_Computational_Geometry
 
                 MyVector2 p_next = verticesHull[MathUtility.ClampListIndex(i + 1, verticesHull.Count)];
 
-                if (!EarClipping.IsVertexConvex(p_prev, p, p_next))
+                //Here we have to ignore colinear points, which need to be reflect when triangulating, but are giving an error here
+                if (!EarClipping.IsVertexConvex(p_prev, p, p_next, isColinearPointsConcave: false))
                 {
                     reflectVertices.Add(p);
                 }
@@ -175,7 +176,13 @@ namespace Habrador_Computational_Geometry
             {
                 if (_Intersections.PointTriangle(t, v, includeBorder: true))
                 {
-                    float angle = MathUtility.AngleBetween(v - hole.maxX_Vert, v - intersectionVertex);
+                    float angle = MathUtility.AngleBetween(intersectionVertex - hole.maxX_Vert, v - hole.maxX_Vert);
+
+                    //Debug.DrawLine(v.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.blue, 2f);
+
+                    //Debug.DrawLine(intersectionVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.black, 2f);
+
+                    //Debug.Log(angle * Mathf.Rad2Deg);
 
                     if (angle < minAngle)
                     {
@@ -184,7 +191,7 @@ namespace Habrador_Computational_Geometry
                         visibleVertex = v;
                     }
                     //If the angle is the same, then pick the vertex which is the closest to the point on the hull
-                    if (angle == minAngle)
+                    else if (angle == minAngle)
                     {
                         float distSqr = MyVector2.SqrDistance(v, hole.maxX_Vert);
 
@@ -198,7 +205,7 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-            Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.blue, 2f);
+            //Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.red, 2f);
 
 
             //Step 5. Modify the vertices list to add the hole at this visibleVertex

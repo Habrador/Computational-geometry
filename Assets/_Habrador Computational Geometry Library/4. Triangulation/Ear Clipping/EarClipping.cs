@@ -285,7 +285,7 @@ namespace Habrador_Computational_Geometry
             return IsVertexConvex(p_prev, p, p_next);
         }
 
-        public static bool IsVertexConvex(MyVector2 p_prev, MyVector2 p, MyVector2 p_next)
+        public static bool IsVertexConvex(MyVector2 p_prev, MyVector2 p, MyVector2 p_next, bool isColinearPointsConcave = true)
         {
             //Two vectors going from the vertex
             //You (most likely) don't need to normalize these
@@ -301,13 +301,27 @@ namespace Habrador_Computational_Geometry
 
             //This means that a vertex on a straight line will be concave
             //If colinear points are convex, we end up with odd triangulations
-            if (interiorAngle < Mathf.PI)
+            if (isColinearPointsConcave)
             {
-                return true;
+                if (interiorAngle < Mathf.PI)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
-                return false;
+                if (interiorAngle <= Mathf.PI)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
