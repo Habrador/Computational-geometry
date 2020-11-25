@@ -21,20 +21,20 @@ namespace Habrador_Computational_Geometry
         //http://thirdpartyninjas.com/blog/2008/10/07/line-segment-intersection/
         //Notice that there are more than one way to test if two line segments are intersecting
         //but this is the fastest according to https://www.habrador.com/tutorials/math/5-line-line-intersection/
-        public static bool LineLine(MyVector2 l1_p1, MyVector2 l1_p2, MyVector2 l2_p1, MyVector2 l2_p2, bool includeEndPoints)
+        public static bool LineLine(MyVector2 a_p1, MyVector2 a_p2, MyVector2 b_p1, MyVector2 b_p2, bool includeEndPoints)
         {
             //To avoid floating point precision issues we can use a small value
             float epsilon = MathUtility.EPSILON;
 
             bool isIntersecting = false;
 
-            float denominator = (l2_p2.y - l2_p1.y) * (l1_p2.x - l1_p1.x) - (l2_p2.x - l2_p1.x) * (l1_p2.y - l1_p1.y);
+            float denominator = (b_p2.y - b_p1.y) * (a_p2.x - a_p1.x) - (b_p2.x - b_p1.x) * (a_p2.y - a_p1.y);
 
-            //Make sure the denominator is > 0 (in that case the lines are parallel)
+            //Make sure the denominator is > 0 (or the lines are parallel)
             if (denominator > 0f + epsilon)
             {
-                float u_a = ((l2_p2.x - l2_p1.x) * (l1_p1.y - l2_p1.y) - (l2_p2.y - l2_p1.y) * (l1_p1.x - l2_p1.x)) / denominator;
-                float u_b = ((l1_p2.x - l1_p1.x) * (l1_p1.y - l2_p1.y) - (l1_p2.y - l1_p1.y) * (l1_p1.x - l2_p1.x)) / denominator;
+                float u_a = ((b_p2.x - b_p1.x) * (a_p1.y - b_p1.y) - (b_p2.y - b_p1.y) * (a_p1.x - b_p1.x)) / denominator;
+                float u_b = ((a_p2.x - a_p1.x) * (a_p1.y - b_p1.y) - (a_p2.y - a_p1.y) * (a_p1.x - b_p1.x)) / denominator;
 
                 //Are the line segments intersecting if the end points are the same
                 if (includeEndPoints)
@@ -61,15 +61,15 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Whats the coordinate of an intersection point between two lines in 2d space if we know they are intersecting
+        //Whats the coordinate of the intersection point between two lines in 2d space if we know they are intersecting
         //http://thirdpartyninjas.com/blog/2008/10/07/line-segment-intersection/
-        public static MyVector2 GetLineLineIntersectionPoint(MyVector2 l1_p1, MyVector2 l1_p2, MyVector2 l2_p1, MyVector2 l2_p2)
+        public static MyVector2 GetLineLineIntersectionPoint(MyVector2 a_p1, MyVector2 a_p2, MyVector2 b_p1, MyVector2 b_p2)
         {
-            float denominator = (l2_p2.y - l2_p1.y) * (l1_p2.x - l1_p1.x) - (l2_p2.x - l2_p1.x) * (l1_p2.y - l1_p1.y);
+            float denominator = (b_p2.y - b_p1.y) * (a_p2.x - a_p1.x) - (b_p2.x - b_p1.x) * (a_p2.y - a_p1.y);
 
-            float u_a = ((l2_p2.x - l2_p1.x) * (l1_p1.y - l2_p1.y) - (l2_p2.y - l2_p1.y) * (l1_p1.x - l2_p1.x)) / denominator;
+            float u_a = ((b_p2.x - b_p1.x) * (a_p1.y - b_p1.y) - (b_p2.y - b_p1.y) * (a_p1.x - b_p1.x)) / denominator;
 
-            MyVector2 intersectionPoint = l1_p1 + u_a * (l1_p2 - l1_p1);
+            MyVector2 intersectionPoint = a_p1 + u_a * (a_p2 - a_p1);
 
             return intersectionPoint;
         }

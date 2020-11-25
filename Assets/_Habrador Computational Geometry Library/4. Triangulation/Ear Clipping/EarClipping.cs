@@ -282,6 +282,11 @@ namespace Habrador_Computational_Geometry
             MyVector2 p = v.pos;
             MyVector2 p_next = v.nextLinkedVertex.pos;
 
+            return IsVertexConvex(p_prev, p, p_next);
+        }
+
+        public static bool IsVertexConvex(MyVector2 p_prev, MyVector2 p, MyVector2 p_next)
+        {
             //Two vectors going from the vertex
             //You (most likely) don't need to normalize these
             MyVector2 p_to_p_prev = p_prev - p;
