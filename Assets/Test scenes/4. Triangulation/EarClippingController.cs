@@ -32,7 +32,7 @@ public class EarClippingController : MonoBehaviour
 
 
         //Holes
-        List<List<MyVector2>> allHoleVertices = new List<List<MyVector2>>(); 
+        List<List<MyVector2>> allHoleVertices_2d = new List<List<MyVector2>>(); 
 
         foreach (Transform holeParentTrans in holeParents)
         {
@@ -44,7 +44,7 @@ public class EarClippingController : MonoBehaviour
             {
                 holeVertices_2d = holeVertices.Select(p => new MyVector2(p.x, p.z)).ToList();
 
-                allHoleVertices.Add(holeVertices_2d);
+                allHoleVertices_2d.Add(holeVertices_2d);
             }
             else
             {
@@ -52,13 +52,37 @@ public class EarClippingController : MonoBehaviour
             }
         }
 
-        
 
+
+        //Normalize to range 0-1
+        //The holes are alays inside this shape, so dont need to take them into account when calculating the normalization values
+        AABB2 normalizingBox = new AABB2(new List<MyVector2>(hullVertices_2d));
+
+        float dMax = HelpMethods.CalculateDMax(normalizingBox);
+
+        List<MyVector2> hullVertices_2d_normalized = HelpMethods.Normalize(hullVertices_2d, normalizingBox, dMax);
+
+        //Normalize the holes
+        List<List<MyVector2>> allHoleVertices_2d_normalized = new List<List<MyVector2>>();
+
+        foreach (List<MyVector2> holeVertices_2d in allHoleVertices_2d)
+        {
+            List<MyVector2> holeVertices_2d_normalized = HelpMethods.Normalize(holeVertices_2d, normalizingBox, dMax);
+
+            allHoleVertices_2d_normalized.Add(holeVertices_2d_normalized);
+        }
+
+
+        //Debug.Log(hullVertices_2d_normalized.Count);
 
         //Triangulate
-        triangulation = EarClipping.Triangulate(hullVertices_2d, allHoleVertices);
+        HashSet<Triangle2> triangulation_normalized = EarClipping.Triangulate(hullVertices_2d_normalized, allHoleVertices_2d_normalized);
 
-        Debug.Log($"Number of triangles from ear clipping: {triangulation.Count}");
+        Debug.Log($"Number of triangles from ear clipping: {triangulation_normalized.Count}");
+
+
+        //Unnormalize
+        triangulation = HelpMethods.UnNormalize(triangulation_normalized, normalizingBox, dMax);
     }
 
 
