@@ -318,7 +318,7 @@ namespace Habrador_Computational_Geometry
 
             foreach (MyVector2 p in points)
             {
-                if (_Intersections.PointTriangle(t, p, includeBorder: false))
+                if (_Intersections.PointTriangle(t, p, includeBorder: true))
                 {
                     pointsToRemove.Add(p);
                 }

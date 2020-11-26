@@ -25,13 +25,13 @@ public class GenerateShapesController : MonoBehaviour
         MyVector2 pD = pD_3d.ToMyVector2();
 
 
-        CircleMesh(pA);
+        //CircleMesh(pA);
 
-        CircleMeshHollow(pB);
+        //CircleMeshHollow(pB);
 
         //LineSegmemt(pA, pB);
 
-        //ConnectedLines(pA, pB, pC, pD);
+        ConnectedLines(pA, pB, pC, pD);
 
         //Arrow(pA, pB);
     }

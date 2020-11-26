@@ -68,6 +68,10 @@ public class HullController : MonoBehaviour
         {
             Debug.Log("Couldnt find a convex hull");
         }
+        else
+        {
+            Debug.Log($"Found a hull with: {pointsOnConvexHull_2d_normalized.Count} points");
+        }
 
 
 

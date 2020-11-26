@@ -63,7 +63,9 @@ namespace Habrador_Computational_Geometry
 
                 //Step 2. Find all edges in the current triangulation that intersects with this constraint
                 Queue<HalfEdge2> intersectingEdges = FindIntersectingEdges_BruteForce(uniqueEdges, c_p1, c_p2);
-
+                
+                //Debug.Log("Intersecting edges: " + intersectingEdges.Count);
+                
                 //Step 3. Remove intersecting edges by flipping triangles
                 List<HalfEdge2> newEdges = RemoveIntersectingEdges(c_p1, c_p2, intersectingEdges);
 
@@ -241,6 +243,13 @@ namespace Habrador_Computational_Geometry
             }
 
             HashSet<HalfEdgeFace2> trianglesToBeDeleted = FindTrianglesWithinConstraint(triangleData, constraints);
+
+            if (trianglesToBeDeleted == null)
+            {
+                Debug.Log("There are no triangles to delete");
+
+                return;
+            }
 
             //Delete the triangles
             foreach (HalfEdgeFace2 t in trianglesToBeDeleted)

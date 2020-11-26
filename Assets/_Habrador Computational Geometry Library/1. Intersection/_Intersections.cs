@@ -30,8 +30,8 @@ namespace Habrador_Computational_Geometry
 
             float denominator = (b_p2.y - b_p1.y) * (a_p2.x - a_p1.x) - (b_p2.x - b_p1.x) * (a_p2.y - a_p1.y);
 
-            //Make sure the denominator is > 0 (or the lines are parallel)
-            if (denominator > 0f + epsilon)
+            //Make sure the denominator is != 0 (or the lines are parallel)
+            if (denominator > 0f + epsilon || denominator < 0f - epsilon)
             {
                 float u_a = ((b_p2.x - b_p1.x) * (a_p1.y - b_p1.y) - (b_p2.y - b_p1.y) * (a_p1.x - b_p1.x)) / denominator;
                 float u_b = ((a_p2.x - a_p1.x) * (a_p1.y - b_p1.y) - (a_p2.y - a_p1.y) * (a_p1.x - b_p1.x)) / denominator;
