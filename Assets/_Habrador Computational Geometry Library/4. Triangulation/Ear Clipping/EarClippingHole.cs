@@ -182,6 +182,8 @@ namespace Habrador_Computational_Geometry
 
                     //Debug.DrawLine(intersectionVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.black, 2f);
 
+                    //TestAlgorithmsHelpMethods.DebugDrawCircle(v.ToVector3(1f), 0.3f, Color.blue);
+
                     //Debug.Log(angle * Mathf.Rad2Deg);
 
                     if (angle < minAngle)
@@ -189,18 +191,35 @@ namespace Habrador_Computational_Geometry
                         minAngle = angle;
 
                         visibleVertex = v;
+
+                        //We also need to calculate this in case a future point has the same angle
+                        minDistSqr = MyVector2.SqrDistance(v, hole.maxX_Vert);
+
+                        //Debug.Log(minDistanceSqr);
+
+                        //TestAlgorithmsHelpMethods.DebugDrawCircle(v.ToVector3(1f), 0.3f, Color.green);
                     }
                     //If the angle is the same, then pick the vertex which is the closest to the point on the hull
-                    else if (angle == minAngle)
+                    else if (Mathf.Abs(angle - minAngle) < MathUtility.EPSILON)
                     {
                         float distSqr = MyVector2.SqrDistance(v, hole.maxX_Vert);
+
+
+                        //Debug.Log(minDistanceSqr);
+
 
                         if (distSqr < minDistSqr)
                         {
                             visibleVertex = v;
 
                             minDistSqr = distSqr;
+
+                            //TestAlgorithmsHelpMethods.DebugDrawCircle(v.ToVector3(1f), 0.3f, Color.red);
+
+                            //Debug.Log(distSqr);
                         }
+
+                        //Debug.Log("Hello");
                     }
                 }
             }
