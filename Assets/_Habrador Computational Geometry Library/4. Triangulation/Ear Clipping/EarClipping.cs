@@ -33,6 +33,10 @@ namespace Habrador_Computational_Geometry
                 vertices = EarClippingHole.MergeHolesWithHull(vertices, allHoleVertices);
             }
 
+            //Remove all colinear points because they are causing trouble and add them later by splitting traingles???
+            //List<Vector2> raw = vertices;
+
+            //List<Vector2> colinearPoints
 
 
             //Step 0. Create a linked list connecting all vertices with each other which will make the calculations easier and faster

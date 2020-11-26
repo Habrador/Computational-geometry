@@ -81,14 +81,14 @@ public class EarClippingController : MonoBehaviour
         //Debug.Log(hullVertices_2d_normalized.Count);
 
         //Triangulate
-        //triangulation = EarClipping.Triangulate(hullVertices_2d, allHoleVertices_2d);
-        HashSet<Triangle2> triangulation_normalized = EarClipping.Triangulate(hullVertices_2d_normalized, allHoleVertices_2d_normalized);
+        triangulation = EarClipping.Triangulate(hullVertices_2d, allHoleVertices_2d);
+        //HashSet<Triangle2> triangulation_normalized = EarClipping.Triangulate(hullVertices_2d_normalized, allHoleVertices_2d_normalized);
 
-        Debug.Log($"Number of triangles from ear clipping: {triangulation_normalized.Count}");
+        //Debug.Log($"Number of triangles from ear clipping: {triangulation_normalized.Count}");
 
 
         //Unnormalize
-        triangulation = HelpMethods.UnNormalize(triangulation_normalized, normalizingBox, dMax);
+        //triangulation = HelpMethods.UnNormalize(triangulation_normalized, normalizingBox, dMax);
     }
 
 
@@ -235,8 +235,9 @@ public class EarClippingController : MonoBehaviour
 
 
     //
-    // For visualization
+    // For visualization when pressing Play button
     //
+
     private void Start()
     {
         GenerateTriangulation();

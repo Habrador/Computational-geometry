@@ -180,7 +180,7 @@ public class VisualizerController : MonoBehaviour
         //This point is set to be outside if its not active
         Gizmos.color = Color.white;
 
-        Gizmos.DrawWireSphere(activePoint.ToVector3(), 0.3f);
+        //Gizmos.DrawWireSphere(activePoint.ToVector3(), 0.3f);
 
 
         //Connected points

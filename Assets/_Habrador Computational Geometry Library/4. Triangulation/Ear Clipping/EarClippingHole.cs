@@ -208,7 +208,15 @@ namespace Habrador_Computational_Geometry
 
             visibleVertex = p1;
 
-            if (p2.x > visibleVertex.x)
+            //They are the same so pick the one that is the closest
+            if (Mathf.Abs(p1.x - p2.x) < MathUtility.EPSILON)
+            {
+                float hole_p1 = MyVector2.SqrDistance(hole.maxX_Vert, p1);
+                float hole_p2 = MyVector2.SqrDistance(hole.maxX_Vert, p2);
+
+                visibleVertex = hole_p1 < hole_p2 ? p1 : p2;
+            }
+            else if (p2.x > visibleVertex.x)
             {
                 visibleVertex = p2;
             }
@@ -295,7 +303,7 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-            //Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.red, 2f);
+            Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.red, 2f);
 
             //TestAlgorithmsHelpMethods.DebugDrawCircle(visibleVertex.ToVector3(1f), 0.3f, Color.red);
         }
