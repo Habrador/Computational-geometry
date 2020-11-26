@@ -39,18 +39,23 @@ namespace Habrador_Computational_Geometry
                 //Are the line segments intersecting if the end points are the same
                 if (includeEndPoints)
                 {
+                    //The only difference between endpoints not included is the =, which will never happen so we have to subtract 0 by epsilon
+                    float zero = 0f - epsilon;
+                    float one = 1f + epsilon;
+
                     //Are intersecting if u_a and u_b are between 0 and 1 or exactly 0 or 1
-                    //if (u_a >= 0f + epsilon && u_a <= 1f - epsilon && u_b >= 0f + epsilon && u_b <= 1f - epsilon)
-                    if (u_a >= 0f - epsilon && u_a <= 1f + epsilon && u_b >= 0f - epsilon && u_b <= 1f + epsilon)
+                    if (u_a >= zero && u_a <= one && u_b >= zero && u_b <= one)
                     {
                         isIntersecting = true;
                     }
                 }
                 else
                 {
+                    float zero = 0f + epsilon;
+                    float one = 1f - epsilon;
+
                     //Are intersecting if u_a and u_b are between 0 and 1
-                    //if (u_a > 0f + epsilon && u_a < 1f - epsilon && u_b > 0f + epsilon && u_b < 1f - epsilon)
-                    if (u_a > 0f - epsilon && u_a < 1f + epsilon && u_b > 0f - epsilon && u_b < 1f + epsilon)
+                    if (u_a > zero && u_a < one && u_b > zero && u_b < one)
                     {
                         isIntersecting = true;
                     }
@@ -233,9 +238,6 @@ namespace Habrador_Computational_Geometry
             //To avoid floating point precision issues we can add a small value
             float epsilon = MathUtility.EPSILON;
 
-            float zero = 0f - epsilon;
-            float one = 1f + epsilon;
-
             //Based on Barycentric coordinates
             float denominator = ((t.p2.y - t.p3.y) * (t.p1.x - t.p3.x) + (t.p3.x - t.p2.x) * (t.p1.y - t.p3.y));
 
@@ -247,6 +249,9 @@ namespace Habrador_Computational_Geometry
 
             if (includeBorder)
             {
+                float zero = 0f - epsilon;
+                float one = 1f + epsilon;
+
                 //The point is within the triangle or on the border
                 if (a >= zero && a <= one && b >= zero && b <= one && c >= zero && c <= one)
                 {
@@ -255,6 +260,9 @@ namespace Habrador_Computational_Geometry
             }
             else
             {
+                float zero = 0f + epsilon;
+                float one = 1f - epsilon;
+
                 //The point is within the triangle
                 if (a > zero && a < one && b > zero && b < one && c > zero && c < one)
                 {

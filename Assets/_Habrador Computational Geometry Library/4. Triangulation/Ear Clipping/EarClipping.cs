@@ -25,6 +25,7 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
+           
 
 
             //Step -1. Merge the holes with the points on the hull into one big polygon with invisible edges between the holes and the hull
@@ -33,10 +34,36 @@ namespace Habrador_Computational_Geometry
                 vertices = EarClippingHole.MergeHolesWithHull(vertices, allHoleVertices);
             }
 
-            //Remove all colinear points because they are causing trouble and add them later by splitting traingles???
-            //List<Vector2> raw = vertices;
 
-            //List<Vector2> colinearPoints
+            //Step -2. Remove all colinear points because they are causing trouble
+            //One can add them later by splitting triangles
+            //Remember that we may get other colinear points after merging the hull with the holes
+            //so it may look like the triangulation is missing some points, but thats not a bug!!!
+            //The triangulation is still valid because it covers the entire surface
+            List<MyVector2> colinearPoints = new List<MyVector2>();
+
+            List<MyVector2> normalPoints = new List<MyVector2>();
+
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                MyVector2 p_prev = vertices[MathUtility.ClampListIndex(i - 1, vertices.Count)];
+                MyVector2 p = vertices[i];
+                MyVector2 p_next = vertices[MathUtility.ClampListIndex(i + 1, vertices.Count)];
+
+                if (IsVertexColinear(p_prev, p, p_next))
+                {
+                    colinearPoints.Add(p);
+                }
+                else
+                {
+                    normalPoints.Add(p);
+                }
+            }
+
+            vertices = normalPoints;
+
+
+            //TestAlgorithmsHelpMethods.DebugDrawCircle(vertices[29].ToVector3(1f), 0.3f, Color.red);
 
 
             //Step 0. Create a linked list connecting all vertices with each other which will make the calculations easier and faster
@@ -289,7 +316,7 @@ namespace Habrador_Computational_Geometry
             return IsVertexConvex(p_prev, p, p_next);
         }
 
-        public static bool IsVertexConvex(MyVector2 p_prev, MyVector2 p, MyVector2 p_next, bool isColinearPointsConcave = true)
+        public static bool IsVertexConvex(MyVector2 p_prev, MyVector2 p, MyVector2 p_next)
         {
             //Two vectors going from the vertex
             //You (most likely) don't need to normalize these
@@ -303,10 +330,32 @@ namespace Habrador_Computational_Geometry
             //The interior angle is the opposite of the outside angle
             float interiorAngle = (Mathf.PI * 2f) - angle;
 
-            //When we triangulate the polygon, colinear points should be concave
-            //If colinear points are convex, we end up with odd triangulations
-            //But when we merge holes, colinear points should be convex
-            if ((isColinearPointsConcave && interiorAngle < Mathf.PI) || (!isColinearPointsConcave && interiorAngle <= Mathf.PI))
+            //This assumes colinear point doesn't exist
+            if (interiorAngle < Mathf.PI)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+
+        public static bool IsVertexColinear(MyVector2 p_prev, MyVector2 p, MyVector2 p_next)
+        {
+            //Two vectors going from the vertex
+            //You (most likely) don't need to normalize these
+            MyVector2 p_to_p_prev = p_prev - p;
+            MyVector2 p_to_p_next = p_next - p;
+
+            //The angle between the two vectors [rad]
+            //This will calculate the outside angle
+            float angle = MathUtility.AngleFromToCCW(p_to_p_prev, p_to_p_next);
+
+            //pi is 180 degrees
+            if (Mathf.Abs(angle - Mathf.PI) < MathUtility.EPSILON)
             {
                 return true;
             }

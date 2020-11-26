@@ -305,7 +305,8 @@ namespace Habrador_Computational_Geometry
 
             Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.red, 2f);
 
-            //TestAlgorithmsHelpMethods.DebugDrawCircle(visibleVertex.ToVector3(1f), 0.3f, Color.red);
+            TestAlgorithmsHelpMethods.DebugDrawCircle(visibleVertex.ToVector3(1f), 0.3f, Color.red);
+            TestAlgorithmsHelpMethods.DebugDrawCircle(hole.maxX_Vert.ToVector3(1f), 0.3f, Color.red);
         }
 
 
@@ -334,8 +335,7 @@ namespace Habrador_Computational_Geometry
 
                 MyVector2 p_next = verticesHull[MathUtility.ClampListIndex(i + 1, verticesHull.Count)];
 
-                //Here we have to ignore colinear points, which need to be reflect when triangulating, but are giving an error here
-                if (!EarClipping.IsVertexConvex(p_prev, p, p_next, isColinearPointsConcave: false))
+                if (!EarClipping.IsVertexConvex(p_prev, p, p_next))
                 {
                     reflectVertices.Add(p);
                 }
