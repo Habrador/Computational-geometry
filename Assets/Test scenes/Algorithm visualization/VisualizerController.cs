@@ -421,4 +421,14 @@ public class VisualizerController : MonoBehaviour
 
         return materials;
     }
+
+
+
+    //Take a screenshot
+    public void TakeScreenshot(string name)
+    {
+        string path = "c:\\Nerladdat\\Temp\\" + name;
+    
+        ScreenCapture.CaptureScreenshot(path);
+    }
 }

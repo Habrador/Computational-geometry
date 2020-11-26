@@ -264,6 +264,13 @@ public class EarClippingController : MonoBehaviour
             Graphics.DrawMesh(meshes[i], meshPos, Quaternion.identity, materials[i], 0);
         }
 
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            GetComponent<VisualizerController>().TakeScreenshot("ear-clipping.png");
+
+            Debug.Log("Took screenshot");
+        }
+
         System.GC.Collect();
     }
 
@@ -272,7 +279,7 @@ public class EarClippingController : MonoBehaviour
     {
         for (int i = 0; i < meshes.Count; i++)
         {  
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(1f);
 
             howManyTriangles += 1;
         }

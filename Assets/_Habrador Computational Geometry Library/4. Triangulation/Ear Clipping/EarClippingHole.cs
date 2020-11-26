@@ -303,10 +303,11 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-            Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.red, 2f);
+            //Will show how the holes are connected with the hull
+            //Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.red, 5f);
 
-            TestAlgorithmsHelpMethods.DebugDrawCircle(visibleVertex.ToVector3(1f), 0.3f, Color.red);
-            TestAlgorithmsHelpMethods.DebugDrawCircle(hole.maxX_Vert.ToVector3(1f), 0.3f, Color.red);
+            //TestAlgorithmsHelpMethods.DebugDrawCircle(visibleVertex.ToVector3(1f), 0.3f, Color.red);
+            //TestAlgorithmsHelpMethods.DebugDrawCircle(hole.maxX_Vert.ToVector3(1f), 0.3f, Color.red);
         }
 
 

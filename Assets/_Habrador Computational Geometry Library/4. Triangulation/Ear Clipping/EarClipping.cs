@@ -34,8 +34,8 @@ namespace Habrador_Computational_Geometry
                 vertices = EarClippingHole.MergeHolesWithHull(vertices, allHoleVertices);
             }
 
-
-            //Step -2. Remove all colinear points because they are causing trouble
+            /*
+            //Step -1.5. Remove all colinear points because they are causing trouble
             //One can add them later by splitting triangles
             //Remember that we may get other colinear points after merging the hull with the holes
             //so it may look like the triangulation is missing some points, but thats not a bug!!!
@@ -61,7 +61,7 @@ namespace Habrador_Computational_Geometry
             }
 
             vertices = normalPoints;
-
+            */
 
             //TestAlgorithmsHelpMethods.DebugDrawCircle(vertices[29].ToVector3(1f), 0.3f, Color.red);
 
@@ -330,8 +330,14 @@ namespace Habrador_Computational_Geometry
             //The interior angle is the opposite of the outside angle
             float interiorAngle = (Mathf.PI * 2f) - angle;
 
-            //This assumes colinear point doesn't exist
-            if (interiorAngle < Mathf.PI)
+            //This is a colinear poins, is it concave or convex? God knows! 
+            //One can remove them if they cause trouble (the triangulation will still fill the area)
+            //And maybe add them back at the end if they are needed
+            if (Mathf.Abs(angle - Mathf.PI) < MathUtility.EPSILON)
+            {
+                return false;
+            }
+            else if (interiorAngle < Mathf.PI)
             {
                 return true;
             }
