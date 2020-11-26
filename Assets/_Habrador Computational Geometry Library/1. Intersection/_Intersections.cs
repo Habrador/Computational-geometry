@@ -40,7 +40,8 @@ namespace Habrador_Computational_Geometry
                 if (includeEndPoints)
                 {
                     //Are intersecting if u_a and u_b are between 0 and 1 or exactly 0 or 1
-                    if (u_a >= 0f + epsilon && u_a <= 1f - epsilon && u_b >= 0f + epsilon && u_b <= 1f - epsilon)
+                    //if (u_a >= 0f + epsilon && u_a <= 1f - epsilon && u_b >= 0f + epsilon && u_b <= 1f - epsilon)
+                    if (u_a >= 0f - epsilon && u_a <= 1f + epsilon && u_b >= 0f - epsilon && u_b <= 1f + epsilon)
                     {
                         isIntersecting = true;
                     }
@@ -48,7 +49,8 @@ namespace Habrador_Computational_Geometry
                 else
                 {
                     //Are intersecting if u_a and u_b are between 0 and 1
-                    if (u_a > 0f + epsilon && u_a < 1f - epsilon && u_b > 0f + epsilon && u_b < 1f - epsilon)
+                    //if (u_a > 0f + epsilon && u_a < 1f - epsilon && u_b > 0f + epsilon && u_b < 1f - epsilon)
+                    if (u_a > 0f - epsilon && u_a < 1f + epsilon && u_b > 0f - epsilon && u_b < 1f + epsilon)
                     {
                         isIntersecting = true;
                     }

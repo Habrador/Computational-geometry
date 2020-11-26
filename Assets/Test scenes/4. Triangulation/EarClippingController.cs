@@ -55,7 +55,7 @@ public class EarClippingController : MonoBehaviour
 
 
         //Normalize to range 0-1
-        //The holes are alays inside this shape, so dont need to take them into account when calculating the normalization values
+        //The holes are always inside this shape, so dont need to take them into account when calculating the normalization values
         AABB2 normalizingBox = new AABB2(new List<MyVector2>(hullVertices_2d));
 
         float dMax = HelpMethods.CalculateDMax(normalizingBox);
