@@ -301,27 +301,13 @@ namespace Habrador_Computational_Geometry
 
             //This means that a vertex on a straight line will be concave
             //If colinear points are convex, we end up with odd triangulations
-            if (isColinearPointsConcave)
+            if ((isColinearPointsConcave && interiorAngle < Mathf.PI) || (!isColinearPointsConcave && interiorAngle <= Mathf.PI))
             {
-                if (interiorAngle < Mathf.PI)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return true;
             }
             else
             {
-                if (interiorAngle <= Mathf.PI)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
         }
 

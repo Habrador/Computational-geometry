@@ -360,4 +360,35 @@ public static class TestAlgorithmsHelpMethods
 
         return randomPoints;
     }
+
+
+
+    //
+    // Display shapes with Debug.DrawLine()
+    //
+
+    public static void DebugDrawCircle(Vector3 center, float radius, Color color)
+    {
+        Vector3 pos = center + Vector3.right * radius;
+
+        int segments = 12;
+
+        float anglePerSegment = (Mathf.PI * 2f) / (float)segments;
+
+        float angle = anglePerSegment;
+
+        for (int i = 0; i < segments; i++)
+        {        
+            float nextPosX = center.x + Mathf.Cos(angle) * radius;
+            float nextPosZ = center.z + Mathf.Sin(angle) * radius;
+
+            Vector3 nextPos = new Vector3(nextPosX, center.y, nextPosZ);
+
+            Debug.DrawLine(pos, nextPos, color, 2f);
+
+            pos = nextPos;
+
+            angle += anglePerSegment;
+        }
+    }
 }

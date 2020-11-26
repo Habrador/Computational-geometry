@@ -205,8 +205,9 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-            //Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.red, 2f);
+            Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.red, 2f);
 
+            TestAlgorithmsHelpMethods.DebugDrawCircle(visibleVertex.ToVector3(1f), 0.3f, Color.red);
 
             //Step 5. Modify the vertices list to add the hole at this visibleVertex
 
