@@ -65,7 +65,7 @@ public class EarClippingController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        //DisplayTriangles();
+        DisplayTriangles();
 
         DisplayConnectedPoints(hullParent, Color.white);
 

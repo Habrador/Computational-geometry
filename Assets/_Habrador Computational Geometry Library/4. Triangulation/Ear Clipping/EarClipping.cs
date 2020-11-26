@@ -29,7 +29,7 @@ namespace Habrador_Computational_Geometry
             //Step -1. Merge the holes with the points on the hull into one list
             if (allHoleVertices != null && allHoleVertices.Count > 0)
             {
-                EarClippingHole.MergeHolesWithHull(vertices, allHoleVertices);
+                vertices = EarClippingHole.MergeHolesWithHull(vertices, allHoleVertices);
             }
 
 
