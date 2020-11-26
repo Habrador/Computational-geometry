@@ -24,7 +24,7 @@ namespace Habrador_Computational_Geometry
         // To make vector operations easier
         //
 
-        //Test if this vector is the same as another vector
+        //Test if this vector is approximately the same as another vector
         public bool Equals(MyVector2 other)
         {
             //Using Mathf.Approximately() is not accurate enough

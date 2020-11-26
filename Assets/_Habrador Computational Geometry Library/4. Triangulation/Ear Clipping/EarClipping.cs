@@ -14,6 +14,7 @@ namespace Habrador_Computational_Geometry
     public static class EarClipping
     {
         //The points on the hull (vertices) should be ordered counter-clockwise (and no doubles)
+        //The holes should be ordered clockwise (and no doubles)
         public static HashSet<Triangle2> Triangulate(List<MyVector2> vertices, List<List<MyVector2>> allHoleVertices = null)
         {
             //Validate the data
@@ -26,7 +27,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-            //Step -1. Merge the holes with the points on the hull into one list
+            //Step -1. Merge the holes with the points on the hull into one big polygon with invisible edges between the holes and the hull
             if (allHoleVertices != null && allHoleVertices.Count > 0)
             {
                 vertices = EarClippingHole.MergeHolesWithHull(vertices, allHoleVertices);
@@ -87,7 +88,6 @@ namespace Habrador_Computational_Geometry
             //An ear is always a convex vertex
             foreach (LinkedVertex v in convexVerts)
             {
-                //We also only need to test if a reflex vertex is intersecting with the triangle the ear is forming
                 if (IsVertexEar(v, reflectVerts))
                 {
                     earVerts.Add(v);
@@ -148,8 +148,8 @@ namespace Habrador_Computational_Geometry
                 v_next.prevLinkedVertex = v_prev;
 
                 //Reconfigure the adjacent vertices
-                ReconfigureAdjacentVertex(v_prev, convexVerts, reflectVerts, earVerts, 0);
-                ReconfigureAdjacentVertex(v_next, convexVerts, reflectVerts, earVerts, safety);
+                ReconfigureAdjacentVertex(v_prev, convexVerts, reflectVerts, earVerts);
+                ReconfigureAdjacentVertex(v_next, convexVerts, reflectVerts, earVerts);
 
 
                 //if (safety > 4)
@@ -184,7 +184,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Reconfigure an adjacent vertex that was used to build a triangle
-        private static void ReconfigureAdjacentVertex(LinkedVertex v, HashSet<LinkedVertex> convexVerts, HashSet<LinkedVertex> reflectVerts, HashSet<LinkedVertex> earVerts, int test)
+        private static void ReconfigureAdjacentVertex(LinkedVertex v, HashSet<LinkedVertex> convexVerts, HashSet<LinkedVertex> reflectVerts, HashSet<LinkedVertex> earVerts)
         {
             //If the adjacent vertex was reflect...
             if (reflectVerts.Contains(v))
@@ -250,7 +250,7 @@ namespace Habrador_Computational_Geometry
             Triangle2 t = new Triangle2(p_prev, p, p_next);
 
             //If any of the other vertices is within this triangle, then this vertex is not an ear
-            //We only need to check the reflex vertices
+            //We only need to check the reflect vertices
             foreach (LinkedVertex otherVertex in reflectVertices)
             {
                 MyVector2 test_p = otherVertex.pos;
@@ -275,7 +275,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Is a vertex is convex (if not its concave)?
+        //Is a vertex convex? (if not its concave)
         private static bool IsVertexConvex(LinkedVertex v)
         {
             MyVector2 p_prev = v.prevLinkedVertex.pos;
@@ -299,8 +299,9 @@ namespace Habrador_Computational_Geometry
             //The interior angle is the opposite of the outside angle
             float interiorAngle = (Mathf.PI * 2f) - angle;
 
-            //This means that a vertex on a straight line will be concave
+            //When we triangulate the polygon, colinear points should be concave
             //If colinear points are convex, we end up with odd triangulations
+            //But when we merge holes, colinear points should be convex
             if ((isColinearPointsConcave && interiorAngle < Mathf.PI) || (!isColinearPointsConcave && interiorAngle <= Mathf.PI))
             {
                 return true;

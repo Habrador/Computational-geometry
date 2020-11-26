@@ -68,7 +68,7 @@ namespace Habrador_Computational_Geometry
             //Step 2. Form a line going from this vertex towards (in x-direction) to a position outside of the hull
             MyVector2 lineStart = hole.maxX_Vert;
             //Just add some value so we know we are outside
-            MyVector2 lineEnd = new MyVector2(hull.maxX_Vert.x + 0.1f, hole.maxX_Vert.y);
+            MyVector2 lineEnd = new MyVector2(hull.maxX_Vert.x + 0.01f, hole.maxX_Vert.y);
 
 
             //Step 3. Find a vertex on the hull which is visible to the point on the hole with max x pos
@@ -95,10 +95,10 @@ namespace Habrador_Computational_Geometry
             //[a, b, c, d, e, a, b]
             //[c, d, e, a, b]
             //We also need two extra vertices, one from the hole and one from the hull
-            //If p is the visible vertex, then we get
+            //If p is the visible vertex, we get:
             //[c, d, e, a, b, c, p]
 
-            //This is maybe more efficient if we turn the hole list into a queue?
+            //Maybe more efficient if we turn the list into a queue?
 
             //Add to back of list
             for (int i = 0; i < hole.maxX_ListPos; i++)
@@ -118,16 +118,17 @@ namespace Habrador_Computational_Geometry
             List<MyVector2> verticesHull = hull.vertices;
 
             //Find where we should insert the hole
-            int hull_VisibleVertex_ListPos = hull.GetListPos(visibleVertex);
+            int visibleVertex_ListPos = hull.GetListPos(visibleVertex);
 
-            if (hull_VisibleVertex_ListPos == -1)
+            if (visibleVertex_ListPos == -1)
             {
                 Debug.Log("Cant find corresponding pos in list");
 
                 return;
             }
 
-            verticesHull.InsertRange(hull_VisibleVertex_ListPos + 1, hole.vertices);
+            //Insert the hole after the visible vertex
+            verticesHull.InsertRange(visibleVertex_ListPos + 1, hole.vertices);
 
             //Debug.Log($"Number of vertices on the hull after adding a hole: {verticesHull.Count}");
         }
@@ -143,7 +144,7 @@ namespace Habrador_Computational_Geometry
             visibleVertex = new MyVector2(-1f, -1f);
 
 
-            //Do line-line intersection to find intersectionVertex where the line is intersecting with the line
+            //Do line-line intersection to find intersectionVertex which is the point of intersection that's the closest to the hole
             MyVector2 intersectionVertex = new MyVector2(-1f, -1f);
 
             float minDistanceSqr = Mathf.Infinity;
@@ -155,14 +156,14 @@ namespace Habrador_Computational_Geometry
                 MyVector2 p1_hull = verticesHull[i];
                 MyVector2 p2_hull = verticesHull[MathUtility.ClampListIndex(i + 1, verticesHull.Count)];
 
-                //We dont need to check this line if its to the left of the point on the hole
+                //We dont need to check this line if it's to the left of the point on the hole
                 //If so they cant intersect
                 if (p1_hull.x < hole.maxX_Vert.x && p2_hull.x < hole.maxX_Vert.x)
                 {
                     continue;
                 }
 
-                bool isIntersecting = _Intersections.LineLine(lineStart, lineEnd, p1_hull, p2_hull, true);
+                bool isIntersecting = _Intersections.LineLine(lineStart, lineEnd, p1_hull, p2_hull, includeEndPoints: true);
 
                 //Here we can maybe add a check if any of the vertices is on the line
 
@@ -189,7 +190,7 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            //Find visibleVertex
+            //But we can't connect the hole with this intersection point, so we need to find a vertex which is visible from the hole
             //The closest edge has two vertices. Pick the one with the highest x-value, which is the vertex
             //that should be visible from the hole
             MyVector2 p1 = hull.vertices[closestEdge];
@@ -204,28 +205,32 @@ namespace Habrador_Computational_Geometry
 
 
 
-            //But the hull may still intersect with this edge between the point on the hole and the point on the hull, 
-            //so the point on the hull might not be visible
+            //But the hull may still intersect with this edge between the point on the hole and the visible point on the hull, 
+            //so the visible point on the hull might not be visible after all
             //So we might have to find a new point which is visible
             FindActualVisibleVertexOnHull(hull, hole, intersectionVertex, ref visibleVertex);
         }
 
 
 
-        //The hull may still intersect with this edge between the point on the hole and the point on the hull, 
+        //The hull may still intersect with the edge between the point on the hole and the "visible" point on the hull, 
         //so the point on the hull might not be visible, so we should try to find a better point
         private static void FindActualVisibleVertexOnHull(Polygon hull, Polygon hole, MyVector2 intersectionVertex, ref MyVector2 visibleVertex)
         {
             //Form a triangle
             Triangle2 t = new Triangle2(hole.maxX_Vert, intersectionVertex, visibleVertex);
 
-            //According to litterature, we check if an reflect vertices are within this triangle
-            //If so, one of them will be visible
+            //According to litterature, we check if a reflect vertex is within this triangle
+            //If so, one of them is a better visible vertex on the hull
             List<MyVector2> reflectVertices = FindReflectVertices(hull, hole);
 
-
+            //Pick the reflect vertex with the smallest angle 
+            //The angle is measure from the point on the hole towards:
+            //- intersection point on the hull
+            //- reflect vertex
             float minAngle = Mathf.Infinity;
 
+            //If more than one reflect vertex have the same angle then pick the one closest to the point on the hole
             float minDistSqr = Mathf.Infinity;
 
             foreach (MyVector2 v in reflectVertices)
@@ -260,9 +265,7 @@ namespace Habrador_Computational_Geometry
                     {
                         float distSqr = MyVector2.SqrDistance(v, hole.maxX_Vert);
 
-
                         //Debug.Log(minDistanceSqr);
-
 
                         if (distSqr < minDistSqr)
                         {
@@ -274,15 +277,13 @@ namespace Habrador_Computational_Geometry
 
                             //Debug.Log(distSqr);
                         }
-
-                        //Debug.Log("Hello");
                     }
                 }
             }
 
-            Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.red, 2f);
+            //Debug.DrawLine(visibleVertex.ToVector3(1f), hole.maxX_Vert.ToVector3(1f), Color.red, 2f);
 
-            TestAlgorithmsHelpMethods.DebugDrawCircle(visibleVertex.ToVector3(1f), 0.3f, Color.red);
+            //TestAlgorithmsHelpMethods.DebugDrawCircle(visibleVertex.ToVector3(1f), 0.3f, Color.red);
         }
 
 
@@ -300,8 +301,8 @@ namespace Habrador_Computational_Geometry
             {
                 MyVector2 p = verticesHull[i];
 
-                //We dont need to check this vertex if its to the left of the point on the hull
-                //because that vertex can't be within the triangle
+                //We dont need to check this vertex if it's to the left of the point on the hull
+                //because that vertex can't be visible
                 if (p.x < hole.maxX_Vert.x)
                 {
                     continue;

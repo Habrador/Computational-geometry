@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
+    //Data structure to make it easier to work with holes
     public class Polygon
     {
         public List<MyVector2> vertices;
