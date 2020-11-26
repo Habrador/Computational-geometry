@@ -19,9 +19,9 @@ namespace Habrador_Computational_Geometry
 
 
             //Change data structure
-            ConnectedVertices hull = new ConnectedVertices(verticesHull);
+            Polygon hull = new Polygon(verticesHull);
 
-            List<ConnectedVertices> holes = new List<ConnectedVertices>();
+            List<Polygon> holes = new List<Polygon>();
 
             foreach (List<MyVector2> hole in allHoleVertices)
             {
@@ -33,18 +33,18 @@ namespace Habrador_Computational_Geometry
                     continue;
                 }
 
-                ConnectedVertices connectedVerts = new ConnectedVertices(hole);
+                Polygon connectedVerts = new Polygon(hole);
 
                 holes.Add(connectedVerts);
             }
 
 
-            //Sort the holes by their max x-value, from highest to lowest
+            //Sort the holes by their max x-value coordinate, from highest to lowest
             holes = holes.OrderByDescending(o => o.maxX_Vert.x).ToList();
 
 
             //Merge the holes with the hull so we get a hull with seams that we can triangulate like a hull without holes
-            foreach (ConnectedVertices hole in holes)
+            foreach (Polygon hole in holes)
             {
                 MergeHoleWithHull(hull, hole);
             }
@@ -59,7 +59,7 @@ namespace Habrador_Computational_Geometry
         //Basic idea is to find a vertex in the hole that can also see a vertex in the hull
         //Connect these vertices with two edges, and the hole is now a part of the hull with an invisible seam
         //between the hole and the hull
-        private static void MergeHoleWithHull(ConnectedVertices hull, ConnectedVertices hole)
+        private static void MergeHoleWithHull(Polygon hull, Polygon hole)
         {
             //Step 1. Find the vertex in the hole which has the maximum x-value
             //Has already been done when we created the data structure
@@ -71,7 +71,7 @@ namespace Habrador_Computational_Geometry
             MyVector2 lineEnd = new MyVector2(hull.maxX_Vert.x + 0.1f, hole.maxX_Vert.y);
 
 
-            //Step 3. Find a vertex on the hull which is visible to the point on the hole with max x value
+            //Step 3. Find a vertex on the hull which is visible to the point on the hole with max x pos
             //The first and second point on the hull is defined as edge 0, and so on...
             int closestEdge = -1;
 
@@ -88,9 +88,17 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            //Step 4. Modify the vertices list to add the hole at this visibleVertex
+            //Step 4. Modify the hull vertices so we get an edge from the hull to the hole, around the hole, and back to the hull
 
-            //Reconfigure the hole list to start at the vertex with the largest 
+            //First reconfigure the hole list to start at the vertex with the largest x pos
+            //[a, b, c, d, e] and c is the one with the largest x pos, we get:
+            //[a, b, c, d, e, a, b]
+            //[c, d, e, a, b]
+            //We also need two extra vertices, one from the hole and one from the hull
+            //If p is the visible vertex, then we get
+            //[c, d, e, a, b, c, p]
+
+            //This is maybe more efficient if we turn the hole list into a queue?
 
             //Add to back of list
             for (int i = 0; i < hole.maxX_ListPos; i++)
@@ -106,21 +114,11 @@ namespace Habrador_Computational_Geometry
             hole.vertices.Add(visibleVertex);
 
 
-            //Step 6. Merge the hole with the hull
+            //Merge the hole with the hull
             List<MyVector2> verticesHull = hull.vertices;
 
             //Find where we should insert the hole
-            int hull_VisibleVertex_ListPos = -1;
-
-            for (int i = 0; i < verticesHull.Count; i++)
-            {
-                if (visibleVertex.Equals(verticesHull[i]))
-                {
-                    hull_VisibleVertex_ListPos = i;
-
-                    break;
-                }
-            }
+            int hull_VisibleVertex_ListPos = hull.GetListPos(visibleVertex);
 
             if (hull_VisibleVertex_ListPos == -1)
             {
@@ -131,13 +129,13 @@ namespace Habrador_Computational_Geometry
 
             verticesHull.InsertRange(hull_VisibleVertex_ListPos + 1, hole.vertices);
 
-            Debug.Log($"Number of vertices on the hull after adding a hole: {verticesHull.Count}");
+            //Debug.Log($"Number of vertices on the hull after adding a hole: {verticesHull.Count}");
         }
 
 
 
         //Find a vertex on the hull that should be visible from the hole
-        private static void FindVisibleVertexOnHUll(ConnectedVertices hull, ConnectedVertices hole, MyVector2 lineStart, MyVector2 lineEnd, out int closestEdge, out MyVector2 visibleVertex)
+        private static void FindVisibleVertexOnHUll(Polygon hull, Polygon hole, MyVector2 lineStart, MyVector2 lineEnd, out int closestEdge, out MyVector2 visibleVertex)
         {
             //The first and second point on the hull is defined as edge 0, and so on...
             closestEdge = -1;
@@ -216,7 +214,7 @@ namespace Habrador_Computational_Geometry
 
         //The hull may still intersect with this edge between the point on the hole and the point on the hull, 
         //so the point on the hull might not be visible, so we should try to find a better point
-        private static void FindActualVisibleVertexOnHull(ConnectedVertices hull, ConnectedVertices hole, MyVector2 intersectionVertex, ref MyVector2 visibleVertex)
+        private static void FindActualVisibleVertexOnHull(Polygon hull, Polygon hole, MyVector2 intersectionVertex, ref MyVector2 visibleVertex)
         {
             //Form a triangle
             Triangle2 t = new Triangle2(hole.maxX_Vert, intersectionVertex, visibleVertex);
@@ -291,7 +289,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Find reflect vertices
-        private static List<MyVector2> FindReflectVertices(ConnectedVertices hull, ConnectedVertices hole)
+        private static List<MyVector2> FindReflectVertices(Polygon hull, Polygon hole)
         {
             List<MyVector2> reflectVertices = new List<MyVector2>();
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
-    public class ConnectedVertices
+    public class Polygon
     {
         public List<MyVector2> vertices;
 
@@ -15,7 +15,7 @@ namespace Habrador_Computational_Geometry
         public int maxX_ListPos;
 
 
-        public ConnectedVertices(List<MyVector2> vertices)
+        public Polygon(List<MyVector2> vertices)
         {
             this.vertices = vertices;
 
@@ -41,6 +41,25 @@ namespace Habrador_Computational_Geometry
                     this.maxX_ListPos = i;
                 }
             }
+        }
+
+
+        //Find which position in the list a vertex has
+        public int GetListPos(MyVector2 pos)
+        {
+            int listPos = -1;
+
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                if (pos.Equals(vertices[i]))
+                {
+                    listPos = i;
+
+                    break;
+                }
+            }
+
+            return listPos;
         }
     }
 }
