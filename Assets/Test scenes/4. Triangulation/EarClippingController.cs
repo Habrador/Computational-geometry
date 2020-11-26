@@ -14,6 +14,11 @@ public class EarClippingController : MonoBehaviour
     //So we can generate these in a separate method and display them in draw gizmos 
     private HashSet<Triangle2> triangulation;
 
+    //For visualizations
+    private int howManyTriangles = 0;
+    private List<Mesh> meshes;
+    private List<Material> materials;
+
 
 
     public void GenerateTriangulation()
@@ -90,7 +95,7 @@ public class EarClippingController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        DisplayTriangles();
+        //DisplayTriangles();
 
         DisplayConnectedPoints(hullParent, Color.white);
 
@@ -114,6 +119,7 @@ public class EarClippingController : MonoBehaviour
         Mesh mesh = _TransformBetweenDataStructures.Triangles2ToMesh(triangulation, false);
 
         TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(mesh, 0);
+        //TestAlgorithmsHelpMethods.DisplayMesh(mesh, Color.gray);
     }
 
 
@@ -224,5 +230,50 @@ public class EarClippingController : MonoBehaviour
         }
 
         return childrenTransforms;
+    }
+
+
+
+    //
+    // For visualization
+    //
+    private void Start()
+    {
+        GenerateTriangulation();
+
+
+        //To access standardized methods for visualizations 
+        VisualizerController visualizerController = GetComponent<VisualizerController>();
+
+        //Generate the meshes and materials once
+        meshes = visualizerController.GenerateTriangulationMesh(triangulation, shouldUnNormalize: false);
+
+        materials = visualizerController.GenerateRandomMaterials(meshes.Count);
+
+        StartCoroutine(DisplayTriangleByTriangle(meshes));
+    }
+
+
+    private void Update()
+    {
+        for (int i = 0; i < howManyTriangles; i++)
+        {
+            Vector3 meshPos = Vector3.zero + Vector3.up;
+
+            Graphics.DrawMesh(meshes[i], meshPos, Quaternion.identity, materials[i], 0);
+        }
+
+        System.GC.Collect();
+    }
+
+
+    private IEnumerator DisplayTriangleByTriangle(List<Mesh> meshes)
+    {
+        for (int i = 0; i < meshes.Count; i++)
+        {  
+            yield return new WaitForSeconds(2f);
+
+            howManyTriangles += 1;
+        }
     }
 }

@@ -50,7 +50,7 @@ public class VisualizerController : MonoBehaviour
     public List<MyVector2> connectedPoints;
 
 
-
+    /*
     private void Start()
     {
         //Init GUI
@@ -125,7 +125,7 @@ public class VisualizerController : MonoBehaviour
             giftWrapping.InitVisualization(points_2d_normalized);
         }
     }
-
+    */
 
 
     //Display what we want to display
