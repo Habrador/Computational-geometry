@@ -15,6 +15,9 @@ namespace Habrador_Computational_Geometry
         //The position in the list where the maxX vert is 
         public int maxX_ListPos;
 
+        //ID number, which will make debugging easier
+        public int id = -1;
+
 
         public Polygon(List<MyVector2> vertices)
         {
@@ -46,7 +49,8 @@ namespace Habrador_Computational_Geometry
 
 
         //Find which position in the list a vertex has
-        public int GetListPos(MyVector2 pos)
+        //If there are multiple, we want the last one
+        public int GetLastListPos(MyVector2 pos)
         {
             int listPos = -1;
 
@@ -56,7 +60,9 @@ namespace Habrador_Computational_Geometry
                 {
                     listPos = i;
 
-                    break;
+                    //In some cases there are multiple of this vertices and we want the last one
+                    //So we want stop searching after finding the first one
+                    //break;
                 }
             }
 

@@ -23,6 +23,8 @@ namespace Habrador_Computational_Geometry
 
             List<Polygon> holes = new List<Polygon>();
 
+            int counter = 1;
+
             foreach (List<MyVector2> hole in allHoleVertices)
             {
                 //Validate data
@@ -33,9 +35,13 @@ namespace Habrador_Computational_Geometry
                     continue;
                 }
 
-                Polygon connectedVerts = new Polygon(hole);
+                Polygon holePolygon = new Polygon(hole);
 
-                holes.Add(connectedVerts);
+                holes.Add(holePolygon);
+
+                holePolygon.id = counter;
+
+                counter++;
             }
 
 
@@ -118,7 +124,7 @@ namespace Habrador_Computational_Geometry
             List<MyVector2> verticesHull = hull.vertices;
 
             //Find where we should insert the hole
-            int visibleVertex_ListPos = hull.GetListPos(visibleVertex);
+            int visibleVertex_ListPos = hull.GetLastListPos(visibleVertex);
 
             if (visibleVertex_ListPos == -1)
             {
@@ -165,18 +171,22 @@ namespace Habrador_Computational_Geometry
 
                 bool isIntersecting = _Intersections.LineLine(lineStart, lineEnd, p1_hull, p2_hull, includeEndPoints: true);
 
-                //Here we can maybe add a check if any of the vertices is on the line
+                //Here we can maybe add a check if any of the vertices is on the line???
 
                 if (isIntersecting)
                 {
-                    intersectionVertex = _Intersections.GetLineLineIntersectionPoint(lineStart, lineEnd, p1_hull, p2_hull);
+                    MyVector2 testIntersectionVertex = _Intersections.GetLineLineIntersectionPoint(lineStart, lineEnd, p1_hull, p2_hull);
 
-                    float distanceSqr = MyVector2.SqrDistance(lineStart, intersectionVertex);
+                    //if (hole.id == 3) TestAlgorithmsHelpMethods.DebugDrawCircle(testIntersectionVertex.ToVector3(), 0.2f, Color.green);
+
+                    float distanceSqr = MyVector2.SqrDistance(lineStart, testIntersectionVertex);
 
                     if (distanceSqr < minDistanceSqr)
                     {
                         closestEdge = i;
                         minDistanceSqr = distanceSqr;
+
+                        intersectionVertex = testIntersectionVertex;
                     }
                 }
             }
@@ -203,7 +213,11 @@ namespace Habrador_Computational_Geometry
                 visibleVertex = p2;
             }
 
-
+            if (hole.id == 3)
+            {
+                //TestAlgorithmsHelpMethods.DebugDrawCircle(intersectionVertex.ToVector3(), 0.4f, Color.black);
+                //TestAlgorithmsHelpMethods.DebugDrawCircle(visibleVertex.ToVector3(), 0.4f, Color.green);
+            }
 
             //But the hull may still intersect with this edge between the point on the hole and the visible point on the hull, 
             //so the visible point on the hull might not be visible after all
