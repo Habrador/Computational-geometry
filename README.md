@@ -108,6 +108,8 @@ You have points on a convex hull you want to triangulate. You have four options 
 
 Can currently only handle holes - not hole-in-holes. But it has optimizations to get a better looking triangulation. 
 
+A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=mw8aLh_lPoo
+
 ![Ear Clipping](/_media/ear-clipping.png?raw=true)
 
 
