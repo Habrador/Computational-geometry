@@ -5,9 +5,9 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Data structure to make it easier to work with holes
-    public class Polygon
+    public class EarClippingPolygon
     {
-        public List<MyVector2> vertices;
+        public Polygon2 polygon;
 
         //the vertex in the list with the maximum x-value
         public MyVector2 maxX_Vert;
@@ -18,10 +18,12 @@ namespace Habrador_Computational_Geometry
         //ID number, which will make debugging easier
         public int id = -1;
 
+        public List<MyVector2> Vertices { get { return polygon.vertices; } }
 
-        public Polygon(List<MyVector2> vertices)
+
+        public EarClippingPolygon(Polygon2 polygon)
         {
-            this.vertices = vertices;
+            this.polygon = polygon;
 
             CalculateMaxXValue();
         }
@@ -30,6 +32,8 @@ namespace Habrador_Computational_Geometry
         //Find the vertex with the maximum x-value
         private void CalculateMaxXValue()
         {
+            List<MyVector2> vertices = polygon.vertices;
+        
             this.maxX_Vert = vertices[0];
 
             this.maxX_ListPos = 0;
@@ -52,6 +56,8 @@ namespace Habrador_Computational_Geometry
         //If there are multiple, we want the last one
         public int GetLastListPos(MyVector2 pos)
         {
+            List<MyVector2> vertices = polygon.vertices;
+
             int listPos = -1;
 
             for (int i = 0; i < vertices.Count; i++)

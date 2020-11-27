@@ -6,7 +6,7 @@ using System.Linq;
 namespace Habrador_Computational_Geometry
 {
     //Methods related to making holes in Ear Clipping algorithm
-    public static class EarClippingHole
+    public static class EarClippingHoleMethods
     {
         //Merge holes with hull so we get one big list of vertices we can triangulate
         public static List<MyVector2> MergeHolesWithHull(List<MyVector2> verticesHull, List<List<MyVector2>> allHoleVertices)
@@ -19,9 +19,9 @@ namespace Habrador_Computational_Geometry
 
 
             //Change data structure
-            Polygon hull = new Polygon(verticesHull);
+            EarClippingPolygon hull = new EarClippingPolygon(new Polygon2(verticesHull));
 
-            List<Polygon> holes = new List<Polygon>();
+            List<EarClippingPolygon> holes = new List<EarClippingPolygon>();
 
             int counter = 1;
 
@@ -35,7 +35,7 @@ namespace Habrador_Computational_Geometry
                     continue;
                 }
 
-                Polygon holePolygon = new Polygon(hole);
+                EarClippingPolygon holePolygon = new EarClippingPolygon(new Polygon2(hole));
 
                 holes.Add(holePolygon);
 
@@ -50,13 +50,13 @@ namespace Habrador_Computational_Geometry
 
 
             //Merge the holes with the hull so we get a hull with seams that we can triangulate like a hull without holes
-            foreach (Polygon hole in holes)
+            foreach (EarClippingPolygon hole in holes)
             {
                 MergeHoleWithHull(hull, hole);
             }
 
 
-            return hull.vertices;
+            return hull.Vertices;
         }
 
 
@@ -65,7 +65,7 @@ namespace Habrador_Computational_Geometry
         //Basic idea is to find a vertex in the hole that can also see a vertex in the hull
         //Connect these vertices with two edges, and the hole is now a part of the hull with an invisible seam
         //between the hole and the hull
-        private static void MergeHoleWithHull(Polygon hull, Polygon hole)
+        private static void MergeHoleWithHull(EarClippingPolygon hull, EarClippingPolygon hole)
         {
             //Step 1. Find the vertex in the hole which has the maximum x-value
             //Has already been done when we created the data structure
@@ -75,6 +75,8 @@ namespace Habrador_Computational_Geometry
             MyVector2 lineStart = hole.maxX_Vert;
             //Just add some value so we know we are outside
             MyVector2 lineEnd = new MyVector2(hull.maxX_Vert.x + 0.01f, hole.maxX_Vert.y);
+            //Important to add lineStart first because we will need it later
+            Line2 line_hole_to_outside = new Line2(lineStart, lineEnd);
 
 
             //Step 3. Find a vertex on the hull which is visible to the point on the hole with max x pos
@@ -83,7 +85,7 @@ namespace Habrador_Computational_Geometry
 
             MyVector2 visibleVertex;
 
-            FindVisibleVertexOnHUll(hull, hole, lineStart, lineEnd, out closestEdge, out visibleVertex);
+            FindVisibleVertexOnHUll(hull, hole, line_hole_to_outside, out closestEdge, out visibleVertex);
 
             //This means we couldn't find a closest edge
             if (closestEdge == -1)
@@ -109,19 +111,19 @@ namespace Habrador_Computational_Geometry
             //Add to back of list
             for (int i = 0; i < hole.maxX_ListPos; i++)
             {
-                hole.vertices.Add(hole.vertices[i]);
+                hole.Vertices.Add(hole.Vertices[i]);
             }
 
             //Remove those we added to the back of the list
-            hole.vertices.RemoveRange(0, hole.maxX_ListPos);
+            hole.Vertices.RemoveRange(0, hole.maxX_ListPos);
 
             //Add the two extra vertices we need
-            hole.vertices.Add(hole.vertices[0]);
-            hole.vertices.Add(visibleVertex);
+            hole.Vertices.Add(hole.Vertices[0]);
+            hole.Vertices.Add(visibleVertex);
 
 
             //Merge the hole with the hull
-            List<MyVector2> verticesHull = hull.vertices;
+            List<MyVector2> verticesHull = hull.Vertices;
 
             //Find where we should insert the hole
             int visibleVertex_ListPos = hull.GetLastListPos(visibleVertex);
@@ -134,7 +136,7 @@ namespace Habrador_Computational_Geometry
             }
 
             //Insert the hole after the visible vertex
-            verticesHull.InsertRange(visibleVertex_ListPos + 1, hole.vertices);
+            verticesHull.InsertRange(visibleVertex_ListPos + 1, hole.Vertices);
 
             //Debug.Log($"Number of vertices on the hull after adding a hole: {verticesHull.Count}");
         }
@@ -142,7 +144,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Find a vertex on the hull that should be visible from the hole
-        private static void FindVisibleVertexOnHUll(Polygon hull, Polygon hole, MyVector2 lineStart, MyVector2 lineEnd, out int closestEdge, out MyVector2 visibleVertex)
+        private static void FindVisibleVertexOnHUll(EarClippingPolygon hull, EarClippingPolygon hole, Line2 line_hole_to_outside, out int closestEdge, out MyVector2 visibleVertex)
         {
             //The first and second point on the hull is defined as edge 0, and so on...
             closestEdge = -1;
@@ -155,7 +157,7 @@ namespace Habrador_Computational_Geometry
 
             float minDistanceSqr = Mathf.Infinity;
 
-            List<MyVector2> verticesHull = hull.vertices;
+            List<MyVector2> verticesHull = hull.Vertices;
 
             for (int i = 0; i < verticesHull.Count; i++)
             {
@@ -169,17 +171,19 @@ namespace Habrador_Computational_Geometry
                     continue;
                 }
 
-                bool isIntersecting = _Intersections.LineLine(lineStart, lineEnd, p1_hull, p2_hull, includeEndPoints: true);
+                Line2 line_hull = new Line2(p1_hull, p2_hull);
+
+                bool isIntersecting = _Intersections.LineLine(line_hole_to_outside, line_hull, includeEndPoints: true);
 
                 //Here we can maybe add a check if any of the vertices is on the line???
 
                 if (isIntersecting)
                 {
-                    MyVector2 testIntersectionVertex = _Intersections.GetLineLineIntersectionPoint(lineStart, lineEnd, p1_hull, p2_hull);
+                    MyVector2 testIntersectionVertex = _Intersections.GetLineLineIntersectionPoint(line_hole_to_outside, line_hull);
 
                     //if (hole.id == 3) TestAlgorithmsHelpMethods.DebugDrawCircle(testIntersectionVertex.ToVector3(), 0.2f, Color.green);
 
-                    float distanceSqr = MyVector2.SqrDistance(lineStart, testIntersectionVertex);
+                    float distanceSqr = MyVector2.SqrDistance(line_hole_to_outside.p1, testIntersectionVertex);
 
                     if (distanceSqr < minDistanceSqr)
                     {
@@ -203,8 +207,8 @@ namespace Habrador_Computational_Geometry
             //But we can't connect the hole with this intersection point, so we need to find a vertex which is visible from the hole
             //The closest edge has two vertices. Pick the one with the highest x-value, which is the vertex
             //that should be visible from the hole
-            MyVector2 p1 = hull.vertices[closestEdge];
-            MyVector2 p2 = hull.vertices[MathUtility.ClampListIndex(closestEdge + 1, hull.vertices.Count)];
+            MyVector2 p1 = hull.Vertices[closestEdge];
+            MyVector2 p2 = hull.Vertices[MathUtility.ClampListIndex(closestEdge + 1, hull.Vertices.Count)];
 
             visibleVertex = p1;
 
@@ -237,7 +241,7 @@ namespace Habrador_Computational_Geometry
 
         //The hull may still intersect with the edge between the point on the hole and the "visible" point on the hull, 
         //so the point on the hull might not be visible, so we should try to find a better point
-        private static void FindActualVisibleVertexOnHull(Polygon hull, Polygon hole, MyVector2 intersectionVertex, ref MyVector2 visibleVertex)
+        private static void FindActualVisibleVertexOnHull(EarClippingPolygon hull, EarClippingPolygon hole, MyVector2 intersectionVertex, ref MyVector2 visibleVertex)
         {
             //Form a triangle
             Triangle2 t = new Triangle2(hole.maxX_Vert, intersectionVertex, visibleVertex);
@@ -314,12 +318,12 @@ namespace Habrador_Computational_Geometry
 
 
         //Find reflect vertices
-        private static List<MyVector2> FindReflectVertices(Polygon hull, Polygon hole)
+        private static List<MyVector2> FindReflectVertices(EarClippingPolygon hull, EarClippingPolygon hole)
         {
             List<MyVector2> reflectVertices = new List<MyVector2>();
 
 
-            List<MyVector2> verticesHull = hull.vertices;
+            List<MyVector2> verticesHull = hull.Vertices;
 
             for (int i = 0; i < verticesHull.Count; i++)
             {

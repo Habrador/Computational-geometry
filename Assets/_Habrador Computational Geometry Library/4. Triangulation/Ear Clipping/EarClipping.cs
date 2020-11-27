@@ -31,37 +31,9 @@ namespace Habrador_Computational_Geometry
             //Step -1. Merge the holes with the points on the hull into one big polygon with invisible edges between the holes and the hull
             if (allHoleVertices != null && allHoleVertices.Count > 0)
             {
-                vertices = EarClippingHole.MergeHolesWithHull(vertices, allHoleVertices);
+                vertices = EarClippingHoleMethods.MergeHolesWithHull(vertices, allHoleVertices);
             }
 
-            /*
-            //Step -1.5. Remove all colinear points because they are causing trouble
-            //One can add them later by splitting triangles
-            //Remember that we may get other colinear points after merging the hull with the holes
-            //so it may look like the triangulation is missing some points, but thats not a bug!!!
-            //The triangulation is still valid because it covers the entire surface
-            List<MyVector2> colinearPoints = new List<MyVector2>();
-
-            List<MyVector2> normalPoints = new List<MyVector2>();
-
-            for (int i = 0; i < vertices.Count; i++)
-            {
-                MyVector2 p_prev = vertices[MathUtility.ClampListIndex(i - 1, vertices.Count)];
-                MyVector2 p = vertices[i];
-                MyVector2 p_next = vertices[MathUtility.ClampListIndex(i + 1, vertices.Count)];
-
-                if (IsVertexColinear(p_prev, p, p_next))
-                {
-                    colinearPoints.Add(p);
-                }
-                else
-                {
-                    normalPoints.Add(p);
-                }
-            }
-
-            vertices = normalPoints;
-            */
 
             //TestAlgorithmsHelpMethods.DebugDrawCircle(vertices[29].ToVector3(1f), 0.3f, Color.red);
 
@@ -134,7 +106,7 @@ namespace Habrador_Computational_Geometry
             //Step 3. Build the triangles
             HashSet<Triangle2> triangulation = new HashSet<Triangle2>();
 
-            //We know how many triangles we will get (#vertices - 2) which is true for all simple polygons
+            //We know how many triangles we will get (number of vertices - 2) which is true for all simple polygons
             //This can be used to stop the algorithm
             int maxTriangles = verticesLinked.Count - 2;
 
@@ -306,7 +278,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Is a vertex convex? (if not its concave)
+        //Is a vertex convex? (if not its concave or neither if its a straight line)
         private static bool IsVertexConvex(LinkedVertex v)
         {
             MyVector2 p_prev = v.prevLinkedVertex.pos;
@@ -330,41 +302,20 @@ namespace Habrador_Computational_Geometry
             //The interior angle is the opposite of the outside angle
             float interiorAngle = (Mathf.PI * 2f) - angle;
 
-            //This is a colinear poins, is it concave or convex? God knows! 
-            //One can remove them if they cause trouble (the triangulation will still fill the area)
-            //And maybe add them back at the end if they are needed
-            if (Mathf.Abs(angle - Mathf.PI) < MathUtility.EPSILON)
+            //Colinear point (pi = 180 degrees)
+            if (Mathf.Abs(angle - Mathf.PI) <= MathUtility.EPSILON)
             {
+                //Is it concave or convex? God knows!
+                //One can remove them if they cause trouble (the triangulation will still fill the area)
+                //And maybe add them back at the end by splitting triangles
                 return false;
             }
+            //Convex
             else if (interiorAngle < Mathf.PI)
             {
                 return true;
             }
-            else
-            {
-                return false;
-            }
-        }
-
-
-
-        public static bool IsVertexColinear(MyVector2 p_prev, MyVector2 p, MyVector2 p_next)
-        {
-            //Two vectors going from the vertex
-            //You (most likely) don't need to normalize these
-            MyVector2 p_to_p_prev = p_prev - p;
-            MyVector2 p_to_p_next = p_next - p;
-
-            //The angle between the two vectors [rad]
-            //This will calculate the outside angle
-            float angle = MathUtility.AngleFromToCCW(p_to_p_prev, p_to_p_next);
-
-            //pi is 180 degrees
-            if (Mathf.Abs(angle - Mathf.PI) < MathUtility.EPSILON)
-            {
-                return true;
-            }
+            //Concave
             else
             {
                 return false;
