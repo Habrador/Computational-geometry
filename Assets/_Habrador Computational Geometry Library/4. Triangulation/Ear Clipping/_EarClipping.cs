@@ -228,17 +228,23 @@ namespace Habrador_Computational_Geometry
 
 
         //Get ear vertex
-        private static LinkedVertex GetEarVertex(HashSet<LinkedVertex> vertices)
+        private static LinkedVertex GetEarVertex(HashSet<LinkedVertex> earVertices)
         {
             //To get better looking triangles we should always get the ear with the smallest interior angle
-        
+            float smallestInteriorAngle = Mathf.Infinity;
+
             LinkedVertex vertex = null;
 
-            foreach (LinkedVertex v in vertices)
+            foreach (LinkedVertex v in earVertices)
             {
-                vertex = v;
+                float interiorAngle = CalculateInteriorAngle(v);
+                
+                if (interiorAngle < smallestInteriorAngle)
+                {
+                    vertex = v;
 
-                break;
+                    smallestInteriorAngle = interiorAngle;
+                }
             }
 
             return vertex;
