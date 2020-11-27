@@ -339,7 +339,7 @@ namespace Habrador_Computational_Geometry
 
                 MyVector2 p_next = verticesHull[MathUtility.ClampListIndex(i + 1, verticesHull.Count)];
 
-                if (!EarClipping.IsVertexConvex(p_prev, p, p_next))
+                if (!_EarClipping.IsVertexConvex(p_prev, p, p_next))
                 {
                     reflectVertices.Add(p);
                 }

@@ -6,12 +6,14 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Triangulate a concave hull (with holes) by using an algorithm called Ear Clipping
-    //Based on "Triangulation by Ear Clipping" by David Eberly
+    //Based on: 
+    //- "Triangulation by Ear Clipping" by David Eberly
+    //- "Ear-Clipping Based Algorithms of Generating High-quality Polygon Triangulation" by people
     //Can also triangulate convex hulls but there are faster algorithms for that 
     //This alorithm is called ear clipping and it's O(n*n) 
     //Another common algorithm is dividing it into trapezoids and it's O(n log n)
     //One can maybe do it in O(n) time but no such version is known
-    public static class EarClipping
+    public static class _EarClipping
     {
         //The points on the hull (vertices) should be ordered counter-clockwise (and no doubles)
         //The holes should be ordered clockwise (and no doubles)
@@ -116,7 +118,7 @@ namespace Habrador_Computational_Geometry
             while (true)
             {
                 //Pick an ear vertex and form a triangle
-                LinkedVertex ear = GetValueFromHashSet(earVerts);
+                LinkedVertex ear = GetEarVertex(earVerts);
 
                 if (ear == null)
                 {
@@ -225,9 +227,11 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Help method to just get a vertex from a HashSet
-        private static LinkedVertex GetValueFromHashSet(HashSet<LinkedVertex> vertices)
+        //Get ear vertex
+        private static LinkedVertex GetEarVertex(HashSet<LinkedVertex> vertices)
         {
+            //To get better looking triangles we should always get the ear with the smallest interior angle
+        
             LinkedVertex vertex = null;
 
             foreach (LinkedVertex v in vertices)
@@ -290,20 +294,10 @@ namespace Habrador_Computational_Geometry
 
         public static bool IsVertexConvex(MyVector2 p_prev, MyVector2 p, MyVector2 p_next)
         {
-            //Two vectors going from the vertex
-            //You (most likely) don't need to normalize these
-            MyVector2 p_to_p_prev = p_prev - p;
-            MyVector2 p_to_p_next = p_next - p;
-
-            //The angle between the two vectors [rad]
-            //This will calculate the outside angle
-            float angle = MathUtility.AngleFromToCCW(p_to_p_prev, p_to_p_next);
-
-            //The interior angle is the opposite of the outside angle
-            float interiorAngle = (Mathf.PI * 2f) - angle;
+            float interiorAngle = CalculateInteriorAngle(p_prev, p, p_next);
 
             //Colinear point (pi = 180 degrees)
-            if (Mathf.Abs(angle - Mathf.PI) <= MathUtility.EPSILON)
+            if (Mathf.Abs(interiorAngle - Mathf.PI) <= MathUtility.EPSILON)
             {
                 //Is it concave or convex? God knows!
                 //One can remove them if they cause trouble (the triangulation will still fill the area)
@@ -320,6 +314,35 @@ namespace Habrador_Computational_Geometry
             {
                 return false;
             }
+        }
+
+
+
+        //Get interior angle (the angle within the polygon) of a vertex
+        private static float CalculateInteriorAngle(LinkedVertex v)
+        {
+            MyVector2 p_prev = v.prevLinkedVertex.pos;
+            MyVector2 p = v.pos;
+            MyVector2 p_next = v.nextLinkedVertex.pos;
+
+            return CalculateInteriorAngle(p_prev, p, p_next);
+        }
+
+        private static float CalculateInteriorAngle(MyVector2 p_prev, MyVector2 p, MyVector2 p_next)
+        {
+            //Two vectors going from the vertex
+            //You (most likely) don't need to normalize these
+            MyVector2 p_to_p_prev = p_prev - p;
+            MyVector2 p_to_p_next = p_next - p;
+
+            //The angle between the two vectors [rad]
+            //This will calculate the outside angle
+            float angle = MathUtility.AngleFromToCCW(p_to_p_prev, p_to_p_next);
+
+            //The interior angle is the opposite of the outside angle
+            float interiorAngle = (Mathf.PI * 2f) - angle;
+
+            return interiorAngle;
         }
 
 
