@@ -316,8 +316,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-
-        //Find reflect vertices
+        //Find reflect vertices (that also have a higher x pos than the hole)
         private static List<MyVector2> FindReflectVertices(EarClippingPolygon hull, EarClippingPolygon hole)
         {
             List<MyVector2> reflectVertices = new List<MyVector2>();
