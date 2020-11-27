@@ -217,7 +217,7 @@ namespace Habrador_Computational_Geometry
 
             Triangle2 tOpposite;
 
-            Line2 edgeToSwap;
+            Edge2 edgeToSwap;
 
             FindEdgeInTriangulation(t, triangulation, out hasOppositeEdge, out tOpposite, out edgeToSwap);
 
@@ -236,30 +236,30 @@ namespace Habrador_Computational_Geometry
 
 
         //Find an edge in a triangulation and return the triangle the edge is attached to
-        private static void FindEdgeInTriangulation(Triangle2 t, HashSet<Triangle2> triangulation, out bool hasOppositeEdge, out Triangle2 tOpposite, out Line2 edgeToSwap)
+        private static void FindEdgeInTriangulation(Triangle2 tNew, HashSet<Triangle2> triangulation, out bool hasOppositeEdge, out Triangle2 tOpposite, out Edge2 edgeToSwap)
         {
             //Step 1. Find the triangle's biggest interior angle and its opposite edge
-            float angleP1 = CalculateInteriorAngle(t.p3, t.p1, t.p2);
-            float angleP2 = CalculateInteriorAngle(t.p1, t.p2, t.p3);
+            float angleP1 = CalculateInteriorAngle(tNew.p3, tNew.p1, tNew.p2);
+            float angleP2 = CalculateInteriorAngle(tNew.p1, tNew.p2, tNew.p3);
             float angleP3 = Mathf.PI - angleP1 - angleP2;
 
-            MyVector2 smallest_interiorAngle_vertex = t.p1;
+            MyVector2 vertexWithBiggestInteriorAngle = tNew.p1;
 
-            if (angleP2 < angleP1)
+            if (angleP2 > angleP1)
             {
-                smallest_interiorAngle_vertex = t.p2;
+                vertexWithBiggestInteriorAngle = tNew.p2;
 
-                if (angleP3 < angleP2)
+                if (angleP3 > angleP2)
                 {
-                    smallest_interiorAngle_vertex = t.p3;
+                    vertexWithBiggestInteriorAngle = tNew.p3;
                 }
             }
-            else if (angleP3 < angleP1)
+            else if (angleP3 > angleP1)
             {
-                smallest_interiorAngle_vertex = t.p3;
+                vertexWithBiggestInteriorAngle = tNew.p3;
             }
 
-            edgeToSwap = t.FindOppositeEdge(smallest_interiorAngle_vertex);
+            edgeToSwap = tNew.FindOppositeEdge(vertexWithBiggestInteriorAngle);
 
 
             //Step 2. Check if this edge has an opposite edge among the already generated triangles
@@ -273,7 +273,7 @@ namespace Habrador_Computational_Geometry
                 {
                     hasOppositeEdge = true;
 
-                    tOpposite = t;
+                    tOpposite = tTest;
 
                     break;
                 }

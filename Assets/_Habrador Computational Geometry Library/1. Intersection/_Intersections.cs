@@ -21,7 +21,7 @@ namespace Habrador_Computational_Geometry
         //http://thirdpartyninjas.com/blog/2008/10/07/line-segment-intersection/
         //Notice that there are more than one way to test if two line segments are intersecting
         //but this is the fastest according to https://www.habrador.com/tutorials/math/5-line-line-intersection/
-        public static bool LineLine(Line2 l1, Line2 l2, bool includeEndPoints)
+        public static bool LineLine(Edge2 l1, Edge2 l2, bool includeEndPoints)
         {
             return LineLine(l1.p1, l1.p2, l2.p1, l2.p2, includeEndPoints);
         }
@@ -75,7 +75,7 @@ namespace Habrador_Computational_Geometry
 
         //Whats the coordinate of the intersection point between two lines in 2d space if we know they are intersecting
         //http://thirdpartyninjas.com/blog/2008/10/07/line-segment-intersection/
-        public static MyVector2 GetLineLineIntersectionPoint(Line2 l1, Line2 l2)
+        public static MyVector2 GetLineLineIntersectionPoint(Edge2 l1, Edge2 l2)
         {
             return GetLineLineIntersectionPoint(l1.p1, l1.p2, l2.p1, l2.p2);
         }

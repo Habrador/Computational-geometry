@@ -77,7 +77,7 @@ namespace Habrador_Computational_Geometry
             //Just add some value so we know we are outside
             MyVector2 lineEnd = new MyVector2(hull.maxX_Vert.x + 0.01f, hole.maxX_Vert.y);
             //Important to add lineStart first because we will need it later
-            Line2 line_hole_to_outside = new Line2(lineStart, lineEnd);
+            Edge2 line_hole_to_outside = new Edge2(lineStart, lineEnd);
 
 
             //Step 3. Find a vertex on the hull which is visible to the point on the hole with max x pos
@@ -145,7 +145,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Find a vertex on the hull that should be visible from the hole
-        private static void FindVisibleVertexOnHUll(EarClippingPolygon hull, EarClippingPolygon hole, Line2 line_hole_to_outside, out int closestEdge, out MyVector2 visibleVertex)
+        private static void FindVisibleVertexOnHUll(EarClippingPolygon hull, EarClippingPolygon hole, Edge2 line_hole_to_outside, out int closestEdge, out MyVector2 visibleVertex)
         {
             //The first and second point on the hull is defined as edge 0, and so on...
             closestEdge = -1;
@@ -172,7 +172,7 @@ namespace Habrador_Computational_Geometry
                     continue;
                 }
 
-                Line2 line_hull = new Line2(p1_hull, p2_hull);
+                Edge2 line_hull = new Edge2(p1_hull, p2_hull);
 
                 bool isIntersecting = _Intersections.LineLine(line_hole_to_outside, line_hull, includeEndPoints: true);
 

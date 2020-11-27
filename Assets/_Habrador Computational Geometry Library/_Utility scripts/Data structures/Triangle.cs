@@ -76,25 +76,25 @@ namespace Habrador_Computational_Geometry
 
 
         //Find the opposite edge to a vertex
-        public Line2 FindOppositeEdge(MyVector2 p)
+        public Edge2 FindOppositeEdge(MyVector2 p)
         {
             if (p.Equals(p1))
             {
-                return new Line2(p2, p3);
+                return new Edge2(p2, p3);
             }
             else if (p.Equals(p2))
             {
-                return new Line2(p3, p1);
+                return new Edge2(p3, p1);
             }
             else
             {
-                return new Line2(p1, p2);
+                return new Edge2(p1, p2);
             }
         }
 
 
         //Check if an edge is a part of this triangle
-        public bool IsEdgePartOfTriangle(Line2 e)
+        public bool IsEdgePartOfTriangle(Edge2 e)
         {
             if ((e.p1.Equals(p1) && e.p2.Equals(p2)) || (e.p1.Equals(p2) && e.p2.Equals(p1)))
             {
