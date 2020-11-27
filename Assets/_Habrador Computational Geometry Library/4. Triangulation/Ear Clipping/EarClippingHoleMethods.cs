@@ -9,6 +9,7 @@ namespace Habrador_Computational_Geometry
     public static class EarClippingHoleMethods
     {
         //Merge holes with hull so we get one big list of vertices we can triangulate
+        //We merge by creating "bridges" between the holes and the hull
         public static List<MyVector2> MergeHolesWithHull(List<MyVector2> verticesHull, List<List<MyVector2>> allHoleVertices)
         {
             //Validate

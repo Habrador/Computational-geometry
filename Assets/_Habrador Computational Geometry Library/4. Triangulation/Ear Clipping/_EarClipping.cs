@@ -17,7 +17,8 @@ namespace Habrador_Computational_Geometry
     {
         //The points on the hull (vertices) should be ordered counter-clockwise (and no doubles)
         //The holes should be ordered clockwise (and no doubles)
-        public static HashSet<Triangle2> Triangulate(List<MyVector2> vertices, List<List<MyVector2>> allHoleVertices = null)
+        //Optimize triangles means that we will get a better-looking triangulation, which resembles a constrained Delaunay triangulation
+        public static HashSet<Triangle2> Triangulate(List<MyVector2> vertices, List<List<MyVector2>> allHoleVertices = null, bool optimizeTriangles = true)
         {
             //Validate the data
             if (vertices == null || vertices.Count <= 2)
@@ -93,6 +94,7 @@ namespace Habrador_Computational_Geometry
             //An ear is always a convex vertex
             foreach (LinkedVertex v in convexVerts)
             {
+                //And we only need to test the reflect vertices
                 if (IsVertexEar(v, reflectVerts))
                 {
                     earVerts.Add(v);
@@ -118,7 +120,7 @@ namespace Habrador_Computational_Geometry
             while (true)
             {
                 //Pick an ear vertex and form a triangle
-                LinkedVertex ear = GetEarVertex(earVerts);
+                LinkedVertex ear = GetEarVertex(earVerts, optimizeTriangles);
 
                 if (ear == null)
                 {
@@ -183,6 +185,15 @@ namespace Habrador_Computational_Geometry
             }
 
 
+
+            //Step 4. Improve triangulation
+            //Some triangles may be too sharp, and if you want a nice looking triangle, you should try to swap edges
+            //according to Delaunay triangulation
+            //A report suggests that should be done while createing the triangulation
+            //But maybe it's easier to do it afterwards with some standardized constrained Delaunay triangulation?
+            //But that would also be stupid because then we could have used the constrained Delaunay from the beginning!
+
+
             return triangulation;
         }
 
@@ -227,27 +238,41 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Get ear vertex
-        private static LinkedVertex GetEarVertex(HashSet<LinkedVertex> earVertices)
+        //Get the best ear vertex
+        private static LinkedVertex GetEarVertex(HashSet<LinkedVertex> earVertices, bool optimizeTriangles)
         {
+            LinkedVertex bestEarVertex = null;
+
             //To get better looking triangles we should always get the ear with the smallest interior angle
-            float smallestInteriorAngle = Mathf.Infinity;
-
-            LinkedVertex vertex = null;
-
-            foreach (LinkedVertex v in earVertices)
+            if (optimizeTriangles)
             {
-                float interiorAngle = CalculateInteriorAngle(v);
-                
-                if (interiorAngle < smallestInteriorAngle)
-                {
-                    vertex = v;
+                float smallestInteriorAngle = Mathf.Infinity;
 
-                    smallestInteriorAngle = interiorAngle;
+                foreach (LinkedVertex v in earVertices)
+                {
+                    float interiorAngle = CalculateInteriorAngle(v);
+
+                    if (interiorAngle < smallestInteriorAngle)
+                    {
+                        bestEarVertex = v;
+
+                        smallestInteriorAngle = interiorAngle;
+                    }
+                }
+            }
+            //Just get first best ear vertex
+            else
+            {
+                foreach (LinkedVertex v in earVertices)
+                {
+                    bestEarVertex = v;
+
+                    break;
                 }
             }
 
-            return vertex;
+
+            return bestEarVertex;
         }
 
 
@@ -302,16 +327,19 @@ namespace Habrador_Computational_Geometry
         {
             float interiorAngle = CalculateInteriorAngle(p_prev, p, p_next);
 
+            /*
             //Colinear point (pi = 180 degrees)
             if (Mathf.Abs(interiorAngle - Mathf.PI) <= MathUtility.EPSILON)
             {
                 //Is it concave or convex? God knows!
+                //According to a paper, the vertex is convex if the interior angle is less than 180 degrees
                 //One can remove them if they cause trouble (the triangulation will still fill the area)
                 //And maybe add them back at the end by splitting triangles
                 return false;
             }
+            */
             //Convex
-            else if (interiorAngle < Mathf.PI)
+            if (interiorAngle < Mathf.PI)
             {
                 return true;
             }
