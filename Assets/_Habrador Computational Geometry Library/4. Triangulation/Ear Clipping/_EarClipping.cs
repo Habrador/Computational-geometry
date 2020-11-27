@@ -134,7 +134,17 @@ namespace Habrador_Computational_Geometry
 
                 Triangle2 t = new Triangle2(ear.pos, v_prev.pos, v_next.pos);
 
-                triangulation.Add(t);
+                //Try to flip this triangle according to Delaunay triangulation
+                if (optimizeTriangles)
+                {
+                    OptimizeTriangle(t, triangulation);    
+                }
+                else
+                {
+                    triangulation.Add(t);
+                }
+
+                
 
                 //Check if we have found all triangles
                 //This should also prevent us from getting stuck in an infinite loop
@@ -195,6 +205,79 @@ namespace Habrador_Computational_Geometry
 
 
             return triangulation;
+        }
+
+
+
+        //Optimize a new triangle according to Delaunay triangulation
+        //TODO: This process would have been easier if we had used the HalfEdge data structure
+        private static void OptimizeTriangle(Triangle2 t, HashSet<Triangle2> triangulation)
+        {
+            bool hasOppositeEdge;
+
+            Triangle2 tOpposite;
+
+            Line2 edgeToSwap;
+
+            FindEdgeInTriangulation(t, triangulation, out hasOppositeEdge, out tOpposite, out edgeToSwap);
+
+            //If it has no opposite edge we just add triangle to the triangulation because it can't be improved
+            if (!hasOppositeEdge)
+            {
+                triangulation.Add(t);
+
+                return;
+            }
+
+            //Step 3. Check if we should swap this edge according to Delaunay triangulation rules
+            
+        }
+
+
+
+        //Find an edge in a triangulation and return the triangle the edge is attached to
+        private static void FindEdgeInTriangulation(Triangle2 t, HashSet<Triangle2> triangulation, out bool hasOppositeEdge, out Triangle2 tOpposite, out Line2 edgeToSwap)
+        {
+            //Step 1. Find the triangle's biggest interior angle and its opposite edge
+            float angleP1 = CalculateInteriorAngle(t.p3, t.p1, t.p2);
+            float angleP2 = CalculateInteriorAngle(t.p1, t.p2, t.p3);
+            float angleP3 = Mathf.PI - angleP1 - angleP2;
+
+            MyVector2 smallest_interiorAngle_vertex = t.p1;
+
+            if (angleP2 < angleP1)
+            {
+                smallest_interiorAngle_vertex = t.p2;
+
+                if (angleP3 < angleP2)
+                {
+                    smallest_interiorAngle_vertex = t.p3;
+                }
+            }
+            else if (angleP3 < angleP1)
+            {
+                smallest_interiorAngle_vertex = t.p3;
+            }
+
+            edgeToSwap = t.FindOppositeEdge(smallest_interiorAngle_vertex);
+
+
+            //Step 2. Check if this edge has an opposite edge among the already generated triangles
+            hasOppositeEdge = false;
+
+            tOpposite = new Triangle2();
+
+            foreach (Triangle2 tTest in triangulation)
+            {
+                if (tTest.IsEdgePartOfTriangle(edgeToSwap))
+                {
+                    hasOppositeEdge = true;
+
+                    tOpposite = t;
+
+                    break;
+                }
+            }
         }
 
 
