@@ -270,7 +270,7 @@ namespace Habrador_Computational_Geometry
             //Step 1. Find the triangle's biggest interior angle and its opposite edge
             float angleP1 = CalculateInteriorAngle(tNew.p3, tNew.p1, tNew.p2);
             float angleP2 = CalculateInteriorAngle(tNew.p1, tNew.p2, tNew.p3);
-            float angleP3 = Mathf.PI - angleP1 - angleP2;
+            float angleP3 = Mathf.PI - (angleP1 + angleP2);
 
             MyVector2 vertexWithBiggestInteriorAngle = tNew.p1;
 
@@ -288,10 +288,10 @@ namespace Habrador_Computational_Geometry
                 vertexWithBiggestInteriorAngle = tNew.p3;
             }
 
-            edgeToSwap = tNew.FindOppositeEdge(vertexWithBiggestInteriorAngle);
+            edgeToSwap = tNew.FindOppositeEdgeToVertex(vertexWithBiggestInteriorAngle);
 
 
-            //Step 2. Check if this edge has an opposite edge among the already generated triangles
+            //Step 2. Check if this edge exists among the already generated triangles, which means we have a neighbor
             hasOppositeEdge = false;
 
             tOpposite = new Triangle2();

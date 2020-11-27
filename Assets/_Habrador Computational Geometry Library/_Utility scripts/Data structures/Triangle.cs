@@ -76,7 +76,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Find the opposite edge to a vertex
-        public Edge2 FindOppositeEdge(MyVector2 p)
+        public Edge2 FindOppositeEdgeToVertex(MyVector2 p)
         {
             if (p.Equals(p1))
             {
