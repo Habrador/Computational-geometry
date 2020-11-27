@@ -229,8 +229,37 @@ namespace Habrador_Computational_Geometry
                 return;
             }
 
+            //Debug.Log("Has opposite edge");
+
             //Step 3. Check if we should swap this edge according to Delaunay triangulation rules
-            
+            //a, b, c belongs to the triangle and d is the point on the other triangle
+            //a-c is the edge, which is important so we can flip it, by making the edge b-d
+            MyVector2 a = edgeToSwap.p2;
+            MyVector2 c = edgeToSwap.p1;
+            MyVector2 b = t.GetVertexWhichIsNotPartOfEdge(edgeToSwap);
+            MyVector2 d = tOpposite.GetVertexWhichIsNotPartOfEdge(edgeToSwap);
+
+            bool shouldFlipEdge = DelaunayMethods.ShouldFlipEdge(a, b, c, d);
+            //bool shouldFlipEdge = DelaunayMethods.ShouldFlipEdgeStable(a, b, c, d);
+
+            if (shouldFlipEdge)
+            {
+                //First remove the old triangle
+                triangulation.Remove(tOpposite);
+
+                //Build two new triangles
+                Triangle2 t1 = new Triangle2(a, b, d);
+                Triangle2 t2 = new Triangle2(b, c, d);
+
+                triangulation.Add(t1);
+                triangulation.Add(t2);
+
+                //Debug.Log("Flipped edge");
+            }
+            else
+            {
+                triangulation.Add(t);
+            }
         }
 
 

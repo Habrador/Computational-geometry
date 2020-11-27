@@ -111,5 +111,21 @@ namespace Habrador_Computational_Geometry
 
             return false;
         }
+
+
+        //Find the vertex which is not an edge
+        public MyVector2 GetVertexWhichIsNotPartOfEdge(Edge2 e)
+        {
+            if (!p1.Equals(e.p1) && !p1.Equals(e.p2))
+            {
+                return p1;
+            }
+            if (!p2.Equals(e.p1) && !p2.Equals(e.p2))
+            {
+                return p2;
+            }
+
+            return p3;
+        }
     }
 }
