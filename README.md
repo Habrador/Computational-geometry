@@ -106,7 +106,7 @@ You have points on a convex hull you want to triangulate. You have four options 
 	
 **Ear Clipping**
 
-Can currently only handle holes - not hole-in-holes
+Can currently only handle holes - not hole-in-holes. But it has optimizations to get a better looking triangulation. 
 
 ![Ear Clipping](/_media/ear-clipping.png?raw=true)
 
