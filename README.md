@@ -230,7 +230,17 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 ![Interpolation extrude mesh](/_media/interpolation-extrude-mesh.png?raw=true)	
 
 
-### 8. Other
+
+### 8. Deform mesh (the fun part of computational geometry!)
+
+**Cut mesh with plane**
+
+
+**Cut mesh to fit decal**
+
+
+
+### 9. Other
 
 **Is a triangle oriented clockwise?** 
 
@@ -261,6 +271,7 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 If we are going from A to B, how do we know if we have passed B? Measuring just the distance to B, and say we have passed B if we are closer than x meter to B is not accurate enough!  
 
 ![Closest point on line segment](/_media/other-passed-waypoint.png?raw=true)
+
 
 
 ## TODO
