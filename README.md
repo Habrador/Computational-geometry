@@ -197,7 +197,7 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 
 
 
-### 7. Interpolation
+### 7. Extrude mesh along curve
 
 **Catmull-Rom splines**
 

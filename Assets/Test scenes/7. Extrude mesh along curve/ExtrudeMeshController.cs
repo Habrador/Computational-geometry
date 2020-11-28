@@ -4,7 +4,7 @@ using UnityEngine;
 using Habrador_Computational_Geometry;
 using UnityEditor;
 
-public class InterpolationController : MonoBehaviour
+public class ExtrudeMeshController : MonoBehaviour
 {
     public Transform transPointA;
     public Transform transPointB;
