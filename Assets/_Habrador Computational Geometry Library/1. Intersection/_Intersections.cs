@@ -21,25 +21,20 @@ namespace Habrador_Computational_Geometry
         //http://thirdpartyninjas.com/blog/2008/10/07/line-segment-intersection/
         //Notice that there are more than one way to test if two line segments are intersecting
         //but this is the fastest according to https://www.habrador.com/tutorials/math/5-line-line-intersection/
-        public static bool LineLine(Edge2 l1, Edge2 l2, bool includeEndPoints)
-        {
-            return LineLine(l1.p1, l1.p2, l2.p1, l2.p2, includeEndPoints);
-        }
-
-        public static bool LineLine(MyVector2 a_p1, MyVector2 a_p2, MyVector2 b_p1, MyVector2 b_p2, bool includeEndPoints)
+        public static bool LineLine(Edge2 a, Edge2 b, bool includeEndPoints)
         {
             //To avoid floating point precision issues we can use a small value
             float epsilon = MathUtility.EPSILON;
 
             bool isIntersecting = false;
 
-            float denominator = (b_p2.y - b_p1.y) * (a_p2.x - a_p1.x) - (b_p2.x - b_p1.x) * (a_p2.y - a_p1.y);
+            float denominator = (b.p2.y - b.p1.y) * (a.p2.x - a.p1.x) - (b.p2.x - b.p1.x) * (a.p2.y - a.p1.y);
 
             //Make sure the denominator is != 0 (or the lines are parallel)
             if (denominator > 0f + epsilon || denominator < 0f - epsilon)
             {
-                float u_a = ((b_p2.x - b_p1.x) * (a_p1.y - b_p1.y) - (b_p2.y - b_p1.y) * (a_p1.x - b_p1.x)) / denominator;
-                float u_b = ((a_p2.x - a_p1.x) * (a_p1.y - b_p1.y) - (a_p2.y - a_p1.y) * (a_p1.x - b_p1.x)) / denominator;
+                float u_a = ((b.p2.x - b.p1.x) * (a.p1.y - b.p1.y) - (b.p2.y - b.p1.y) * (a.p1.x - b.p1.x)) / denominator;
+                float u_b = ((a.p2.x - a.p1.x) * (a.p1.y - b.p1.y) - (a.p2.y - a.p1.y) * (a.p1.x - b.p1.x)) / denominator;
 
                 //Are the line segments intersecting if the end points are the same
                 if (includeEndPoints)
@@ -74,19 +69,14 @@ namespace Habrador_Computational_Geometry
 
 
         //Whats the coordinate of the intersection point between two lines in 2d space if we know they are intersecting
-        //http://thirdpartyninjas.com/blog/2008/10/07/line-segment-intersection/
-        public static MyVector2 GetLineLineIntersectionPoint(Edge2 l1, Edge2 l2)
+        //http://thirdpartyninjas.com/blog/2008/10/07/line-segment-intersection/        
+        public static MyVector2 GetLineLineIntersectionPoint(Edge2 a, Edge2 b)
         {
-            return GetLineLineIntersectionPoint(l1.p1, l1.p2, l2.p1, l2.p2);
-        }
-        
-        public static MyVector2 GetLineLineIntersectionPoint(MyVector2 a_p1, MyVector2 a_p2, MyVector2 b_p1, MyVector2 b_p2)
-        {
-            float denominator = (b_p2.y - b_p1.y) * (a_p2.x - a_p1.x) - (b_p2.x - b_p1.x) * (a_p2.y - a_p1.y);
+            float denominator = (b.p2.y - b.p1.y) * (a.p2.x - a.p1.x) - (b.p2.x - b.p1.x) * (a.p2.y - a.p1.y);
 
-            float u_a = ((b_p2.x - b_p1.x) * (a_p1.y - b_p1.y) - (b_p2.y - b_p1.y) * (a_p1.x - b_p1.x)) / denominator;
+            float u_a = ((b.p2.x - b.p1.x) * (a.p1.y - b.p1.y) - (b.p2.y - b.p1.y) * (a.p1.x - b.p1.x)) / denominator;
 
-            MyVector2 intersectionPoint = a_p1 + u_a * (a_p2 - a_p1);
+            MyVector2 intersectionPoint = a.p1 + u_a * (a.p2 - a.p1);
 
             return intersectionPoint;
         }
@@ -99,14 +89,14 @@ namespace Habrador_Computational_Geometry
         
         //Ray-plane intersection
         //http://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
-        public static bool RayPlane(MyVector2 planePos, MyVector2 planeNormal, MyVector2 rayStart, MyVector2 rayDir)
+        public static bool RayPlane(Plane2 plane, Ray2 ray)
         {
             //To avoid floating point precision issues we can add a small value
             float epsilon = MathUtility.EPSILON;
 
             bool areIntersecting = false;
 
-            float denominator = MyVector2.Dot(planeNormal * -1f, rayDir);
+            float denominator = MyVector2.Dot(plane.normal * -1f, ray.dir);
 
             //Debug.Log(denominator);
 
@@ -117,9 +107,9 @@ namespace Habrador_Computational_Geometry
                 //Now we have to figur out of the ray starts "inside" of the plane
                 //meaning on the other side of the normal
                 //If so it can't hit the plane
-                MyVector2 vecBetween = planePos - rayStart;
+                MyVector2 vecBetween = plane.pos - ray.origin;
 
-                float t = MyVector2.Dot(vecBetween, planeNormal * -1f) / denominator;
+                float t = MyVector2.Dot(vecBetween, plane.normal * -1f) / denominator;
 
                 //Debug.Log(t);
 
@@ -133,9 +123,9 @@ namespace Habrador_Computational_Geometry
         }
 
         //Get the coordinate if we know a ray-plane is intersecting
-        public static MyVector2 GetRayPlaneIntersectionPoint(MyVector2 planePos, MyVector2 planeNormal, MyVector2 rayStart, MyVector2 rayDir)
+        public static MyVector2 GetRayPlaneIntersectionPoint(Plane2 plane, Ray2 ray)
         {
-            MyVector2 intersectionPoint = GetIntersectionCoordinate(planePos, planeNormal, rayStart, rayDir);
+            MyVector2 intersectionPoint = GetIntersectionCoordinate(plane, ray);
 
             return intersectionPoint;
         }
@@ -143,15 +133,15 @@ namespace Habrador_Computational_Geometry
 
         //This is a useful method to find the intersection coordinate if we know we are intersecting
         //Is used for ray-plane, line-plane, plane-plane
-        private static MyVector2 GetIntersectionCoordinate(MyVector2 planePos, MyVector2 planeNormal, MyVector2 rayStart, MyVector2 rayDir)
+        private static MyVector2 GetIntersectionCoordinate(Plane2 plane, Ray2 ray)
         {
-            float denominator = MyVector2.Dot(-planeNormal, rayDir);
+            float denominator = MyVector2.Dot(-plane.normal, ray.dir);
 
-            MyVector2 vecBetween = planePos - rayStart;
+            MyVector2 vecBetween = plane.pos - ray.origin;
 
-            float t = MyVector2.Dot(vecBetween, -planeNormal) / denominator;
+            float t = MyVector2.Dot(vecBetween, -plane.normal) / denominator;
 
-            MyVector2 intersectionPoint = rayStart + rayDir * t;
+            MyVector2 intersectionPoint = ray.origin + ray.dir * t;
 
             return intersectionPoint;
         }
@@ -159,31 +149,31 @@ namespace Habrador_Computational_Geometry
 
 
         //Line-plane intersection
-        public static bool LinePlane(MyVector2 planePos, MyVector2 planeNormal, MyVector2 line_p1, MyVector2 line_p2)
+        public static bool LinePlane(Plane2 plane, Edge2 line)
         {
             //To avoid floating point precision issues we can add a small value
             float epsilon = MathUtility.EPSILON;
 
             bool areIntersecting = false;
 
-            MyVector2 lineDir = MyVector2.Normalize(line_p1 - line_p2);
+            MyVector2 lineDir = MyVector2.Normalize(line.p1 - line.p2);
 
-            float denominator = MyVector2.Dot(-planeNormal, lineDir);
+            float denominator = MyVector2.Dot(-plane.normal, lineDir);
 
             //Debug.Log(denominator);
 
             //No intersection if the line and plane are perpendicular
             if (denominator > epsilon || denominator < -epsilon)
             {
-                MyVector2 vecBetween = planePos - line_p1;
+                MyVector2 vecBetween = plane.pos - line.p1;
 
-                float t = MyVector2.Dot(vecBetween, -planeNormal) / denominator;
+                float t = MyVector2.Dot(vecBetween, -plane.normal) / denominator;
 
-                MyVector2 intersectionPoint = line_p1 + lineDir * t;
+                MyVector2 intersectionPoint = line.p1 + lineDir * t;
 
                 //Gizmos.DrawWireSphere(intersectionPoint, 0.5f);
 
-                if (_Geometry.IsPointBetweenPoints(line_p1, line_p2, intersectionPoint))
+                if (_Geometry.IsPointBetweenPoints(line.p1, line.p2, intersectionPoint))
                 {
                     areIntersecting = true;
                 }
@@ -193,11 +183,13 @@ namespace Habrador_Computational_Geometry
         }
 
         //We know a line plane is intersecting and now we want the coordinate of intersection
-        public static MyVector2 GetLinePlaneIntersectionPoint(MyVector2 planePos, MyVector2 planeNormal, MyVector2 line_p1, MyVector2 line_p2)
+        public static MyVector2 GetLinePlaneIntersectionPoint(Plane2 plane, Edge2 line)
         {
-            MyVector2 lineDir = MyVector2.Normalize(line_p1 - line_p2);
+            MyVector2 lineDir = MyVector2.Normalize(line.p1 - line.p2);
 
-            MyVector2 intersectionPoint = GetIntersectionCoordinate(planePos, planeNormal, line_p1, lineDir);
+            Ray2 ray = new Ray2(line.p1, lineDir);
+
+            MyVector2 intersectionPoint = GetIntersectionCoordinate(plane, ray);
 
             return intersectionPoint;
         }
@@ -205,11 +197,11 @@ namespace Habrador_Computational_Geometry
 
 
         //Plane-plane intersection
-        public static bool PlanePlane(MyVector2 planePos_1, MyVector2 planeNormal_1, MyVector2 planePos_2, MyVector2 planeNormal_2)
+        public static bool PlanePlane(Plane2 plane_1, Plane2 plane_2)
         {
             bool areIntersecting = false;
 
-            float dot = MyVector2.Dot(planeNormal_1, planeNormal_2);
+            float dot = MyVector2.Dot(plane_1.normal, plane_2.normal);
 
             //Debug.Log(dot);
 
@@ -228,11 +220,13 @@ namespace Habrador_Computational_Geometry
         }
 
         //If we know two planes are intersecting, what's the point of intersection?
-        public static MyVector2 GetPlanePlaneIntersectionPoint(MyVector2 planePos_1, MyVector2 planeNormal_1, MyVector2 planePos_2, MyVector2 planeNormal_2)
+        public static MyVector2 GetPlanePlaneIntersectionPoint(Plane2 plane_1, Plane2 plane_2)
         {
-            MyVector2 lineDir = MyVector2.Normalize(new MyVector2(planeNormal_2.y, -planeNormal_2.x));
+            MyVector2 lineDir = MyVector2.Normalize(new MyVector2(plane_2.normal.y, -plane_2.normal.x));
 
-            MyVector2 intersectionPoint = GetIntersectionCoordinate(planePos_1, planeNormal_1, planePos_2, lineDir);
+            Ray2 ray = new Ray2(plane_2.pos, lineDir);
+
+            MyVector2 intersectionPoint = GetIntersectionCoordinate(plane_1, ray);
 
             return intersectionPoint;
         }
@@ -450,7 +444,7 @@ namespace Habrador_Computational_Geometry
                 MyVector2 l2_p2 = polygonPoints[iPlusOne];
 
                 //Are the lines intersecting?
-                if (_Intersections.LineLine(l1_p1, l1_p2, l2_p1, l2_p2, includeEndPoints: true))
+                if (_Intersections.LineLine(new Edge2(l1_p1, l1_p2), new Edge2(l2_p1, l2_p2), includeEndPoints: true))
                 {
                     numberOfIntersections += 1;
                 }
@@ -496,29 +490,37 @@ namespace Habrador_Computational_Geometry
 
             //Step 1. Line-line instersection
 
+            Edge2 t1_e1 = new Edge2(t1.p1, t1.p2);
+            Edge2 t1_e2 = new Edge2(t1.p2, t1.p3);
+            Edge2 t1_e3 = new Edge2(t1.p3, t1.p1);
+
+            Edge2 t2_e1 = new Edge2(t2.p1, t2.p2);
+            Edge2 t2_e2 = new Edge2(t2.p2, t2.p3);
+            Edge2 t2_e3 = new Edge2(t2.p3, t2.p1);
+
             //Line 1 of t1 against all lines of t2
             if (
-                LineLine(t1.p1, t1.p2, t2.p1, t2.p2, true) ||
-                LineLine(t1.p1, t1.p2, t2.p2, t2.p3, true) ||
-                LineLine(t1.p1, t1.p2, t2.p3, t2.p1, true)
+                LineLine(t1_e1, t2_e1, true) ||
+                LineLine(t1_e1, t2_e2, true) ||
+                LineLine(t1_e1, t2_e3, true)
             )
             {
                 isIntersecting = true;
             }
             //Line 2 of t1 against all lines of t2
             else if (
-                LineLine(t1.p2, t1.p3, t2.p1, t2.p2, true) ||
-                LineLine(t1.p2, t1.p3, t2.p2, t2.p3, true) ||
-                LineLine(t1.p2, t1.p3, t2.p3, t2.p1, true)
+                LineLine(t1_e2, t2_e1, true) ||
+                LineLine(t1_e2, t2_e2, true) ||
+                LineLine(t1_e2, t2_e3, true)
             )
             {
                 isIntersecting = true;
             }
             //Line 3 of t1 against all lines of t2
             else if (
-                LineLine(t1.p3, t1.p1, t2.p1, t2.p2, true) ||
-                LineLine(t1.p3, t1.p1, t2.p2, t2.p3, true) ||
-                LineLine(t1.p3, t1.p1, t2.p3, t2.p1, true)
+                LineLine(t1_e3, t2_e1, true) ||
+                LineLine(t1_e3, t2_e2, true) ||
+                LineLine(t1_e3, t2_e3, true)
             )
             {
                 isIntersecting = true;

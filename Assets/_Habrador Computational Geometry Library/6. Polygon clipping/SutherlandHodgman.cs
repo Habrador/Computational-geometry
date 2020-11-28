@@ -50,8 +50,8 @@ namespace Habrador_Computational_Geometry
                     //Calculate the distance to the plane from each vertex
                     //This is how we will know if they are inside or outside
                     //If they are inside, the distance is positive, which is why the planes normals have to be oriented to the inside
-                    float dist_to_v1 = _Geometry.GetSignedDistanceFromPointToPlane(plane.normal, plane.pos, v1);
-                    float dist_to_v2 = _Geometry.GetSignedDistanceFromPointToPlane(plane.normal, plane.pos, v2);
+                    float dist_to_v1 = _Geometry.GetSignedDistanceFromPointToPlane(plane, v1);
+                    float dist_to_v2 = _Geometry.GetSignedDistanceFromPointToPlane(plane, v2);
 
                     //TODO: What will happen if they are exactly 0? Should maybe use a tolerance of 0.001
 
@@ -67,7 +67,9 @@ namespace Habrador_Computational_Geometry
                     {
                         MyVector2 rayDir = MyVector2.Normalize(v2 - v1);
 
-                        MyVector2 intersectionPoint = _Intersections.GetRayPlaneIntersectionPoint(plane.pos, plane.normal, v1, rayDir);
+                        Ray2 ray = new Ray2(v1, rayDir);
+
+                        MyVector2 intersectionPoint = _Intersections.GetRayPlaneIntersectionPoint(plane, ray);
 
                         vertices_tmp.Add(intersectionPoint);
 
@@ -78,7 +80,9 @@ namespace Habrador_Computational_Geometry
                     {
                         MyVector2 rayDir = MyVector2.Normalize(v2 - v1);
 
-                        MyVector2 intersectionPoint = _Intersections.GetRayPlaneIntersectionPoint(plane.pos, plane.normal, v1, rayDir);
+                        Ray2 ray = new Ray2(v1, rayDir);
+
+                        MyVector2 intersectionPoint = _Intersections.GetRayPlaneIntersectionPoint(plane, ray);
 
                         vertices_tmp.Add(intersectionPoint);
                     }

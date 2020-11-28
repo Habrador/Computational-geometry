@@ -38,6 +38,8 @@ namespace Habrador_Computational_Geometry
 
                 MyVector2 b = poly[iPlusOne].coordinate;
 
+                Edge2 a_b = new Edge2(a, b);
+
                 //Gizmos.DrawWireSphere(poly[i].coordinate, 0.02f);
                 //Gizmos.DrawWireSphere(poly[i].next.coordinate, 0.02f);
 
@@ -49,12 +51,14 @@ namespace Habrador_Computational_Geometry
 
                     MyVector2 d = clipPoly[jPlusOne].coordinate;
 
+                    Edge2 c_d = new Edge2(c, d);
+
                     //Are these lines intersecting?
-                    if (_Intersections.LineLine(a, b, c, d, true))
+                    if (_Intersections.LineLine(a_b, c_d, true))
                     {
                         hasFoundIntersection = true;
 
-                        MyVector2 intersectionPoint2D = _Intersections.GetLineLineIntersectionPoint(a, b, c, d);
+                        MyVector2 intersectionPoint2D = _Intersections.GetLineLineIntersectionPoint(a_b, c_d);
 
                         //Vector3 intersectionPoint = new Vector3(intersectionPoint2D.x, 0f, intersectionPoint2D.y);
 

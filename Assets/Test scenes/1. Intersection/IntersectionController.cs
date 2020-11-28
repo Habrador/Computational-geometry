@@ -69,9 +69,11 @@ public class IntersectionController : MonoBehaviour
         MyVector2 pos1 = planePos_1.ToMyVector2();
         MyVector2 pos2 = planePos_2.ToMyVector2();
 
+        Plane2 plane_1 = new Plane2(pos1, normal_1);
+        Plane2 plane_2 = new Plane2(pos2, normal_2);
 
         //Intersections
-        bool isIntersecting = _Intersections.PlanePlane(pos1, normal_1, pos2, normal_2);
+        bool isIntersecting = _Intersections.PlanePlane(plane_1, plane_2);
 
         Debug.Log("Are planes intersecting: " + isIntersecting);
 
@@ -97,7 +99,7 @@ public class IntersectionController : MonoBehaviour
 
         if (isIntersecting)
         {
-            MyVector2 intersectionPoint = _Intersections.GetPlanePlaneIntersectionPoint(pos1, normal_1, pos2, normal_2);
+            MyVector2 intersectionPoint = _Intersections.GetPlanePlaneIntersectionPoint(plane_1, plane_2);
 
             TestAlgorithmsHelpMethods.DisplayCircleMesh(intersectionPoint, 1f, 20, Color.red);
         }
@@ -148,7 +150,10 @@ public class IntersectionController : MonoBehaviour
         MyVector2 l2_p1 = t2_p1_trans.position.ToMyVector2();
         MyVector2 l2_p2 = t2_p2_trans.position.ToMyVector2();
 
-        bool isIntersecting = _Intersections.LineLine(l1_p1, l1_p2, l2_p1, l2_p2, includeEndPoints: true);
+        Edge2 l1 = new Edge2(l1_p1, l1_p2);
+        Edge2 l2 = new Edge2(l2_p1, l2_p2);
+
+        bool isIntersecting = _Intersections.LineLine(l1, l2, includeEndPoints: true);
 
         //Display
 
@@ -174,7 +179,7 @@ public class IntersectionController : MonoBehaviour
         //If they are intersecting we can also get the intersection point
         if (isIntersecting)
         {
-            MyVector2 intersectionPoint = _Intersections.GetLineLineIntersectionPoint(l1_p1, l1_p2, l2_p1, l2_p2);
+            MyVector2 intersectionPoint = _Intersections.GetLineLineIntersectionPoint(l1, l2);
 
             TestAlgorithmsHelpMethods.DisplayCircleMesh(intersectionPoint, 1f, 20, Color.red);
         }
@@ -308,8 +313,11 @@ public class IntersectionController : MonoBehaviour
 
         MyVector2 line_p2_2d = line_p2.ToMyVector2();
 
+        Plane2 plane = new Plane2(planePos_2d, planeNormal_2d);
 
-        bool isIntersecting = _Intersections.LinePlane(planePos_2d, planeNormal_2d, line_p1_2d, line_p2_2d);
+        Edge2 line = new Edge2(line_p1_2d, line_p2_2d);
+
+        bool isIntersecting = _Intersections.LinePlane(plane, line);
 
 
         //Debug
@@ -342,7 +350,7 @@ public class IntersectionController : MonoBehaviour
 
         if (isIntersecting)
         {
-            MyVector2 intersectionPoint = _Intersections.GetLinePlaneIntersectionPoint(planePos_2d, planeNormal_2d, line_p1_2d, line_p2_2d);
+            MyVector2 intersectionPoint = _Intersections.GetLinePlaneIntersectionPoint(plane, line);
 
             TestAlgorithmsHelpMethods.DisplayCircleMesh(intersectionPoint, 1f, 20, Color.red);
         }
@@ -363,27 +371,22 @@ public class IntersectionController : MonoBehaviour
 
 
         //2d space
-        MyVector2 planeNormal_2d = planeNormal.ToMyVector2();
+        Plane2 plane_2d = new Plane2(planePos.ToMyVector2(), planeNormal.ToMyVector2());
 
-        MyVector2 planePos_2d = planePos.ToMyVector2();
-
-        MyVector2 rayPos_2d = rayPos.ToMyVector2();
-
-        MyVector2 rayDir_2d = rayDir.ToMyVector2();
-
+        Ray2 ray_2d = new Ray2(rayPos.ToMyVector2(), rayDir.ToMyVector2());
 
         //Might as well test the distance from the point to the plane as well
-        float distance = _Geometry.GetSignedDistanceFromPointToPlane(planeNormal_2d, planePos_2d, rayPos_2d);
+        float distance = _Geometry.GetSignedDistanceFromPointToPlane(plane_2d, ray_2d.origin);
 
         Debug.Log(distance);
 
-        bool isIntersecting = _Intersections.RayPlane(planePos_2d, planeNormal_2d, rayPos_2d, rayDir_2d);
+        bool isIntersecting = _Intersections.RayPlane(plane_2d, ray_2d);
 
 
         //Debug
         Gizmos.color = Color.blue;
 
-        TestAlgorithmsHelpMethods.DrawPlane(planePos_2d, planeNormal_2d, Color.blue);
+        TestAlgorithmsHelpMethods.DrawPlane(plane_2d.pos, plane_2d.normal, Color.blue);
 
 
         //Ray
@@ -406,14 +409,14 @@ public class IntersectionController : MonoBehaviour
         
         //Display with mesh
         //Plane
-        TestAlgorithmsHelpMethods.DisplayPlaneMesh(planePos_2d, planeNormal_2d, 0.5f, Color.blue);
+        TestAlgorithmsHelpMethods.DisplayPlaneMesh(plane_2d.pos, plane_2d.normal, 0.5f, Color.blue);
 
         //Ray
-        TestAlgorithmsHelpMethods.DisplayArrowMesh(rayPos_2d, rayPos_2d + rayDir_2d * 6f, 0.5f, 0.5f + 0.5f, Color.white);
+        TestAlgorithmsHelpMethods.DisplayArrowMesh(ray_2d.origin, ray_2d.origin + ray_2d.dir * 6f, 0.5f, 0.5f + 0.5f, Color.white);
 
         if (isIntersecting)
         {
-            MyVector2 intersectionPoint = _Intersections.GetRayPlaneIntersectionPoint(planePos_2d, planeNormal_2d, rayPos_2d, rayDir_2d);
+            MyVector2 intersectionPoint = _Intersections.GetRayPlaneIntersectionPoint(plane_2d, ray_2d);
 
             TestAlgorithmsHelpMethods.DisplayCircleMesh(intersectionPoint, 1f, 20, Color.red);
         }

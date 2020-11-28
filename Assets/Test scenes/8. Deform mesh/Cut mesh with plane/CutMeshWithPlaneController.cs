@@ -34,7 +34,7 @@ public class CutMeshWithPlaneController : MonoBehaviour
         List<Transform> transformsToCut = GetChildTransformsFromParent(meshesToCutParentTrans);
 
         Plane3 cutPlane = new Plane3(cutPlaneTrans.position.ToMyVector3(), cutPlaneTrans.up.ToMyVector3());
-
+        
         foreach (Transform child in transformsToCut)
         {
             Mesh meshToCut = child.GetComponent<MeshFilter>().mesh;

@@ -293,17 +293,17 @@ namespace Habrador_Computational_Geometry
         //- Negative means it's on the back side
 
         //3d
-        public static float GetSignedDistanceFromPointToPlane(MyVector3 planeNormal, MyVector3 planePos, MyVector3 pointPos)
+        public static float GetSignedDistanceFromPointToPlane(Plane3 plane, MyVector3 pointPos)
         {
-            float distance = MyVector3.Dot(planeNormal, pointPos - planePos);
+            float distance = MyVector3.Dot(plane.normal, pointPos - plane.pos);
 
             return distance;
         }
 
         //2d
-        public static float GetSignedDistanceFromPointToPlane(MyVector2 planeNormal, MyVector2 planePos, MyVector2 pointPos)
+        public static float GetSignedDistanceFromPointToPlane(Plane2 plane, MyVector2 pointPos)
         {
-            float distance = MyVector2.Dot(planeNormal, pointPos - planePos);
+            float distance = MyVector2.Dot(plane.normal, pointPos - plane.pos);
 
             return distance;
         }
@@ -312,9 +312,9 @@ namespace Habrador_Computational_Geometry
         //Relations of a point to a plane
 
         //3d
-        public static bool IsPointFrontOfPlane(MyVector3 planeNormal, MyVector3 planePos, MyVector3 pointPos) 
+        public static bool IsPointFrontOfPlane(Plane3 plane, MyVector3 pointPos) 
         {
-            float distance = GetSignedDistanceFromPointToPlane(planeNormal, planePos, pointPos);
+            float distance = GetSignedDistanceFromPointToPlane(plane, pointPos);
 
             //To avoid floating point precision issues we can add a small value
             float epsilon = MathUtility.EPSILON;
@@ -330,9 +330,9 @@ namespace Habrador_Computational_Geometry
         }
 
         //3d
-        public static FrontOnBack IsPoint_Front_On_Back_OfPlane(MyVector3 planeNormal, MyVector3 planePos, MyVector3 pointPos)
+        public static FrontOnBack IsPoint_Front_On_Back_OfPlane(Plane3 plane, MyVector3 pointPos)
         {
-            float distance = GetSignedDistanceFromPointToPlane(planeNormal, planePos, pointPos);
+            float distance = GetSignedDistanceFromPointToPlane(plane, pointPos);
 
             //To avoid floating point precision issues we can add a small value
             float epsilon = MathUtility.EPSILON;

@@ -273,9 +273,13 @@ namespace Habrador_Computational_Geometry.MeshAlgorithms
 
                 MyVector2 afterPlanePos = b + afterNormal * halfWidth * normalDirFactor;
 
+                Plane2 planeBefore = new Plane2(beforePlanePos, beforeNormal);
+
+                Plane2 planeAfter = new Plane2(afterPlanePos, afterNormal);
+
                 //Calculate the intersection point
                 //We know they are intersecting, so we don't need to test that
-                MyVector2 intersectionPoint = _Intersections.GetPlanePlaneIntersectionPoint(beforePlanePos, beforeNormal, afterPlanePos, afterNormal);
+                MyVector2 intersectionPoint = _Intersections.GetPlanePlaneIntersectionPoint(planeBefore, planeAfter);
 
                 return intersectionPoint;
             }
