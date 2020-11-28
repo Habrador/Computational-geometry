@@ -38,7 +38,7 @@ public class IntersectionController : MonoBehaviour
 
         //LineLine();
 
-        AABB_AABB();
+        //AABB_AABB();
 
         //PointTriangle();
 
@@ -46,7 +46,7 @@ public class IntersectionController : MonoBehaviour
 
         //RayPlane();
 
-        //LinePlane();
+        LinePlane();
     }
 
 
