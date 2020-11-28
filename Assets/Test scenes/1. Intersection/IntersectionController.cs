@@ -373,7 +373,7 @@ public class IntersectionController : MonoBehaviour
 
 
         //Might as well test the distance from the point to the plane as well
-        float distance = _Geometry.DistanceFromPointToPlane(planeNormal_2d, planePos_2d, rayPos_2d);
+        float distance = _Geometry.GetSignedDistanceFromPointToPlane(planeNormal_2d, planePos_2d, rayPos_2d);
 
         Debug.Log(distance);
 

@@ -137,7 +137,7 @@ public class OtherController : MonoBehaviour
         MyVector2 planePos = a + planeDir * 0.5f;
 
         //Positive if infront, negative if behind
-        float distanceToPlane = _Geometry.DistanceFromPointToPlane(planeNormal, planePos, testPoint);
+        float distanceToPlane = _Geometry.GetSignedDistanceFromPointToPlane(planeNormal, planePos, testPoint);
 
         Debug.Log("Distance: " + distanceToPlane);
 

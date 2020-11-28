@@ -9,11 +9,12 @@ namespace Habrador_Computational_Geometry
     {
         Left, On, Right
     }
+    public enum FrontOnBack
+    {
+        Front, On, Back
+    }
 
-    //public enum InfrontOnBack
-    //{
-    //    Infront, On, Back
-    //}
+    
 
     public static class _Geometry
     {
@@ -282,26 +283,72 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Is a point to the left, to the right, or on a plane
+        // Point-plane relations
         //
         //https://gamedevelopment.tutsplus.com/tutorials/understanding-sutherland-hodgman-clipping-for-physics-engines--gamedev-11917
         //Notice that the plane normal doesnt have to be normalized
-        //public static float DistanceFromPointToPlane(Vector3 planeNormal, Vector3 planePos, Vector3 pointPos)
-        //{
-        //    //Positive distance denotes that the point p is on the front side of the plane 
-        //    //Negative means it's on the back side
-        //    float distance = Vector3.Dot(planeNormal, pointPos - planePos);
 
-        //    return distance;
-        //}
+        //The signed distance from a point to a plane
+        //- Positive distance denotes that the point p is on the front side of the plane (in the direction of the plane normal)
+        //- Negative means it's on the back side
 
-        public static float DistanceFromPointToPlane(MyVector2 planeNormal, MyVector2 planePos, MyVector2 pointPos)
+        //3d
+        public static float GetSignedDistanceFromPointToPlane(MyVector3 planeNormal, MyVector3 planePos, MyVector3 pointPos)
         {
-            //Positive distance denotes that the point p is on the front side of the plane 
-            //Negative means it's on the back side
+            float distance = MyVector3.Dot(planeNormal, pointPos - planePos);
+
+            return distance;
+        }
+
+        //2d
+        public static float GetSignedDistanceFromPointToPlane(MyVector2 planeNormal, MyVector2 planePos, MyVector2 pointPos)
+        {
             float distance = MyVector2.Dot(planeNormal, pointPos - planePos);
 
             return distance;
+        }
+
+
+        //Relations of a point to a plane
+
+        //3d
+        public static bool IsPointFrontOfPlane(MyVector3 planeNormal, MyVector3 planePos, MyVector3 pointPos) 
+        {
+            float distance = GetSignedDistanceFromPointToPlane(planeNormal, planePos, pointPos);
+
+            //To avoid floating point precision issues we can add a small value
+            float epsilon = MathUtility.EPSILON;
+
+            if (distance > 0f + epsilon)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        //3d
+        public static FrontOnBack IsPoint_Front_On_Back_OfPlane(MyVector3 planeNormal, MyVector3 planePos, MyVector3 pointPos)
+        {
+            float distance = GetSignedDistanceFromPointToPlane(planeNormal, planePos, pointPos);
+
+            //To avoid floating point precision issues we can add a small value
+            float epsilon = MathUtility.EPSILON;
+
+            if (distance > 0f + epsilon)
+            {
+                return FrontOnBack.Front;
+            }
+            else if (distance < 0f - epsilon)
+            {
+                return FrontOnBack.Back;
+            }
+            else
+            {
+                return FrontOnBack.On;
+            }
         }
 
 
@@ -419,21 +466,6 @@ namespace Habrador_Computational_Geometry
                 return a + a_b * distance;
             }
         }
-
-
-
-        //Calculate the angle between the vectors if we are going from p1-p2-p3
-        //Return +180 if "small" or -180 if "large"
-        //public static float CalculateAngleBetweenVectors(MyVector2 p1, MyVector2 p2, MyVector2 p3)
-        //{
-        //    MyVector2 from = p1 - p2;
-
-        //    MyVector2 to = p3 - p2;
-
-        //    float angle = Vector2.SignedAngle(from, to);
-
-        //    return angle;
-        //}
 
 
 

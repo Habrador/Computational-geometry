@@ -200,8 +200,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_Father: {fileID: 2012961058}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1177279546
 GameObject:
@@ -315,8 +315,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10fb16ddf37900c48a91aa00d7e0678a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cutPlane: {fileID: 0}
-  meshesToCutParentTrans: {fileID: 0}
+  cutPlaneTrans: {fileID: 1886523454}
+  meshesToCutParentTrans: {fileID: 2012961058}
 --- !u!1 &1355282178
 GameObject:
   m_ObjectHideFlags: 0
@@ -609,7 +609,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 692733214}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

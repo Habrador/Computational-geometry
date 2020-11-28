@@ -5,7 +5,7 @@ using Habrador_Computational_Geometry;
 
 public class CutMeshWithPlaneController : MonoBehaviour
 {
-    public Transform cutPlane;
+    public Transform cutPlaneTrans;
 
     //Place all new meshes below this go, so we can cut them again
     public Transform meshesToCutParentTrans;
@@ -32,6 +32,33 @@ public class CutMeshWithPlaneController : MonoBehaviour
     private void CutMesh()
     {
         List<Transform> transformsToCut = GetChildTransformsFromParent(meshesToCutParentTrans);
+
+        Plane3 cutPlane = new Plane3(cutPlaneTrans.position.ToMyVector3(), cutPlaneTrans.up.ToMyVector3());
+
+        foreach (Transform child in transformsToCut)
+        {
+            Mesh meshToCut = child.GetComponent<MeshFilter>().mesh;
+        
+            if (meshToCut == null)
+            {
+                Debug.Log("There's no mesh to cut");
+
+                continue;
+            }
+
+            //Should return null (if we couldn't cut the mesh because the mesh didn't intersect with the plane)
+            List<Mesh> cutMeshes = CutMeshWithPlane.CutMesh(meshToCut, cutPlane);
+
+            if (cutMeshes == null)
+            {
+                Debug.Log("This mesh couldn't be cut");
+
+                continue;
+            }
+
+            //Create two new game objects with the two new meshes
+            Debug.Log(cutMeshes.Count);
+        }
     }
 
 
