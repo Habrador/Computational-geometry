@@ -56,8 +56,21 @@ public class CutMeshWithPlaneController : MonoBehaviour
                 continue;
             }
 
-            //Create two new game objects with the two new meshes
             Debug.Log(cutMeshes.Count);
+
+
+            //Create new game objects with the new meshes
+            foreach (Mesh newMesh in cutMeshes)
+            {
+                GameObject newObj = Instantiate(child.gameObject);
+
+                newObj.transform.position = child.position;
+                newObj.transform.rotation = child.rotation;
+
+                newObj.transform.parent = meshesToCutParentTrans;
+
+                newObj.GetComponent<MeshFilter>().mesh = newMesh;
+            }
         }
     }
 
