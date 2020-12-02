@@ -119,9 +119,12 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //
+        // Ray-plane intersection
+        // http://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
+        //
 
-        //Ray-plane intersection
-        //http://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
+        //2d
         public static bool RayPlane(Plane2 plane, Ray2 ray)
         {
             //To avoid floating point precision issues we can add a small value
@@ -156,6 +159,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //Get the coordinate if we know a ray-plane is intersecting
+        //2d
         public static MyVector2 GetRayPlaneIntersectionPoint(Plane2 plane, Ray2 ray)
         {
             MyVector2 intersectionPoint = GetIntersectionCoordinate(plane, ray);
@@ -165,7 +169,11 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Line-plane intersection
+        //
+        // Line-plane intersection
+        //
+
+        //2d
         public static bool LinePlane(Plane2 plane, Edge2 line)
         {
             //To avoid floating point precision issues we can add a small value
@@ -226,7 +234,10 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Plane-plane intersection
+        //
+        // Plane-plane intersection
+        //
+        //2d
         public static bool PlanePlane(Plane2 plane_1, Plane2 plane_2)
         {
             bool areIntersecting = false;
@@ -250,6 +261,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //If we know two planes are intersecting, what's the point of intersection?
+        //2d
         public static MyVector2 GetPlanePlaneIntersectionPoint(Plane2 plane_1, Plane2 plane_2)
         {
             MyVector2 lineDir = MyVector2.Normalize(new MyVector2(plane_2.normal.y, -plane_2.normal.x));
@@ -349,6 +361,7 @@ namespace Habrador_Computational_Geometry
         {
             bool isWithin = false;
 
+            //Test if each vertex is inside the triangle
             if (
                 PointTriangle(t2, t1.p1, false) &&
                 PointTriangle(t2, t1.p2, false) &&
@@ -365,14 +378,16 @@ namespace Habrador_Computational_Geometry
         //
         // Are two Axis-aligned-bounding-box (boxes are here rectangles) intersecting?
         //
-        //r1_minX - the smallest x-coordinate of all corners belonging to rectangle 1
-        public static bool AABB_AABB_2D(AABB2 r1, AABB2 r2)
+        
+        //2d
+        public static bool AABB_AABB(AABB2 r1, AABB2 r2)
         {
             //If the min of one box in one dimension is greater than the max of another box then the boxes are not intersecting
             //They have to intersect in 2 dimensions. We have to test if box 1 is to the left or box 2 and vice versa
             bool isIntersecting = true;
 
             //X axis
+            ///r1_minX - the smallest x-coordinate of all corners belonging to rectangle 1
             if (r1.minX > r2.maxX)
             {
                 isIntersecting = false;
@@ -496,9 +511,11 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Are two triangles intersecting in 2d space
+        // Are two triangles intersecting?
         //
-        public static bool TriangleTriangle2D(Triangle2 t1, Triangle2 t2, bool do_AABB_test)
+
+        //2d
+        public static bool TriangleTriangle(Triangle2 t1, Triangle2 t2, bool do_AABB_test)
         {
             bool isIntersecting = false;
 
@@ -511,7 +528,7 @@ namespace Habrador_Computational_Geometry
                 //Rectangle that covers t2
                 AABB2 r2 = new AABB2(t2.MinX(), t2.MaxX(), t2.MinY(), t2.MaxY());
 
-                if (!AABB_AABB_2D(r1, r2))
+                if (!AABB_AABB(r1, r2))
                 {
                     return false;
                 }

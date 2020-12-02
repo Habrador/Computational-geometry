@@ -35,26 +35,17 @@ public class CutMeshWithPlaneController : MonoBehaviour
 
         Plane3 cutPlane = new Plane3(cutPlaneTrans.position.ToMyVector3(), cutPlaneTrans.up.ToMyVector3());
         
-        foreach (Transform child in transformsToCut)
+        foreach (Transform childTransToCut in transformsToCut)
         {
             //Only cut active gameobjects
-            if (!child.gameObject.activeInHierarchy)
+            if (!childTransToCut.gameObject.activeInHierarchy)
             {
                 continue;
             }
         
-
-            Mesh meshToCut = child.GetComponent<MeshFilter>().mesh;
-        
-            if (meshToCut == null)
-            {
-                Debug.Log("There's no mesh to cut");
-
-                continue;
-            }
 
             //Should return null (if we couldn't cut the mesh because the mesh didn't intersect with the plane)
-            List<Mesh> cutMeshes = CutMeshWithPlane.CutMesh(meshToCut, child, cutPlane);
+            List<Mesh> cutMeshes = CutMeshWithPlane.CutMesh(childTransToCut, cutPlane);
 
             if (cutMeshes == null)
             {
@@ -69,10 +60,10 @@ public class CutMeshWithPlaneController : MonoBehaviour
             //Create new game objects with the new meshes
             foreach (Mesh newMesh in cutMeshes)
             {
-                GameObject newObj = Instantiate(child.gameObject);
+                GameObject newObj = Instantiate(childTransToCut.gameObject);
 
-                newObj.transform.position = child.position;
-                newObj.transform.rotation = child.rotation;
+                newObj.transform.position = childTransToCut.position;
+                newObj.transform.rotation = childTransToCut.rotation;
 
                 newObj.transform.parent = meshesToCutParentTrans;
 
@@ -81,7 +72,7 @@ public class CutMeshWithPlaneController : MonoBehaviour
 
 
             //Hide the original one
-            child.gameObject.SetActive(false);
+            childTransToCut.gameObject.SetActive(false);
         }
     }
 

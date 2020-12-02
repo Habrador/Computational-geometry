@@ -201,7 +201,7 @@ public class IntersectionController : MonoBehaviour
         AABB2 r1 = new AABB2(new List<MyVector2>() { t1_p1, t1_p2, t1_p3 });
         AABB2 r2 = new AABB2(new List<MyVector2>() { t2_p1, t2_p2, t2_p3 });
 
-        bool isIntersecting = _Intersections.AABB_AABB_2D(r1, r2);
+        bool isIntersecting = _Intersections.AABB_AABB(r1, r2);
 
         Debug.Log("AABB intersecting: " + isIntersecting);
 
@@ -438,7 +438,7 @@ public class IntersectionController : MonoBehaviour
             t2_p2_trans.transform.position.ToMyVector2(), 
             t2_p3_trans.transform.position.ToMyVector2());
 
-        bool isIntersecting = _Intersections.TriangleTriangle2D(t1, t2, do_AABB_test: false);
+        bool isIntersecting = _Intersections.TriangleTriangle(t1, t2, do_AABB_test: false);
 
 
 
