@@ -141,9 +141,7 @@ namespace Habrador_Computational_Geometry
 
 
             //Fill the holes in the mesh
-            //There might be multiple holes depending on the shape of the original mesh
-            List<MyVector3> fillPolygon = new List<MyVector3>();
-
+            FillHoles(newEdges, F_Mesh, B_Mesh);
 
 
 
@@ -155,6 +153,84 @@ namespace Habrador_Computational_Geometry
             };
 
             return cuttedMeshes;
+        }
+
+
+
+        //Fill the holes in the mesh
+        //There might be multiple holes depending on the shape of the original mesh
+        private static void FillHoles(HashSet<Edge3> newEdges, MyMesh F_mesh, MyMesh B_mesh, Plane3 cutPlane)
+        {
+            //Add the first edge
+            Edge3 startEdge = newEdges.FakePop();
+
+            List<Edge3> fillPolygon = new List<Edge3>()
+            {
+                startEdge
+            };
+
+            //Loop through all other new edges until the polygon is back where it started
+            int safety = 0;
+
+            while (newEdges.Count > 0)
+            {
+                MyVector3 lastVertexInPolygon = fillPolygon[fillPolygon.Count - 1].p2;
+            
+                foreach (Edge3 e in newEdges)
+                {
+                    //This edge starts at the last vertex 
+                    if (e.p1.Equals(lastVertexInPolygon))
+                    {
+                        fillPolygon.Add(e);
+
+                        newEdges.Remove(e);
+
+                        break;
+                    }
+                }
+            
+            
+                safety += 1;
+
+                if (safety > 50000)
+                {
+                    Debug.Log("Stuck in infinite loop");
+
+                    break;
+                }
+            }
+
+            /*
+            float size = 0.01f;
+            foreach (MyVector3 v in fillPolygon)
+            {
+                MyVector3 dir = MyVector3.Normalize(v - new MyVector3(0f, 0f, 0f));
+            
+                Debug.DrawLine(Vector3.zero, v.ToVector3() + dir.ToVector3() * size, Color.white, 20f);
+
+                size += 0.01f;
+            }
+            */
+
+            //Build the triangles, which are the same for both sides, except their normal
+            MyMesh F_holeMesh = new MyMesh();
+            MyMesh B_holeMesh = new MyMesh();
+
+            foreach (Edge3 e in fillPolygon)
+            {
+                MyVector3 p1 = e.p1;
+                MyVector3 p2 = e.p2;
+                MyVector3 p3 = new MyVector3(0f, 0f, 0f); //Temp solution
+
+                AddTriangleToMesh(p2, p1, p3, F_holeMesh);
+
+                AddTriangleToMesh(p1, p2, p3, B_holeMesh);
+            }
+
+
+            //Merge the hole with the cutted mesh
+            F_mesh.MergeMesh(F_holeMesh);
+            B_mesh.MergeMesh(B_holeMesh);
         }
 
 

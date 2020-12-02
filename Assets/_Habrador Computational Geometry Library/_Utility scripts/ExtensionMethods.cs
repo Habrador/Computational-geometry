@@ -6,6 +6,10 @@ namespace Habrador_Computational_Geometry
 {
     public static class ExtensionMethods
     {
+        //
+        // Vectors
+        //
+    
         //3d -> 2d
         public static Vector2 XZ(this Vector3 v)
         {
@@ -19,9 +23,7 @@ namespace Habrador_Computational_Geometry
         }
 
 
-        //
-        // Convert between myvector3, vector3, etc
-        //
+        //Convert between vectors: myvector3 to vector3, etc
 
         //Vector3 - MyVector2
         public static MyVector2 ToMyVector2(this Vector3 v)
@@ -63,6 +65,29 @@ namespace Habrador_Computational_Geometry
         public static MyVector2 ToMyVector2(this MyVector3 v)
         {
             return new MyVector2(v.x, v.z);
+        }
+
+
+
+        //
+        // HashSet
+        //
+
+        //Get first best value from a hashset and remove it
+        public static T FakePop<T>(this HashSet<T> hashSet)
+        {
+            T firstBestT = default;
+        
+            foreach (T thisT in hashSet)
+            {
+                firstBestT = thisT;
+
+                break;
+            }
+
+            hashSet.Remove(firstBestT);
+
+            return firstBestT;
         }
     }
 }

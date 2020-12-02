@@ -35,7 +35,10 @@ namespace Habrador_Computational_Geometry
 
             float e = MathUtility.EPSILON;
 
-            if (xDiff < e && xDiff > -e && yDiff < e && yDiff > -e)
+            //If all of the differences are around 0
+            if (
+                xDiff < e && xDiff > -e && 
+                yDiff < e && yDiff > -e)
             {
                 return true;
             }

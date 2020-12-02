@@ -76,6 +76,21 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //Merge a mesh with this mesh
+        public void MergeMesh(MyMesh otherMesh)
+        {
+            int numberOfVerticesBeforeMerge = vertices.Count;
+        
+            vertices.AddRange(otherMesh.vertices);
+
+            //Triangles are not the same because we now have more vertices
+            List<int> newTriangles = otherMesh.triangles.Select(x => x + numberOfVerticesBeforeMerge).ToList();
+
+            triangles.AddRange(newTriangles);
+        }
+        
+        
+        
         //Convert this mesh to a unity mesh
         public Mesh ConvertToUnityMesh()
         {

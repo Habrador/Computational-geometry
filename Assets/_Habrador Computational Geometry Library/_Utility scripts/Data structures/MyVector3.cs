@@ -80,6 +80,32 @@ namespace Habrador_Computational_Geometry
             return crossProduct;
         }
 
+        //Test if this vector is approximately the same as another vector
+        public bool Equals(MyVector3 other)
+        {
+            //Using Mathf.Approximately() is not accurate enough
+            //Using Mathf.Abs is slow because Abs involves a root
+
+            float xDiff = this.x - other.x;
+            float yDiff = this.y - other.y;
+            float zDiff = this.z - other.z;
+
+            float e = MathUtility.EPSILON;
+
+            //If all of the differences are around 0
+            if (
+                xDiff < e && xDiff > -e && 
+                yDiff < e && yDiff > -e && 
+                zDiff < e && zDiff > -e)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
 
 
         //

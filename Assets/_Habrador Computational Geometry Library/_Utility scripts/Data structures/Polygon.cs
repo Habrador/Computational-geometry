@@ -15,4 +15,17 @@ namespace Habrador_Computational_Geometry
             this.vertices = vertices;
         }
     }
+
+
+    //Polygon in 3d space
+    public struct Polygon3
+    {
+        public List<MyVector3> vertices;
+
+
+        public Polygon3(List<MyVector3> vertices)
+        {
+            this.vertices = vertices;
+        }
+    }
 }
