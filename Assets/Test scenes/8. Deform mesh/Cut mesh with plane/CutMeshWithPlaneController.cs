@@ -37,6 +37,13 @@ public class CutMeshWithPlaneController : MonoBehaviour
         
         foreach (Transform child in transformsToCut)
         {
+            //Only cut active gameobjects
+            if (!child.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+        
+
             Mesh meshToCut = child.GetComponent<MeshFilter>().mesh;
         
             if (meshToCut == null)
@@ -47,7 +54,7 @@ public class CutMeshWithPlaneController : MonoBehaviour
             }
 
             //Should return null (if we couldn't cut the mesh because the mesh didn't intersect with the plane)
-            List<Mesh> cutMeshes = CutMeshWithPlane.CutMesh(meshToCut, cutPlane);
+            List<Mesh> cutMeshes = CutMeshWithPlane.CutMesh(meshToCut, child, cutPlane);
 
             if (cutMeshes == null)
             {
@@ -56,7 +63,7 @@ public class CutMeshWithPlaneController : MonoBehaviour
                 continue;
             }
 
-            Debug.Log(cutMeshes.Count);
+            Debug.Log($"Number of new meshes after cut: {cutMeshes.Count}");
 
 
             //Create new game objects with the new meshes
@@ -71,6 +78,10 @@ public class CutMeshWithPlaneController : MonoBehaviour
 
                 newObj.GetComponent<MeshFilter>().mesh = newMesh;
             }
+
+
+            //Hide the original one
+            child.gameObject.SetActive(false);
         }
     }
 

@@ -86,7 +86,40 @@ namespace Habrador_Computational_Geometry
         //
         // Line, plane, ray intersection with plane
         //
+
+        //This is a useful method to find the intersection coordinate if we know we are intersecting
+        //Is used for ray-plane, line-plane, plane-plane
+        //2d
+        private static MyVector2 GetIntersectionCoordinate(Plane2 plane, Ray2 ray)
+        {
+            float denominator = MyVector2.Dot(-plane.normal, ray.dir);
+
+            MyVector2 vecBetween = plane.pos - ray.origin;
+
+            float t = MyVector2.Dot(vecBetween, -plane.normal) / denominator;
+
+            MyVector2 intersectionPoint = ray.origin + ray.dir * t;
+
+            return intersectionPoint;
+        }
         
+        //3d
+        private static MyVector3 GetIntersectionCoordinate(Plane3 plane, Ray3 ray)
+        {
+            float denominator = MyVector3.Dot(-plane.normal, ray.dir);
+
+            MyVector3 vecBetween = plane.pos - ray.origin;
+
+            float t = MyVector3.Dot(vecBetween, -plane.normal) / denominator;
+
+            MyVector3 intersectionPoint = ray.origin + ray.dir * t;
+
+            return intersectionPoint;
+        }
+
+
+
+
         //Ray-plane intersection
         //http://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
         public static bool RayPlane(Plane2 plane, Ray2 ray)
@@ -131,22 +164,6 @@ namespace Habrador_Computational_Geometry
         }
 
 
-        //This is a useful method to find the intersection coordinate if we know we are intersecting
-        //Is used for ray-plane, line-plane, plane-plane
-        private static MyVector2 GetIntersectionCoordinate(Plane2 plane, Ray2 ray)
-        {
-            float denominator = MyVector2.Dot(-plane.normal, ray.dir);
-
-            MyVector2 vecBetween = plane.pos - ray.origin;
-
-            float t = MyVector2.Dot(vecBetween, -plane.normal) / denominator;
-
-            MyVector2 intersectionPoint = ray.origin + ray.dir * t;
-
-            return intersectionPoint;
-        }
-
-
 
         //Line-plane intersection
         public static bool LinePlane(Plane2 plane, Edge2 line)
@@ -183,6 +200,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //We know a line plane is intersecting and now we want the coordinate of intersection
+        //2d
         public static MyVector2 GetLinePlaneIntersectionPoint(Plane2 plane, Edge2 line)
         {
             MyVector2 lineDir = MyVector2.Normalize(line.p1 - line.p2);
@@ -190,6 +208,18 @@ namespace Habrador_Computational_Geometry
             Ray2 ray = new Ray2(line.p1, lineDir);
 
             MyVector2 intersectionPoint = GetIntersectionCoordinate(plane, ray);
+
+            return intersectionPoint;
+        }
+
+        //3d
+        public static MyVector3 GetLinePlaneIntersectionPoint(Plane3 plane, Edge3 line)
+        {
+            MyVector3 lineDir = MyVector3.Normalize(line.p1 - line.p2);
+
+            Ray3 ray = new Ray3(line.p1, lineDir);
+
+            MyVector3 intersectionPoint = GetIntersectionCoordinate(plane, ray);
 
             return intersectionPoint;
         }

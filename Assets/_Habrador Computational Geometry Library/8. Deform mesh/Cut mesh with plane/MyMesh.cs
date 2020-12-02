@@ -22,22 +22,26 @@ namespace Habrador_Computational_Geometry
 
 
         //Add a vertex to the mesh and return its position in the array
-        //This assumes we want a smooth mesh where triangles are sharing vertices
-        public int AddVertexAndReturnIndex(MyVector3 v)
+        //If we want hard edges, set shareVertices to false
+        //Otherwise we will get a smooth surface
+        public int AddVertexAndReturnIndex(MyVector3 v, bool shareVertices)
         {
             int vertexPosInList = -1;
-        
-            for (int i = 0; i < vertices.Count; i++)
-            {
-                if (vertices[i].Equals(v))
-                {
-                    vertexPosInList = i;
 
-                    return vertexPosInList;      
+            if (shareVertices)
+            {
+                for (int i = 0; i < vertices.Count; i++)
+                {
+                    if (vertices[i].Equals(v))
+                    {
+                        vertexPosInList = i;
+
+                        return vertexPosInList;
+                    }
                 }
             }
 
-            //If we got here it means the vertex is not in the list, so add it
+            //If we got here it means the vertex is not in the list, so add it as the last vertex
             vertices.Add(v);
 
             vertexPosInList = vertices.Count - 1;
@@ -79,13 +83,16 @@ namespace Habrador_Computational_Geometry
 
             //Convert from MyVector3 to Vector3
             Vector3[] vertices_Unity = vertices.Select(x => x.ToVector3()).ToArray();
-            Vector3[] normals_Unity = normals.Select(x => x.ToVector3()).ToArray();
+            //Vector3[] normals_Unity = normals.Select(x => x.ToVector3()).ToArray();
 
             mesh.vertices = vertices_Unity;
 
             mesh.SetTriangles(triangles, 0);
 
-            mesh.normals = normals_Unity;
+            //mesh.normals = normals_Unity;
+
+            //Calculate normals, which is slow so should add normals by using interpolation when cutting triangles?
+            mesh.RecalculateNormals();
 
             return mesh;
         }
