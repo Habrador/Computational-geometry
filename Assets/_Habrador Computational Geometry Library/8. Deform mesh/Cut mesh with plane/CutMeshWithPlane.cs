@@ -52,6 +52,7 @@ namespace Habrador_Computational_Geometry
 
             for (int i = 0; i < triangles.Length; i += 3)
             {
+                //Get the triangle data we need
                 int triangleIndex1 = triangles[i + 0];
                 int triangleIndex2 = triangles[i + 1];
                 int triangleIndex3 = triangles[i + 2];
@@ -64,15 +65,20 @@ namespace Habrador_Computational_Geometry
                 MyVector3 p2 = p2_unity.ToMyVector3();
                 MyVector3 p3 = p3_unity.ToMyVector3();
 
-                //MyVector3 n1 = normals[triangleIndex1].ToMyVector3();
-                //MyVector3 n2 = normals[triangleIndex2].ToMyVector3();
-                //MyVector3 n3 = normals[triangleIndex3].ToMyVector3();
+                MyVector3 n1 = normals[triangleIndex1].ToMyVector3();
+                MyVector3 n2 = normals[triangleIndex2].ToMyVector3();
+                MyVector3 n3 = normals[triangleIndex3].ToMyVector3();
+
+                MyMeshVertex v1 = new MyMeshVertex(p1, n1);
+                MyMeshVertex v2 = new MyMeshVertex(p2, n2);
+                MyMeshVertex v3 = new MyMeshVertex(p3, n3);
+
 
                 //First check on which side of the plane these vertices are
                 //If they are all on one side we dont have to cut the triangle
-                bool is_p1_front = _Geometry.IsPointFrontOfPlane(cutPlane, p1);
-                bool is_p2_front = _Geometry.IsPointFrontOfPlane(cutPlane, p2);
-                bool is_p3_front = _Geometry.IsPointFrontOfPlane(cutPlane, p3);
+                bool is_p1_front = _Geometry.IsPointFrontOfPlane(cutPlane, v1.pos);
+                bool is_p2_front = _Geometry.IsPointFrontOfPlane(cutPlane, v2.pos);
+                bool is_p3_front = _Geometry.IsPointFrontOfPlane(cutPlane, v3.pos);
 
 
                 //Build triangles belonging to respective mesh
@@ -80,12 +86,12 @@ namespace Habrador_Computational_Geometry
                 //All are in front of the plane
                 if (is_p1_front && is_p2_front && is_p3_front)
                 {
-                    AddTriangleToMesh(p1, p2, p3, F_Mesh);
+                    AddTriangleToMesh(v1, v2, v3, F_Mesh);
                 }
                 //All are in back of the plane
                 else if (!is_p1_front && !is_p2_front && !is_p3_front)
                 {
-                    AddTriangleToMesh(p1, p2, p3, B_Mesh);
+                    AddTriangleToMesh(v1, v2, v3, B_Mesh);
                 }
                 //The vertices are on different sides of the plane, so we need to cut the triangle into 3 new triangles
                 else
@@ -95,34 +101,34 @@ namespace Habrador_Computational_Geometry
                     //p1 is front
                     if (is_p1_front && !is_p2_front && !is_p3_front)
                     {
-                        CutTriangleOneInFront(p1, p2, p3, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleOneInFront(v1, v2, v3, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
                     //p1 is back
                     else if (!is_p1_front && is_p2_front && is_p3_front)
                     {
-                        CutTriangleTwoInFront(p2, p3, p1, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleTwoInFront(v2, v3, v1, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
 
                     //p2 is front
                     else if (!is_p1_front && is_p2_front && !is_p3_front)
                     {
-                        CutTriangleOneInFront(p2, p3, p1, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleOneInFront(v2, v3, v1, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
                     //p2 is back
                     else if (is_p1_front && !is_p2_front && is_p3_front)
                     {
-                        CutTriangleTwoInFront(p3, p1, p2, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleTwoInFront(v3, v1, v2, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
 
                     //p3 is front
                     else if (!is_p1_front && !is_p2_front && is_p3_front)
                     {
-                        CutTriangleOneInFront(p3, p1, p2, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleOneInFront(v3, v1, v2, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
                     //p3 is back
                     else if (is_p1_front && is_p2_front && !is_p3_front)
                     {
-                        CutTriangleTwoInFront(p1, p2, p3, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleTwoInFront(v1, v2, v3, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
                     else
                     {
@@ -141,15 +147,15 @@ namespace Habrador_Computational_Geometry
 
 
             //Fill the holes in the mesh
-            FillHoles(newEdges, F_Mesh, B_Mesh);
+            FillHoles(newEdges, F_Mesh, B_Mesh, cutPlane);
 
 
 
             //Generate Unity standardized unity meshes
-            List<Mesh> cuttedMeshes = new List<Mesh>() 
+            List<Mesh> cuttedMeshes = new List<Mesh>()
             {
-                    F_Mesh.ConvertToUnityMesh(),
-                    B_Mesh.ConvertToUnityMesh()
+                    F_Mesh.ConvertToUnityMesh("F mesh", generateNormals: true),
+                    B_Mesh.ConvertToUnityMesh("B mesh", generateNormals: true)
             };
 
             return cuttedMeshes;
@@ -222,9 +228,20 @@ namespace Habrador_Computational_Geometry
                 MyVector3 p2 = e.p2;
                 MyVector3 p3 = new MyVector3(0f, 0f, 0f); //Temp solution
 
-                AddTriangleToMesh(p2, p1, p3, F_holeMesh);
+                MyVector3 F_normal = -cutPlane.normal;
+                MyVector3 B_normal = cutPlane.normal;
 
-                AddTriangleToMesh(p1, p2, p3, B_holeMesh);
+                MyMeshVertex F_v1 = new MyMeshVertex(p1, F_normal);
+                MyMeshVertex F_v2 = new MyMeshVertex(p2, F_normal);
+                MyMeshVertex F_v3 = new MyMeshVertex(p3, F_normal);
+
+                MyMeshVertex B_v1 = new MyMeshVertex(p1, B_normal);
+                MyMeshVertex B_v2 = new MyMeshVertex(p2, B_normal);
+                MyMeshVertex B_v3 = new MyMeshVertex(p3, B_normal);
+
+                AddTriangleToMesh(F_v2, F_v1, F_v3, F_holeMesh);
+
+                AddTriangleToMesh(F_v1, F_v2, F_v3, B_holeMesh);
             }
 
 
@@ -237,16 +254,26 @@ namespace Habrador_Computational_Geometry
 
         //Cut a triangle where one vertex is in front and the other vertices are back
         //Make sure they are sorted clockwise: F1-B1-B2
-        private static void CutTriangleOneInFront(MyVector3 F1, MyVector3 B1, MyVector3 B2, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
+        private static void CutTriangleOneInFront(MyMeshVertex F1, MyMeshVertex B1, MyMeshVertex B2, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges:
-            Edge3 e_F1B1 = new Edge3(F1, B1);
+            Edge3 e_F1B1 = new Edge3(F1.pos, B1.pos);
             //Edge3 e_B1B2 = new Edge3(B1, B2); //Not needed because never intersects with the plane
-            Edge3 e_B2F1 = new Edge3(B2, F1);
+            Edge3 e_B2F1 = new Edge3(B2.pos, F1.pos);
 
-            MyVector3 v_F1B1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_F1B1);
-            MyVector3 v_B2F1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_B2F1);
+            //The positions of the intersection vertices
+            MyVector3 pos_F1B1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_F1B1);
+            MyVector3 pos_B2F1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_B2F1);
+
+            //The normals of the intersection vertices (TODO CHANGE THESE
+            MyVector3 normal_F1B1 = F1.normal;
+            MyVector3 normal_B2F1 = F1.normal;
+
+            //The intersection vertices
+            MyMeshVertex v_F1B1 = new MyMeshVertex(pos_F1B1, normal_F1B1);
+            MyMeshVertex v_B2F1 = new MyMeshVertex(pos_B2F1, normal_B2F1);
+
 
             //Form 3 new triangles
             //F
@@ -255,8 +282,8 @@ namespace Habrador_Computational_Geometry
             AddTriangleToMesh(v_F1B1, B1, B2, B_Mesh);
             AddTriangleToMesh(v_F1B1, B2, v_B2F1, B_Mesh);
 
-            //Add the new edge
-            Edge3 newEdge = new Edge3(v_F1B1, v_B2F1);
+            //Add the new edge so we can later fill the hole
+            Edge3 newEdge = new Edge3(v_F1B1.pos, v_B2F1.pos);
 
             newEdges.Add(newEdge);
         }
@@ -265,16 +292,26 @@ namespace Habrador_Computational_Geometry
 
         //Cut a triangle where two vertices are in front and the other vertex is back
         //Make sure they are sorted clockwise: F1-F2-B1
-        private static void CutTriangleTwoInFront(MyVector3 F1, MyVector3 F2, MyVector3 B1, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
+        private static void CutTriangleTwoInFront(MyMeshVertex F1, MyMeshVertex F2, MyMeshVertex B1, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges:
-            Edge3 e_F2B1 = new Edge3(F2, B1);
+            Edge3 e_F2B1 = new Edge3(F2.pos, B1.pos);
             //Edge3 e_F1F2 = new Edge3(F1, F2); //Not needed because never intersects with the plane
-            Edge3 e_B1F1 = new Edge3(B1, F1);
+            Edge3 e_B1F1 = new Edge3(B1.pos, F1.pos);
 
-            MyVector3 v_F2B1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_F2B1);
-            MyVector3 v_B1F1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_B1F1);
+            //The positions of the intersection vertices
+            MyVector3 pos_F2B1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_F2B1);
+            MyVector3 pos_B1F1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_B1F1);
+
+            //The normals of the intersection vertices (TODO CHANGE THESE
+            MyVector3 normal_F2B1 = F2.normal;
+            MyVector3 normal_B1F1 = F1.normal;
+
+            //The intersection vertices
+            MyMeshVertex v_F2B1 = new MyMeshVertex(pos_F2B1, normal_F2B1);
+            MyMeshVertex v_B1F1 = new MyMeshVertex(pos_B1F1, normal_B1F1);
+
 
             //Form 3 new triangles
             //F
@@ -283,8 +320,8 @@ namespace Habrador_Computational_Geometry
             //B
             AddTriangleToMesh(v_F2B1, B1, v_B1F1, B_Mesh);
 
-            //Add the new edge
-            Edge3 newEdge = new Edge3(v_F2B1, v_B1F1);
+            //Add the new edge so we can later fill the hole
+            Edge3 newEdge = new Edge3(v_F2B1.pos, v_B1F1.pos);
 
             newEdges.Add(newEdge);
         }
@@ -292,20 +329,15 @@ namespace Habrador_Computational_Geometry
 
 
         //Help method to build a triangle and add it to a mesh
-        private static void AddTriangleToMesh(MyVector3 p1, MyVector3 p2, MyVector3 p3, MyMesh mesh)
+        private static void AddTriangleToMesh(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, MyMesh mesh)
         {
             //Add vertices
-            int index_1 = mesh.AddVertexAndReturnIndex(p1, shareVertices: true);
-            int index_2 = mesh.AddVertexAndReturnIndex(p2, shareVertices: true);
-            int index_3 = mesh.AddVertexAndReturnIndex(p3, shareVertices: true);
+            int index_1 = mesh.AddVertexAndReturnIndex(v1, shareVertices: true);
+            int index_2 = mesh.AddVertexAndReturnIndex(v2, shareVertices: true);
+            int index_3 = mesh.AddVertexAndReturnIndex(v3, shareVertices: true);
 
             //Build the triangles
             mesh.AddTrianglePositions(index_1, index_2, index_3);
-
-            //Add normals
-            //F_Mesh.AddNormal(n1, index_1);
-            //F_Mesh.AddNormal(n2, index_2);
-            //F_Mesh.AddNormal(n3, index_3);
         }
     }
 }

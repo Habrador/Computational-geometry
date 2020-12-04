@@ -7,16 +7,14 @@ namespace Habrador_Computational_Geometry
 {
     public class MyMesh
     {
-        public List<MyVector3> vertices;
+        public List<MyMeshVertex> vertices;
         public List<int> triangles;
-        public List<MyVector3> normals;
 
 
         public MyMesh()
         {
-            vertices = new List<MyVector3>();
+            vertices = new List<MyMeshVertex>();
             triangles = new List<int>();
-            normals = new List<MyVector3>();
         }
 
 
@@ -24,7 +22,7 @@ namespace Habrador_Computational_Geometry
         //Add a vertex to the mesh and return its position in the array
         //If we want hard edges, set shareVertices to false
         //Otherwise we will get a smooth surface
-        public int AddVertexAndReturnIndex(MyVector3 v, bool shareVertices)
+        public int AddVertexAndReturnIndex(MyMeshVertex v, bool shareVertices)
         {
             int vertexPosInList = -1;
 
@@ -32,7 +30,8 @@ namespace Habrador_Computational_Geometry
             {
                 for (int i = 0; i < vertices.Count; i++)
                 {
-                    if (vertices[i].Equals(v))
+                    //Here we have to compare both position and normal or we can't get hard edges
+                    if (vertices[i].pos.Equals(v.pos) && vertices[i].normal.Equals(v.normal))
                     {
                         vertexPosInList = i;
 
@@ -53,16 +52,16 @@ namespace Habrador_Computational_Geometry
 
         //Add a normal at a certain index
         //Run this after adding a vertex
-        public void AddNormal(MyVector3 normal, int index)
-        {
-            //If the index is larger than how many values in list, add at last pos
-            //So if index is 1 we want to add the normal to the second pos in the list
-            //Otherwise the normal should already exist
-            if (normals.Count <= index)
-            {
-                normals.Add(normal);
-            }
-        }
+        //public void AddNormal(MyVector3 normal, int index)
+        //{
+        //    //If the index is larger than how many values in list, add at last pos
+        //    //So if index is 1 we want to add the normal to the second pos in the list
+        //    //Otherwise the normal should already exist
+        //    if (normals.Count <= index)
+        //    {
+        //        normals.Add(normal);
+        //    }
+        //}
 
 
 
@@ -92,22 +91,31 @@ namespace Habrador_Computational_Geometry
         
         
         //Convert this mesh to a unity mesh
-        public Mesh ConvertToUnityMesh()
+        public Mesh ConvertToUnityMesh(string name, bool generateNormals)
         {
             Mesh mesh = new Mesh();
 
-            //Convert from MyVector3 to Vector3
-            Vector3[] vertices_Unity = vertices.Select(x => x.ToVector3()).ToArray();
-            //Vector3[] normals_Unity = normals.Select(x => x.ToVector3()).ToArray();
-
+            //MyVector3 to Vector3
+            Vector3[] vertices_Unity = vertices.Select(x => x.pos.ToVector3()).ToArray();
+          
             mesh.vertices = vertices_Unity;
 
             mesh.SetTriangles(triangles, 0);
 
-            //mesh.normals = normals_Unity;
+            //Generate normals, which is slow so should add normals by using interpolation when cutting triangles?
+            if (generateNormals)
+            {
+                mesh.RecalculateNormals();
+            }
+            else
+            {
+                //MyVector3 to Vector3
+                Vector3[] normals_Unity = vertices.Select(x => x.normal.ToVector3()).ToArray();
 
-            //Calculate normals, which is slow so should add normals by using interpolation when cutting triangles?
-            mesh.RecalculateNormals();
+                mesh.normals = normals_Unity;
+            }
+
+            mesh.name = name;
 
             return mesh;
         }
