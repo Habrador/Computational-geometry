@@ -9,26 +9,26 @@ public class DisplayBoundingBox : MonoBehaviour
 
     void OnDrawGizmosSelected()
 	{
-        //MeshFilter meshFilter = GetComponent<MeshFilter>();
+        MeshFilter meshFilter = GetComponent<MeshFilter>();
 
-        //if (meshFilter == null)
-        //{
-        //    Debug.Log("You need a mesh filter");
+        if (meshFilter == null)
+        {
+            Debug.Log("You need a mesh filter");
 
-        //    return;
-        //}
+            return;
+        }
 
-        //Mesh mesh = meshFilter.sharedMesh;
+        Mesh mesh = meshFilter.sharedMesh;
 
-        //if (mesh == null)
-        //{
-        //    Debug.Log("You need a mesh");
+        if (mesh == null)
+        {
+            Debug.Log("You need a mesh");
 
-        //    return;
-        //}
+            return;
+        }
 
-        //Bounds are AABB in local space
-        //Bounds bounds = mesh.bounds;
+        DisplayMeshBoundingBox(mesh);
+
 
         //Renderer.bounds are in world space
         MeshRenderer mr = GetComponent<MeshRenderer>();
@@ -40,12 +40,12 @@ public class DisplayBoundingBox : MonoBehaviour
             return;
         }
 
-        DisplayMeshBoundingBox(mr);
+        DisplayMeshAABB(mr);
     }
 
 
-
-    private void DisplayMeshBoundingBox(MeshRenderer mr)
+    //Renderer.bounds are AABB in world space
+    private void DisplayMeshAABB(MeshRenderer mr)
     {
         Bounds bounds = mr.bounds;
 
@@ -76,5 +76,40 @@ public class DisplayBoundingBox : MonoBehaviour
         {
             Gizmos.DrawLine(e.p1.ToVector3(), e.p2.ToVector3());
         }
+    }
+
+
+
+    //Mesh.Bounds are AABB in local space
+    //Is taking rotation into account
+    private void DisplayMeshBoundingBox(Mesh mesh)
+    {
+        Bounds bounds = mesh.bounds;
+
+        Vector3 halfSize = bounds.extents;
+
+        Vector3 top = bounds.center + Vector3.up * halfSize.y;
+        Vector3 bottom = bounds.center - Vector3.up * halfSize.y;
+
+
+        Vector3 topFR = top + Vector3.forward * halfSize.z + Vector3.right * halfSize.x;
+        Vector3 topFL = top + Vector3.forward * halfSize.z + Vector3.left * halfSize.x;
+        Vector3 topBR = top - Vector3.forward * halfSize.z + Vector3.right * halfSize.x;
+        Vector3 topBL = top - Vector3.forward * halfSize.z + Vector3.left * halfSize.x;
+
+        Vector3 bottomFR = bottom + Vector3.forward * halfSize.z + Vector3.right * halfSize.x;
+        Vector3 bottomFL = bottom + Vector3.forward * halfSize.z + Vector3.left * halfSize.x;
+        Vector3 bottomBR = bottom - Vector3.forward * halfSize.z + Vector3.right * halfSize.x;
+        Vector3 bottomBL = bottom - Vector3.forward * halfSize.z + Vector3.left * halfSize.x;
+
+        //World space
+        topFR = transform.TransformPoint(topFR);
+
+        bottomFR = transform.TransformPoint(bottomFR);
+
+        Gizmos.color = Color.black;
+
+        Gizmos.DrawWireSphere(topFR, 0.1f);
+        Gizmos.DrawWireSphere(bottomFR, 0.1f);
     }
 }

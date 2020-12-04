@@ -206,11 +206,11 @@ public class IntersectionController : MonoBehaviour
         Debug.Log("AABB intersecting: " + isIntersecting);
 
         //Display the rectangles and the vertices we use to make the rectangles
-        Vector3 r1_size = new Vector3(r1.maxX - r1.minX, 0.01f, r1.maxY - r1.minY);
-        Vector3 r2_size = new Vector3(r2.maxX - r2.minX, 0.01f, r2.maxY - r2.minY);
+        Vector3 r1_size = new Vector3(r1.max.x - r1.min.x, 0.01f, r1.max.y - r1.min.y);
+        Vector3 r2_size = new Vector3(r2.max.x - r2.min.x, 0.01f, r2.max.y - r2.min.y);
 
-        Vector3 r1_center = new Vector3(r1.minX + (r1_size.x * 0.5f), 0f, r1.minY + (r1_size.z * 0.5f));
-        Vector3 r2_center = new Vector3(r2.minX + (r2_size.x * 0.5f), 0f, r2.minY + (r2_size.z * 0.5f));
+        Vector3 r1_center = new Vector3(r1.min.x + (r1_size.x * 0.5f), 0f, r1.min.y + (r1_size.z * 0.5f));
+        Vector3 r2_center = new Vector3(r2.min.x + (r2_size.x * 0.5f), 0f, r2.min.y + (r2_size.z * 0.5f));
 
         Gizmos.color = Color.white;
 

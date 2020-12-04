@@ -120,6 +120,8 @@ namespace Habrador_Computational_Geometry
 
             mesh.name = name;
 
+            mesh.RecalculateBounds();
+
             return mesh;
         }
     }

@@ -44,7 +44,7 @@ namespace Habrador_Computational_Geometry
         //boundingBox is the rectangle that covers all original points before normalization
         public static float CalculateDMax(AABB2 boundingBox)
         {
-            float dMax = Mathf.Max(boundingBox.maxX - boundingBox.minX, boundingBox.maxY - boundingBox.minY);
+            float dMax = Mathf.Max(boundingBox.max.x - boundingBox.min.x, boundingBox.max.y - boundingBox.min.y);
 
             return dMax;
         }
@@ -55,8 +55,8 @@ namespace Habrador_Computational_Geometry
         //MyVector2
         public static MyVector2 Normalize(MyVector2 point, AABB2 boundingBox, float dMax)
         {
-            float x = (point.x - boundingBox.minX) / dMax;
-            float y = (point.y - boundingBox.minY) / dMax;
+            float x = (point.x - boundingBox.min.x) / dMax;
+            float y = (point.y - boundingBox.min.y) / dMax;
 
             MyVector2 pNormalized = new MyVector2(x, y);
 
@@ -95,8 +95,8 @@ namespace Habrador_Computational_Geometry
         //MyVector2
         public static MyVector2 UnNormalize(MyVector2 point, AABB2 boundingBox, float dMax)
         {
-            float x = (point.x * dMax) + boundingBox.minX;
-            float y = (point.y * dMax) + boundingBox.minY;
+            float x = (point.x * dMax) + boundingBox.min.x;
+            float y = (point.y * dMax) + boundingBox.min.y;
 
             MyVector2 pUnNormalized = new MyVector2(x, y);
 

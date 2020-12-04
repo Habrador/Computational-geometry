@@ -388,20 +388,20 @@ namespace Habrador_Computational_Geometry
 
             //X axis
             ///r1_minX - the smallest x-coordinate of all corners belonging to rectangle 1
-            if (r1.minX > r2.maxX)
+            if (r1.min.x > r2.max.x)
             {
                 isIntersecting = false;
             }
-            else if (r2.minX > r1.maxX)
+            else if (r2.min.x > r1.max.x)
             {
                 isIntersecting = false;
             }
             //Y axis
-            else if (r1.minY > r2.maxY)
+            else if (r1.min.y > r2.max.y)
             {
                 isIntersecting = false;
             }
-            else if (r2.minY > r1.maxY)
+            else if (r2.min.y > r1.max.y)
             {
                 isIntersecting = false;
             }

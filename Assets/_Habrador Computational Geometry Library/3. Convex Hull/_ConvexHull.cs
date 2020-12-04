@@ -62,7 +62,7 @@ namespace Habrador_Computational_Geometry
             //If the spread is close to 0, then they are all at the same position, and we cant create a hull
             AABB2 box = new AABB2(points);
 
-            if (Mathf.Abs(box.maxX - box.minX) < MathUtility.EPSILON || Mathf.Abs(box.maxY - box.minY) < MathUtility.EPSILON)
+            if (Mathf.Abs(box.max.x - box.min.x) < MathUtility.EPSILON || Mathf.Abs(box.max.y - box.min.y) < MathUtility.EPSILON)
             {
                 Debug.Log("The points cant form a convex hull");
 

@@ -479,9 +479,9 @@ namespace Habrador_Computational_Geometry
             //Step 1. Create a AABB around the points
             AABB2 aabb = new AABB2(new List<MyVector2>(points));
 
-            MyVector2 TL = new MyVector2(aabb.minX, aabb.maxY);
-            MyVector2 TR = new MyVector2(aabb.maxX, aabb.maxY);
-            MyVector2 BR = new MyVector2(aabb.maxX, aabb.minY);
+            MyVector2 TL = new MyVector2(aabb.min.x, aabb.max.y);
+            MyVector2 TR = new MyVector2(aabb.max.x, aabb.max.y);
+            MyVector2 BR = new MyVector2(aabb.max.x, aabb.min.y);
 
 
             //Step2. Find the inscribed circle - the smallest circle that surrounds the AABB
