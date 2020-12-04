@@ -18,6 +18,16 @@ namespace Habrador_Computational_Geometry
             return interpolatedValue;
         }
 
+        //3d
+        public static MyVector3 Lerp(MyVector3 a, MyVector3 b, float t)
+        {
+            t = Mathf.Clamp01(t);
+
+            //Same as Mathf.Lerp(a, b, t);
+            MyVector3 interpolatedValue = (1f - t) * a + t * b;
+
+            return interpolatedValue;
+        }
 
         //Ease out interpolation - the values get smaller and smaller
         //https://chicounity3d.wordpress.com/2014/05/23/how-to-lerp-like-a-pro/

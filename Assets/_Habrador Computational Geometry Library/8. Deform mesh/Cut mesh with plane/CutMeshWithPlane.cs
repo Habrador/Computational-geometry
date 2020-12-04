@@ -303,9 +303,15 @@ namespace Habrador_Computational_Geometry
             MyVector3 pos_F1B1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_F1B1);
             MyVector3 pos_B2F1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_B2F1);
 
-            //The normals of the intersection vertices (TODO CHANGE THESE TO INTERPOLATION)
-            MyVector3 normal_F1B1 = F1.normal;
-            MyVector3 normal_B2F1 = F1.normal;
+            //The normals of the intersection vertices
+            float percentageBetween_F1B1 = MyVector3.Distance(F1.pos, pos_F1B1) / MyVector3.Distance(F1.pos, B1.pos);
+            float percentageBetween_B2F1 = MyVector3.Distance(B2.pos, pos_B2F1) / MyVector3.Distance(B2.pos, F1.pos);
+
+            MyVector3 normal_F1B1 = _Interpolation.Lerp(F1.normal, B1.normal, percentageBetween_F1B1);
+            MyVector3 normal_B2F1 = _Interpolation.Lerp(B2.normal, F1.normal, percentageBetween_B2F1);
+
+            normal_F1B1 = MyVector3.Normalize(normal_F1B1);
+            normal_B2F1 = MyVector3.Normalize(normal_B2F1);
 
             //The intersection vertices
             MyMeshVertex v_F1B1 = new MyMeshVertex(pos_F1B1, normal_F1B1);
@@ -342,9 +348,15 @@ namespace Habrador_Computational_Geometry
             MyVector3 pos_F2B1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_F2B1);
             MyVector3 pos_B1F1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_B1F1);
 
-            //The normals of the intersection vertices (TODO CHANGE THESE TO INTERPOLATION)
-            MyVector3 normal_F2B1 = F2.normal;
-            MyVector3 normal_B1F1 = F1.normal;
+            //The normals of the intersection vertices
+            float percentageBetween_F2B1 = MyVector3.Distance(F2.pos, pos_F2B1) / MyVector3.Distance(F2.pos, B1.pos);
+            float percentageBetween_B1F1 = MyVector3.Distance(B1.pos, pos_B1F1) / MyVector3.Distance(B1.pos, F1.pos);
+
+            MyVector3 normal_F2B1 = _Interpolation.Lerp(F2.normal, B1.normal, percentageBetween_F2B1);
+            MyVector3 normal_B1F1 = _Interpolation.Lerp(B1.normal, F1.normal, percentageBetween_B1F1);
+
+            normal_F2B1 = MyVector3.Normalize(normal_F2B1);
+            normal_B1F1 = MyVector3.Normalize(normal_B1F1);
 
             //The intersection vertices
             MyMeshVertex v_F2B1 = new MyMeshVertex(pos_F2B1, normal_F2B1);
