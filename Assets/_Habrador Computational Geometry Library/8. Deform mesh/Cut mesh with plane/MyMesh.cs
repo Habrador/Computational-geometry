@@ -30,8 +30,11 @@ namespace Habrador_Computational_Geometry
             {
                 for (int i = 0; i < vertices.Count; i++)
                 {
-                    //Here we have to compare both position and normal or we can't get hard edges
-                    if (vertices[i].pos.Equals(v.pos) && vertices[i].normal.Equals(v.normal))
+                    //Here we have to compare both position and normal or we can't get hard edges in combination with soft edges
+                    MyVector3 thisPos = vertices[i].pos;
+                    MyVector3 thisNormal = vertices[i].normal;
+
+                    if (thisPos.Equals(v.pos) && thisNormal.Equals(v.normal))
                     {
                         vertexPosInList = i;
 

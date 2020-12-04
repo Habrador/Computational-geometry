@@ -28,14 +28,19 @@ namespace Habrador_Computational_Geometry
 
                 return null;
             }
-        
+
+
+            //TODO: Some AABB to see if the mesh is intersecting with the plane
+            //So if all vertices of the AABB is on one side of the plane, then no intersection
+            //Can we use mesh.bounds???
+
 
             //The two meshes we might end up with after the cut
             //One is in front of the plane and another is in back of the plane
             MyMesh F_Mesh = new MyMesh();
             MyMesh B_Mesh = new MyMesh();
 
-            //Loop through all triangles in the original mesh
+            //The data belonging to the original mesh
             Vector3[] vertices = mesh.vertices;
             int[] triangles = mesh.triangles;
             Vector3[] normals = mesh.normals;
@@ -44,12 +49,14 @@ namespace Habrador_Computational_Geometry
             //Need to be edges so we can later connect them with each other to fill the hole
             HashSet<Edge3> newEdges = new HashSet<Edge3>();
 
-            //Transform the plane from global space to local space
+            //Transform the plane from global space to local space of the mesh
             MyVector3 planePosLocal = meshTrans.InverseTransformPoint(cutPlaneGlobal.pos.ToVector3()).ToMyVector3();
             MyVector3 planeNormalLocal = meshTrans.InverseTransformDirection(cutPlaneGlobal.normal.ToVector3()).ToMyVector3();
 
             Plane3 cutPlane = new Plane3(planePosLocal, planeNormalLocal);
 
+
+            //Loop through all triangles in the original mesh
             for (int i = 0; i < triangles.Length; i += 3)
             {
                 //Get the triangle data we need
@@ -57,6 +64,7 @@ namespace Habrador_Computational_Geometry
                 int triangleIndex2 = triangles[i + 1];
                 int triangleIndex3 = triangles[i + 2];
 
+                //Positions
                 Vector3 p1_unity = vertices[triangleIndex1];
                 Vector3 p2_unity = vertices[triangleIndex2];
                 Vector3 p3_unity = vertices[triangleIndex3];
@@ -65,10 +73,12 @@ namespace Habrador_Computational_Geometry
                 MyVector3 p2 = p2_unity.ToMyVector3();
                 MyVector3 p3 = p3_unity.ToMyVector3();
 
+                //Normals
                 MyVector3 n1 = normals[triangleIndex1].ToMyVector3();
                 MyVector3 n2 = normals[triangleIndex2].ToMyVector3();
                 MyVector3 n3 = normals[triangleIndex3].ToMyVector3();
 
+                //Our own data structure
                 MyMeshVertex v1 = new MyMeshVertex(p1, n1);
                 MyMeshVertex v2 = new MyMeshVertex(p2, n2);
                 MyMeshVertex v3 = new MyMeshVertex(p3, n3);
@@ -82,6 +92,9 @@ namespace Habrador_Computational_Geometry
 
 
                 //Build triangles belonging to respective mesh
+                //TODO: A faster way would be to add the data to some temp data structure
+                //and when we know the mesh is intersecting with the plane, then we build the actual mesh
+                //Because generating a mesh requires list searching to avoid duplicates
 
                 //All are in front of the plane
                 if (is_p1_front && is_p2_front && is_p3_front)
@@ -254,10 +267,11 @@ namespace Habrador_Computational_Geometry
 
         //Cut a triangle where one vertex is in front and the other vertices are back
         //Make sure they are sorted clockwise: F1-B1-B2
+        //F means that this vertex is in front of the plane
         private static void CutTriangleOneInFront(MyMeshVertex F1, MyMeshVertex B1, MyMeshVertex B2, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
-            //Triangles in Unity are ordered clockwise, so form edges:
+            //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
             Edge3 e_F1B1 = new Edge3(F1.pos, B1.pos);
             //Edge3 e_B1B2 = new Edge3(B1, B2); //Not needed because never intersects with the plane
             Edge3 e_B2F1 = new Edge3(B2.pos, F1.pos);
@@ -266,7 +280,7 @@ namespace Habrador_Computational_Geometry
             MyVector3 pos_F1B1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_F1B1);
             MyVector3 pos_B2F1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_B2F1);
 
-            //The normals of the intersection vertices (TODO CHANGE THESE
+            //The normals of the intersection vertices (TODO CHANGE THESE TO INTERPOLATION)
             MyVector3 normal_F1B1 = F1.normal;
             MyVector3 normal_B2F1 = F1.normal;
 
@@ -292,10 +306,11 @@ namespace Habrador_Computational_Geometry
 
         //Cut a triangle where two vertices are in front and the other vertex is back
         //Make sure they are sorted clockwise: F1-F2-B1
+        //F means that this vertex is in front of the plane
         private static void CutTriangleTwoInFront(MyMeshVertex F1, MyMeshVertex F2, MyMeshVertex B1, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
-            //Triangles in Unity are ordered clockwise, so form edges:
+            //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
             Edge3 e_F2B1 = new Edge3(F2.pos, B1.pos);
             //Edge3 e_F1F2 = new Edge3(F1, F2); //Not needed because never intersects with the plane
             Edge3 e_B1F1 = new Edge3(B1.pos, F1.pos);
@@ -304,7 +319,7 @@ namespace Habrador_Computational_Geometry
             MyVector3 pos_F2B1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_F2B1);
             MyVector3 pos_B1F1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_B1F1);
 
-            //The normals of the intersection vertices (TODO CHANGE THESE
+            //The normals of the intersection vertices (TODO CHANGE THESE TO INTERPOLATION)
             MyVector3 normal_F2B1 = F2.normal;
             MyVector3 normal_B1F1 = F1.normal;
 
