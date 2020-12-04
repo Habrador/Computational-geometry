@@ -30,10 +30,33 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            //TODO: Some AABB to see if the mesh is intersecting with the plane
-            //So if all vertices of the AABB is on one side of the plane, then no intersection
-            //Can we use mesh.bounds???
 
+            //First check if the AABB of the mesh is intersecting with the plane
+            //Otherwise we can't cut the mesh, so its a waste of time
+
+            //To get the AABB in world space we need to use the mesh renderer
+            MeshRenderer mr = meshTrans.GetComponent<MeshRenderer>();
+
+            if (mr != null)
+            {
+                AABB3 aabb = new AABB3(mr.bounds);
+
+                //The corners of this box 
+                HashSet<MyVector3> corners = aabb.GetCorners();
+
+                if (corners != null && corners.Count > 1)
+                {
+                    //The points are in world space so use the plane in world space
+                    if (ArePointsOnOneSideOfPlane(new List<MyVector3>(corners), cutPlaneGlobal))
+                    {
+                        Debug.Log("This mesh can't be cut because its AABB doesnt intersect with the plane");
+                    
+                        return null;
+                    }
+                }
+            }
+
+            
 
             //The two meshes we might end up with after the cut
             //One is in front of the plane and another is in back of the plane
@@ -86,9 +109,9 @@ namespace Habrador_Computational_Geometry
 
                 //First check on which side of the plane these vertices are
                 //If they are all on one side we dont have to cut the triangle
-                bool is_p1_front = _Geometry.IsPointFrontOfPlane(cutPlane, v1.pos);
-                bool is_p2_front = _Geometry.IsPointFrontOfPlane(cutPlane, v2.pos);
-                bool is_p3_front = _Geometry.IsPointFrontOfPlane(cutPlane, v3.pos);
+                bool is_p1_front = _Geometry.IsPointInFrontOfPlane(cutPlane, v1.pos);
+                bool is_p2_front = _Geometry.IsPointInFrontOfPlane(cutPlane, v2.pos);
+                bool is_p3_front = _Geometry.IsPointInFrontOfPlane(cutPlane, v3.pos);
 
 
                 //Build triangles belonging to respective mesh
@@ -353,6 +376,28 @@ namespace Habrador_Computational_Geometry
 
             //Build the triangles
             mesh.AddTrianglePositions(index_1, index_2, index_3);
+        }
+
+
+
+        //Is a list of points on one side of a plane?
+        public static bool ArePointsOnOneSideOfPlane(List<MyVector3> points, Plane3 plane)
+        {        
+            //First check the first point
+            bool isInFront = _Geometry.IsPointInFrontOfPlane(plane, points[0]);
+
+            for (int i = 1; i < points.Count; i++)
+            {
+                bool isOtherInFront = _Geometry.IsPointInFrontOfPlane(plane, points[i]);
+
+                //We have found a point which is not at the same side of the plane as the first point
+                if (isInFront != isOtherInFront)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

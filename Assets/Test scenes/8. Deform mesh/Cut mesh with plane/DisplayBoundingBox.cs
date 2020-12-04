@@ -27,10 +27,11 @@ public class DisplayBoundingBox : MonoBehaviour
             return;
         }
 
+        //mesh.bounds is in local space
         DisplayMeshBoundingBox(mesh);
 
 
-        //Renderer.bounds are in world space
+        //Renderer.bounds in in world space, so this becomes AABB
         MeshRenderer mr = GetComponent<MeshRenderer>();
 
         if (mr == null)
@@ -64,6 +65,7 @@ public class DisplayBoundingBox : MonoBehaviour
         //Vector3 bottomFL = bottom + Vector3.forward * halfSize.z + Vector3.left * halfSize.x;
         //Vector3 bottomBR = bottom - Vector3.forward * halfSize.z + Vector3.right * halfSize.x;
         //Vector3 bottomBL = bottom - Vector3.forward * halfSize.z + Vector3.left * halfSize.x;
+
 
         AABB3 aabb = new AABB3(bounds);
 

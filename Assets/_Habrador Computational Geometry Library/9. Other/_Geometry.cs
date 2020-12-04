@@ -312,7 +312,7 @@ namespace Habrador_Computational_Geometry
         //Relations of a point to a plane
 
         //3d
-        public static bool IsPointFrontOfPlane(Plane3 plane, MyVector3 pointPos) 
+        public static bool IsPointInFrontOfPlane(Plane3 plane, MyVector3 pointPos) 
         {
             float distance = GetSignedDistanceFromPointToPlane(plane, pointPos);
 
