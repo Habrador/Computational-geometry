@@ -9,9 +9,9 @@ namespace Habrador_Computational_Geometry
     {
         Left, On, Right
     }
-    public enum FrontOnBack
+    public enum OutsideOnInside
     {
-        Front, On, Back
+        Outside, On, Inside
     }
 
     
@@ -312,7 +312,8 @@ namespace Habrador_Computational_Geometry
         //Relations of a point to a plane
 
         //3d
-        public static bool IsPointInFrontOfPlane(Plane3 plane, MyVector3 pointPos) 
+        //Outside means in the planes normal direction
+        public static bool IsPointOutsidePlane(Plane3 plane, MyVector3 pointPos) 
         {
             float distance = GetSignedDistanceFromPointToPlane(plane, pointPos);
 
@@ -330,7 +331,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //3d
-        public static FrontOnBack IsPoint_Front_On_Back_OfPlane(Plane3 plane, MyVector3 pointPos)
+        public static OutsideOnInside IsPoint_Outside_On_Inside_Plane(Plane3 plane, MyVector3 pointPos)
         {
             float distance = GetSignedDistanceFromPointToPlane(plane, pointPos);
 
@@ -339,15 +340,15 @@ namespace Habrador_Computational_Geometry
 
             if (distance > 0f + epsilon)
             {
-                return FrontOnBack.Front;
+                return OutsideOnInside.Outside;
             }
             else if (distance < 0f - epsilon)
             {
-                return FrontOnBack.Back;
+                return OutsideOnInside.Inside;
             }
             else
             {
-                return FrontOnBack.On;
+                return OutsideOnInside.On;
             }
         }
 

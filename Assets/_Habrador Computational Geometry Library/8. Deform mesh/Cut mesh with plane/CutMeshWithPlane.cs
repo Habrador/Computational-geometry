@@ -114,19 +114,19 @@ namespace Habrador_Computational_Geometry
 
                 //First check on which side of the plane these vertices are
                 //If they are all on one side we dont have to cut the triangle
-                bool is_p1_front = _Geometry.IsPointInFrontOfPlane(cutPlane, v1.pos);
-                bool is_p2_front = _Geometry.IsPointInFrontOfPlane(cutPlane, v2.pos);
-                bool is_p3_front = _Geometry.IsPointInFrontOfPlane(cutPlane, v3.pos);
+                bool is_p1_front = _Geometry.IsPointOutsidePlane(cutPlane, v1.pos);
+                bool is_p2_front = _Geometry.IsPointOutsidePlane(cutPlane, v2.pos);
+                bool is_p3_front = _Geometry.IsPointOutsidePlane(cutPlane, v3.pos);
 
 
                 //Build triangles belonging to respective mesh
 
-                //All are in front of the plane
+                //All are outside the plane
                 if (is_p1_front && is_p2_front && is_p3_front)
                 {
                     AddTriangleToMesh(v1, v2, v3, F_Mesh);
                 }
-                //All are in back of the plane
+                //All are inside the plane
                 else if (!is_p1_front && !is_p2_front && !is_p3_front)
                 {
                     AddTriangleToMesh(v1, v2, v3, B_Mesh);
@@ -136,37 +136,37 @@ namespace Habrador_Computational_Geometry
                 {
                     //We get 6 cases where each vertex is on its own in front or in the back of the plane
                     
-                    //p1 is front
+                    //p1 is outside
                     if (is_p1_front && !is_p2_front && !is_p3_front)
                     {
-                        CutTriangleOneInFront(v1, v2, v3, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleOneOutside(v1, v2, v3, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
-                    //p1 is back
+                    //p1 is inside
                     else if (!is_p1_front && is_p2_front && is_p3_front)
                     {
-                        CutTriangleTwoInFront(v2, v3, v1, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleTwoOutside(v2, v3, v1, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
 
-                    //p2 is front
+                    //p2 is outside
                     else if (!is_p1_front && is_p2_front && !is_p3_front)
                     {
-                        CutTriangleOneInFront(v2, v3, v1, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleOneOutside(v2, v3, v1, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
-                    //p2 is back
+                    //p2 is inside
                     else if (is_p1_front && !is_p2_front && is_p3_front)
                     {
-                        CutTriangleTwoInFront(v3, v1, v2, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleTwoOutside(v3, v1, v2, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
 
-                    //p3 is front
+                    //p3 is outside
                     else if (!is_p1_front && !is_p2_front && is_p3_front)
                     {
-                        CutTriangleOneInFront(v3, v1, v2, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleOneOutside(v3, v1, v2, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
-                    //p3 is back
+                    //p3 is inside
                     else if (is_p1_front && is_p2_front && !is_p3_front)
                     {
-                        CutTriangleTwoInFront(v1, v2, v3, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleTwoOutside(v1, v2, v3, F_Mesh, B_Mesh, newEdges, cutPlane);
                     }
                     else
                     {
@@ -290,96 +290,96 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Cut a triangle where one vertex is in front and the other vertices are back
-        //Make sure they are sorted clockwise: F1-B1-B2
-        //F means that this vertex is in front of the plane
-        private static void CutTriangleOneInFront(MyMeshVertex F1, MyMeshVertex B1, MyMeshVertex B2, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
+        //Cut a triangle where one vertex is outside and the other vertices are inside
+        //Make sure they are sorted clockwise: O1-I1-I2
+        //F means that this vertex is outside of the plane
+        private static void CutTriangleOneOutside(MyMeshVertex O1, MyMeshVertex I1, MyMeshVertex I2, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
-            Edge3 e_F1B1 = new Edge3(F1.pos, B1.pos);
+            Edge3 e_O1I1 = new Edge3(O1.pos, I1.pos);
             //Edge3 e_B1B2 = new Edge3(B1, B2); //Not needed because never intersects with the plane
-            Edge3 e_B2F1 = new Edge3(B2.pos, F1.pos);
+            Edge3 e_I2O1 = new Edge3(I2.pos, O1.pos);
 
             //The positions of the intersection vertices
-            MyVector3 pos_F1B1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_F1B1);
-            MyVector3 pos_B2F1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_B2F1);
+            MyVector3 pos_O1I1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_O1I1);
+            MyVector3 pos_I2O1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_I2O1);
 
             //The normals of the intersection vertices
-            float percentageBetween_F1B1 = MyVector3.Distance(F1.pos, pos_F1B1) / MyVector3.Distance(F1.pos, B1.pos);
-            float percentageBetween_B2F1 = MyVector3.Distance(B2.pos, pos_B2F1) / MyVector3.Distance(B2.pos, F1.pos);
+            float percentageBetween_O1I1 = MyVector3.Distance(O1.pos, pos_O1I1) / MyVector3.Distance(O1.pos, I1.pos);
+            float percentageBetween_I2O1 = MyVector3.Distance(I2.pos, pos_I2O1) / MyVector3.Distance(I2.pos, O1.pos);
 
-            MyVector3 normal_F1B1 = _Interpolation.Lerp(F1.normal, B1.normal, percentageBetween_F1B1);
-            MyVector3 normal_B2F1 = _Interpolation.Lerp(B2.normal, F1.normal, percentageBetween_B2F1);
+            MyVector3 normal_O1I1 = _Interpolation.Lerp(O1.normal, I1.normal, percentageBetween_O1I1);
+            MyVector3 normal_I2O1 = _Interpolation.Lerp(I2.normal, O1.normal, percentageBetween_I2O1);
 
             //MyVector3 normal_F1B1 = Vector3.Slerp(F1.normal.ToVector3(), B1.normal.ToVector3(), percentageBetween_F1B1).ToMyVector3();
             //MyVector3 normal_B2F1 = Vector3.Slerp(B2.normal.ToVector3(), F1.normal.ToVector3(), percentageBetween_B2F1).ToMyVector3();
 
-            normal_F1B1 = MyVector3.Normalize(normal_F1B1);
-            normal_B2F1 = MyVector3.Normalize(normal_B2F1);
+            normal_O1I1 = MyVector3.Normalize(normal_O1I1);
+            normal_I2O1 = MyVector3.Normalize(normal_I2O1);
 
             //The intersection vertices
-            MyMeshVertex v_F1B1 = new MyMeshVertex(pos_F1B1, normal_F1B1);
-            MyMeshVertex v_B2F1 = new MyMeshVertex(pos_B2F1, normal_B2F1);
+            MyMeshVertex v_O1I1 = new MyMeshVertex(pos_O1I1, normal_O1I1);
+            MyMeshVertex v_I2O1 = new MyMeshVertex(pos_I2O1, normal_I2O1);
 
 
             //Form 3 new triangles
             //F
-            AddTriangleToMesh(F1, v_F1B1, v_B2F1, F_Mesh);
+            AddTriangleToMesh(O1, v_O1I1, v_I2O1, F_Mesh);
             //B
-            AddTriangleToMesh(v_F1B1, B1, B2, B_Mesh);
-            AddTriangleToMesh(v_F1B1, B2, v_B2F1, B_Mesh);
+            AddTriangleToMesh(v_O1I1, I1, I2, B_Mesh);
+            AddTriangleToMesh(v_O1I1, I2, v_I2O1, B_Mesh);
 
             //Add the new edge so we can later fill the hole
-            Edge3 newEdge = new Edge3(v_F1B1.pos, v_B2F1.pos);
+            Edge3 newEdge = new Edge3(v_O1I1.pos, v_I2O1.pos);
 
             newEdges.Add(newEdge);
         }
 
 
 
-        //Cut a triangle where two vertices are in front and the other vertex is back
-        //Make sure they are sorted clockwise: F1-F2-B1
-        //F means that this vertex is in front of the plane
-        private static void CutTriangleTwoInFront(MyMeshVertex F1, MyMeshVertex F2, MyMeshVertex B1, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
+        //Cut a triangle where two vertices are inside and the other vertex is outside
+        //Make sure they are sorted clockwise: O1-O2-I1
+        //F means that this vertex is outside the plane
+        private static void CutTriangleTwoOutside(MyMeshVertex O1, MyMeshVertex O2, MyMeshVertex I1, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
-            Edge3 e_F2B1 = new Edge3(F2.pos, B1.pos);
+            Edge3 e_O2I1 = new Edge3(O2.pos, I1.pos);
             //Edge3 e_F1F2 = new Edge3(F1, F2); //Not needed because never intersects with the plane
-            Edge3 e_B1F1 = new Edge3(B1.pos, F1.pos);
+            Edge3 e_I1O1 = new Edge3(I1.pos, O1.pos);
 
             //The positions of the intersection vertices
-            MyVector3 pos_F2B1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_F2B1);
-            MyVector3 pos_B1F1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_B1F1);
+            MyVector3 pos_O2I1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_O2I1);
+            MyVector3 pos_I1O1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_I1O1);
 
             //The normals of the intersection vertices
-            float percentageBetween_F2B1 = MyVector3.Distance(F2.pos, pos_F2B1) / MyVector3.Distance(F2.pos, B1.pos);
-            float percentageBetween_B1F1 = MyVector3.Distance(B1.pos, pos_B1F1) / MyVector3.Distance(B1.pos, F1.pos);
+            float percentageBetween_O2I1 = MyVector3.Distance(O2.pos, pos_O2I1) / MyVector3.Distance(O2.pos, I1.pos);
+            float percentageBetween_I1O1 = MyVector3.Distance(I1.pos, pos_I1O1) / MyVector3.Distance(I1.pos, O1.pos);
 
-            MyVector3 normal_F2B1 = _Interpolation.Lerp(F2.normal, B1.normal, percentageBetween_F2B1);
-            MyVector3 normal_B1F1 = _Interpolation.Lerp(B1.normal, F1.normal, percentageBetween_B1F1);
+            MyVector3 normal_O2I1 = _Interpolation.Lerp(O2.normal, I1.normal, percentageBetween_O2I1);
+            MyVector3 normal_I1O1 = _Interpolation.Lerp(I1.normal, O1.normal, percentageBetween_I1O1);
 
             //MyVector3 normal_F2B1 = Vector3.Slerp(F2.normal.ToVector3(), B1.normal.ToVector3(), percentageBetween_F2B1).ToMyVector3();
             //MyVector3 normal_B1F1 = Vector3.Slerp(B1.normal.ToVector3(), F1.normal.ToVector3(), percentageBetween_B1F1).ToMyVector3();
 
-            normal_F2B1 = MyVector3.Normalize(normal_F2B1);
-            normal_B1F1 = MyVector3.Normalize(normal_B1F1);
+            normal_O2I1 = MyVector3.Normalize(normal_O2I1);
+            normal_I1O1 = MyVector3.Normalize(normal_I1O1);
 
             //The intersection vertices
-            MyMeshVertex v_F2B1 = new MyMeshVertex(pos_F2B1, normal_F2B1);
-            MyMeshVertex v_B1F1 = new MyMeshVertex(pos_B1F1, normal_B1F1);
+            MyMeshVertex v_O2I1 = new MyMeshVertex(pos_O2I1, normal_O2I1);
+            MyMeshVertex v_I1O1 = new MyMeshVertex(pos_I1O1, normal_I1O1);
 
 
             //Form 3 new triangles
             //F
-            AddTriangleToMesh(F2, v_F2B1, v_B1F1, F_Mesh);
-            AddTriangleToMesh(F2, v_B1F1, F1, F_Mesh);
+            AddTriangleToMesh(O2, v_O2I1, v_I1O1, F_Mesh);
+            AddTriangleToMesh(O2, v_I1O1, O1, F_Mesh);
             //B
-            AddTriangleToMesh(v_F2B1, B1, v_B1F1, B_Mesh);
+            AddTriangleToMesh(v_O2I1, I1, v_I1O1, B_Mesh);
 
             //Add the new edge so we can later fill the hole
-            Edge3 newEdge = new Edge3(v_F2B1.pos, v_B1F1.pos);
+            Edge3 newEdge = new Edge3(v_O2I1.pos, v_I1O1.pos);
 
             newEdges.Add(newEdge);
         }
@@ -404,14 +404,14 @@ namespace Habrador_Computational_Geometry
         public static bool ArePointsOnOneSideOfPlane(List<MyVector3> points, Plane3 plane)
         {        
             //First check the first point
-            bool isInFront = _Geometry.IsPointInFrontOfPlane(plane, points[0]);
+            bool isInFront = _Geometry.IsPointOutsidePlane(plane, points[0]);
 
             for (int i = 1; i < points.Count; i++)
             {
-                bool isOtherInFront = _Geometry.IsPointInFrontOfPlane(plane, points[i]);
+                bool isOtherOutside = _Geometry.IsPointOutsidePlane(plane, points[i]);
 
                 //We have found a point which is not at the same side of the plane as the first point
-                if (isInFront != isOtherInFront)
+                if (isInFront != isOtherOutside)
                 {
                     return false;
                 }
