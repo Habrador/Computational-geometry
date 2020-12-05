@@ -5,6 +5,11 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Cut a meth with a plane
+    //TODO:
+    //- Remove sharp triangles to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals
+    //- A faster way would be to add the data to some temp data structure. And when we know the mesh is intersecting with the plane, then we build the actual mesh because generating a mesh requires list searching to avoid duplicates
+    //- Fix so that when we generating the polygon to fill the hole, make sure it takes into account that sometimes we have double vertices at hard edges
+    //- Normalize the data
     public static class CutMeshWithPlane 
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
@@ -115,9 +120,6 @@ namespace Habrador_Computational_Geometry
 
 
                 //Build triangles belonging to respective mesh
-                //TODO: A faster way would be to add the data to some temp data structure
-                //and when we know the mesh is intersecting with the plane, then we build the actual mesh
-                //Because generating a mesh requires list searching to avoid duplicates
 
                 //All are in front of the plane
                 if (is_p1_front && is_p2_front && is_p3_front)
@@ -310,6 +312,9 @@ namespace Habrador_Computational_Geometry
             MyVector3 normal_F1B1 = _Interpolation.Lerp(F1.normal, B1.normal, percentageBetween_F1B1);
             MyVector3 normal_B2F1 = _Interpolation.Lerp(B2.normal, F1.normal, percentageBetween_B2F1);
 
+            //MyVector3 normal_F1B1 = Vector3.Slerp(F1.normal.ToVector3(), B1.normal.ToVector3(), percentageBetween_F1B1).ToMyVector3();
+            //MyVector3 normal_B2F1 = Vector3.Slerp(B2.normal.ToVector3(), F1.normal.ToVector3(), percentageBetween_B2F1).ToMyVector3();
+
             normal_F1B1 = MyVector3.Normalize(normal_F1B1);
             normal_B2F1 = MyVector3.Normalize(normal_B2F1);
 
@@ -354,6 +359,9 @@ namespace Habrador_Computational_Geometry
 
             MyVector3 normal_F2B1 = _Interpolation.Lerp(F2.normal, B1.normal, percentageBetween_F2B1);
             MyVector3 normal_B1F1 = _Interpolation.Lerp(B1.normal, F1.normal, percentageBetween_B1F1);
+
+            //MyVector3 normal_F2B1 = Vector3.Slerp(F2.normal.ToVector3(), B1.normal.ToVector3(), percentageBetween_F2B1).ToMyVector3();
+            //MyVector3 normal_B1F1 = Vector3.Slerp(B1.normal.ToVector3(), F1.normal.ToVector3(), percentageBetween_B1F1).ToMyVector3();
 
             normal_F2B1 = MyVector3.Normalize(normal_F2B1);
             normal_B1F1 = MyVector3.Normalize(normal_B1F1);

@@ -29,6 +29,7 @@ namespace Habrador_Computational_Geometry
             return interpolatedValue;
         }
 
+
         //Ease out interpolation - the values get smaller and smaller
         //https://chicounity3d.wordpress.com/2014/05/23/how-to-lerp-like-a-pro/
         public static float Sinerp(float a, float b, float t)

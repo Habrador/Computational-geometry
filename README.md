@@ -292,6 +292,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * A way to generate an infinite delaunay triangulation (for terrains etc)
 * Triangulation of polygon by "Horizontal decomposition into trapezoids"
 * Deform mesh after collision like car crash
+* Marching Squares on a triangulation instead of a grid
 
 
 ### Stuff to fix
@@ -306,6 +307,10 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 
 
 ## Big Updates
+
+**2020-12**
+
+* Added cut mesh with plane
 
 **2020-11** 
 
