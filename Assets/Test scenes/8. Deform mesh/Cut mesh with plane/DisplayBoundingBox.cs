@@ -86,88 +86,34 @@ public class DisplayBoundingBox : MonoBehaviour
     //Is taking rotation into account, so we get an oriented bounding box
     private void DisplayMeshBoundingBox(Mesh mesh)
     {
-        Bounds bounds = mesh.bounds;
-
-        Vector3 halfSize = bounds.extents;
-
-        Vector3 xVec = Vector3.right * halfSize.x;
-        Vector3 yVec = Vector3.up * halfSize.y;
-        Vector3 zVec = Vector3.forward * halfSize.z;
-
-        Vector3 top = bounds.center + yVec;
-        Vector3 bottom = bounds.center - yVec;
-
-        Vector3 topFR = top + zVec + xVec;
-        Vector3 topFL = top + zVec - xVec;
-        Vector3 topBR = top - zVec + xVec;
-        Vector3 topBL = top - zVec - xVec;
-
-        Vector3 bottomFR = bottom + zVec + xVec;
-        Vector3 bottomFL = bottom + zVec - xVec;
-        Vector3 bottomBR = bottom - zVec + xVec;
-        Vector3 bottomBL = bottom - zVec - xVec;
+        Box orientedBB = new Box(mesh, transform);
 
 
-        //Local to world space
-        topFR = transform.TransformPoint(topFR);
-        topFL = transform.TransformPoint(topFL);
-        topBR = transform.TransformPoint(topBR);
-        topBL = transform.TransformPoint(topBL);
-
-        bottomFR = transform.TransformPoint(bottomFR);
-        bottomFL = transform.TransformPoint(bottomFL);
-        bottomBR = transform.TransformPoint(bottomBR);
-        bottomBL = transform.TransformPoint(bottomBL);
-
-
+        //Display corners
+        HashSet<MyVector3> corners = orientedBB.GetCorners();
+        
         Gizmos.color = Color.blue;
 
-        Gizmos.DrawWireSphere(topFR, 0.1f);
-        Gizmos.DrawWireSphere(topFL, 0.1f);
-        Gizmos.DrawWireSphere(topBR, 0.1f);
-        Gizmos.DrawWireSphere(topBL, 0.1f);
-
-        Gizmos.DrawWireSphere(bottomFR, 0.1f);
-        Gizmos.DrawWireSphere(bottomFL, 0.1f);
-        Gizmos.DrawWireSphere(bottomBR, 0.1f);
-        Gizmos.DrawWireSphere(bottomBL, 0.1f);
+        foreach (MyVector3 v in corners)
+        {
+            Gizmos.DrawWireSphere(v.ToVector3(), 0.1f);
+        }
+        
 
 
         //Generate the AABB which should give the same result as when using the MeshRenderer
-        //List<MyVector3> points = new List<MyVector3>()
-        //{
-        //    topFR.ToMyVector3(),
-        //    topFL.ToMyVector3(),
-        //    topBR.ToMyVector3(),
-        //    topBL.ToMyVector3(),
-
-        //    bottomFR.ToMyVector3(),
-        //    bottomFL.ToMyVector3(),
-        //    bottomBR.ToMyVector3(),
-        //    bottomBL.ToMyVector3(),
-        //};
-
-        ////This aabb should be the same as if we had used meshrender.bounds
-        //AABB3 aabb = new AABB3(points);
+        //AABB3 aabb = new AABB3(new List<MyVector3>(corners));
 
 
-        
+
+        //Display the edges
+        List<Edge3> edges = orientedBB.GetEdges();
 
         Gizmos.color = Color.blue;
 
-        Gizmos.DrawLine(topFR, topFL);
-        Gizmos.DrawLine(topFL, topBL);
-        Gizmos.DrawLine(topBL, topBR);
-        Gizmos.DrawLine(topBR, topFR);
-
-        Gizmos.DrawLine(bottomFR, bottomFL);
-        Gizmos.DrawLine(bottomFL, bottomBL);
-        Gizmos.DrawLine(bottomBL, bottomBR);
-        Gizmos.DrawLine(bottomBR, bottomFR);
-
-        Gizmos.DrawLine(topFR, bottomFR);
-        Gizmos.DrawLine(topFL, bottomFL);
-        Gizmos.DrawLine(topBL, bottomBL);
-        Gizmos.DrawLine(topBR, bottomBR);
-}
+        foreach (Edge3 e in edges)
+        {
+            Gizmos.DrawLine(e.p1.ToVector3(), e.p2.ToVector3());
+        }
+    }
 }

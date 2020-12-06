@@ -4,5 +4,6 @@ using UnityEngine;
 
 namespace Habrador_Computational_Geometry
 {
-    //USE Edge2 instead, which is the same as line!
+    //THIS IS A REMINDER TO NOT IMPLEMENT LINE DATA STRUCTURE
+    //USE EDGE INSTEAD WHICH IS THE SAME
 }
