@@ -41,12 +41,12 @@ public class DisplayBoundingBox : MonoBehaviour
             return;
         }
 
-        DisplayMeshAABB(mr);
+        DisplayMeshRendererAABB(mr);
     }
 
 
     //Renderer.bounds are AABB in world space
-    private void DisplayMeshAABB(MeshRenderer mr)
+    private void DisplayMeshRendererAABB(MeshRenderer mr)
     {
         Bounds bounds = mr.bounds;
 
@@ -83,7 +83,7 @@ public class DisplayBoundingBox : MonoBehaviour
 
 
     //Mesh.Bounds are AABB in local space
-    //Is taking rotation into account
+    //Is taking rotation into account, so we get an oriented bounding box
     private void DisplayMeshBoundingBox(Mesh mesh)
     {
         Bounds bounds = mesh.bounds;
@@ -120,37 +120,54 @@ public class DisplayBoundingBox : MonoBehaviour
         bottomBL = transform.TransformPoint(bottomBL);
 
 
-        Gizmos.color = Color.black;
+        Gizmos.color = Color.blue;
 
         Gizmos.DrawWireSphere(topFR, 0.1f);
+        Gizmos.DrawWireSphere(topFL, 0.1f);
+        Gizmos.DrawWireSphere(topBR, 0.1f);
+        Gizmos.DrawWireSphere(topBL, 0.1f);
+
         Gizmos.DrawWireSphere(bottomFR, 0.1f);
+        Gizmos.DrawWireSphere(bottomFL, 0.1f);
+        Gizmos.DrawWireSphere(bottomBR, 0.1f);
+        Gizmos.DrawWireSphere(bottomBL, 0.1f);
 
 
+        //Generate the AABB which should give the same result as when using the MeshRenderer
+        //List<MyVector3> points = new List<MyVector3>()
+        //{
+        //    topFR.ToMyVector3(),
+        //    topFL.ToMyVector3(),
+        //    topBR.ToMyVector3(),
+        //    topBL.ToMyVector3(),
 
-        //Generate the AABB 
-        List<MyVector3> points = new List<MyVector3>()
-        {
-            topFR.ToMyVector3(),
-            topFL.ToMyVector3(),
-            topBR.ToMyVector3(),
-            topBL.ToMyVector3(),
+        //    bottomFR.ToMyVector3(),
+        //    bottomFL.ToMyVector3(),
+        //    bottomBR.ToMyVector3(),
+        //    bottomBL.ToMyVector3(),
+        //};
 
-            bottomFR.ToMyVector3(),
-            bottomFL.ToMyVector3(),
-            bottomBR.ToMyVector3(),
-            bottomBL.ToMyVector3(),
-        };
+        ////This aabb should be the same as if we had used meshrender.bounds
+        //AABB3 aabb = new AABB3(points);
 
-        //This aabb should be the same as if we had used meshrender.bounds
-        AABB3 aabb = new AABB3(points);
+
+        
 
         Gizmos.color = Color.blue;
 
-        List<Edge3> edges = aabb.GetEdges();
+        Gizmos.DrawLine(topFR, topFL);
+        Gizmos.DrawLine(topFL, topBL);
+        Gizmos.DrawLine(topBL, topBR);
+        Gizmos.DrawLine(topBR, topFR);
 
-        foreach (Edge3 e in edges)
-        {
-            Gizmos.DrawLine(e.p1.ToVector3(), e.p2.ToVector3());
-        }
-    }
+        Gizmos.DrawLine(bottomFR, bottomFL);
+        Gizmos.DrawLine(bottomFL, bottomBL);
+        Gizmos.DrawLine(bottomBL, bottomBR);
+        Gizmos.DrawLine(bottomBR, bottomFR);
+
+        Gizmos.DrawLine(topFR, bottomFR);
+        Gizmos.DrawLine(topFL, bottomFL);
+        Gizmos.DrawLine(topBL, bottomBL);
+        Gizmos.DrawLine(topBR, bottomBR);
+}
 }
