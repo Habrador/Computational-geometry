@@ -68,6 +68,32 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //Connect an edge with an unknown opposite edge
+        public void ConnectEdge(HalfEdge3 e)
+        {
+            //We need to find an edge which is going to a position where this edge is coming from
+            //An edge is pointing to a position
+            MyVector3 posToFind = e.prevEdge.v.position;
+
+            foreach (HalfEdge3 eOther in edges)
+            {
+                //Dont find edges within the same face
+                if (e.face == eOther.face)
+                {
+                    continue;
+                }
+
+                if (eOther.v.position.Equals(posToFind))
+                {
+                    e.oppositeEdge = eOther;
+
+                    break;
+                }
+            }
+        }
+
+
+
         //Convert to Unity mesh (if we know we have stored triangles in the data structure)
         //shareVertices means that we want a smooth surface where some vertices are shared between triangles
         public Mesh ConvertToUnityMesh(string name, bool shareVertices, bool generateNormals)

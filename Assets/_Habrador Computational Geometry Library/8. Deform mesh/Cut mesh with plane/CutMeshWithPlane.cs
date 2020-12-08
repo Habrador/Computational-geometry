@@ -7,10 +7,8 @@ namespace Habrador_Computational_Geometry
     //Cut a meth with a plane
     //TODO:
     //- Remove sharp triangles to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals
-    //- A faster way would be to add the data to some temp data structure. And when we know the mesh is intersecting with the plane, then we build the actual mesh because generating a mesh requires list searching to avoid duplicates
-    //- Fix so that when we generating the polygon to fill the hole, make sure it takes into account that sometimes we have double vertices at hard edges
-    //- Normalize the data
-    //- In some cases a "outside" and/or "inside" mesh may consist of multiple meshes, so you may need to split those and return more than 2 meshes
+    //- Normalize the data to 0-1 to avoid floating point precision issues
+    //- A "outside" and/or "inside" mesh may consist of multiple meshes, so you may need to split those and return more than 2 meshes
     //- Submeshes should be avoided because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
     public static class CutMeshWithPlane 
     {
@@ -67,8 +65,8 @@ namespace Habrador_Computational_Geometry
 
             //The two meshes we might end up with after the cut
             //One is in front of the plane and another is in back of the plane
-            HalfEdgeData3 F_Mesh = new HalfEdgeData3();
-            HalfEdgeData3 B_Mesh = new HalfEdgeData3();
+            HalfEdgeData3 newMeshO = new HalfEdgeData3();
+            HalfEdgeData3 newMeshI = new HalfEdgeData3();
 
             //The data belonging to the original mesh
             Vector3[] vertices = mesh.vertices;
@@ -77,7 +75,10 @@ namespace Habrador_Computational_Geometry
 
             //Save the new edges we add when cutting triangles that intersects with the plane
             //Need to be edges so we can later connect them with each other to fill the hole
-            HashSet<Edge3> newEdges = new HashSet<Edge3>();
+            //And to remove small triangles
+            HashSet<HalfEdge3> newEdgesO = new HashSet<HalfEdge3>();
+            HashSet<HalfEdge3> newEdgesI = new HashSet<HalfEdge3>();
+
 
             //Transform the plane from global space to local space of the mesh
             MyVector3 planePosLocal = meshTrans.InverseTransformPoint(cutPlaneGlobal.pos.ToVector3()).ToMyVector3();
@@ -126,12 +127,12 @@ namespace Habrador_Computational_Geometry
                 //All are outside the plane
                 if (is_p1_front && is_p2_front && is_p3_front)
                 {
-                    AddTriangleToMesh(v1, v2, v3, F_Mesh);
+                    AddTriangleToMesh(v1, v2, v3, newMeshO, newEdges: null);
                 }
                 //All are inside the plane
                 else if (!is_p1_front && !is_p2_front && !is_p3_front)
                 {
-                    AddTriangleToMesh(v1, v2, v3, B_Mesh);
+                    AddTriangleToMesh(v1, v2, v3, newMeshI, newEdges: null);
                 }
                 //The vertices are on different sides of the plane, so we need to cut the triangle into 3 new triangles
                 else
@@ -141,34 +142,34 @@ namespace Habrador_Computational_Geometry
                     //p1 is outside
                     if (is_p1_front && !is_p2_front && !is_p3_front)
                     {
-                        CutTriangleOneOutside(v1, v2, v3, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleOneOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
                     }
                     //p1 is inside
                     else if (!is_p1_front && is_p2_front && is_p3_front)
                     {
-                        CutTriangleTwoOutside(v2, v3, v1, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleTwoOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
                     }
 
                     //p2 is outside
                     else if (!is_p1_front && is_p2_front && !is_p3_front)
                     {
-                        CutTriangleOneOutside(v2, v3, v1, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleOneOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
                     }
                     //p2 is inside
                     else if (is_p1_front && !is_p2_front && is_p3_front)
                     {
-                        CutTriangleTwoOutside(v3, v1, v2, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleTwoOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
                     }
 
                     //p3 is outside
                     else if (!is_p1_front && !is_p2_front && is_p3_front)
                     {
-                        CutTriangleOneOutside(v3, v1, v2, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleOneOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
                     }
                     //p3 is inside
                     else if (is_p1_front && is_p2_front && !is_p3_front)
                     {
-                        CutTriangleTwoOutside(v1, v2, v3, F_Mesh, B_Mesh, newEdges, cutPlane);
+                        CutTriangleTwoOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
                     }
                     else
                     {
@@ -178,124 +179,165 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            //Generate the new meshes only needed if we cut the original mesh
-            if (F_Mesh.vertices.Count == 0 || B_Mesh.vertices.Count == 0)
+            //Generate the new meshes only needed the old mesh intersected with the plane
+            if (newMeshO.vertices.Count == 0 || newMeshI.vertices.Count == 0)
             {
                 return null;
             }
 
 
 
-            //Fill the holes in the mesh
-            //FillHoles(newEdges, F_Mesh, B_Mesh, cutPlane);
+            //Connect triangles on thecut edge, which will make other operations easier
+            ConnectTrianglesOnTheEdge(newMeshO, newEdgesO);
+            ConnectTrianglesOnTheEdge(newMeshI, newEdgesI);
+
+
+            //Remove small triangles at the seam where we did the cut because they will cause shading issues if the surface is smooth
+            //RemoveSmallTriangles(F_Mesh, newEdges);
+
+
+            //Split the meshes into separate meshes if the original mesh is not connected
+
+
+
+            //Fill the holes in the mesh which is easier to do after we split the meshes
+            //FillHole(newMeshO, newEdgesO, cutPlane);
+            FillHole(newMeshI, newEdgesI, cutPlane, meshTrans);
 
 
 
             //Generate Unity standardized unity meshes
             List<Mesh> cuttedMeshes = new List<Mesh>()
             {
-                    F_Mesh.ConvertToUnityMesh("F mesh", shareVertices: true, generateNormals: false),
-                    B_Mesh.ConvertToUnityMesh("B mesh", shareVertices: true, generateNormals: false)
+                    newMeshO.ConvertToUnityMesh("F mesh", shareVertices: true, generateNormals: false),
+                    newMeshI.ConvertToUnityMesh("B mesh", shareVertices: true, generateNormals: false)
             };
 
             return cuttedMeshes;
         }
 
 
-        
-        //Fill the holes in the mesh
-        //There might be multiple holes depending on the shape of the original mesh
-        private static void FillHoles(HashSet<Edge3> newEdges, MyMesh F_mesh, MyMesh B_mesh, Plane3 cutPlane)
+
+        //Connect triangles on the edge, which will make it easier to fill the hole (or holes) and remove small triangles 
+        private static void ConnectTrianglesOnTheEdge(HalfEdgeData3 meshData, HashSet<HalfEdge3> newEdges)
         {
-            //Add the first edge
-            Edge3 startEdge = newEdges.FakePop();
-
-            List<Edge3> fillPolygon = new List<Edge3>()
+            foreach (HalfEdge3 eNew in newEdges)
             {
-                startEdge
-            };
+                //Connect with the next edge and the previous edge in this triangle because eNew has no connection because it's the hole
+                meshData.ConnectEdge(eNew.nextEdge);
+                meshData.ConnectEdge(eNew.prevEdge);
+            }
+        }
 
-            //Loop through all other new edges until the polygon is back where it started
-            int safety = 0;
 
-            while (newEdges.Count > 0)
+        
+        //Fill the hole in the mesh
+        //There might be multiple holes depending on the shape of the original mesh, so make sure you've already separated the meshes
+        //So cutEdges may belong to several meshes
+        //meshTrans is only needed for debugging so debug lines have the same dimensions as the final mesh
+        private static void FillHole(HalfEdgeData3 mesh, HashSet<HalfEdge3> cutEdges, Plane3 cutPlane, Transform meshTrans)
+        {
+            //Find an edge in the mesh which is null and where the two other edges are connected to opposite edge
+            HalfEdge3 startEdge = null;
+
+            HashSet<HalfEdge3> edges = mesh.edges;
+
+            foreach (HalfEdge3 e in edges)
             {
-                MyVector3 lastVertexInPolygon = fillPolygon[fillPolygon.Count - 1].p2;
-            
-                foreach (Edge3 e in newEdges)
+                if (e.oppositeEdge == null && e.nextEdge.oppositeEdge != null && e.prevEdge.oppositeEdge != null)
                 {
-                    //This edge starts at the last vertex 
-                    if (e.p1.Equals(lastVertexInPolygon))
-                    {
-                        fillPolygon.Add(e);
-
-                        newEdges.Remove(e);
-
-                        break;
-                    }
-                }
-            
-            
-                safety += 1;
-
-                if (safety > 50000)
-                {
-                    Debug.Log("Stuck in infinite loop");
+                    startEdge = e;
 
                     break;
                 }
             }
 
-            /*
-            float size = 0.01f;
-            foreach (MyVector3 v in fillPolygon)
+            if (startEdge == null)
             {
-                MyVector3 dir = MyVector3.Normalize(v - new MyVector3(0f, 0f, 0f));
+                Debug.Log("No start edge to fill the hole could be found");
+
+                return;
+            }
+
+
+            //This means we have found a cut edge
+            List<HalfEdge3> sortedHoleEdges = new List<HalfEdge3>() { startEdge };
+            //Is needed to stop the algorithm
+            //cutEdges.Remove(startEdge);
+
+
+            //Then we can use the cutEdges to find our way around the hole's edge
+            //We cant use the half-edge data structure because multiple edges may start at a vertex
+            int safety = 0;
+
+            while (true)
+            {
+                //Find an edge that starts at the last sorted cut edge
+                HalfEdge3 nextEdge = null;
+
+                MyVector3 lastPos = sortedHoleEdges[sortedHoleEdges.Count - 1].v.position;
+
+                foreach (HalfEdge3 e in cutEdges)
+                {
+                    //A half-edge points to a vertex, so we want and edge going from the last vertex
+                    if (e.prevEdge.v.position.Equals(lastPos))
+                    {
+                        nextEdge = e;
+
+                        cutEdges.Remove(nextEdge);
+
+                        break;
+                    }
+                }
+
+
+                if (nextEdge == null)
+                {
+                    Debug.Log("Could not find a next edge when filling the hole");
+
+                    break;
+                }
+                else if (nextEdge == startEdge)
+                {
+                    Debug.Log($"Number of edges to fill this hole: {sortedHoleEdges.Count}");
+                    
+                    break;
+                }
+                else
+                {
+                    sortedHoleEdges.Add(nextEdge);
+                }
             
-                Debug.DrawLine(Vector3.zero, v.ToVector3() + dir.ToVector3() * size, Color.white, 20f);
+            
+            
+                safety += 1;
 
-                size += 0.01f;
+                if (safety > 20000)
+                {
+                    Debug.Log("Stuck in infinite loop when finding connected cut edges");
+
+                    //Debug.Log(sortedHoleEdges.Count);
+
+                    break;
+                }
             }
-            */
 
-            //Build the triangles, which are the same for both sides, except their normal
-            MyMesh F_holeMesh = new MyMesh();
-            MyMesh B_holeMesh = new MyMesh();
 
-            foreach (Edge3 e in fillPolygon)
+            //Debug
+            foreach (HalfEdge3 e in sortedHoleEdges)
             {
-                MyVector3 p1 = e.p1;
-                MyVector3 p2 = e.p2;
-                MyVector3 p3 = new MyVector3(0f, 0f, 0f); //Temp solution
-
-                MyVector3 F_normal = -cutPlane.normal;
-                MyVector3 B_normal = cutPlane.normal;
-
-                MyMeshVertex F_v1 = new MyMeshVertex(p1, F_normal);
-                MyMeshVertex F_v2 = new MyMeshVertex(p2, F_normal);
-                MyMeshVertex F_v3 = new MyMeshVertex(p3, F_normal);
-
-                MyMeshVertex B_v1 = new MyMeshVertex(p1, B_normal);
-                MyMeshVertex B_v2 = new MyMeshVertex(p2, B_normal);
-                MyMeshVertex B_v3 = new MyMeshVertex(p3, B_normal);
-
-                //AddTriangleToMesh(F_v2, F_v1, F_v3, F_holeMesh);
-
-                //AddTriangleToMesh(F_v1, F_v2, F_v3, B_holeMesh);
+                Debug.DrawLine(meshTrans.TransformPoint(e.v.position.ToVector3()), Vector3.zero, Color.white, 5f);
             }
 
-
-            //Merge the hole with the cutted mesh
-            F_mesh.MergeMesh(F_holeMesh);
-            B_mesh.MergeMesh(B_holeMesh);
+            //Transform these vertices to local position of cut plane, to make it easier to triangulate with Ear Clipping algorithm
         }
-        
+
 
 
         //Cut a triangle where one vertex is outside and the other vertices are inside
         //Make sure they are sorted clockwise: O1-I1-I2
         //F means that this vertex is outside of the plane
-        private static void CutTriangleOneOutside(MyMeshVertex O1, MyMeshVertex I1, MyMeshVertex I2, HalfEdgeData3 F_Mesh, HalfEdgeData3 B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
+        private static void CutTriangleOneOutside(MyMeshVertex O1, MyMeshVertex I1, MyMeshVertex I2, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, HashSet<HalfEdge3> newEdgesO, HashSet<HalfEdge3> newEdgesI, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
@@ -326,16 +368,11 @@ namespace Habrador_Computational_Geometry
 
 
             //Form 3 new triangles
-            //F
-            AddTriangleToMesh(O1, v_O1I1, v_I2O1, F_Mesh);
-            //B
-            AddTriangleToMesh(v_O1I1, I1, I2, B_Mesh);
-            AddTriangleToMesh(v_O1I1, I2, v_I2O1, B_Mesh);
-
-            //Add the new edge so we can later fill the hole
-            Edge3 newEdge = new Edge3(v_O1I1.position, v_I2O1.position);
-
-            newEdges.Add(newEdge);
+            //Outside
+            AddTriangleToMesh(v_O1I1, v_I2O1, O1, newMeshO, newEdgesO);
+            //Inside
+            AddTriangleToMesh(v_O1I1, I1, I2, newMeshI, null);
+            AddTriangleToMesh(v_I2O1, v_O1I1, I2, newMeshI, newEdgesI);
         }
 
 
@@ -343,7 +380,7 @@ namespace Habrador_Computational_Geometry
         //Cut a triangle where two vertices are inside and the other vertex is outside
         //Make sure they are sorted clockwise: O1-O2-I1
         //F means that this vertex is outside the plane
-        private static void CutTriangleTwoOutside(MyMeshVertex O1, MyMeshVertex O2, MyMeshVertex I1, HalfEdgeData3 F_Mesh, HalfEdgeData3 B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
+        private static void CutTriangleTwoOutside(MyMeshVertex O1, MyMeshVertex O2, MyMeshVertex I1, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, HashSet<HalfEdge3> newEdgesO, HashSet<HalfEdge3> newEdgesI, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
@@ -374,23 +411,19 @@ namespace Habrador_Computational_Geometry
 
 
             //Form 3 new triangles
-            //F
-            AddTriangleToMesh(O2, v_O2I1, v_I1O1, F_Mesh);
-            AddTriangleToMesh(O2, v_I1O1, O1, F_Mesh);
-            //B
-            AddTriangleToMesh(v_O2I1, I1, v_I1O1, B_Mesh);
-
-            //Add the new edge so we can later fill the hole
-            Edge3 newEdge = new Edge3(v_O2I1.position, v_I1O1.position);
-
-            newEdges.Add(newEdge);
+            //Outside
+            AddTriangleToMesh(v_O2I1, v_I1O1, O2, newMeshO, newEdgesO);
+            AddTriangleToMesh(O2, v_I1O1, O1, newMeshO, null);
+            //Inside
+            AddTriangleToMesh(v_I1O1, v_O2I1, I1, newMeshI, newEdgesI);
         }
 
 
 
         //Help method to build a triangle and add it to a mesh
         //v1-v2-v3 should be sorted clock-wise
-        private static void AddTriangleToMesh(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, HalfEdgeData3 mesh)
+        //v1-v2 should be the cut edge, and we know this triangle has a cut edge if newEdges != null
+        private static void AddTriangleToMesh(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, HalfEdgeData3 mesh, HashSet<HalfEdge3> newEdges)
         {
             //Create three new vertices
             HalfEdgeVertex3 half_v1 = new HalfEdgeVertex3(v1.position, v1.normal);
@@ -398,34 +431,34 @@ namespace Habrador_Computational_Geometry
             HalfEdgeVertex3 half_v3 = new HalfEdgeVertex3(v3.position, v3.normal);
 
             //Create three new half-edges that points TO these vertices
-            HalfEdge3 e_to_p1 = new HalfEdge3(half_v1);
-            HalfEdge3 e_to_p2 = new HalfEdge3(half_v2);
-            HalfEdge3 e_to_p3 = new HalfEdge3(half_v3);
+            HalfEdge3 e_to_v1 = new HalfEdge3(half_v1);
+            HalfEdge3 e_to_v2 = new HalfEdge3(half_v2);
+            HalfEdge3 e_to_v3 = new HalfEdge3(half_v3);
 
             //Create the face (which is a triangle) which needs a reference to one of the edges
-            HalfEdgeFace3 f = new HalfEdgeFace3(e_to_p1);
+            HalfEdgeFace3 f = new HalfEdgeFace3(e_to_v1);
 
 
             //Connect the data:
 
             //Connect the edges clock-wise
-            e_to_p1.nextEdge = e_to_p2;
-            e_to_p2.nextEdge = e_to_p3;
-            e_to_p3.nextEdge = e_to_p1;
+            e_to_v1.nextEdge = e_to_v2;
+            e_to_v2.nextEdge = e_to_v3;
+            e_to_v3.nextEdge = e_to_v1;
 
-            e_to_p1.prevEdge = e_to_p3;
-            e_to_p2.prevEdge = e_to_p1;
-            e_to_p3.prevEdge = e_to_p2;
+            e_to_v1.prevEdge = e_to_v3;
+            e_to_v2.prevEdge = e_to_v1;
+            e_to_v3.prevEdge = e_to_v2;
 
             //Each vertex needs a reference to an edge going FROM that vertex
-            half_v1.edge = e_to_p2;
-            half_v2.edge = e_to_p3;
-            half_v3.edge = e_to_p1;
+            half_v1.edge = e_to_v2;
+            half_v2.edge = e_to_v3;
+            half_v3.edge = e_to_v1;
 
             //Each edge needs a reference to the face
-            e_to_p1.face = f;
-            e_to_p2.face = f;
-            e_to_p3.face = f;
+            e_to_v1.face = f;
+            e_to_v2.face = f;
+            e_to_v3.face = f;
 
             //Each edge also needs an opposite edge, which is maybe better to add later because it requires some searching
             //But maybe more efficient to do it here as we fill the data structures?
@@ -436,11 +469,19 @@ namespace Habrador_Computational_Geometry
             mesh.vertices.Add(half_v2);
             mesh.vertices.Add(half_v3);
 
-            mesh.edges.Add(e_to_p1);
-            mesh.edges.Add(e_to_p2);
-            mesh.edges.Add(e_to_p3);
+            mesh.edges.Add(e_to_v1);
+            mesh.edges.Add(e_to_v2);
+            mesh.edges.Add(e_to_v3);
 
             mesh.faces.Add(f);
+
+
+            //Save the new edge
+            if (newEdges != null)
+            {
+                //We know the knew edge goes from v1 to v2, so we should save the half-edge that points to v2
+                newEdges.Add(e_to_v2);
+            }
         }
 
 
