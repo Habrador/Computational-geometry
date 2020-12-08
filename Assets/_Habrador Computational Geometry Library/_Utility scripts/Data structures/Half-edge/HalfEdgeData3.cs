@@ -69,7 +69,8 @@ namespace Habrador_Computational_Geometry
 
 
         //Convert to Unity mesh (if we know we have stored triangles in the data structure)
-        public Mesh ConvertToUnityMesh(string name)
+        //shareVertices means that we want a smooth surface where some vertices are shared between triangles
+        public Mesh ConvertToUnityMesh(string name, bool shareVertices, bool generateNormals)
         {
             MyMesh myMesh = new MyMesh();
         
@@ -80,21 +81,17 @@ namespace Habrador_Computational_Geometry
                 HalfEdgeVertex3 v1 = f.edge.v;
                 HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
                 HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
-                //HalfEdgeVertex3 v3 = f.edge.prevEdge.v;
 
+                //Standardize
                 MyMeshVertex my_v1 = new MyMeshVertex(v1.position, v1.normal);
                 MyMeshVertex my_v2 = new MyMeshVertex(v2.position, v2.normal);
                 MyMeshVertex my_v3 = new MyMeshVertex(v3.position, v3.normal);
 
-                int index1 = myMesh.AddVertexAndReturnIndex(my_v1, shareVertices: true);
-                int index2 = myMesh.AddVertexAndReturnIndex(my_v2, shareVertices: true);
-                int index3 = myMesh.AddVertexAndReturnIndex(my_v3, shareVertices: true);
-
-                myMesh.AddTrianglePositions(index1, index2, index3);
+                myMesh.AddTriangle(my_v1, my_v2, my_v3, shareVertices: true);
             }
 
 
-            Mesh unityMesh = myMesh.ConvertToUnityMesh(name, generateNormals: false);
+            Mesh unityMesh = myMesh.ConvertToUnityMesh(name);
 
             return unityMesh;
         }
@@ -151,7 +148,8 @@ namespace Habrador_Computational_Geometry
     //An edge going in a direction
     public class HalfEdge3
     {
-        //The vertex it points to
+        //The vertex it points TO
+        //This vertex also has an edge reference, which is NOT this edge, but and edge going FROM this vertex
         public HalfEdgeVertex3 v;
 
         //The face it belongs to
@@ -161,7 +159,7 @@ namespace Habrador_Computational_Geometry
         //The document says counter-clockwise but clockwise is easier because that's how Unity is displaying triangles
         public HalfEdge3 nextEdge;
 
-        //The opposite half-edge belonging to the neighbor (if there's a neighbor)
+        //The opposite half-edge belonging to the neighbor (if there's a neighbor, otherwise its just null)
         public HalfEdge3 oppositeEdge;
 
         //(optionally) the previous halfedge in the face

@@ -194,8 +194,8 @@ namespace Habrador_Computational_Geometry
             //Generate Unity standardized unity meshes
             List<Mesh> cuttedMeshes = new List<Mesh>()
             {
-                    F_Mesh.ConvertToUnityMesh("F mesh"),
-                    B_Mesh.ConvertToUnityMesh("B mesh")
+                    F_Mesh.ConvertToUnityMesh("F mesh", shareVertices: true, generateNormals: false),
+                    B_Mesh.ConvertToUnityMesh("B mesh", shareVertices: true, generateNormals: false)
             };
 
             return cuttedMeshes;

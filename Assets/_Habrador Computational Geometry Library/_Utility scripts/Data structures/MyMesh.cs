@@ -5,24 +5,39 @@ using System.Linq;
 
 namespace Habrador_Computational_Geometry
 {
+    //Similar to Unity's mesh
     public class MyMesh
     {
-        public List<MyMeshVertex> vertices;
+        public List<MyVector3> vertices;
+        public List<MyVector3> normals;
         public List<int> triangles;
 
 
         public MyMesh()
         {
-            vertices = new List<MyMeshVertex>();
+            vertices = new List<MyVector3>();
+            normals = new List<MyVector3>();
             triangles = new List<int>();
         }
 
 
 
+        //Add a triangle (oriented clock-wise) to the mesh
+        //If we want hard edges, set shareVertices to false. Otherwise we will get a smooth surface
+        public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, bool shareVertices)
+        {
+            int index1 = AddVertexAndReturnIndex(v1.pos, v1.normal, shareVertices);
+            int index2 = AddVertexAndReturnIndex(v2.pos, v2.normal, shareVertices);
+            int index3 = AddVertexAndReturnIndex(v3.pos, v3.normal, shareVertices);
+
+            AddTrianglePositions(index1, index2, index3);
+        }
+
+
+
         //Add a vertex to the mesh and return its position in the array
-        //If we want hard edges, set shareVertices to false
-        //Otherwise we will get a smooth surface
-        public int AddVertexAndReturnIndex(MyMeshVertex v, bool shareVertices)
+        //If we want hard edges, set shareVertices to false. Otherwise we will get a smooth surface
+        public int AddVertexAndReturnIndex(MyVector3 pos, MyVector3 normal, bool shareVertices)
         {
             int vertexPosInList = -1;
 
@@ -31,10 +46,10 @@ namespace Habrador_Computational_Geometry
                 for (int i = 0; i < vertices.Count; i++)
                 {
                     //Here we have to compare both position and normal or we can't get hard edges in combination with soft edges
-                    MyVector3 thisPos = vertices[i].pos;
-                    MyVector3 thisNormal = vertices[i].normal;
+                    MyVector3 thisPos = vertices[i];
+                    MyVector3 thisNormal = normals[i];
 
-                    if (thisPos.Equals(v.pos) && thisNormal.Equals(v.normal))
+                    if (thisPos.Equals(pos) && thisNormal.Equals(normal))
                     {
                         vertexPosInList = i;
 
@@ -44,7 +59,8 @@ namespace Habrador_Computational_Geometry
             }
 
             //If we got here it means the vertex is not in the list, so add it as the last vertex
-            vertices.Add(v);
+            vertices.Add(pos);
+            normals.Add(normal);
 
             vertexPosInList = vertices.Count - 1;
 
@@ -84,6 +100,7 @@ namespace Habrador_Computational_Geometry
             int numberOfVerticesBeforeMerge = vertices.Count;
         
             vertices.AddRange(otherMesh.vertices);
+            normals.AddRange(otherMesh.normals);
 
             //Triangles are not the same because we now have more vertices
             List<int> newTriangles = otherMesh.triangles.Select(x => x + numberOfVerticesBeforeMerge).ToList();
@@ -94,26 +111,26 @@ namespace Habrador_Computational_Geometry
         
         
         //Convert this mesh to a unity mesh
-        public Mesh ConvertToUnityMesh(string name, bool generateNormals)
+        public Mesh ConvertToUnityMesh(string name)
         {
             Mesh mesh = new Mesh();
 
             //MyVector3 to Vector3
-            Vector3[] vertices_Unity = vertices.Select(x => x.pos.ToVector3()).ToArray();
+            Vector3[] vertices_Unity = vertices.Select(x => x.ToVector3()).ToArray();
           
             mesh.vertices = vertices_Unity;
 
             mesh.SetTriangles(triangles, 0);
 
-            //Generate normals, which is slow so should add normals by using interpolation when cutting triangles?
-            if (generateNormals)
+            //Generate normals
+            if (normals.Count == 0)
             {
                 mesh.RecalculateNormals();
             }
             else
             {
                 //MyVector3 to Vector3
-                Vector3[] normals_Unity = vertices.Select(x => x.normal.ToVector3()).ToArray();
+                Vector3[] normals_Unity = normals.Select(x => x.ToVector3()).ToArray();
 
                 mesh.normals = normals_Unity;
             }
