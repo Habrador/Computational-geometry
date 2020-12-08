@@ -26,9 +26,9 @@ namespace Habrador_Computational_Geometry
         //If we want hard edges, set shareVertices to false. Otherwise we will get a smooth surface
         public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, bool shareVertices)
         {
-            int index1 = AddVertexAndReturnIndex(v1.pos, v1.normal, shareVertices);
-            int index2 = AddVertexAndReturnIndex(v2.pos, v2.normal, shareVertices);
-            int index3 = AddVertexAndReturnIndex(v3.pos, v3.normal, shareVertices);
+            int index1 = AddVertexAndReturnIndex(v1, shareVertices);
+            int index2 = AddVertexAndReturnIndex(v2, shareVertices);
+            int index3 = AddVertexAndReturnIndex(v3, shareVertices);
 
             AddTrianglePositions(index1, index2, index3);
         }
@@ -37,7 +37,7 @@ namespace Habrador_Computational_Geometry
 
         //Add a vertex to the mesh and return its position in the array
         //If we want hard edges, set shareVertices to false. Otherwise we will get a smooth surface
-        public int AddVertexAndReturnIndex(MyVector3 pos, MyVector3 normal, bool shareVertices)
+        public int AddVertexAndReturnIndex(MyMeshVertex v, bool shareVertices)
         {
             int vertexPosInList = -1;
 
@@ -49,7 +49,7 @@ namespace Habrador_Computational_Geometry
                     MyVector3 thisPos = vertices[i];
                     MyVector3 thisNormal = normals[i];
 
-                    if (thisPos.Equals(pos) && thisNormal.Equals(normal))
+                    if (thisPos.Equals(v.position) && thisNormal.Equals(v.normal))
                     {
                         vertexPosInList = i;
 
@@ -59,8 +59,8 @@ namespace Habrador_Computational_Geometry
             }
 
             //If we got here it means the vertex is not in the list, so add it as the last vertex
-            vertices.Add(pos);
-            normals.Add(normal);
+            vertices.Add(v.position);
+            normals.Add(v.normal);
 
             vertexPosInList = vertices.Count - 1;
 

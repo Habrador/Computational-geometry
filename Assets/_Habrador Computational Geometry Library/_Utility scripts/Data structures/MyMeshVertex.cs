@@ -6,21 +6,21 @@ namespace Habrador_Computational_Geometry
 {
     public struct MyMeshVertex
     {
-        public MyVector3 pos;
+        public MyVector3 position;
         public MyVector3 normal;
         public MyVector2 uv;
 
-        public MyMeshVertex(MyVector3 pos, MyVector3 normal)
+        public MyMeshVertex(MyVector3 position, MyVector3 normal)
         {
-            this.pos = pos;
+            this.position = position;
             this.normal = normal;
 
             this.uv = default;
         }
 
-        public MyMeshVertex(MyVector3 pos, MyVector3 normal, MyVector2 uv)
+        public MyMeshVertex(MyVector3 position, MyVector3 normal, MyVector2 uv)
         {
-            this.pos = pos;
+            this.position = position;
             this.normal = normal;
             this.uv = uv;
         }

@@ -116,9 +116,9 @@ namespace Habrador_Computational_Geometry
 
                 //First check on which side of the plane these vertices are
                 //If they are all on one side we dont have to cut the triangle
-                bool is_p1_front = _Geometry.IsPointOutsidePlane(cutPlane, v1.pos);
-                bool is_p2_front = _Geometry.IsPointOutsidePlane(cutPlane, v2.pos);
-                bool is_p3_front = _Geometry.IsPointOutsidePlane(cutPlane, v3.pos);
+                bool is_p1_front = _Geometry.IsPointOutsidePlane(cutPlane, v1.position);
+                bool is_p2_front = _Geometry.IsPointOutsidePlane(cutPlane, v2.position);
+                bool is_p3_front = _Geometry.IsPointOutsidePlane(cutPlane, v3.position);
 
 
                 //Build triangles belonging to respective mesh
@@ -299,17 +299,17 @@ namespace Habrador_Computational_Geometry
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
-            Edge3 e_O1I1 = new Edge3(O1.pos, I1.pos);
+            Edge3 e_O1I1 = new Edge3(O1.position, I1.position);
             //Edge3 e_B1B2 = new Edge3(B1, B2); //Not needed because never intersects with the plane
-            Edge3 e_I2O1 = new Edge3(I2.pos, O1.pos);
+            Edge3 e_I2O1 = new Edge3(I2.position, O1.position);
 
             //The positions of the intersection vertices
             MyVector3 pos_O1I1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_O1I1);
             MyVector3 pos_I2O1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_I2O1);
 
             //The normals of the intersection vertices
-            float percentageBetween_O1I1 = MyVector3.Distance(O1.pos, pos_O1I1) / MyVector3.Distance(O1.pos, I1.pos);
-            float percentageBetween_I2O1 = MyVector3.Distance(I2.pos, pos_I2O1) / MyVector3.Distance(I2.pos, O1.pos);
+            float percentageBetween_O1I1 = MyVector3.Distance(O1.position, pos_O1I1) / MyVector3.Distance(O1.position, I1.position);
+            float percentageBetween_I2O1 = MyVector3.Distance(I2.position, pos_I2O1) / MyVector3.Distance(I2.position, O1.position);
 
             MyVector3 normal_O1I1 = _Interpolation.Lerp(O1.normal, I1.normal, percentageBetween_O1I1);
             MyVector3 normal_I2O1 = _Interpolation.Lerp(I2.normal, O1.normal, percentageBetween_I2O1);
@@ -333,7 +333,7 @@ namespace Habrador_Computational_Geometry
             AddTriangleToMesh(v_O1I1, I2, v_I2O1, B_Mesh);
 
             //Add the new edge so we can later fill the hole
-            Edge3 newEdge = new Edge3(v_O1I1.pos, v_I2O1.pos);
+            Edge3 newEdge = new Edge3(v_O1I1.position, v_I2O1.position);
 
             newEdges.Add(newEdge);
         }
@@ -347,17 +347,17 @@ namespace Habrador_Computational_Geometry
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
-            Edge3 e_O2I1 = new Edge3(O2.pos, I1.pos);
+            Edge3 e_O2I1 = new Edge3(O2.position, I1.position);
             //Edge3 e_F1F2 = new Edge3(F1, F2); //Not needed because never intersects with the plane
-            Edge3 e_I1O1 = new Edge3(I1.pos, O1.pos);
+            Edge3 e_I1O1 = new Edge3(I1.position, O1.position);
 
             //The positions of the intersection vertices
             MyVector3 pos_O2I1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_O2I1);
             MyVector3 pos_I1O1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_I1O1);
 
             //The normals of the intersection vertices
-            float percentageBetween_O2I1 = MyVector3.Distance(O2.pos, pos_O2I1) / MyVector3.Distance(O2.pos, I1.pos);
-            float percentageBetween_I1O1 = MyVector3.Distance(I1.pos, pos_I1O1) / MyVector3.Distance(I1.pos, O1.pos);
+            float percentageBetween_O2I1 = MyVector3.Distance(O2.position, pos_O2I1) / MyVector3.Distance(O2.position, I1.position);
+            float percentageBetween_I1O1 = MyVector3.Distance(I1.position, pos_I1O1) / MyVector3.Distance(I1.position, O1.position);
 
             MyVector3 normal_O2I1 = _Interpolation.Lerp(O2.normal, I1.normal, percentageBetween_O2I1);
             MyVector3 normal_I1O1 = _Interpolation.Lerp(I1.normal, O1.normal, percentageBetween_I1O1);
@@ -381,7 +381,7 @@ namespace Habrador_Computational_Geometry
             AddTriangleToMesh(v_O2I1, I1, v_I1O1, B_Mesh);
 
             //Add the new edge so we can later fill the hole
-            Edge3 newEdge = new Edge3(v_O2I1.pos, v_I1O1.pos);
+            Edge3 newEdge = new Edge3(v_O2I1.position, v_I1O1.position);
 
             newEdges.Add(newEdge);
         }
@@ -393,9 +393,9 @@ namespace Habrador_Computational_Geometry
         private static void AddTriangleToMesh(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, HalfEdgeData3 mesh)
         {
             //Create three new vertices
-            HalfEdgeVertex3 half_v1 = new HalfEdgeVertex3(v1.pos, v1.normal);
-            HalfEdgeVertex3 half_v2 = new HalfEdgeVertex3(v2.pos, v2.normal);
-            HalfEdgeVertex3 half_v3 = new HalfEdgeVertex3(v3.pos, v3.normal);
+            HalfEdgeVertex3 half_v1 = new HalfEdgeVertex3(v1.position, v1.normal);
+            HalfEdgeVertex3 half_v2 = new HalfEdgeVertex3(v2.position, v2.normal);
+            HalfEdgeVertex3 half_v3 = new HalfEdgeVertex3(v3.position, v3.normal);
 
             //Create three new half-edges that points TO these vertices
             HalfEdge3 e_to_p1 = new HalfEdge3(half_v1);
