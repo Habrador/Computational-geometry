@@ -11,13 +11,29 @@ namespace Habrador_Computational_Geometry
 
         public MyVector3 normal;
 
-
         public Plane3(MyVector3 pos, MyVector3 normal)
         {
             this.pos = pos;
 
             this.normal = normal;
         }
+    }
+
+    //Oriented plane which is needed if we want to transform between coordinate systems
+    public class OrientedPlane3
+    {
+        public Transform planeTrans;
+
+        public OrientedPlane3(Transform planeTrans)
+        {
+            this.planeTrans = planeTrans;
+        }
+
+        public Plane3 Plane3 => new Plane3(Position, Normal);
+
+        public MyVector3 Position => planeTrans.position.ToMyVector3();
+
+        public MyVector3 Normal => planeTrans.up.ToMyVector3();
     }
 
 

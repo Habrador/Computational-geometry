@@ -68,24 +68,52 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Connect an edge with an unknown opposite edge
-        public void ConnectEdge(HalfEdge3 e)
+        //Connect all edges with each other which means we have all data except opposite edge of each edge
+        //This should be kinda fast because when we have found an opposite edge, we can at the same time connect the opposite edge to the edge
+        //And when it is connected we don't need to test it if it is pointing at the vertex when seaching for opposite edges
+        public void ConnectAllEdges()
+        {
+            foreach (HalfEdge3 e in edges)
+            {
+                if (e.oppositeEdge == null)
+                {
+                    TryConnectEdge(e);
+                }
+            }
+        }
+
+
+
+        //Connect an edge with an unknown opposite edge which has not been connected
+        //If no opposite edge exists, it means it has no neighbor which is possible if there's a hole
+        public void TryConnectEdge(HalfEdge3 e)
         {
             //We need to find an edge which is going to a position where this edge is coming from
-            //An edge is pointing to a position
+            //An edge is pointing to a position, so we need to use the previous edge
             MyVector3 posToFind = e.prevEdge.v.position;
 
             foreach (HalfEdge3 eOther in edges)
             {
-                //Dont find edges within the same face
-                if (e.face == eOther.face)
+                //We don't need to check edges that have already been connected
+                if (eOther.oppositeEdge != null)
                 {
                     continue;
                 }
-
+            
+                //Is this edge pointing to the vertex?
                 if (eOther.v.position.Equals(posToFind))
                 {
+                    //Dont find edges within the same face because thats not an opposite edge
+                    if (e.face == eOther.face)
+                    {
+                        continue;
+                    }
+
+
+                    //Connect them with each other
                     e.oppositeEdge = eOther;
+
+                    eOther.oppositeEdge = e;
 
                     break;
                 }

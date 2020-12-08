@@ -33,7 +33,8 @@ public class CutMeshWithPlaneController : MonoBehaviour
     {
         List<Transform> transformsToCut = GetChildTransformsWithMeshAttached(meshesToCutParentTrans);
 
-        Plane3 cutPlane = new Plane3(cutPlaneTrans.position.ToMyVector3(), cutPlaneTrans.up.ToMyVector3());
+        //Plane3 cutPlane = new Plane3(cutPlaneTrans.position.ToMyVector3(), cutPlaneTrans.up.ToMyVector3());
+        OrientedPlane3 cutPlane = new OrientedPlane3(cutPlaneTrans);
         
         foreach (Transform childTransToCut in transformsToCut)
         {

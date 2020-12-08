@@ -14,8 +14,8 @@ namespace Habrador_Computational_Geometry
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
         //Otherwise it should return two new meshes
-        //meshTrans is needed so we can transform the cut plane to the mesh's local space
-        public static List<Mesh> CutMesh(Transform meshTrans, Plane3 cutPlaneGlobal)
+        //meshTrans is needed so we can transform the cut plane to the mesh's local space 
+        public static List<Mesh> CutMesh(Transform meshTrans, OrientedPlane3 orientedCutPlaneGlobal)
         {
             //Validate the input data
             if (meshTrans == null)
@@ -35,6 +35,8 @@ namespace Habrador_Computational_Geometry
             }
 
 
+            //The plane with just a normal
+            Plane3 cutPlaneGlobal = orientedCutPlaneGlobal.Plane3;
 
             //First check if the AABB of the mesh is intersecting with the plane
             //Otherwise we can't cut the mesh, so its a waste of time
@@ -187,9 +189,10 @@ namespace Habrador_Computational_Geometry
 
 
 
-            //Connect triangles on thecut edge, which will make other operations easier
-            ConnectTrianglesOnTheEdge(newMeshO, newEdgesO);
-            ConnectTrianglesOnTheEdge(newMeshI, newEdgesI);
+            //Make sure each edge has an opposite edge if an opposite edge exists
+            //We have to connect all edges because we later need it to make a triangulation walk to find mesh islands
+            newMeshO.ConnectAllEdges();
+            newMeshI.ConnectAllEdges();
 
 
             //Remove small triangles at the seam where we did the cut because they will cause shading issues if the surface is smooth
@@ -214,19 +217,6 @@ namespace Habrador_Computational_Geometry
             };
 
             return cuttedMeshes;
-        }
-
-
-
-        //Connect triangles on the edge, which will make it easier to fill the hole (or holes) and remove small triangles 
-        private static void ConnectTrianglesOnTheEdge(HalfEdgeData3 meshData, HashSet<HalfEdge3> newEdges)
-        {
-            foreach (HalfEdge3 eNew in newEdges)
-            {
-                //Connect with the next edge and the previous edge in this triangle because eNew has no connection because it's the hole
-                meshData.ConnectEdge(eNew.nextEdge);
-                meshData.ConnectEdge(eNew.prevEdge);
-            }
         }
 
 
@@ -338,10 +328,10 @@ namespace Habrador_Computational_Geometry
 
 
             //Debug
-            foreach (HalfEdge3 e in sortedHoleEdges)
-            {
-                Debug.DrawLine(meshTrans.TransformPoint(e.v.position.ToVector3()), Vector3.zero, Color.white, 5f);
-            }
+            //foreach (HalfEdge3 e in sortedHoleEdges)
+            //{
+            //    Debug.DrawLine(meshTrans.TransformPoint(e.v.position.ToVector3()), Vector3.zero, Color.white, 5f);
+            //}
 
             //Transform these vertices to local position of cut plane, to make it easier to triangulate with Ear Clipping algorithm
         }
