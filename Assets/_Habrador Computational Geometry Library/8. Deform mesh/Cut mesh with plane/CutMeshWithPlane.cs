@@ -233,31 +233,45 @@ namespace Habrador_Computational_Geometry
         
         //Fill the hole in the mesh
         //There might be multiple holes depending on the shape of the original mesh, so make sure you've already separated the meshes
-        //So cutEdges may belong to several meshes
+        //So cutEdges may belong to several meshes???
         //meshTrans is only needed for debugging so debug lines have the same dimensions as the final mesh
         private static void FillHole(HalfEdgeData3 mesh, HashSet<HalfEdge3> cutEdges, Plane3 cutPlane, Transform meshTrans)
         {
-            //Find an edge in the mesh which is null and where the two other edges are connected to opposite edge
-            HalfEdge3 startEdge = null;
-
-            HashSet<HalfEdge3> edges = mesh.edges;
-
-            foreach (HalfEdge3 e in edges)
+            if (cutEdges == null || cutEdges.Count == 0)
             {
-                if (e.oppositeEdge == null && e.nextEdge.oppositeEdge != null && e.prevEdge.oppositeEdge != null)
-                {
-                    startEdge = e;
-
-                    break;
-                }
-            }
-
-            if (startEdge == null)
-            {
-                Debug.Log("No start edge to fill the hole could be found");
+                Debug.Log("This mesh has no hole");
 
                 return;
             }
+        
+        
+            //Find an edge in the mesh which is null and where the two other edges are connected to opposite edge
+            //HalfEdge3 startEdge = null;
+
+            //HashSet<HalfEdge3> edges = mesh.edges;
+
+            //foreach (HalfEdge3 e in edges)
+            //{
+            //    if (e.oppositeEdge == null && e.nextEdge.oppositeEdge != null && e.prevEdge.oppositeEdge != null)
+            //    {
+            //        startEdge = e;
+
+            //        break;
+            //    }
+            //}
+
+            //if (startEdge == null)
+            //{
+            //    Debug.Log("No start edge to fill the hole could be found");
+
+            //    return;
+            //}
+
+            //Faster to just pick a start edge if we assume all edges in cutEdges belongs to a single hole
+            HalfEdge3 startEdge = cutEdges.FakePop();
+
+            //Add it back so we can stop the algorithm
+            cutEdges.Add(startEdge);
 
 
             //This means we have found a cut edge
