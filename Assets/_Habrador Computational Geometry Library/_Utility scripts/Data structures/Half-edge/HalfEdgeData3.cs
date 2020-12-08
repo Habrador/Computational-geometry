@@ -65,6 +65,39 @@ namespace Habrador_Computational_Geometry
 
             return uniqueEdges;
         }
+
+
+
+        //Convert to Unity mesh (if we know we have stored triangles in the data structure)
+        public Mesh ConvertToUnityMesh(string name)
+        {
+            MyMesh myMesh = new MyMesh();
+        
+            //Loop through each triangle
+            foreach (HalfEdgeFace3 f in faces)
+            {
+                //These should have been stored clock-wise
+                HalfEdgeVertex3 v1 = f.edge.v;
+                HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
+                HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
+                //HalfEdgeVertex3 v3 = f.edge.prevEdge.v;
+
+                MyMeshVertex my_v1 = new MyMeshVertex(v1.position, v1.normal);
+                MyMeshVertex my_v2 = new MyMeshVertex(v2.position, v2.normal);
+                MyMeshVertex my_v3 = new MyMeshVertex(v3.position, v3.normal);
+
+                int index1 = myMesh.AddVertexAndReturnIndex(my_v1, shareVertices: true);
+                int index2 = myMesh.AddVertexAndReturnIndex(my_v2, shareVertices: true);
+                int index3 = myMesh.AddVertexAndReturnIndex(my_v3, shareVertices: true);
+
+                myMesh.AddTrianglePositions(index1, index2, index3);
+            }
+
+
+            Mesh unityMesh = myMesh.ConvertToUnityMesh(name, generateNormals: false);
+
+            return unityMesh;
+        }
     }
 
 
@@ -86,8 +119,6 @@ namespace Habrador_Computational_Geometry
         public HalfEdgeVertex3(MyVector3 position)
         {
             this.position = position;
-
-            this.normal = default;
         }
 
         public HalfEdgeVertex3(MyVector3 position, MyVector3 normal)

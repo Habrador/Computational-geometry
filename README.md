@@ -236,9 +236,6 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 **Cut mesh with plane**
 
 
-**Cut mesh to fit decal**
-
-
 
 ### 9. Other
 
@@ -293,16 +290,16 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 	* Marching Squares on a triangulation instead of a grid
 	* Triangulation of polygon by "Horizontal decomposition into trapezoids"
 	* A way to generate an infinite delaunay triangulation (for terrains etc)
-* Cut mesh 
-	* With plane (which requires triangulation by ear clipping)
+* Deform mesh:
 	* Mesh decals
+	* Deform mesh after collision like car crash
 	* Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want (https://twitter.com/mattstark256)
 * Voronoi: 
 	* Fortune's algorithm
 	* Voronoi: point-by-point
 * Convex polygon-polygon intersection with SAT
 * Irregular grid (Oskar Stålberg style)
-* Deform mesh after collision like car crash
+
 
 
 ### Stuff to fix
@@ -314,6 +311,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Remove or clarify the conversions between 2d and 3d
 * Ear Clipping with holes-in-holes
 * Fix point-in-polygon floating point precision issues (see Geometric Tools for Computer Graphics). Can also be used to improve Ear Clipping because uses the same idea
+* Ear Clipping should use half-edge data structure, making it easier to flip triangles and is more standardized
 
 
 

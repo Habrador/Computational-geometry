@@ -122,6 +122,9 @@ namespace Habrador_Computational_Geometry
 
             mesh.RecalculateBounds();
 
+            //Debug.Log(vertices_Unity.Length);
+            //Debug.Log(triangles.Count);
+
             return mesh;
         }
     }

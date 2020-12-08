@@ -63,12 +63,12 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-            
+
 
             //The two meshes we might end up with after the cut
             //One is in front of the plane and another is in back of the plane
-            MyMesh F_Mesh = new MyMesh();
-            MyMesh B_Mesh = new MyMesh();
+            HalfEdgeData3 F_Mesh = new HalfEdgeData3();
+            HalfEdgeData3 B_Mesh = new HalfEdgeData3();
 
             //The data belonging to the original mesh
             Vector3[] vertices = mesh.vertices;
@@ -108,7 +108,7 @@ namespace Habrador_Computational_Geometry
                 MyVector3 n2 = normals[triangleIndex2].ToMyVector3();
                 MyVector3 n3 = normals[triangleIndex3].ToMyVector3();
 
-                //Our own data structure
+                //To make it easier to send data to methods
                 MyMeshVertex v1 = new MyMeshVertex(p1, n1);
                 MyMeshVertex v2 = new MyMeshVertex(p2, n2);
                 MyMeshVertex v3 = new MyMeshVertex(p3, n3);
@@ -194,15 +194,15 @@ namespace Habrador_Computational_Geometry
             //Generate Unity standardized unity meshes
             List<Mesh> cuttedMeshes = new List<Mesh>()
             {
-                    F_Mesh.ConvertToUnityMesh("F mesh", generateNormals: true),
-                    B_Mesh.ConvertToUnityMesh("B mesh", generateNormals: true)
+                    F_Mesh.ConvertToUnityMesh("F mesh"),
+                    B_Mesh.ConvertToUnityMesh("B mesh")
             };
 
             return cuttedMeshes;
         }
 
 
-
+        
         //Fill the holes in the mesh
         //There might be multiple holes depending on the shape of the original mesh
         private static void FillHoles(HashSet<Edge3> newEdges, MyMesh F_mesh, MyMesh B_mesh, Plane3 cutPlane)
@@ -279,9 +279,9 @@ namespace Habrador_Computational_Geometry
                 MyMeshVertex B_v2 = new MyMeshVertex(p2, B_normal);
                 MyMeshVertex B_v3 = new MyMeshVertex(p3, B_normal);
 
-                AddTriangleToMesh(F_v2, F_v1, F_v3, F_holeMesh);
+                //AddTriangleToMesh(F_v2, F_v1, F_v3, F_holeMesh);
 
-                AddTriangleToMesh(F_v1, F_v2, F_v3, B_holeMesh);
+                //AddTriangleToMesh(F_v1, F_v2, F_v3, B_holeMesh);
             }
 
 
@@ -289,13 +289,13 @@ namespace Habrador_Computational_Geometry
             F_mesh.MergeMesh(F_holeMesh);
             B_mesh.MergeMesh(B_holeMesh);
         }
-
+        
 
 
         //Cut a triangle where one vertex is outside and the other vertices are inside
         //Make sure they are sorted clockwise: O1-I1-I2
         //F means that this vertex is outside of the plane
-        private static void CutTriangleOneOutside(MyMeshVertex O1, MyMeshVertex I1, MyMeshVertex I2, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
+        private static void CutTriangleOneOutside(MyMeshVertex O1, MyMeshVertex I1, MyMeshVertex I2, HalfEdgeData3 F_Mesh, HalfEdgeData3 B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
@@ -343,7 +343,7 @@ namespace Habrador_Computational_Geometry
         //Cut a triangle where two vertices are inside and the other vertex is outside
         //Make sure they are sorted clockwise: O1-O2-I1
         //F means that this vertex is outside the plane
-        private static void CutTriangleTwoOutside(MyMeshVertex O1, MyMeshVertex O2, MyMeshVertex I1, MyMesh F_Mesh, MyMesh B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
+        private static void CutTriangleTwoOutside(MyMeshVertex O1, MyMeshVertex O2, MyMeshVertex I1, HalfEdgeData3 F_Mesh, HalfEdgeData3 B_Mesh, HashSet<Edge3> newEdges, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
@@ -389,15 +389,58 @@ namespace Habrador_Computational_Geometry
 
 
         //Help method to build a triangle and add it to a mesh
-        private static void AddTriangleToMesh(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, MyMesh mesh)
+        //v1-v2-v3 should be sorted clock-wise
+        private static void AddTriangleToMesh(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, HalfEdgeData3 mesh)
         {
-            //Add vertices
-            int index_1 = mesh.AddVertexAndReturnIndex(v1, shareVertices: true);
-            int index_2 = mesh.AddVertexAndReturnIndex(v2, shareVertices: true);
-            int index_3 = mesh.AddVertexAndReturnIndex(v3, shareVertices: true);
+            //Create three new vertices
+            HalfEdgeVertex3 half_v1 = new HalfEdgeVertex3(v1.pos, v1.normal);
+            HalfEdgeVertex3 half_v2 = new HalfEdgeVertex3(v2.pos, v2.normal);
+            HalfEdgeVertex3 half_v3 = new HalfEdgeVertex3(v3.pos, v3.normal);
 
-            //Build the triangles
-            mesh.AddTrianglePositions(index_1, index_2, index_3);
+            //Create three new half-edges that points TO these vertices
+            HalfEdge3 e_to_p1 = new HalfEdge3(half_v1);
+            HalfEdge3 e_to_p2 = new HalfEdge3(half_v2);
+            HalfEdge3 e_to_p3 = new HalfEdge3(half_v3);
+
+            //Create the face (which is a triangle) which needs a reference to one of the edges
+            HalfEdgeFace3 f = new HalfEdgeFace3(e_to_p1);
+
+
+            //Connect the data:
+
+            //Connect the edges clock-wise
+            e_to_p1.nextEdge = e_to_p2;
+            e_to_p2.nextEdge = e_to_p3;
+            e_to_p3.nextEdge = e_to_p1;
+
+            e_to_p1.prevEdge = e_to_p3;
+            e_to_p2.prevEdge = e_to_p1;
+            e_to_p3.prevEdge = e_to_p2;
+
+            //Each vertex needs a reference to an edge going FROM that vertex
+            half_v1.edge = e_to_p2;
+            half_v2.edge = e_to_p3;
+            half_v3.edge = e_to_p1;
+
+            //Each edge needs a reference to the face
+            e_to_p1.face = f;
+            e_to_p2.face = f;
+            e_to_p3.face = f;
+
+            //Each edge also needs an opposite edge, which is maybe better to add later because it requires some searching
+            //But maybe more efficient to do it here as we fill the data structures?
+
+
+            //Save the data
+            mesh.vertices.Add(half_v1);
+            mesh.vertices.Add(half_v2);
+            mesh.vertices.Add(half_v3);
+
+            mesh.edges.Add(e_to_p1);
+            mesh.edges.Add(e_to_p2);
+            mesh.edges.Add(e_to_p3);
+
+            mesh.faces.Add(f);
         }
 
 
