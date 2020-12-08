@@ -7,10 +7,7 @@ namespace Habrador_Computational_Geometry
     //A collection of classes that implements the Half-Edge Data Structure
     //From https://www.openmesh.org/media/Documentations/OpenMesh-6.3-Documentation/a00010.html
 
-    //Store data, so we dont have to convert from edges to faces and back
-    //Sometimes we want to iterate over the faces, and sometimes edges, and sometimes vertices
-
-    //Notice that everything is in 2D
+    //2D space
     public class HalfEdgeData2
     {
         public HashSet<HalfEdgeVertex2> vertices;

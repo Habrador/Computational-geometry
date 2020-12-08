@@ -180,7 +180,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Create a new triangle face
+        //Create a new triangle face when splitting triangle face
         private static void CreateNewFace(HalfEdge2 e_old, MyVector2 splitPosition, HalfEdgeData2 data, HashSet<HalfEdge2> newEdges)
         {
             //This triangle has the following positons

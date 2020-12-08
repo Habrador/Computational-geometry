@@ -10,6 +10,8 @@ namespace Habrador_Computational_Geometry
     //- A faster way would be to add the data to some temp data structure. And when we know the mesh is intersecting with the plane, then we build the actual mesh because generating a mesh requires list searching to avoid duplicates
     //- Fix so that when we generating the polygon to fill the hole, make sure it takes into account that sometimes we have double vertices at hard edges
     //- Normalize the data
+    //- In some cases a "outside" and/or "inside" mesh may consist of multiple meshes, so you may need to split those and return more than 2 meshes
+    //- Submeshes should be avoided because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
     public static class CutMeshWithPlane 
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
@@ -185,7 +187,7 @@ namespace Habrador_Computational_Geometry
 
 
             //Fill the holes in the mesh
-            FillHoles(newEdges, F_Mesh, B_Mesh, cutPlane);
+            //FillHoles(newEdges, F_Mesh, B_Mesh, cutPlane);
 
 
 

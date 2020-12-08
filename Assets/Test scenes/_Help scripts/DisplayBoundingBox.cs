@@ -90,14 +90,14 @@ public class DisplayBoundingBox : MonoBehaviour
 
 
         //Display corners
-        HashSet<MyVector3> corners = orientedBB.GetCorners();
+        //HashSet<MyVector3> corners = orientedBB.GetCorners();
         
-        Gizmos.color = Color.blue;
+        //Gizmos.color = Color.blue;
 
-        foreach (MyVector3 v in corners)
-        {
-            Gizmos.DrawWireSphere(v.ToVector3(), 0.1f);
-        }
+        //foreach (MyVector3 v in corners)
+        //{
+        //    Gizmos.DrawWireSphere(v.ToVector3(), 0.1f);
+        //}
         
 
 

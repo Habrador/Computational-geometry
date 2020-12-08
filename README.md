@@ -278,21 +278,31 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 
 ### Stuff to implement
 
-* Dynamic constrained delaunay triangulation
-* Convex hull: Graham scan
-* Triangulate with Marching cubes
-* Cut 3d mesh with plane (which requires triangulation by ear clipping)
-* Metaballs by using Marching cubes
-* Voronoi: Fortune's algorithm
-* Voronoi: point-by-point
+* Convex hull 2d: 
+	* Graham scan
+	* Iterative
+	* Divide and Conquer
+* Convex hull 3d:
+	* Quickhull
+	* Iterative
+	* Divide and Conquer
+* Triangulations:
+	* Marching cubes
+	* Dynamic constrained delaunay triangulation
+	* Metaballs by using Marching cubes
+	* Marching Squares on a triangulation instead of a grid
+	* Triangulation of polygon by "Horizontal decomposition into trapezoids"
+	* A way to generate an infinite delaunay triangulation (for terrains etc)
+* Cut mesh 
+	* With plane (which requires triangulation by ear clipping)
+	* Mesh decals
+	* Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want (https://twitter.com/mattstark256)
+* Voronoi: 
+	* Fortune's algorithm
+	* Voronoi: point-by-point
 * Convex polygon-polygon intersection with SAT
 * Irregular grid (Oskar Stålberg style)
-* Mesh decals
-* Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want (https://twitter.com/mattstark256)
-* A way to generate an infinite delaunay triangulation (for terrains etc)
-* Triangulation of polygon by "Horizontal decomposition into trapezoids"
 * Deform mesh after collision like car crash
-* Marching Squares on a triangulation instead of a grid
 
 
 ### Stuff to fix
@@ -303,6 +313,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * The Delaunay algorithm "flip edges" might have problems with colinear points
 * Remove or clarify the conversions between 2d and 3d
 * Ear Clipping with holes-in-holes
+* Fix point-in-polygon floating point precision issues (see Geometric Tools for Computer Graphics). Can also be used to improve Ear Clipping because uses the same idea
 
 
 
