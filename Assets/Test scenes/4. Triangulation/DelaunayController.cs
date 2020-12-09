@@ -119,7 +119,7 @@ public class DelaunayController : MonoBehaviour
 
 
         //Algorithm 3. Constrained delaunay
-        HalfEdgeData2 triangleData_normalized = _Delaunay.ConstrainedBySloan(null, hullPoints_2d_normalized, allHolePoints_2d_normalized, shouldRemoveTriangles: true, new HalfEdgeData2());
+        HalfEdgeData2 triangleData_normalized = _Delaunay.ConstrainedBySloan(null, hullPoints_2d_normalized, allHolePoints_2d_normalized, shouldRemoveTriangles: false, new HalfEdgeData2());
 
 
 

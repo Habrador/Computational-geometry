@@ -34,13 +34,16 @@ namespace Habrador_Computational_Geometry
             //Generate the Delaunay triangulation with some algorithm
             //triangleData = _Delaunay.FlippingEdges(allPoints);
             triangleData = _Delaunay.PointByPoint(allPoints, triangleData);
-            
+
 
             //Modify the triangulation by adding the constraints to the delaunay triangulation
-            //if (constraints != null)
-            //{
-            //    triangleData = AddConstraints(triangleData, constraints, shouldRemoveTriangles);
-            //}
+            triangleData = AddConstraints(triangleData, hull, isHole: false, shouldRemoveTriangles);
+
+            foreach (List<MyVector2> hole in holes)
+            {
+                triangleData = AddConstraints(triangleData, hole, isHole: true, shouldRemoveTriangles);
+            }
+            
 
             //Debug.Log(triangleData.faces.Count);
 
@@ -53,8 +56,15 @@ namespace Habrador_Computational_Geometry
         // Add the constraints to the delaunay triangulation
         //
 
-        private static HalfEdgeData2 AddConstraints(HalfEdgeData2 triangleData, List<MyVector2> constraints, bool shouldRemoveTriangles)
+        private static HalfEdgeData2 AddConstraints(HalfEdgeData2 triangleData, List<MyVector2> constraints, bool isHole, bool shouldRemoveTriangles)
         {
+            //Validate the data
+            if (constraints == null)
+            {
+                return triangleData;
+            }
+        
+        
             //First create a list with all unique edges
             //In the half-edge data structure, we have for each edge an half edge going in each direction,
             //making it unneccessary to loop through all edges for intersection tests
