@@ -6,9 +6,10 @@ namespace Habrador_Computational_Geometry
 {
     //Cut a meth with a plane
     //TODO:
-    //- Remove sharp triangles on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals
+    //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes
     //- Normalize the data to 0-1 to avoid floating point precision issues
     //- Submeshes should be avoided because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
+    //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway.  
     public static class CutMeshWithPlane 
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
@@ -195,8 +196,8 @@ namespace Habrador_Computational_Geometry
             newMeshI.ConnectAllEdges();
 
             //Display all edges which have no opposite
-            //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshO.edges, meshTrans, Color.white);
-            //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshI.edges, meshTrans, Color.white);
+            DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshO.edges, meshTrans, Color.white);
+            DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshI.edges, meshTrans, Color.white);
 
 
             //Remove small triangles at the seam where we did the cut because they will cause shading issues if the surface is smooth
@@ -242,6 +243,13 @@ namespace Habrador_Computational_Geometry
 
         private static void AddHolesToMeshes(HashSet<HalfEdgeData3> newMeshesO, HashSet<HalfEdgeData3> newMeshesI, HashSet<Hole> allHoles)
         {
+            //This may happen if the original mesh has holes in it and the plane intersects one of those holes. 
+            //Then we can't identify the hole as closed and we can't repair the hole anyway 
+            if (allHoles == null)
+            {
+                return;
+            }
+        
             foreach (Hole hole in allHoles)
             {
                 HalfEdge3 holeEdgeI = hole.holeEdgeI;
@@ -743,17 +751,6 @@ namespace Habrador_Computational_Geometry
             //Each edge needs an opposite edge
             //This is slow process but we need it to be able to split meshes which are not connected
             //You could do this afterwards when all triangles have been generate, but Im not sure which is the fastest...
-            //If the mesh is not intersecting with the plane, then this is a waste of time, so maybe better to do it afterwards?
-            //mesh.TryFindOppositeEdge(e_to_v1);
-
-            ////This is a hole edge (if newEdges exists) and has no opposite
-            //if (newEdges == null)
-            //{
-            //    mesh.TryFindOppositeEdge(e_to_v2);
-            //}
-
-            //mesh.TryFindOppositeEdge(e_to_v3);
-
 
             //Save the data
             mesh.verts.Add(half_v1);

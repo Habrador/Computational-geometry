@@ -235,6 +235,9 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 
 **Cut mesh with plane**
 
+If the new meshes are not connected, then it will separate the meshes, so you might end up with more than two meshes after the cut.  
+
+![Cut mesh with plane](/_media/cut-mesh-with-plane.png?raw=true)
 
 
 ### 9. Other
@@ -312,6 +315,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Ear Clipping with holes-in-holes
 * Fix point-in-polygon floating point precision issues (see Geometric Tools for Computer Graphics). Can also be used to improve Ear Clipping because uses the same idea
 * Ear Clipping should use half-edge data structure, making it easier to flip triangles and is more standardized
+* Improve performance of cut-mesh-with-plane
 
 
 
