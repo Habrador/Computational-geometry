@@ -106,7 +106,7 @@ You have points on a convex hull you want to triangulate. You have four options 
 	
 **Ear Clipping**
 
-Can currently only handle holes - not hole-in-holes. But it has optimizations to get a better looking triangulation. 
+Can currently only handle holes - not hole-in-holes. But it has optimizations to get a better looking triangulation. The Ear Clipping algorithm is borrowing ideas from Delaunay triangulation to get nicer looking triangles. So if you encounter problems with this algorithm (because of some edge-case) you can always try the Constrained Delaunay algorithm - they should give the same result. I believe Constrained Delaunay is more robust because you don't have to connect the holes with invisible seams.   
 
 A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=mw8aLh_lPoo
 
@@ -155,7 +155,7 @@ You triangulate the points by using a "bad" triangulation method (which is in th
 
 **Constrained triangulation** 
 
-You add the constraints to the points and generate a Delaunay triangulation by using one of the above methods. Use this triangulation to find which edges interesect with the constraints. Then you flip these edges until they no longer interesect with the constraint. You finally remove the triangles that are "inside" of the constraint. It can currently handle just one hole, but in theory it can handle as many holes as possible, so I will add that in the future.    
+You add the constraints to the points and generate a Delaunay triangulation by using one of the above methods. Use this triangulation to find which edges interesect with the constraints. Then you flip these edges until they no longer interesect with the constraint. You finally remove the triangles that are "inside" of the constraint. It can handle several holes and a single hull, but not holes-in-holes. If you really need a hole-in-hole you can always run the algorithm twice and then merge the output. A similar algorithm is triangulation by Ear Clipping, but I believe this one is more robust.     
 
 ![Triangulation Delaunay constrained](/_media/triangulation-delaunay-constrained.png?raw=true)	
 
@@ -308,7 +308,6 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 ### Stuff to fix
 
 * Optimize Constrained Delaunay - there's a faster method to find edges that intersects with the constrained edge. I also think the method where triangles within the constrain is removed can be faster. 
-* Add multiple holes to Constrained Delaunay
 * Make a test scene to test that the "find which triangle a point is in by triangulation walk" is working
 * The Delaunay algorithm "flip edges" might have problems with colinear points
 * Remove or clarify the conversions between 2d and 3d

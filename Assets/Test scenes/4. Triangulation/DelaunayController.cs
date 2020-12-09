@@ -8,9 +8,9 @@ public class DelaunayController : MonoBehaviour
 {
     public int seed = 0;
 
-    public float halfMapSize = 10f;
+    public float halfMapSize = 1f;
 
-    public int numberOfPoints = 10;
+    public int numberOfPoints = 20;
 
 
     //Constraints
@@ -31,13 +31,14 @@ public class DelaunayController : MonoBehaviour
 
     public void GenerateTriangulation()
     {
-        /*
+        
         //Get the random points
-        HashSet<Vector3> points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, halfMapSize, numberOfPoints);
+        //HashSet<Vector3> randomPoints = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, halfMapSize, numberOfPoints);
 
         //From 3d to 2d
-        HashSet<MyVector2> points_2d = new HashSet<MyVector2>(points.Select(x => x.ToMyVector2()));
+        //HashSet<MyVector2> randomPoints_2d = new HashSet<MyVector2>(randomPoints.Select(x => x.ToMyVector2()));
 
+        /*
         List<MyVector2> constraints_2d = constraints.Select(x => x.ToMyVector2()).ToList();
 
         //Normalize to range 0-1
@@ -81,6 +82,8 @@ public class DelaunayController : MonoBehaviour
         //Normalize to range 0-1
         //We should use all points, including the constraints because the hole may be outside of the random points
         List<MyVector2> allPoints = new List<MyVector2>();
+
+        //allPoints.AddRange(randomPoints_2d);
 
         allPoints.AddRange(hullPoints_2d);
 

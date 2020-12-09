@@ -297,20 +297,27 @@ namespace Habrador_Computational_Geometry
             //Store the triangles we flood fill in this queue
             Queue<HalfEdgeFace2> trianglesToCheck = new Queue<HalfEdgeFace2>();
 
-            //Step 1. Find all triangles with an edge that is a constrain
-            //We have to find all because they are not always connected
-            for (int i = 0; i < constraints.Count; i++)
+            //Step 1. Find all triangles with an edge that is a constraint
+            //We have to find all because they are not always connected, so we cant just find one and flood fill from it 
+            //for (int i = 0; i < constraints.Count; i++)
+            //{
+            //    MyVector2 c_p1 = constraints[i];
+            //    MyVector2 c_p2 = constraints[MathUtility.ClampListIndex(i + 1, constraints.Count)];
+
+            //    HalfEdgeFace2 borderTriangle = FindTriangleWithEdge(c_p1, c_p2, triangleData);
+
+            //    //Maybe this edge has not triangle, which can happen if it's on the border
+            //    if (borderTriangle != null)
+            //    {
+            //        trianglesToCheck.Enqueue(borderTriangle);
+            //    }
+            //}
+
+            HashSet<HalfEdgeFace2> borderFaces = FindAllTrianglesBorderingTheConstraint(constraints, triangleData);
+
+            foreach (HalfEdgeFace2 f in borderFaces)
             {
-                MyVector2 c_p1 = constraints[i];
-                MyVector2 c_p2 = constraints[MathUtility.ClampListIndex(i + 1, constraints.Count)];
-
-                HalfEdgeFace2 borderTriangle = FindTriangleWithEdge(c_p1, c_p2, triangleData);
-
-                //Maybe this edge has not triangle, which can happen if it's on the border
-                if (borderTriangle != null)
-                {
-                    trianglesToCheck.Enqueue(borderTriangle);
-                }
+                trianglesToCheck.Enqueue(f);
             }
 
             
@@ -371,41 +378,16 @@ namespace Habrador_Computational_Geometry
                     }
 
                     //We have to check if this edge is a constraint because it might be alone on the border without neighbors that are also constraints
-                    if (IsEdgeAConstraint(e.v.position, e.prevEdge.v.position, constraints))
+                    MyVector2 p1 = e.prevEdge.v.position;
+                    MyVector2 p2 = e.v.position;
+
+                    if (IsEdgeAConstraint(p1, p2, constraints))
                     {
                         continue;
                     }
 
                     trianglesToCheck.Enqueue(neighbor);
                 }
-
-                //if (e1.oppositeEdge != null &&
-                //    !trianglesToDelete.Contains(e1.oppositeEdge.face) &&
-                //    !trianglesToCheck.Contains(e1.oppositeEdge.face) &&
-                //    !IsEdgeAConstraint(e1.v.position, e1.prevEdge.v.position, constraints))
-                //{
-                //    trianglesToCheck.Enqueue(e1.oppositeEdge.face);
-
-                //    trianglesToDelete.Add(e1.oppositeEdge.face);
-                //}
-                //if (e2.oppositeEdge != null &&
-                //    !trianglesToDelete.Contains(e2.oppositeEdge.face) &&
-                //    !trianglesToCheck.Contains(e2.oppositeEdge.face) &&
-                //    !IsEdgeAConstraint(e2.v.position, e2.prevEdge.v.position, constraints))
-                //{
-                //    trianglesToCheck.Enqueue(e2.oppositeEdge.face);
-
-                //    trianglesToDelete.Add(e2.oppositeEdge.face);
-                //}
-                //if (e3.oppositeEdge != null &&
-                //    !trianglesToDelete.Contains(e3.oppositeEdge.face) &&
-                //    !trianglesToCheck.Contains(e3.oppositeEdge.face) &&
-                //    !IsEdgeAConstraint(e3.v.position, e3.prevEdge.v.position, constraints))
-                //{
-                //    trianglesToCheck.Enqueue(e3.oppositeEdge.face);
-
-                //    trianglesToDelete.Add(e3.oppositeEdge.face);
-                //}
             }
 
             return trianglesToDelete;
@@ -431,6 +413,77 @@ namespace Habrador_Computational_Geometry
             }
 
             return null;
+        }
+
+
+
+        //Find all triangles that share a specific constraint
+        private static HashSet<HalfEdgeFace2> FindAllTrianglesBorderingTheConstraint(List<MyVector2> constraints, HalfEdgeData2 triangleData)
+        {
+            HashSet<HalfEdgeFace2> facesOnTheBorder = new HashSet<HalfEdgeFace2>();
+        
+
+            //Create a new set with all constrains, and as we discover new constraints, we delete constrains, which will make searching faster
+            HashSet<Edge2> constraintsEdges = new HashSet<Edge2>();
+
+            for (int i = 0; i < constraints.Count; i++)
+            {
+                MyVector2 c_p1 = constraints[i];
+                MyVector2 c_p2 = constraints[MathUtility.ClampListIndex(i + 1, constraints.Count)];
+
+                constraintsEdges.Add(new Edge2(c_p1, c_p2));
+            }
+
+
+            //Faster to search faces becase a triangle might have multiple constraints bordering it and we just need to find one
+            HashSet<HalfEdgeFace2> faces = triangleData.faces;
+
+            List<HalfEdge2> edges = new List<HalfEdge2>();
+
+            foreach (HalfEdgeFace2 f in faces)
+            {
+                edges.Clear();
+
+                edges.Add(f.edge);
+                edges.Add(f.edge.nextEdge);
+                edges.Add(f.edge.nextEdge.nextEdge);
+
+                foreach (HalfEdge2 e in edges)
+                {
+                    //An edge is going TO a vertex
+                    MyVector2 e_p1 = e.prevEdge.v.position;
+                    MyVector2 e_p2 = e.v.position;
+
+                    //Is this edge a constraint?
+                    bool foundConstraint = false;
+
+                    foreach (Edge2 c_edge in constraintsEdges)
+                    {
+                        if(e_p1.Equals(c_edge.p1) && e_p2.Equals(c_edge.p2))
+                        {
+                            facesOnTheBorder.Add(f);
+
+                            constraintsEdges.Remove(c_edge);
+
+                            foundConstraint = true;
+
+                            break;
+                        }
+                    }
+
+                    if (foundConstraint)
+                    {
+                        break;
+                    }
+                }
+
+                if (constraintsEdges.Count == 0)
+                {
+                    break;
+                }
+            }
+
+            return facesOnTheBorder;
         }
 
 
