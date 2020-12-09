@@ -73,6 +73,8 @@ namespace Habrador_Computational_Geometry
         //And when it is connected we don't need to test it if it is pointing at the vertex when seaching for opposite edges
         public void ConnectAllEdges()
         {
+            //Is it faster to create a separate set where we remove edges that have been connected to make it faster to search?
+            //Or maybe we can use a counter because we don't need to search from the beginning when we TryConnectEdge because this method started at the beginning and has already connected those edges
             foreach (HalfEdge3 e in edges)
             {
                 if (e.oppositeEdge == null)
@@ -108,7 +110,6 @@ namespace Habrador_Computational_Geometry
                     {
                         continue;
                     }
-
 
                     //Connect them with each other
                     e.oppositeEdge = eOther;

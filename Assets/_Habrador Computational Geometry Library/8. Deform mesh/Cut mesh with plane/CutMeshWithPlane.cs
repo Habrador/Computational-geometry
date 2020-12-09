@@ -78,7 +78,7 @@ namespace Habrador_Computational_Geometry
             //Save the new edges we add when cutting triangles that intersects with the plane
             //Need to be edges so we can later connect them with each other to fill the hole
             //And to remove small triangles
-            HashSet<HalfEdge3> newEdgesO = new HashSet<HalfEdge3>();
+            //HashSet<HalfEdge3> newEdgesO = new HashSet<HalfEdge3>();
             HashSet<HalfEdge3> newEdgesI = new HashSet<HalfEdge3>();
 
 
@@ -144,34 +144,34 @@ namespace Habrador_Computational_Geometry
                     //p1 is outside
                     if (is_p1_front && !is_p2_front && !is_p3_front)
                     {
-                        CutTriangleOneOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
+                        CutTriangleOneOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesI, cutPlane);
                     }
                     //p1 is inside
                     else if (!is_p1_front && is_p2_front && is_p3_front)
                     {
-                        CutTriangleTwoOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
+                        CutTriangleTwoOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesI, cutPlane);
                     }
 
                     //p2 is outside
                     else if (!is_p1_front && is_p2_front && !is_p3_front)
                     {
-                        CutTriangleOneOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
+                        CutTriangleOneOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesI, cutPlane);
                     }
                     //p2 is inside
                     else if (is_p1_front && !is_p2_front && is_p3_front)
                     {
-                        CutTriangleTwoOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
+                        CutTriangleTwoOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesI, cutPlane);
                     }
 
                     //p3 is outside
                     else if (!is_p1_front && !is_p2_front && is_p3_front)
                     {
-                        CutTriangleOneOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
+                        CutTriangleOneOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesI, cutPlane);
                     }
                     //p3 is inside
                     else if (is_p1_front && is_p2_front && !is_p3_front)
                     {
-                        CutTriangleTwoOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesO, newEdgesI, cutPlane);
+                        CutTriangleTwoOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesI, cutPlane);
                     }
                     else
                     {
@@ -191,6 +191,7 @@ namespace Habrador_Computational_Geometry
 
             //Make sure each edge has an opposite edge if an opposite edge exists
             //We have to connect all edges because we later need it to make a triangulation walk to find mesh islands
+            //This is a slow process, so maybe faster to do it when we create new edges
             newMeshO.ConnectAllEdges();
             newMeshI.ConnectAllEdges();
 
@@ -205,9 +206,9 @@ namespace Habrador_Computational_Geometry
 
 
             //Fill the holes in the mesh which is easier to do after we split the meshes
-            FillHole(newMeshO, newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal * -1f, shouldReverseTriangles: true);
-            FillHole(newMeshI, newEdgesI, orientedCutPlaneGlobal, meshTrans, planeNormalLocal, shouldReverseTriangles: false);
-
+            //FillHole(newMeshO, newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal * -1f, shouldReverseTriangles: true);
+            //This is a slow process so its a waste of time to do it for each site. A simpler way is to just make sure that when we merge small triangles, we merge on both sides so the holes on each side always have the same number of vertices
+            FillHoles(newMeshI, newEdgesI, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
 
 
             //Generate Unity standardized unity meshes
@@ -217,15 +218,14 @@ namespace Habrador_Computational_Geometry
                     newMeshI.ConvertToUnityMesh("B mesh", shareVertices: true, generateNormals: false)
             };
 
+
             return cuttedMeshes;
         }
 
 
         
-        //Fill the hole in the mesh
-        //There might be multiple holes depending on the shape of the original mesh, so make sure you've already separated the meshes
-        //So cutEdges may belong to several meshes???
-        private static void FillHole(HalfEdgeData3 halfEdgeMesh, HashSet<HalfEdge3> cutEdges, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal, bool shouldReverseTriangles)
+        //Fill the hole (or holes) in the mesh
+        private static void FillHoles(HalfEdgeData3 halfEdgeMesh, HashSet<HalfEdge3> cutEdges, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal)
         {
             if (cutEdges == null || cutEdges.Count == 0)
             {
@@ -233,18 +233,108 @@ namespace Habrador_Computational_Geometry
 
                 return;
             }
-        
 
-            //Faster to just pick a start edge if we assume all edges in cutEdges belongs to a single hole
+
+            //Find all separate holes
+            HashSet<List<HalfEdge3>> allHoles = IdentifySeparateHoles(cutEdges);
+
+            if (allHoles.Count == 0)
+            {
+                Debug.Log("Couldn't identify any holes");
+
+                return;
+            }
+
+            //Debug
+            //foreach (List<HalfEdge3> hole in allHoles)
+            //{
+            //    foreach (HalfEdge3 e in hole)
+            //    {
+            //        Debug.DrawLine(meshTrans.TransformPoint(e.v.position.ToVector3()), Vector3.zero, Color.white, 5f);
+            //    }
+            //}
+
+
+            //Fill the hole with a mesh
+            foreach (List<HalfEdge3> hole in allHoles)
+            {
+                //HalfEdgeData3 holeMesh = FillHole();
+
+                //Transform these vertices to local position of cut plane, and to 2d space, to make it easier to triangulate with Ear Clipping algorithm
+                List<MyVector2> sortedEdges_2D = new List<MyVector2>();
+
+                Transform planeTrans = orientedCutPlane.planeTrans;
+
+                foreach (HalfEdge3 e in hole)
+                {
+                    MyVector3 pMeshSpace = e.v.position;
+
+                    //Mesh space to Global space
+                    Vector3 pGlobalSpace = meshTrans.TransformPoint(pMeshSpace.ToVector3());
+
+                    //Global space to Plane space
+                    Vector3 pPlaneSpace = planeTrans.InverseTransformPoint(pGlobalSpace);
+
+                    //Y is normal direction so should be 0
+                    MyVector2 p2D = new MyVector2(pPlaneSpace.x, pPlaneSpace.z);
+
+                    sortedEdges_2D.Add(p2D);
+                }
+
+
+                //Triangulate with Ear Clipping
+                HashSet<Triangle2> triangles = _EarClipping.Triangulate(sortedEdges_2D, null, false);
+
+                //Debug.Log($"Number of triangles from Ear Clipping: {triangles.Count}");
+
+                //To 3d and half-edge data structure
+                //TODO: in the future its more efficient to create a separate plane mesh and then merge because none of these vertices will be merged with the triangles belonging to the other mesh because of the hard edge
+                foreach (Triangle2 t in triangles)
+                {
+                    //3d space
+                    Vector3 p1 = new Vector3(t.p1.x, 0f, t.p1.y);
+                    Vector3 p2 = new Vector3(t.p2.x, 0f, t.p2.y);
+                    Vector3 p3 = new Vector3(t.p3.x, 0f, t.p3.y);
+
+                    //Plane space to Global space
+                    Vector3 p1Global = planeTrans.TransformPoint(p1);
+                    Vector3 p2Global = planeTrans.TransformPoint(p2);
+                    Vector3 p3Global = planeTrans.TransformPoint(p3);
+
+                    //Global space to Mesh space
+                    Vector3 p1Mesh = meshTrans.InverseTransformPoint(p1Global);
+                    Vector3 p2Mesh = meshTrans.InverseTransformPoint(p2Global);
+                    Vector3 p3Mesh = meshTrans.InverseTransformPoint(p3Global);
+
+                    MyMeshVertex v1 = new MyMeshVertex(p1Mesh.ToMyVector3(), planeNormal);
+                    MyMeshVertex v2 = new MyMeshVertex(p2Mesh.ToMyVector3(), planeNormal);
+                    MyMeshVertex v3 = new MyMeshVertex(p3Mesh.ToMyVector3(), planeNormal);
+
+                    //Now we can finally add this triangle to the half-edge data structure
+                    AddTriangleToMesh(v1, v2, v3, halfEdgeMesh, null);
+                }
+            }
+        }
+
+
+
+        //We might end up with multiple holes, so we need to identify all of them
+        //We currently have just a list of all edges that form the holes
+        private static HashSet<List<HalfEdge3>> IdentifySeparateHoles(HashSet<HalfEdge3> cutEdges)
+        {
+            HashSet<List<HalfEdge3>> allHoles = new HashSet<List<HalfEdge3>>();
+
+            //Alternative create a linked list, which should identify all holes automatically?
+
+            //Faster to just pick a start edge
             HalfEdge3 startEdge = cutEdges.FakePop();
 
             //Add it back so we can stop the algorithm
             cutEdges.Add(startEdge);
 
 
-            //This means we have found a cut edge
             List<HalfEdge3> sortedHoleEdges = new List<HalfEdge3>() { startEdge };
-            //Is needed to stop the algorithm
+            //The first edge is needed to stop the algorithm, so don't remove it!
             //cutEdges.Remove(startEdge);
 
 
@@ -279,19 +369,38 @@ namespace Habrador_Computational_Geometry
 
                     break;
                 }
+                //The hole is back where it started
                 else if (nextEdge == startEdge)
                 {
                     Debug.Log($"Number of edges to fill this hole: {sortedHoleEdges.Count}");
+
+                    allHoles.Add(sortedHoleEdges);
+
+                    //We have another hole
+                    if (cutEdges.Count > 0)
+                    {
+                        startEdge = cutEdges.FakePop();
+
+                        //Add it back so we can stop the algorithm
+                        cutEdges.Add(startEdge);
+
+                        //Start over with a new list
+                        sortedHoleEdges = new List<HalfEdge3>() { startEdge };
+                    }
+                    else
+                    {
+                        Debug.Log($"We could find: {allHoles.Count} number of holes");
                     
-                    break;
+                        break;
+                    }
                 }
                 else
                 {
                     sortedHoleEdges.Add(nextEdge);
                 }
-            
-            
-            
+
+
+
                 safety += 1;
 
                 if (safety > 20000)
@@ -304,81 +413,7 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-
-            //Debug
-            //foreach (HalfEdge3 e in sortedHoleEdges)
-            //{
-            //    Debug.DrawLine(meshTrans.TransformPoint(e.v.position.ToVector3()), Vector3.zero, Color.white, 5f);
-            //}
-
-
-            //Transform these vertices to local position of cut plane, and to 2d space, to make it easier to triangulate with Ear Clipping algorithm
-            List<MyVector2> sortedEdges_2D = new List<MyVector2>();
-
-            Transform planeTrans = orientedCutPlane.planeTrans;
-
-            foreach (HalfEdge3 e in sortedHoleEdges)
-            {
-                MyVector3 pMeshSpace = e.v.position;
-
-                //Mesh space to Global space
-                Vector3 pGlobalSpace = meshTrans.TransformPoint(pMeshSpace.ToVector3());
-
-                //Global space to Plane space
-                Vector3 pPlaneSpace = planeTrans.InverseTransformPoint(pGlobalSpace);
-
-                //Y is normal direction so should be 0
-                MyVector2 p2D = new MyVector2(pPlaneSpace.x, pPlaneSpace.z);
-
-                sortedEdges_2D.Add(p2D);
-            }
-
-
-            if (shouldReverseTriangles)
-            {
-                sortedEdges_2D.Reverse();
-            }
-            
-
-            //Triangulate with Ear Clipping
-            HashSet<Triangle2> triangles = _EarClipping.Triangulate(sortedEdges_2D, null, false);
-
-            Debug.Log($"Number of triangles from Ear Clipping: {triangles.Count}");
-
-            //To 3d and half-edge data structure
-            //TODO: in the future its more efficient to create a separate plane mesh and then merge because none of these vertices will be merged with the triangles belonging to the other mesh because of the hard edge
-            foreach (Triangle2 t in triangles)
-            {
-                //3d space
-                Vector3 p1 = new Vector3(t.p1.x, 0f, t.p1.y);
-                Vector3 p2 = new Vector3(t.p2.x, 0f, t.p2.y);
-                Vector3 p3 = new Vector3(t.p3.x, 0f, t.p3.y);
-
-                //Plane space to Global space
-                Vector3 p1Global = planeTrans.TransformPoint(p1);
-                Vector3 p2Global = planeTrans.TransformPoint(p2);
-                Vector3 p3Global = planeTrans.TransformPoint(p3);
-
-                //Global space to Mesh space
-                Vector3 p1Mesh = meshTrans.InverseTransformPoint(p1Global);
-                Vector3 p2Mesh = meshTrans.InverseTransformPoint(p2Global);
-                Vector3 p3Mesh = meshTrans.InverseTransformPoint(p3Global);
-
-                MyMeshVertex v1 = new MyMeshVertex(p1Mesh.ToMyVector3(), planeNormal);
-                MyMeshVertex v2 = new MyMeshVertex(p2Mesh.ToMyVector3(), planeNormal);
-                MyMeshVertex v3 = new MyMeshVertex(p3Mesh.ToMyVector3(), planeNormal);
-
-                //Now we can finally add this triangle to the half-edge data structure
-                if (shouldReverseTriangles)
-                {
-                    AddTriangleToMesh(v1, v3, v2, halfEdgeMesh, null);
-                }
-                else
-                {
-                    AddTriangleToMesh(v1, v2, v3, halfEdgeMesh, null);
-                }
-                
-            }
+            return allHoles;
         }
 
 
@@ -386,7 +421,7 @@ namespace Habrador_Computational_Geometry
         //Cut a triangle where one vertex is outside and the other vertices are inside
         //Make sure they are sorted clockwise: O1-I1-I2
         //F means that this vertex is outside of the plane
-        private static void CutTriangleOneOutside(MyMeshVertex O1, MyMeshVertex I1, MyMeshVertex I2, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, HashSet<HalfEdge3> newEdgesO, HashSet<HalfEdge3> newEdgesI, Plane3 cutPlane)
+        private static void CutTriangleOneOutside(MyMeshVertex O1, MyMeshVertex I1, MyMeshVertex I2, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, HashSet<HalfEdge3> newEdgesI, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
@@ -418,7 +453,7 @@ namespace Habrador_Computational_Geometry
 
             //Form 3 new triangles
             //Outside
-            AddTriangleToMesh(v_O1I1, v_I2O1, O1, newMeshO, newEdgesO);
+            AddTriangleToMesh(v_O1I1, v_I2O1, O1, newMeshO, null);
             //Inside
             AddTriangleToMesh(v_O1I1, I1, I2, newMeshI, null);
             AddTriangleToMesh(v_I2O1, v_O1I1, I2, newMeshI, newEdgesI);
@@ -429,7 +464,7 @@ namespace Habrador_Computational_Geometry
         //Cut a triangle where two vertices are inside and the other vertex is outside
         //Make sure they are sorted clockwise: O1-O2-I1
         //F means that this vertex is outside the plane
-        private static void CutTriangleTwoOutside(MyMeshVertex O1, MyMeshVertex O2, MyMeshVertex I1, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, HashSet<HalfEdge3> newEdgesO, HashSet<HalfEdge3> newEdgesI, Plane3 cutPlane)
+        private static void CutTriangleTwoOutside(MyMeshVertex O1, MyMeshVertex O2, MyMeshVertex I1, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, HashSet<HalfEdge3> newEdgesI, Plane3 cutPlane)
         {
             //Cut the triangle by using edge-plane intersection
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
@@ -461,7 +496,7 @@ namespace Habrador_Computational_Geometry
 
             //Form 3 new triangles
             //Outside
-            AddTriangleToMesh(v_O2I1, v_I1O1, O2, newMeshO, newEdgesO);
+            AddTriangleToMesh(v_O2I1, v_I1O1, O2, newMeshO, null);
             AddTriangleToMesh(O2, v_I1O1, O1, newMeshO, null);
             //Inside
             AddTriangleToMesh(v_I1O1, v_O2I1, I1, newMeshI, newEdgesI);
