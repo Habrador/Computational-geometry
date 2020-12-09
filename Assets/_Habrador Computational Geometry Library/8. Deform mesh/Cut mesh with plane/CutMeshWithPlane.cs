@@ -205,10 +205,8 @@ namespace Habrador_Computational_Geometry
 
 
 
-            //Fill the holes in the mesh which is easier to do after we split the meshes
-            //FillHole(newMeshO, newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal * -1f, shouldReverseTriangles: true);
-            //This is a slow process so its a waste of time to do it for each site. A simpler way is to just make sure that when we merge small triangles, we merge on both sides so the holes on each side always have the same number of vertices
-            FillHoles(newMeshI, newEdgesI, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+            //Fill the holes in the mesh
+            FillHoles(newMeshI, newMeshO, newEdgesI, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
 
 
             //Generate Unity standardized unity meshes
@@ -225,7 +223,7 @@ namespace Habrador_Computational_Geometry
 
         
         //Fill the hole (or holes) in the mesh
-        private static void FillHoles(HalfEdgeData3 halfEdgeMesh, HashSet<HalfEdge3> cutEdges, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal)
+        private static void FillHoles(HalfEdgeData3 halfEdgeMeshI, HalfEdgeData3 halfEdgeMeshO, HashSet<HalfEdge3> cutEdges, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal)
         {
             if (cutEdges == null || cutEdges.Count == 0)
             {
@@ -256,11 +254,16 @@ namespace Habrador_Computational_Geometry
 
 
             //Fill the hole with a mesh
+            List<HalfEdgeData3> holeMeshesI = new List<HalfEdgeData3>();
+            List<HalfEdgeData3> holeMeshesO = new List<HalfEdgeData3>();
+
             foreach (List<HalfEdge3> hole in allHoles)
             {
-                //HalfEdgeData3 holeMesh = FillHole();
+                HalfEdgeData3 holeMeshI = new HalfEdgeData3();
+                HalfEdgeData3 holeMeshO = new HalfEdgeData3();
 
-                //Transform these vertices to local position of cut plane, and to 2d space, to make it easier to triangulate with Ear Clipping algorithm
+                //Transform vertices to local position of the cut plane to make it easier to triangulate with Ear Clipping
+                //Ear CLipping wants vertices in 2d
                 List<MyVector2> sortedEdges_2D = new List<MyVector2>();
 
                 Transform planeTrans = orientedCutPlane.planeTrans;
@@ -283,12 +286,11 @@ namespace Habrador_Computational_Geometry
 
 
                 //Triangulate with Ear Clipping
-                HashSet<Triangle2> triangles = _EarClipping.Triangulate(sortedEdges_2D, null, false);
+                HashSet<Triangle2> triangles = _EarClipping.Triangulate(sortedEdges_2D, null, optimizeTriangles: false);
 
                 //Debug.Log($"Number of triangles from Ear Clipping: {triangles.Count}");
 
-                //To 3d and half-edge data structure
-                //TODO: in the future its more efficient to create a separate plane mesh and then merge because none of these vertices will be merged with the triangles belonging to the other mesh because of the hard edge
+                //Transform vertices to mesh space and half-edge data structure
                 foreach (Triangle2 t in triangles)
                 {
                     //3d space
@@ -306,13 +308,35 @@ namespace Habrador_Computational_Geometry
                     Vector3 p2Mesh = meshTrans.InverseTransformPoint(p2Global);
                     Vector3 p3Mesh = meshTrans.InverseTransformPoint(p3Global);
 
-                    MyMeshVertex v1 = new MyMeshVertex(p1Mesh.ToMyVector3(), planeNormal);
-                    MyMeshVertex v2 = new MyMeshVertex(p2Mesh.ToMyVector3(), planeNormal);
-                    MyMeshVertex v3 = new MyMeshVertex(p3Mesh.ToMyVector3(), planeNormal);
+                    //For inside mesh
+                    MyMeshVertex v1_I = new MyMeshVertex(p1Mesh.ToMyVector3(), planeNormal);
+                    MyMeshVertex v2_I = new MyMeshVertex(p2Mesh.ToMyVector3(), planeNormal);
+                    MyMeshVertex v3_I = new MyMeshVertex(p3Mesh.ToMyVector3(), planeNormal);
+
+                    //For inside mesh
+                    MyMeshVertex v1_O = new MyMeshVertex(p1Mesh.ToMyVector3(), -planeNormal);
+                    MyMeshVertex v2_O = new MyMeshVertex(p2Mesh.ToMyVector3(), -planeNormal);
+                    MyMeshVertex v3_O = new MyMeshVertex(p3Mesh.ToMyVector3(), -planeNormal);
 
                     //Now we can finally add this triangle to the half-edge data structure
-                    AddTriangleToMesh(v1, v2, v3, halfEdgeMesh, null);
+                    AddTriangleToMesh(v1_I, v2_I, v3_I, holeMeshI, null);
+                    AddTriangleToMesh(v1_O, v3_O, v2_O, holeMeshO, null);
                 }
+
+                holeMeshesI.Add(holeMeshI);
+                holeMeshesO.Add(holeMeshO);
+            }
+
+
+
+            //Pair the hole meshes with respective meshes
+            foreach (HalfEdgeData3 holeMeshData in holeMeshesI)
+            {
+                halfEdgeMeshI.MergeMesh(holeMeshData);
+            }
+            foreach (HalfEdgeData3 holeMeshData in holeMeshesO)
+            {
+                halfEdgeMeshO.MergeMesh(holeMeshData);
             }
         }
 
@@ -372,7 +396,7 @@ namespace Habrador_Computational_Geometry
                 //The hole is back where it started
                 else if (nextEdge == startEdge)
                 {
-                    Debug.Log($"Number of edges to fill this hole: {sortedHoleEdges.Count}");
+                    //Debug.Log($"Number of edges to fill this hole: {sortedHoleEdges.Count}");
 
                     allHoles.Add(sortedHoleEdges);
 
@@ -387,6 +411,7 @@ namespace Habrador_Computational_Geometry
                         //Start over with a new list
                         sortedHoleEdges = new List<HalfEdge3>() { startEdge };
                     }
+                    //No more holes
                     else
                     {
                         Debug.Log($"We could find: {allHoles.Count} number of holes");

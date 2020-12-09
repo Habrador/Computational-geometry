@@ -123,6 +123,16 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //Merge with another half-edge mesh
+        public void MergeMesh(HalfEdgeData3 otherMesh)
+        {
+            vertices.UnionWith(otherMesh.vertices);
+            faces.UnionWith(otherMesh.faces);
+            edges.UnionWith(otherMesh.edges);
+        }
+
+
+
         //Convert to Unity mesh (if we know we have stored triangles in the data structure)
         //shareVertices means that we want a smooth surface where some vertices are shared between triangles
         public Mesh ConvertToUnityMesh(string name, bool shareVertices, bool generateNormals)
