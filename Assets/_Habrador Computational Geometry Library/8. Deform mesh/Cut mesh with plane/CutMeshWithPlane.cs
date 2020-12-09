@@ -6,7 +6,7 @@ namespace Habrador_Computational_Geometry
 {
     //Cut a meth with a plane
     //TODO:
-    //- Remove sharp triangles to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals
+    //- Remove sharp triangles on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals
     //- Normalize the data to 0-1 to avoid floating point precision issues
     //- A "outside" and/or "inside" mesh may consist of multiple meshes, so you may need to split those and return more than 2 meshes
     //- Submeshes should be avoided because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
@@ -173,6 +173,8 @@ namespace Habrador_Computational_Geometry
                     {
                         CutTriangleTwoOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesI, cutPlane);
                     }
+
+                    //Something is strange if we end up here...
                     else
                     {
                         Debug.Log("No case was gound where we split triangle into 3 new triangles");
@@ -182,54 +184,175 @@ namespace Habrador_Computational_Geometry
 
 
             //Generate the new meshes only needed the old mesh intersected with the plane
-            if (newMeshO.vertices.Count == 0 || newMeshI.vertices.Count == 0)
+            if (newMeshO.verts.Count == 0 || newMeshI.verts.Count == 0)
             {
                 return null;
             }
 
 
-
-            //Make sure each edge has an opposite edge if an opposite edge exists
-            //We have to connect all edges because we later need it to make a triangulation walk to find mesh islands
-            //This is a slow process, so maybe faster to do it when we create new edges
-            newMeshO.ConnectAllEdges();
-            newMeshI.ConnectAllEdges();
+            //Display all edges which have no opposite
+            //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshO.edges, meshTrans, Color.white);
+            //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshI.edges, meshTrans, Color.white);
 
 
             //Remove small triangles at the seam where we did the cut because they will cause shading issues if the surface is smooth
             //RemoveSmallTriangles(F_Mesh, newEdges);
 
 
-
-            //Split the meshes into separate meshes if the original mesh is not connected
-
+            //Split each mesh into separate meshes if the original mesh is not connected
+            HashSet<HalfEdgeData3> newMeshesO = SeparateMeshIslands(newMeshO);
+            HashSet<HalfEdgeData3> newMeshesI = SeparateMeshIslands(newMeshI);
 
 
             //Fill the holes in the mesh
-            FillHoles(newMeshI, newMeshO, newEdgesI, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+            HashSet<Hole> allHoles = FillHoles(newEdgesI, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+
+
+            //Connect the holes with respective mesh
+            //We can easily identify a mesh by looking at edges with no neighbor
+            //foreach (Hole hole in allHoles)
+            //{
+            //    newMeshO.MergeMesh(hole.holeMeshO);
+            //    newMeshI.MergeMesh(hole.holeMeshI);
+            //}
+
 
 
             //Generate Unity standardized unity meshes
-            List<Mesh> cuttedMeshes = new List<Mesh>()
+            List<Mesh> cuttedMeshes = new List<Mesh>();
+
+            foreach (HalfEdgeData3 meshData in newMeshesO)
             {
-                    newMeshO.ConvertToUnityMesh("F mesh", shareVertices: true, generateNormals: false),
-                    newMeshI.ConvertToUnityMesh("B mesh", shareVertices: true, generateNormals: false)
-            };
+                Mesh unityMesh = meshData.ConvertToUnityMesh("Outside mesh", shareVertices: true, generateNormals: false);
+
+                cuttedMeshes.Add(unityMesh);
+            }
+
+            foreach (HalfEdgeData3 meshData in newMeshesI)
+            {
+                Mesh unityMesh = meshData.ConvertToUnityMesh("Inside mesh", shareVertices: true, generateNormals: false);
+
+                cuttedMeshes.Add(unityMesh);
+            }
+
 
 
             return cuttedMeshes;
         }
 
 
-        
+
+        //Separate a mesh by its islands (if it has islands)
+        private static HashSet<HalfEdgeData3> SeparateMeshIslands(HalfEdgeData3 meshData)
+        {
+            HashSet<HalfEdgeData3> meshIslands = new HashSet<HalfEdgeData3>();
+
+            HashSet<HalfEdgeFace3> allFaces = meshData.faces;
+
+
+            //Separate by flood-filling
+
+            //Faces belonging to a separate island
+            HashSet<HalfEdgeFace3> facesOnThisIsland = new HashSet<HalfEdgeFace3>();
+
+            //Faces we havent flodded from yet
+            Queue<HalfEdgeFace3> facesToFloodFrom = new Queue<HalfEdgeFace3>();
+
+            //Add a first face to the queue
+            HalfEdgeFace3 firstFace = allFaces.FakePop();
+
+            facesToFloodFrom.Enqueue(firstFace);
+
+            int numberOfIslands = 0;
+
+            List<HalfEdge3> edges = new List<HalfEdge3>();
+
+            int safety = 0;
+
+            while (true)
+            {
+                //If the queue is empty, it means we have flooded this island
+                if (facesToFloodFrom.Count == 0)
+                {
+                    numberOfIslands += 1;
+
+                    //Generate the new half-edge data structure from the faces that belong to this island
+                    HalfEdgeData3 meshIsland = HalfEdgeData3.GenerateHalfEdgeDataFromFaces(facesOnThisIsland);
+
+                    meshIslands.Add(meshIsland);
+
+                    //We still have faces to visit, so they must be on a new island
+                    if (allFaces.Count > 0)
+                    {
+                        facesOnThisIsland = new HashSet<HalfEdgeFace3>();
+
+                        //Add a first face to the queue
+                        firstFace = allFaces.FakePop();
+
+                        facesToFloodFrom.Enqueue(firstFace);
+                    }
+                    else
+                    {
+                        Debug.Log($"This mesh has {numberOfIslands} islands");
+                    
+                        break;
+                    }
+                }
+            
+                HalfEdgeFace3 f = facesToFloodFrom.Dequeue();
+
+                facesOnThisIsland.Add(f);
+
+                //Remove from the original mesh so we can identify if we need to start at a new island
+                allFaces.Remove(f);
+
+                //Find neighboring faces 
+                edges.Clear();
+
+                edges.Add(f.edge);
+                edges.Add(f.edge.nextEdge);
+                edges.Add(f.edge.nextEdge.nextEdge);
+
+                foreach (HalfEdge3 e in edges)
+                {
+                    if (e.oppositeEdge != null)
+                    {
+                        HalfEdgeFace3 fNeighbor = e.oppositeEdge.face;
+
+                        //If we haven't seen this face before
+                        if (!facesOnThisIsland.Contains(fNeighbor) && !facesToFloodFrom.Contains(fNeighbor))
+                        {
+                            facesToFloodFrom.Enqueue(fNeighbor);
+                        }
+                    }
+
+                    //Here we could mabe save all edges with no opposite, meaning its an edge at the hole 
+                }
+                
+
+                safety += 1;
+
+                if (safety > 50000)
+                {
+                    Debug.Log("Stuck in infinite loop when generating mesh islands");
+
+                    break;
+                }
+            }
+
+            return meshIslands;
+        }
+
+
+
         //Fill the hole (or holes) in the mesh
-        private static void FillHoles(HalfEdgeData3 halfEdgeMeshI, HalfEdgeData3 halfEdgeMeshO, HashSet<HalfEdge3> cutEdges, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal)
+        private static HashSet<Hole> FillHoles(HashSet<HalfEdge3> cutEdges, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal)
         {
             if (cutEdges == null || cutEdges.Count == 0)
             {
                 Debug.Log("This mesh has no hole");
 
-                return;
+                return null;
             }
 
 
@@ -238,9 +361,9 @@ namespace Habrador_Computational_Geometry
 
             if (allHoles.Count == 0)
             {
-                Debug.Log("Couldn't identify any holes");
+                Debug.LogWarning("Couldn't identify any holes even though we have hole edges");
 
-                return;
+                return null;
             }
 
             //Debug
@@ -254,8 +377,10 @@ namespace Habrador_Computational_Geometry
 
 
             //Fill the hole with a mesh
-            List<HalfEdgeData3> holeMeshesI = new List<HalfEdgeData3>();
-            List<HalfEdgeData3> holeMeshesO = new List<HalfEdgeData3>();
+            HashSet<Hole> holeMeshes = new HashSet<Hole>();
+
+            //List<HalfEdgeData3> holeMeshesI = new List<HalfEdgeData3>();
+            //List<HalfEdgeData3> holeMeshesO = new List<HalfEdgeData3>();
 
             foreach (List<HalfEdge3> hole in allHoles)
             {
@@ -323,27 +448,19 @@ namespace Habrador_Computational_Geometry
                     AddTriangleToMesh(v1_O, v3_O, v2_O, holeMeshO, null);
                 }
 
-                holeMeshesI.Add(holeMeshI);
-                holeMeshesO.Add(holeMeshO);
+                Hole newHoleMesh = new Hole(holeMeshI, holeMeshO, hole);
+
+                holeMeshes.Add(newHoleMesh);
             }
 
-
-
-            //Pair the hole meshes with respective meshes
-            foreach (HalfEdgeData3 holeMeshData in holeMeshesI)
-            {
-                halfEdgeMeshI.MergeMesh(holeMeshData);
-            }
-            foreach (HalfEdgeData3 holeMeshData in holeMeshesO)
-            {
-                halfEdgeMeshO.MergeMesh(holeMeshData);
-            }
+            return holeMeshes;
         }
 
 
 
         //We might end up with multiple holes, so we need to identify all of them
-        //We currently have just a list of all edges that form the holes
+        //Input is just a list of all edges that form the hole(s)
+        //The output list is sorted so we can walk around the hole
         private static HashSet<List<HalfEdge3>> IdentifySeparateHoles(HashSet<HalfEdge3> cutEdges)
         {
             HashSet<List<HalfEdge3>> allHoles = new HashSet<List<HalfEdge3>>();
@@ -414,7 +531,7 @@ namespace Habrador_Computational_Geometry
                     //No more holes
                     else
                     {
-                        Debug.Log($"We could find: {allHoles.Count} number of holes");
+                        Debug.Log($"The mesh has {allHoles.Count} holes");
                     
                         break;
                     }
@@ -531,7 +648,7 @@ namespace Habrador_Computational_Geometry
 
         //Help method to build a triangle and add it to a mesh
         //v1-v2-v3 should be sorted clock-wise
-        //v1-v2 should be the cut edge, and we know this triangle has a cut edge if newEdges != null
+        //v1-v2 should be the cut edge (if we have a cut edge), and we know this triangle has a cut edge if newEdges != null
         private static void AddTriangleToMesh(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, HalfEdgeData3 mesh, HashSet<HalfEdge3> newEdges)
         {
             //Create three new vertices
@@ -569,14 +686,24 @@ namespace Habrador_Computational_Geometry
             e_to_v2.face = f;
             e_to_v3.face = f;
 
-            //Each edge also needs an opposite edge, which is maybe better to add later because it requires some searching
-            //But maybe more efficient to do it here as we fill the data structures?
+            //Each edge needs an opposite edge
+            //This is slow process but we need it to be able to split meshes which are not connected
+            //You could do this afterwards when all triangles have been generate, but Im not sure which is the fastest...
+            mesh.TryFindOppositeEdge(e_to_v1);
+
+            //This is a hole edge (if newEdges exists) and has no opposite
+            if (newEdges == null)
+            {
+                mesh.TryFindOppositeEdge(e_to_v2);
+            }
+
+            mesh.TryFindOppositeEdge(e_to_v3);
 
 
             //Save the data
-            mesh.vertices.Add(half_v1);
-            mesh.vertices.Add(half_v2);
-            mesh.vertices.Add(half_v3);
+            mesh.verts.Add(half_v1);
+            mesh.verts.Add(half_v2);
+            mesh.verts.Add(half_v3);
 
             mesh.edges.Add(e_to_v1);
             mesh.edges.Add(e_to_v2);

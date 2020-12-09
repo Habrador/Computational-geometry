@@ -10,7 +10,8 @@ namespace Habrador_Computational_Geometry
     //3D space
     public class HalfEdgeData3
     {
-        public HashSet<HalfEdgeVertex3> vertices;
+        //Should be called verts because have the same #letters as faces, edges, so makes it pretty
+        public HashSet<HalfEdgeVertex3> verts; 
 
         public HashSet<HalfEdgeFace3> faces;
 
@@ -20,7 +21,7 @@ namespace Habrador_Computational_Geometry
 
         public HalfEdgeData3()
         {
-            this.vertices = new HashSet<HalfEdgeVertex3>();
+            this.verts = new HashSet<HalfEdgeVertex3>();
 
             this.faces = new HashSet<HalfEdgeFace3>();
 
@@ -79,7 +80,7 @@ namespace Habrador_Computational_Geometry
             {
                 if (e.oppositeEdge == null)
                 {
-                    TryConnectEdge(e);
+                    TryFindOppositeEdge(e);
                 }
             }
         }
@@ -88,29 +89,27 @@ namespace Habrador_Computational_Geometry
 
         //Connect an edge with an unknown opposite edge which has not been connected
         //If no opposite edge exists, it means it has no neighbor which is possible if there's a hole
-        public void TryConnectEdge(HalfEdge3 e)
+        public void TryFindOppositeEdge(HalfEdge3 e)
         {
-            //We need to find an edge which is going to a position where this edge is coming from
-            //An edge is pointing to a position, so we need to use the previous edge
-            MyVector3 posToFind = e.prevEdge.v.position;
+            //We need to find an edge which is: 
+            // - going to a position where this edge is coming from
+            // - coming from a position this edge points to
+            //An edge is pointing to a position
+            MyVector3 pTo = e.prevEdge.v.position;
+            MyVector3 pFrom = e.v.position;
 
             foreach (HalfEdge3 eOther in edges)
             {
-                //We don't need to check edges that have already been connected
+                //Don't need to check edges that have already been connected
                 if (eOther.oppositeEdge != null)
                 {
                     continue;
                 }
             
-                //Is this edge pointing to the vertex?
-                if (eOther.v.position.Equals(posToFind))
+                //Is this edge pointing from a specific vertex to a specific vertex
+                //If so it means we have found an edge going in the other direction
+                if (eOther.v.position.Equals(pTo) && eOther.prevEdge.v.position.Equals(pFrom))
                 {
-                    //Dont find edges within the same face because thats not an opposite edge
-                    if (e.face == eOther.face)
-                    {
-                        continue;
-                    }
-
                     //Connect them with each other
                     e.oppositeEdge = eOther;
 
@@ -126,7 +125,7 @@ namespace Habrador_Computational_Geometry
         //Merge with another half-edge mesh
         public void MergeMesh(HalfEdgeData3 otherMesh)
         {
-            vertices.UnionWith(otherMesh.vertices);
+            verts.UnionWith(otherMesh.verts);
             faces.UnionWith(otherMesh.faces);
             edges.UnionWith(otherMesh.edges);
         }
@@ -159,6 +158,37 @@ namespace Habrador_Computational_Geometry
             Mesh unityMesh = myMesh.ConvertToUnityMesh(name);
 
             return unityMesh;
+        }
+
+
+
+        //We have faces, but we also want a list with vertices, edges, etc
+        //Assume the faces are triangles
+        public static HalfEdgeData3 GenerateHalfEdgeDataFromFaces(HashSet<HalfEdgeFace3> faces)
+        {
+            HalfEdgeData3 meshData = new HalfEdgeData3();
+
+            //WHat we need to fill
+            HashSet<HalfEdge3> edges = new HashSet<HalfEdge3>();
+
+            HashSet<HalfEdgeVertex3> verts = new HashSet<HalfEdgeVertex3>();
+
+            foreach (HalfEdgeFace3 f in faces)
+            {
+                edges.Add(f.edge);
+                edges.Add(f.edge.nextEdge);
+                edges.Add(f.edge.nextEdge.nextEdge);
+
+                verts.Add(f.edge.v);
+                verts.Add(f.edge.nextEdge.v);
+                verts.Add(f.edge.nextEdge.nextEdge.v);
+            }
+
+            meshData.faces = faces;
+            meshData.edges = edges;
+            meshData.verts = verts;
+
+            return meshData;
         }
     }
 
