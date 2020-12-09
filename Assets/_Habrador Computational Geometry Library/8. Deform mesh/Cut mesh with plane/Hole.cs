@@ -9,15 +9,17 @@ namespace Habrador_Computational_Geometry
         public HalfEdgeData3 holeMeshI;
         public HalfEdgeData3 holeMeshO;
 
-        //Needed to make it faster to indentify to which mesh this hole belongs
-        public List<HalfEdge3> holeEdges;
+        //We need a single edge to make it easier to identify if a mesh should be merged with a hole
+        public HalfEdge3 holeEdgeI;
+        public HalfEdge3 holeEdgeO;
 
-        public Hole(HalfEdgeData3 holeMeshI, HalfEdgeData3 holeMeshO, List<HalfEdge3> holeEdges)
+        public Hole(HalfEdgeData3 holeMeshI, HalfEdgeData3 holeMeshO, HalfEdge3 holeEdgeI, HalfEdge3 holeEdgeO)
         {
             this.holeMeshI = holeMeshI;
             this.holeMeshO = holeMeshO;
 
-            this.holeEdges = holeEdges;
+            this.holeEdgeI = holeEdgeI;
+            this.holeEdgeO = holeEdgeO;
         }
     }
 }
