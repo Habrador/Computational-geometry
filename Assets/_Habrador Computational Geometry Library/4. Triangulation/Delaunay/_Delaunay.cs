@@ -39,9 +39,13 @@ namespace Habrador_Computational_Geometry
         //Start with a delaunay triangulation of all points, including the constraints
         //Then flip edges to make sure the constrains are in the triangulation
         //Then remove the unwanted triangles within the constraints (if we want to)
-        public static HalfEdgeData2 ConstrainedBySloan(HashSet<MyVector2> sites, List<MyVector2> constraints, bool shouldRemoveTriangles, HalfEdgeData2 triangleData)
+        // - sites: just some points
+        // Constraints:
+        // - hull: remove all triangles outside of the hull, should be ordered counter-clock-wise
+        // - holes: remove all triangles within the holes, should be ordered clock-wise 
+        public static HalfEdgeData2 ConstrainedBySloan(HashSet<MyVector2> points, List<MyVector2> hull, HashSet<List<MyVector2>> holes, bool shouldRemoveTriangles, HalfEdgeData2 triangleData)
         {
-            ConstrainedDelaunaySloan.GenerateTriangulation(sites, constraints, shouldRemoveTriangles, triangleData);
+            ConstrainedDelaunaySloan.GenerateTriangulation(points, hull, holes, shouldRemoveTriangles, triangleData);
 
             return triangleData;
         }

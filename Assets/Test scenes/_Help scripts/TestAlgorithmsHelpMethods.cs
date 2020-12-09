@@ -9,6 +9,35 @@ using Habrador_Computational_Geometry;
 public static class TestAlgorithmsHelpMethods
 {
     //
+    // Common help methods
+    //
+
+    //Get all child points to a parent transform
+    public static List<Vector3> GetPointsFromParent(Transform parentTrans)
+    {
+        if (parentTrans == null)
+        {
+            Debug.Log("No parent so cant get children");
+
+            return null;
+        }
+
+        //Is not including the parent
+        int children = parentTrans.childCount;
+
+        List<Vector3> childrenPositions = new List<Vector3>();
+
+        for (int i = 0; i < children; i++)
+        {
+            childrenPositions.Add(parentTrans.GetChild(i).position);
+        }
+
+        return childrenPositions;
+    }
+
+
+
+    //
     // Display shapes with Gizmos
     //
 
@@ -87,6 +116,7 @@ public static class TestAlgorithmsHelpMethods
     }
 
 
+
     //Display the edges of a mesh's triangles with some color
     public static void DisplayMeshEdges(Mesh mesh, Color sideColor)
     {
@@ -117,7 +147,8 @@ public static class TestAlgorithmsHelpMethods
 
 
     //Display a connected set of points, like a convex hull
-    public static void DisplayConnectedPoints(List<Vector3> points, Color color)
+    //Can also show direction by displaying a tiny arrow
+    public static void DisplayConnectedPoints(List<Vector3> points, Color color, bool showDirection = false)
     {
         if (points == null)
         {
@@ -128,15 +159,20 @@ public static class TestAlgorithmsHelpMethods
 
         for (int i = 0; i < points.Count; i++)
         {
-            Vector3 pos = points[i];
+            Vector3 p1 = points[MathUtility.ClampListIndex(i - 1, points.Count)];
+            Vector3 p2 = points[MathUtility.ClampListIndex(i + 0, points.Count)];
 
-            Vector3 posNext = points[MathUtility.ClampListIndex(i + 1, points.Count)];
+            //Direction is important so we should display an arrow show the order of the points
+            if (i == 0 && showDirection)
+            {
+                TestAlgorithmsHelpMethods.DisplayArrow(p1, p2, 0.2f, color);
+            }
+            else
+            {
+                Gizmos.DrawLine(p1, p2);
+            }
 
-            Gizmos.color = Color.black;
-
-            Gizmos.DrawLine(pos, posNext);
-
-            Gizmos.DrawSphere(pos, 0.2f);
+            Gizmos.DrawWireSphere(p1, 0.1f);
         }
     }
 
@@ -318,7 +354,7 @@ public static class TestAlgorithmsHelpMethods
     // Generate points
     //
 
-    //Find all vertices of a plane
+    //Find all vertices of a "Plane" (which is Unitys predefined mesh called plane)
     public static HashSet<Vector3> GeneratePointsFromPlane(Transform planeTrans)
     {
         HashSet<Vector3> points = new HashSet<Vector3>();

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Habrador_Computational_Geometry;
+using System.Linq;
 
 public class DelaunayController : MonoBehaviour 
 {
@@ -11,36 +12,36 @@ public class DelaunayController : MonoBehaviour
 
     public int numberOfPoints = 10;
 
+
+    //Constraints
+
     //One constraints where the vertices are connected to form the entire constraint
     public List<Vector3> constraints;
 
-    Mesh triangulatedMesh;
+    //Constraints by using children to a parent, which we have to drag
+    //Should be sorted counter-clock-wise
+    public Transform hullConstraintParent;
+    //Should be sorted clock-wise
+    public List<Transform> holeConstraintParents;
 
+
+    //The mesh so we can generate when we press a button and display it in DrawGizmos
+    Mesh triangulatedMesh;
 
 
     public void GenerateTriangulation()
     {
+        /*
         //Get the random points
         HashSet<Vector3> points = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, halfMapSize, numberOfPoints);
 
-
         //From 3d to 2d
-        HashSet<MyVector2> points_2d = new HashSet<MyVector2>();
-        
-        foreach (Vector3 v in points)
-        {
-            points_2d.Add(v.ToMyVector2());
-        }
+        HashSet<MyVector2> points_2d = new HashSet<MyVector2>(points.Select(x => x.ToMyVector2()));
 
-        List<MyVector2> constraints_2d = new List<MyVector2>();
-
-        foreach (Vector3 v in constraints)
-        {
-            constraints_2d.Add(v.ToMyVector2());
-        }
+        List<MyVector2> constraints_2d = constraints.Select(x => x.ToMyVector2()).ToList();
 
         //Normalize to range 0-1
-        //We should use all points, including the constraints
+        //We should use all points, including the constraints because the hole may be outside of the random points
         List<MyVector2> allPoints = new List<MyVector2>();
 
         allPoints.AddRange(new List<MyVector2>(points_2d));
@@ -53,6 +54,55 @@ public class DelaunayController : MonoBehaviour
         HashSet<MyVector2> points_2d_normalized = HelpMethods.Normalize(points_2d, normalizingBox, dMax);
 
         List<MyVector2> constraints_2d_normalized = HelpMethods.Normalize(constraints_2d, normalizingBox, dMax);
+        */
+
+
+        //Hull
+        List<Vector3> hullPoints = TestAlgorithmsHelpMethods.GetPointsFromParent(hullConstraintParent);
+
+        List<MyVector2> hullPoints_2d = hullPoints.Select(x => x.ToMyVector2()).ToList(); ;
+
+        //Holes
+        HashSet<List<MyVector2>> allHolePoints_2d = new HashSet<List<MyVector2>>();
+
+        foreach (Transform holeParent in holeConstraintParents)
+        {
+            List<Vector3> holePoints = TestAlgorithmsHelpMethods.GetPointsFromParent(holeParent);
+
+            if (holePoints != null)
+            {
+                List<MyVector2> holePoints_2d = holePoints.Select(x => x.ToMyVector2()).ToList();
+
+                allHolePoints_2d.Add(holePoints_2d);
+            }
+        }
+
+
+        //Normalize to range 0-1
+        //We should use all points, including the constraints because the hole may be outside of the random points
+        List<MyVector2> allPoints = new List<MyVector2>();
+
+        allPoints.AddRange(hullPoints_2d);
+
+        foreach (List<MyVector2> hole in allHolePoints_2d)
+        {
+            allPoints.AddRange(hole);
+        }
+
+        AABB2 normalizingBox = new AABB2(allPoints);
+
+        float dMax = HelpMethods.CalculateDMax(normalizingBox);
+
+        List<MyVector2> hullPoints_2d_normalized = HelpMethods.Normalize(hullPoints_2d, normalizingBox, dMax);
+
+        HashSet<List<MyVector2>> allHolePoints_2d_normalized = new HashSet<List<MyVector2>>();
+
+        foreach (List<MyVector2> hole in allHolePoints_2d)
+        {
+            List<MyVector2> hole_normalized = HelpMethods.Normalize(hole, normalizingBox, dMax);
+
+            allHolePoints_2d_normalized.Add(hole_normalized);
+        }
 
 
 
@@ -69,7 +119,7 @@ public class DelaunayController : MonoBehaviour
 
 
         //Algorithm 3. Constrained delaunay
-        HalfEdgeData2 triangleData_normalized = _Delaunay.ConstrainedBySloan(points_2d_normalized, constraints_2d_normalized, shouldRemoveTriangles: true, new HalfEdgeData2());
+        HalfEdgeData2 triangleData_normalized = _Delaunay.ConstrainedBySloan(null, hullPoints_2d_normalized, allHolePoints_2d_normalized, shouldRemoveTriangles: true, new HalfEdgeData2());
 
 
 
@@ -109,6 +159,32 @@ public class DelaunayController : MonoBehaviour
         if (constraints != null)
         {
             //DebugResults.DisplayConnectedPoints(obstacle, Color.black);
+        }
+
+
+        //Display drag constraints
+        DisplayDragConstraints();
+    }
+
+
+
+    private void DisplayDragConstraints()
+    {
+        if (hullConstraintParent != null)
+        {
+            List<Vector3> points = TestAlgorithmsHelpMethods.GetPointsFromParent(hullConstraintParent);
+
+            TestAlgorithmsHelpMethods.DisplayConnectedPoints(points, Color.white, true);
+        }
+
+        if (holeConstraintParents != null)
+        {
+            foreach (Transform holeParent in holeConstraintParents)
+            {
+                List<Vector3> points = TestAlgorithmsHelpMethods.GetPointsFromParent(holeParent);
+
+                TestAlgorithmsHelpMethods.DisplayConnectedPoints(points, Color.white, true);
+            }
         }
     }
 }

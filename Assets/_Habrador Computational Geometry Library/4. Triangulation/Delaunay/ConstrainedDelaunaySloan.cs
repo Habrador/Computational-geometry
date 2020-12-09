@@ -7,24 +7,40 @@ namespace Habrador_Computational_Geometry
     //From the report "An algorithm for generating constrained delaunay triangulations" by Sloan
     public static class ConstrainedDelaunaySloan
     {
-        public static HalfEdgeData2 GenerateTriangulation(HashSet<MyVector2> points, List<MyVector2> constraints, bool shouldRemoveTriangles, HalfEdgeData2 triangleData)
+        public static HalfEdgeData2 GenerateTriangulation(HashSet<MyVector2> points, List<MyVector2> hull, HashSet<List<MyVector2>> holes, bool shouldRemoveTriangles, HalfEdgeData2 triangleData)
         {
             //Start by generating a delaunay triangulation with all points, including the constraints
-            if (constraints != null)
+            HashSet<MyVector2> allPoints = new HashSet<MyVector2>();
+
+            if (points != null)
             {
-                points.UnionWith(constraints);
+                allPoints.UnionWith(points);
             }
 
+            if (hull != null)
+            {
+                allPoints.UnionWith(hull);
+            }
+
+            if (holes != null)
+            {
+                foreach (List<MyVector2> hole in holes)
+                {
+                    allPoints.UnionWith(hole);
+                }
+            }
+
+
             //Generate the Delaunay triangulation with some algorithm
-            //triangleData = _Delaunay.FlippingEdges(points);
-            triangleData = _Delaunay.PointByPoint(points, triangleData);
+            //triangleData = _Delaunay.FlippingEdges(allPoints);
+            triangleData = _Delaunay.PointByPoint(allPoints, triangleData);
             
 
             //Modify the triangulation by adding the constraints to the delaunay triangulation
-            if (constraints != null)
-            {
-                triangleData = AddConstraints(triangleData, constraints, shouldRemoveTriangles);
-            }
+            //if (constraints != null)
+            //{
+            //    triangleData = AddConstraints(triangleData, constraints, shouldRemoveTriangles);
+            //}
 
             //Debug.Log(triangleData.faces.Count);
 
