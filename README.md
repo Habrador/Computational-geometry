@@ -8,10 +8,23 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 The code has been tested by using Unity 2018.4 LTS but should work with other versions. 
 
+1. [Intersections](#1-intersection)
+2. [Generate mesh](#2-generate-mesh)
+3. [Convex hull](#3-convex-hull)
+4. [Triangulation](#4-triangulation)
+5. [Voronoi diagram](#5-voronoi-diagram)
+6. [Polygon clipping](#6-polygon-clipping)
+7. [Extrude mesh along curve](#7-extrude-mesh-along-curve)
+8. [Deform mesh](#8-deform-mesh)
+9. [Other](#9-other)
+10. [TODO](#todo)
+11. [Updates](#big-updates)
+
+
 ## Finished
 
 
-### 1. Intersection
+### 1. Intersections
 
 #### 1.1 2d-space
 
@@ -231,7 +244,9 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 
 
 
-### 8. Deform mesh (the fun part of computational geometry!)
+### 8. Deform mesh
+
+The fun part of computational geometry!
 
 **Cut mesh with plane**
 
@@ -286,6 +301,8 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 	* Quickhull
 	* Iterative
 	* Divide and Conquer
+* Concave hull 2d:
+	* Alpha shape
 * Triangulations:
 	* Marching cubes
 	* Dynamic constrained delaunay triangulation
