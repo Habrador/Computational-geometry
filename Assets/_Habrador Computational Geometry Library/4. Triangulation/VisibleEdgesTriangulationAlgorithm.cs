@@ -124,7 +124,7 @@ namespace Habrador_Computational_Geometry
             }
 
             //Calculate the first convex hull
-            List<MyVector2> pointsOnHull = _ConvexHull.JarvisMarch(triangulatePoints);
+            List<MyVector2> pointsOnHull = _ConvexHull.JarvisMarch_2D(triangulatePoints);
 
             //Add the other points one-by-one
             foreach (MyVector2 pointToAdd in sortedPoints)
@@ -164,7 +164,7 @@ namespace Habrador_Computational_Geometry
 
                     //Find the convex hull of the current triangulation
                     //It generates a counter-clockwise convex hull
-                    pointsOnHull = _ConvexHull.JarvisMarch(new HashSet<MyVector2>(pointsOnHull));
+                    pointsOnHull = _ConvexHull.JarvisMarch_2D(new HashSet<MyVector2>(pointsOnHull));
                 }
                 else
                 {

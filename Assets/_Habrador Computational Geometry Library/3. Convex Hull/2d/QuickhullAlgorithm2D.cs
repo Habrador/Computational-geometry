@@ -7,7 +7,7 @@ namespace Habrador_Computational_Geometry
 {
     //https://en.wikipedia.org/wiki/Quickhull
     //"Implementing Quickhull" pdf from Valve by Dirk Gregorious
-    public static class QuickhullAlgorithm
+    public static class QuickhullAlgorithm2D
     {
         //Used for debugging so we can see what's going on
         //public static List<MyVector2> GenerateConvexHull(List<MyVector2> originalPoints, bool includeColinearPoints, AABB normalizingbox, float dMax)

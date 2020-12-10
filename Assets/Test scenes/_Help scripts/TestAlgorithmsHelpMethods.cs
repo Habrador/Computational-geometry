@@ -85,7 +85,7 @@ public static class TestAlgorithmsHelpMethods
 
 
     //Display triangle
-    public static void DisplayTriangle(Vector3 a, Vector3 b, Vector3 c, Color color)
+    public static void DisplayTriangleEdges(Vector3 a, Vector3 b, Vector3 c, Color color)
     {
         Gizmos.color = color;
 
@@ -375,23 +375,66 @@ public static class TestAlgorithmsHelpMethods
 
 
 
-    //Generate random points within a specified square size
-    public static HashSet<Vector3> GenerateRandomPoints(int seed, float squareSize, int totalPoints)
+    //Generate random points within a square located at (0,0), so 2d space
+    public static HashSet<Vector2> GenerateRandomPoints2D(int seed, float halfSquareSize, int numberOfPoints)
+    {
+        HashSet<Vector2> randomPoints = new HashSet<Vector2>();
+
+        //Generate random numbers with a seed
+        Random.InitState(seed);
+
+        float max = halfSquareSize;
+        float min = -halfSquareSize;
+
+        for (int i = 0; i < numberOfPoints; i++)
+        {
+            float randomX = Random.Range(min, max);
+            float randomY = Random.Range(min, max);
+
+            randomPoints.Add(new Vector2(randomX, randomY));
+        }
+
+        return randomPoints;
+    }
+
+
+    //Generate random points within a cube located at (0,0,0), so 3d space
+    public static HashSet<Vector3> GenerateRandomPoints3D(int seed, float halfCubeSize, int numberOfPoints)
     {
         HashSet<Vector3> randomPoints = new HashSet<Vector3>();
 
         //Generate random numbers with a seed
         Random.InitState(seed);
 
-        float max = squareSize;
-        float min = -squareSize;
+        float max = halfCubeSize;
+        float min = -halfCubeSize;
 
-        for (int i = 0; i < totalPoints; i++)
+        for (int i = 0; i < numberOfPoints; i++)
         {
             float randomX = Random.Range(min, max);
+            float randomY = Random.Range(min, max);
             float randomZ = Random.Range(min, max);
 
-            randomPoints.Add(new Vector3(randomX, 0f, randomZ));
+            randomPoints.Add(new Vector3(randomX, randomY, randomZ));
+        }
+
+        return randomPoints;
+    }
+
+
+    //Generate random points on a sphere located at (0,0,0)
+    public static HashSet<Vector3> GenerateRandomPointsOnSphere(int seed, float radius, int numberOfPoints)
+    {
+        HashSet<Vector3> randomPoints = new HashSet<Vector3>();
+
+        //Generate random numbers with a seed
+        Random.InitState(seed);
+
+        for (int i = 0; i < numberOfPoints; i++)
+        {
+            Vector3 posOnSphere = Random.onUnitSphere * radius;
+
+            randomPoints.Add(posOnSphere);
         }
 
         return randomPoints;

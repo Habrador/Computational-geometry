@@ -55,6 +55,24 @@ namespace Habrador_Computational_Geometry
             this.min = new MyVector2(minX, minY);
             this.max = new MyVector2(maxX, maxY);
         }
+
+
+
+        //Check if the rectangle is a rectangle and not flat in any dimension
+        public bool IsRectangleARectangle()
+        {
+            float xWidth = Mathf.Abs(max.x - min.x);
+            float yWidth = Mathf.Abs(max.y - min.y);
+
+            float epsilon = MathUtility.EPSILON;
+
+            if (xWidth < epsilon || yWidth < epsilon)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 
 
@@ -127,6 +145,25 @@ namespace Habrador_Computational_Geometry
                     max.z = p.z;
                 }
             }
+        }
+
+
+
+        //Check if the box is a box and not flat in any dimension
+        public bool IsBoxABox()
+        {
+            float xWidth = Mathf.Abs(max.x - min.x);
+            float yWidth = Mathf.Abs(max.y - min.y);
+            float zWidth = Mathf.Abs(max.z - min.z);
+
+            float epsilon = MathUtility.EPSILON;
+
+            if (xWidth < epsilon || yWidth < epsilon || zWidth < epsilon)
+            {
+                return false;
+            }
+
+            return true;
         }
 
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Habrador_Computational_Geometry;
 
-public class HullController : MonoBehaviour 
+public class HullController2D : MonoBehaviour 
 {
     //The plane with colinear points to stress-test the algorithms
     public Transform planeTrans;
@@ -62,7 +62,7 @@ public class HullController : MonoBehaviour
 
         //Algorithm 2. Quickhull
         //List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.Quickhull(points_2d_normalized, includeColinearPoints: true, normalizingBox, dMax);
-        List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.Quickhull(points_2d_normalized, includeColinearPoints: true);
+        List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.Quickhull_2D(points_2d_normalized, includeColinearPoints: true);
 
         if (pointsOnConvexHull_2d_normalized == null)
         {
@@ -128,7 +128,7 @@ public class HullController : MonoBehaviour
 
         stopWatch.Start();
         
-        List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.JarvisMarch(points);
+        List<MyVector2> pointsOnConvexHull_2d_normalized = _ConvexHull.JarvisMarch_2D(points);
         
         stopWatch.Stop();
 

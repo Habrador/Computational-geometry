@@ -6,39 +6,62 @@ namespace Habrador_Computational_Geometry
 {
     public static class _ConvexHull
     {
-        //2d space
-    
-        //Algorithm 1. Jarvis March - slow but simple
-        public static List<MyVector2> JarvisMarch(HashSet<MyVector2> points)
+        //
+        // 2d space
+        //
+
+        //Jarvis March - slow but simple
+        public static List<MyVector2> JarvisMarch_2D(HashSet<MyVector2> points)
         {
             List<MyVector2> pointsList = new List<MyVector2>(points);
 
-            if (!CanFormConvexHull(pointsList))
+            if (!CanFormConvexHull_2d(pointsList))
             {
                 return null;
             }
         
             //Has to return a list and not hashset because the points have an order coming after each other
-            List<MyVector2> pointsOnHull = JarvisMarchAlgorithm.GenerateConvexHull(pointsList);
+            List<MyVector2> pointsOnHull = JarvisMarchAlgorithm2D.GenerateConvexHull(pointsList);
 
             return pointsOnHull;
         }
 
 
-        //Algorithm 2. Quickhull
-        public static List<MyVector2> Quickhull(HashSet<MyVector2> points, bool includeColinearPoints)
+        //Quickhull
+        public static List<MyVector2> Quickhull_2D(HashSet<MyVector2> points, bool includeColinearPoints)
         {
             List<MyVector2> pointsList = new List<MyVector2>(points);
 
-            if (!CanFormConvexHull(pointsList))
+            if (!CanFormConvexHull_2d(pointsList))
             {
                 return null;
             }
 
             //Has to return a list and not hashset because the points have an order coming after each other
-            List<MyVector2> pointsOnHull = QuickhullAlgorithm.GenerateConvexHull(pointsList, includeColinearPoints);
+            List<MyVector2> pointsOnHull = QuickhullAlgorithm2D.GenerateConvexHull(pointsList, includeColinearPoints);
 
             return pointsOnHull;
+        }
+
+
+
+        //
+        // 3d space
+        //
+
+        //Iterative
+        public static HalfEdgeData3 Iterative_3D(HashSet<MyVector3> points)
+        {
+            List<MyVector3> pointsList = new List<MyVector3>(points);
+
+            if (!CanFormConvexHull_3d(pointsList))
+            {
+                return null;
+            }
+
+            HalfEdgeData3 convexHull = IterativeAlgorithm3D.GenerateConvexHull(points);
+
+            return null;
         }
 
 
@@ -46,7 +69,7 @@ namespace Habrador_Computational_Geometry
         //
         // Algorithms that test if we can form a convex hull
         //
-        private static bool CanFormConvexHull(List<MyVector2> points)
+        private static bool CanFormConvexHull_2d(List<MyVector2> points)
         {
             //First test of we can form a convex hull
 
@@ -60,9 +83,35 @@ namespace Habrador_Computational_Geometry
 
             //Find the bounding box of the points
             //If the spread is close to 0, then they are all at the same position, and we cant create a hull
-            AABB2 box = new AABB2(points);
+            AABB2 rectangle = new AABB2(points);
 
-            if (Mathf.Abs(box.max.x - box.min.x) < MathUtility.EPSILON || Mathf.Abs(box.max.y - box.min.y) < MathUtility.EPSILON)
+            if (!rectangle.IsRectangleARectangle())
+            {
+                Debug.Log("The points cant form a convex hull");
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool CanFormConvexHull_3d(List<MyVector3> points)
+        {
+            //First test of we can form a convex hull
+
+            //If fewer points, then we cant create a convex hull in 3d space
+            if (points.Count < 4)
+            {
+                Debug.Log("Too few points co calculate a convex hull");
+
+                return false;
+            }
+
+            //Find the bounding box of the points
+            //If the spread is close to 0, then they are all at the same position, and we cant create a hull
+            AABB3 box = new AABB3(points);
+
+            if (!box.IsBoxABox())
             {
                 Debug.Log("The points cant form a convex hull");
 

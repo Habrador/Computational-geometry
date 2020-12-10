@@ -88,7 +88,7 @@ public class TriangulatePointsController : MonoBehaviour
 
         //First find the convex hull of the points
         //This means that we first need to find the points on the convex hull
-        List<MyVector2> pointsOnHull_normalized = _ConvexHull.JarvisMarch(points_2d_normalized);
+        List<MyVector2> pointsOnHull_normalized = _ConvexHull.JarvisMarch_2D(points_2d_normalized);
 
         //Method 1 
         //Go through the convex hull point-by-point and build triangles while anchoring to the first vertex
@@ -169,7 +169,7 @@ public class TriangulatePointsController : MonoBehaviour
 
             Triangle2 t = test[testTriangleNumber];
         
-            TestAlgorithmsHelpMethods.DisplayTriangle(t.p1.ToVector3(), t.p2.ToVector3(), t.p3.ToVector3(), Color.white);
+            TestAlgorithmsHelpMethods.DisplayTriangleEdges(t.p1.ToVector3(), t.p2.ToVector3(), t.p3.ToVector3(), Color.white);
         }
     }
 }

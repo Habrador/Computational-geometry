@@ -15,7 +15,7 @@ namespace Habrador_Computational_Geometry
         public static HashSet<Triangle2> TriangulatePoints(HashSet<MyVector2> points, bool addColinearPoints)
         {
             //Step 1. Generate the convex hull
-            List<MyVector2> pointsOnConvexHull = _ConvexHull.JarvisMarch(points);
+            List<MyVector2> pointsOnConvexHull = _ConvexHull.JarvisMarch_2D(points);
 
 
             //Step 2. Triangulate the convex hull

@@ -12,7 +12,7 @@ namespace Habrador_Computational_Geometry
     //The algorithm is O(n*n) but is often faster if the number of points on the hull is fewer than all points
     //In that case the algorithm will be O(h * n)
     //Is more robust than other algorithms because it will handle colinear points with ease
-    public static class JarvisMarchAlgorithm
+    public static class JarvisMarchAlgorithm2D
     {
         public static List<MyVector2> GenerateConvexHull(List<MyVector2> points)
         {   
