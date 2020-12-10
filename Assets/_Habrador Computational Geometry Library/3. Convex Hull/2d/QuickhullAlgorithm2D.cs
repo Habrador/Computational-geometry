@@ -64,6 +64,7 @@ namespace Habrador_Computational_Geometry
 
             //Loop through all points and compare them
             //TODO is comparing too many times: example maxX with maxY, and then maxY with maxX
+            //Second for should be j = i + 1
             //https://stackoverflow.com/questions/12249051/unique-combinations-of-list
             for (int i = 0; i < extremePoints.Count; i++)
             {

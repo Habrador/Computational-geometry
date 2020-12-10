@@ -441,8 +441,6 @@ namespace Habrador_Computational_Geometry
             MyVector2 a_p = p - a;
             MyVector2 a_b = b - a;
 
-            //This is using vector projections???
-
             //Square magnitude of AB vector
             float sqrMagnitudeAB = MyVector2.SqrMagnitude(a_b);
 
@@ -466,6 +464,29 @@ namespace Habrador_Computational_Geometry
             {
                 return a + a_b * distance;
             }
+        }
+
+        //3d
+        public static MyVector3 GetClosestPointOnLine(Edge3 e, MyVector3 p, bool useSquareDistance)
+        {
+            MyVector3 a = e.p1;
+            MyVector3 b = e.p2;
+
+            MyVector3 a_p = p - a;
+            MyVector3 a_b = b - a;
+
+            //Square magnitude of AB vector
+            float sqrMagnitudeAB = MyVector3.SqrMagnitude(a_b);
+
+            //The DOT product of a_p and a_b  
+            float ABAPproduct = MyVector3.Dot(a_p, a_b);
+
+            //The normalized "distance" from a to the closest point  
+            float distance = ABAPproduct / sqrMagnitudeAB;
+
+            MyVector3 closestPointOnLine = a + a_b * distance;
+
+            return closestPointOnLine;
         }
 
 

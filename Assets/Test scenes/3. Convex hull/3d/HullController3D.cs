@@ -33,5 +33,23 @@ public class HullController3D : MonoBehaviour
 	}
 
     
-    
+
+    //
+    // Test points
+    //
+    private HashSet<MyVector3> GetCubeTestPoints()
+    {
+        HashSet<MyVector3> cube = new HashSet<MyVector3>();
+
+        cube.Add(new MyVector3(0f, 0f, 0f));
+        cube.Add(new MyVector3(0f, 1f, 0f));
+        cube.Add(new MyVector3(1f, 1f, 0f));
+        cube.Add(new MyVector3(1f, 0f, 0f));
+        cube.Add(new MyVector3(0f, 0f, 1f));
+        cube.Add(new MyVector3(0f, 1f, 1f));
+        cube.Add(new MyVector3(1f, 1f, 1f));
+        cube.Add(new MyVector3(1f, 0f, 1f));
+
+        return cube;
+    }
 }
