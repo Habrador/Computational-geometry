@@ -470,4 +470,16 @@ public static class TestAlgorithmsHelpMethods
             angle += anglePerSegment;
         }
     }
+
+
+    public static void DebugDrawTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 normal, Color lineColor, Color normalColor)
+    {
+        Debug.DrawLine(p1, p2, lineColor, 2f);
+        Debug.DrawLine(p2, p3, lineColor, 2f);
+        Debug.DrawLine(p3, p1, lineColor, 2f);
+
+        Vector3 center = _Geometry.CalculateTriangleCenter(p1.ToMyVector3(), p2.ToMyVector3(), p3.ToMyVector3()).ToVector3();
+
+        Debug.DrawLine(center, center + normal, normalColor, 2f);
+    }
 }

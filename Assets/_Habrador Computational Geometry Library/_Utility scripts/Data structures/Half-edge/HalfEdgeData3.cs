@@ -190,6 +190,74 @@ namespace Habrador_Computational_Geometry
 
             return meshData;
         }
+
+
+
+        //Add a triangle to this mesh
+        public void AddTriangle(MyVector3 p1, MyVector3 p2, MyVector3 p3)
+        {
+            MyVector3 normal = MyVector3.Normalize(MyVector3.Cross(p3 - p2, p1 - p2));
+
+            MyMeshVertex v1 = new MyMeshVertex(p1, normal);
+            MyMeshVertex v2 = new MyMeshVertex(p2, normal);
+            MyMeshVertex v3 = new MyMeshVertex(p3, normal);
+
+            AddTriangle(v1, v2, v3);
+        }
+
+        //v1-v2-v3 should be clock-wise which is Unity standard
+        public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3)
+        {
+            //Create three new vertices
+            HalfEdgeVertex3 half_v1 = new HalfEdgeVertex3(v1.position, v1.normal);
+            HalfEdgeVertex3 half_v2 = new HalfEdgeVertex3(v2.position, v2.normal);
+            HalfEdgeVertex3 half_v3 = new HalfEdgeVertex3(v3.position, v3.normal);
+
+            //Create three new half-edges that points TO these vertices
+            HalfEdge3 e_to_v1 = new HalfEdge3(half_v1);
+            HalfEdge3 e_to_v2 = new HalfEdge3(half_v2);
+            HalfEdge3 e_to_v3 = new HalfEdge3(half_v3);
+
+            //Create the face (which is a triangle) which needs a reference to one of the edges
+            HalfEdgeFace3 f = new HalfEdgeFace3(e_to_v1);
+
+
+            //Connect the data:
+
+            //Connect the edges clock-wise
+            e_to_v1.nextEdge = e_to_v2;
+            e_to_v2.nextEdge = e_to_v3;
+            e_to_v3.nextEdge = e_to_v1;
+
+            e_to_v1.prevEdge = e_to_v3;
+            e_to_v2.prevEdge = e_to_v1;
+            e_to_v3.prevEdge = e_to_v2;
+
+            //Each vertex needs a reference to an edge going FROM that vertex
+            half_v1.edge = e_to_v2;
+            half_v2.edge = e_to_v3;
+            half_v3.edge = e_to_v1;
+
+            //Each edge needs a reference to the face
+            e_to_v1.face = f;
+            e_to_v2.face = f;
+            e_to_v3.face = f;
+
+            //Each edge needs an opposite edge
+            //This is slow process but we need it to be able to split meshes which are not connected
+            //You could do this afterwards when all triangles have been generate, but Im not sure which is the fastest...
+
+            //Save the data
+            verts.Add(half_v1);
+            verts.Add(half_v2);
+            verts.Add(half_v3);
+
+            edges.Add(e_to_v1);
+            edges.Add(e_to_v2);
+            edges.Add(e_to_v3);
+
+            faces.Add(f);
+        }
     }
 
 

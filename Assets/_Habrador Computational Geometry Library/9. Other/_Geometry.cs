@@ -200,6 +200,18 @@ namespace Habrador_Computational_Geometry
 
 
         //
+        // Calculate the center of a triangle in 3d space
+        //
+        public static MyVector3 CalculateTriangleCenter(MyVector3 p1, MyVector3 p2, MyVector3 p3)
+        {
+            MyVector3 center = (p1 + p2 + p3) * (1/3f);
+
+            return center;
+        }
+
+
+
+        //
         // Is a triangle in 2d space oriented clockwise or counter-clockwise
         //
         //https://math.stackexchange.com/questions/1324179/how-to-tell-if-3-connected-points-are-connected-clockwise-or-counter-clockwise

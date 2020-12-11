@@ -75,7 +75,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // UnNormalize different stuff
+        // UnNormalize stuff
         //
 
         //MyVector2

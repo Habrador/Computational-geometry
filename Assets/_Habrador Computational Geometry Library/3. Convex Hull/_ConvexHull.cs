@@ -59,7 +59,7 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
-            HalfEdgeData3 convexHull = IterativeAlgorithm3D.GenerateConvexHull(points);
+            HalfEdgeData3 convexHull = IterativeHullAlgorithm3D.GenerateConvexHull(points);
 
             return null;
         }
