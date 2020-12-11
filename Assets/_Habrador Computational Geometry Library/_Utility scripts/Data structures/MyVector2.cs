@@ -57,6 +57,7 @@ namespace Habrador_Computational_Geometry
             return dotProduct;
         }
 
+        // Length of vector a: ||a||
         public static float Magnitude(MyVector2 a)
         {
             float magnitude = Mathf.Sqrt(SqrMagnitude(a));

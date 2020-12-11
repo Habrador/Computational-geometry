@@ -82,7 +82,7 @@ namespace Habrador_Computational_Geometry
 
             MyVector3 pointFurthestAway = points[0];
 
-            MyVector3 closestPoint = _Geometry.GetClosestPointOnLine(eFurthestApart, pointFurthestAway, useSquareDistance: true);
+            MyVector3 closestPoint = _Geometry.GetClosestPointOnLine(eFurthestApart, pointFurthestAway, withinSegment: false);
 
             float maxDistSqr = MyVector3.SqrDistance(pointFurthestAway, closestPoint);
 
@@ -90,7 +90,7 @@ namespace Habrador_Computational_Geometry
             {
                 MyVector3 thisPoint = points[i];
 
-                closestPoint = _Geometry.GetClosestPointOnLine(eFurthestApart, pointFurthestAway, useSquareDistance: true);
+                closestPoint = _Geometry.GetClosestPointOnLine(eFurthestApart, pointFurthestAway, withinSegment: false);
 
                 float distSqr = MyVector3.SqrDistance(thisPoint, closestPoint);
 

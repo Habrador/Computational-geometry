@@ -432,61 +432,92 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Find the closest point on a line segment from a point
+        // Line-point calculations
         //
-        //From https://www.youtube.com/watch?v=KHuI9bXZS74
-        //Maybe better version https://stackoverflow.com/questions/3120357/get-closest-point-to-a-line
-        public static MyVector2 GetClosestPointOnLineSegment(MyVector2 a, MyVector2 b, MyVector2 p)
+        //From https://stackoverflow.com/questions/3120357/get-closest-point-to-a-line
+        //and https://www.youtube.com/watch?v=_ENEsV_kNx8
+        public static MyVector2 GetClosestPointOnLine(Edge2 e, MyVector2 p, bool withinSegment)
         {
-            MyVector2 a_p = p - a;
-            MyVector2 a_b = b - a;
+            MyVector2 a = e.p1;
+            MyVector2 b = e.p2;
 
-            //Square magnitude of AB vector
-            float sqrMagnitudeAB = MyVector2.SqrMagnitude(a_b);
+            //Assume the line goes from a to b
+            MyVector2 ab = b - a;
+            //Vector from "start" of the line to the point outside of line
+            MyVector2 ap = p - a;
 
-            //The DOT product of a_p and a_b  
-            float ABAPproduct = MyVector2.Dot(a_p, a_b);
+            //Scalar projection https://en.wikipedia.org/wiki/Scalar_projection
+            //The scalar projection is a scalar, equal to the length of the orthogonal projection of ap on ab, with a negative sign if the projection has an opposite direction with respect to ab.
+            //scalarProjection = Dot(ap, ab) / Magnitude(ab) where the magnitude of ab is the distance between a and b
+            //If ab is normalized, we get scalarProjection = Dot(ap, ab)
 
-            //The normalized "distance" from a to the closest point  
-            float distance = ABAPproduct / sqrMagnitudeAB;
+            //The distance from a to q (the closes point on the line):
+            //float aq_distance = MyVector2.Dot(ap, ab) / MyVector2.Magnitude(ab);
+
+            //To get the closest point on the line:
+            //MyVector2 q = a + MyVector2.Normalize(ab) * aq_distance;
+
+
+            //Can we do better?
+            //Magnitude is defined as: Mathf.Sqrt((ab * ab))
+            //Normalization is defined as (ab / magnitude(ab))
+            //We get: q = a + (ab / magnitude(ab)) * (1 / magnitude(ab)) * dot(ap, ab)
+            //Ignore the q and the dot and we get: (ab / Mathf.Sqrt((ab * ab))) * (1 / Mathf.Sqrt((ab * ab))) = ab / (ab * ab)
+            //So we can use the square magnitude of ab and then we don't need to normalize ab (to get q), so we save two square roots, which is good because square root is a slow operation
+
+            //The normalized "distance" from a to the closest point, so between 0 and 1 if we are within the line segment
+            float distance = MyVector2.Dot(ap, ab) / MyVector2.SqrMagnitude(ab);
 
             //This point may not be on the line segment, if so return one of the end points
-            //Check if P projection is over vectorAB     
-            if (distance < 0)
+            float epsilon = MathUtility.EPSILON;
+            
+            if (withinSegment && distance < 0f - epsilon)
             {
                 return a;
             }
-            else if (distance > 1)
+            else if (withinSegment && distance > 1f + epsilon)
             {
                 return b;
             }
             else
             {
-                return a + a_b * distance;
+                //This works because a_b is not normalized and distance is [0,1] if distance is within ab
+                return a + ab * distance;
             }
         }
 
         //3d
-        public static MyVector3 GetClosestPointOnLine(Edge3 e, MyVector3 p, bool useSquareDistance)
+        //Same math as in 2d case
+        public static MyVector3 GetClosestPointOnLine(Edge3 e, MyVector3 p, bool withinSegment)
         {
             MyVector3 a = e.p1;
             MyVector3 b = e.p2;
 
-            MyVector3 a_p = p - a;
-            MyVector3 a_b = b - a;
+            //Assume the line goes from a to b
+            MyVector3 ab = b - a;
+            //Vector from start of the line to the point outside of line
+            MyVector3 ap = p - a;
 
-            //Square magnitude of AB vector
-            float sqrMagnitudeAB = MyVector3.SqrMagnitude(a_b);
+            //The normalized "distance" from a to the closest point, so [0,1] if we are within the line segment
+            float distance = MyVector3.Dot(ap, ab) / MyVector3.SqrMagnitude(ab);
 
-            //The DOT product of a_p and a_b  
-            float ABAPproduct = MyVector3.Dot(a_p, a_b);
 
-            //The normalized "distance" from a to the closest point  
-            float distance = ABAPproduct / sqrMagnitudeAB;
+            ///This point may not be on the line segment, if so return one of the end points
+            float epsilon = MathUtility.EPSILON;
 
-            MyVector3 closestPointOnLine = a + a_b * distance;
-
-            return closestPointOnLine;
+            if (withinSegment && distance < 0f - epsilon)
+            {
+                return a;
+            }
+            else if (withinSegment && distance > 1f + epsilon)
+            {
+                return b;
+            }
+            else
+            {
+                //This works because a_b is not normalized and distance is [0,1] if distance is within ab
+                return a + ab * distance;
+            }
         }
 
 

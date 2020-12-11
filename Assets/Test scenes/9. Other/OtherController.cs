@@ -29,13 +29,13 @@ public class OtherController : MonoBehaviour
 
         //IsPointBetweenPoints(a, b, c);
 
-        //ClosestPointOnLineSegment(a, b, c);
+        ClosestPointOnLineSegment(a, b, c);
 
         //PassedWaypoint(a, b, c);
 
         //CenterOfCircle(a, b, c);
 
-        AngeBetweenVectors(a, b, c);
+        //AngeBetweenVectors(a, b, c);
 
         Gizmos.DrawWireSphere(pointATrans.position, 0.1f);
         Gizmos.DrawWireSphere(pointBTrans.position, 0.1f);
@@ -94,7 +94,7 @@ public class OtherController : MonoBehaviour
 
     private void ClosestPointOnLineSegment(MyVector2 a, MyVector2 b, MyVector2 testPoint)
     {
-        MyVector2 closestPoint = _Geometry.GetClosestPointOnLineSegment(a, b, testPoint);
+        MyVector2 closestPoint = _Geometry.GetClosestPointOnLine(new Edge2(a, b), testPoint, withinSegment: true);
 
 
         //Diplay
