@@ -61,18 +61,16 @@ public class EarClippingController : MonoBehaviour
 
         //Normalize to range 0-1
         //The holes are always inside this shape, so dont need to take them into account when calculating the normalization values
-        AABB2 normalizingBox = new AABB2(new List<MyVector2>(hullVertices_2d));
+        Normalizer2 normalizer = new Normalizer2(new List<MyVector2>(hullVertices_2d));
 
-        float dMax = HelpMethods.CalculateDMax(normalizingBox);
-
-        List<MyVector2> hullVertices_2d_normalized = HelpMethods.Normalize(hullVertices_2d, normalizingBox, dMax);
+        List<MyVector2> hullVertices_2d_normalized = normalizer.Normalize(hullVertices_2d);
 
         //Normalize the holes
         List<List<MyVector2>> allHoleVertices_2d_normalized = new List<List<MyVector2>>();
 
         foreach (List<MyVector2> holeVertices_2d in allHoleVertices_2d)
         {
-            List<MyVector2> holeVertices_2d_normalized = HelpMethods.Normalize(holeVertices_2d, normalizingBox, dMax);
+            List<MyVector2> holeVertices_2d_normalized = normalizer.Normalize(holeVertices_2d);
 
             allHoleVertices_2d_normalized.Add(holeVertices_2d_normalized);
         }

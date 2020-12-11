@@ -92,17 +92,15 @@ public class DelaunayController : MonoBehaviour
             allPoints.AddRange(hole);
         }
 
-        AABB2 normalizingBox = new AABB2(allPoints);
+        Normalizer2 normalizer = new Normalizer2(allPoints);
 
-        float dMax = HelpMethods.CalculateDMax(normalizingBox);
-
-        List<MyVector2> hullPoints_2d_normalized = HelpMethods.Normalize(hullPoints_2d, normalizingBox, dMax);
+        List<MyVector2> hullPoints_2d_normalized = normalizer.Normalize(hullPoints_2d);
 
         HashSet<List<MyVector2>> allHolePoints_2d_normalized = new HashSet<List<MyVector2>>();
 
         foreach (List<MyVector2> hole in allHolePoints_2d)
         {
-            List<MyVector2> hole_normalized = HelpMethods.Normalize(hole, normalizingBox, dMax);
+            List<MyVector2> hole_normalized = normalizer.Normalize(hole);
 
             allHolePoints_2d_normalized.Add(hole_normalized);
         }
@@ -127,7 +125,7 @@ public class DelaunayController : MonoBehaviour
 
 
         //UnNormalize
-        HalfEdgeData2 triangleData = HelpMethods.UnNormalize(triangleData_normalized, normalizingBox, dMax);
+        HalfEdgeData2 triangleData = normalizer.UnNormalize(triangleData_normalized);
 
         //From half-edge to triangle
         HashSet<Triangle2> triangles_2d = _TransformBetweenDataStructures.HalfEdge2ToTriangle2(triangleData);

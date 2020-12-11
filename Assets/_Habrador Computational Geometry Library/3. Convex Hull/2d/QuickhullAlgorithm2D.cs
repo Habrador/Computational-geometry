@@ -371,11 +371,11 @@ namespace Habrador_Computational_Geometry
 
 
         //For debugging
-        private static void DisplayPoints(HashSet<MyVector2> points, AABB2 normalizingbox, float dMax)
+        private static void DisplayPoints(HashSet<MyVector2> points, Normalizer2 normalizer)
         {
             foreach (MyVector2 p in points)
             {
-                MyVector2 pUnNormalize = HelpMethods.UnNormalize(p, normalizingbox, dMax);
+                MyVector2 pUnNormalize = normalizer.UnNormalize(p);
             
                 Debug.DrawLine(pUnNormalize.ToVector3(), Vector3.zero, Color.blue, 3f);
             }

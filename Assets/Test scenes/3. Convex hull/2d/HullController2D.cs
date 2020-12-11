@@ -42,11 +42,9 @@ public class HullController2D : MonoBehaviour
         }
 
         //Normalize to range 0-1
-        AABB2 normalizingBox = new AABB2(new List<MyVector2>(points_2d));
+        Normalizer2 normalizer = new Normalizer2(new List<MyVector2>(points_2d));
 
-        float dMax = HelpMethods.CalculateDMax(normalizingBox);
-
-        HashSet<MyVector2> points_2d_normalized = HelpMethods.Normalize(points_2d, normalizingBox, dMax);
+        HashSet<MyVector2> points_2d_normalized = normalizer.Normalize(points_2d);
 
 
 
@@ -83,7 +81,7 @@ public class HullController2D : MonoBehaviour
         if (pointsOnConvexHull_2d_normalized != null)
         {
             //UnNormalize
-            List<MyVector2> pointsOnConvexHull_2d = HelpMethods.UnNormalize(pointsOnConvexHull_2d_normalized, normalizingBox, dMax);
+            List<MyVector2> pointsOnConvexHull_2d = normalizer.UnNormalize(pointsOnConvexHull_2d_normalized);
 
             //From 2d to 3d
             List<Vector3> pointsOnConvexHull = new List<Vector3>();

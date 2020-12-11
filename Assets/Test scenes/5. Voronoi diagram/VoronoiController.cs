@@ -33,11 +33,9 @@ public class VoronoiController : MonoBehaviour
 
 
         //Normalize
-        AABB2 normalizingBox = new AABB2(new List<MyVector2>(sites_2d));
+        Normalizer2 normalizer = new Normalizer2(new List<MyVector2>(sites_2d));
 
-        float dMax = HelpMethods.CalculateDMax(normalizingBox);
-
-        HashSet<MyVector2> randomSites_2d_normalized = HelpMethods.Normalize(sites_2d, normalizingBox, dMax);
+        HashSet<MyVector2> randomSites_2d_normalized = normalizer.Normalize(sites_2d);
 
 
         //Generate the voronoi
@@ -45,7 +43,7 @@ public class VoronoiController : MonoBehaviour
 
 
         //Unnormalize
-        voronoiCells = HelpMethods.UnNormalize(voronoiCells, normalizingBox, dMax);
+        voronoiCells = normalizer.UnNormalize(voronoiCells);
 
 
         //Display the voronoi diagram
@@ -63,11 +61,9 @@ public class VoronoiController : MonoBehaviour
     private void GenerateDelaunay(HashSet<MyVector2> points_2d)
     {
         //Normalize
-        AABB2 normalizingBox = new AABB2(new List<MyVector2>(points_2d));
+        Normalizer2 normalizer = new Normalizer2(new List<MyVector2>(points_2d));
 
-        float dMax = HelpMethods.CalculateDMax(normalizingBox);
-
-        HashSet<MyVector2> points_2d_normalized = HelpMethods.Normalize(points_2d, normalizingBox, dMax);
+        HashSet<MyVector2> points_2d_normalized = normalizer.Normalize(points_2d);
 
 
         //Generate delaunay
@@ -76,7 +72,7 @@ public class VoronoiController : MonoBehaviour
 
 
         //UnNormalize
-        HalfEdgeData2 triangleData = HelpMethods.UnNormalize(delaunayData, normalizingBox, dMax);
+        HalfEdgeData2 triangleData = normalizer.UnNormalize(delaunayData);
 
         //From halfedge to triangle
         HashSet<Triangle2> triangles = _TransformBetweenDataStructures.HalfEdge2ToTriangle2(triangleData);

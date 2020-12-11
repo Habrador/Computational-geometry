@@ -19,10 +19,9 @@ public class VisualizerController : MonoBehaviour
     //To display how many flips we need
     public Text flipText;
 
-    //To make it faster to unnormalize the data when we display it 
-    private AABB2 normalizingBox;
-
-    private float dMax;
+    //To make it faster to unnormalize the data when we display it
+    private Normalizer2 normalizer;
+    
 
 
     //Used for visualizing purposes
@@ -274,9 +273,9 @@ public class VisualizerController : MonoBehaviour
                 MyVector2 p3 = t.p3;
 
                 //Unnormalize the point
-                p1 = HelpMethods.UnNormalize(p1, normalizingBox, dMax);
-                p2 = HelpMethods.UnNormalize(p2, normalizingBox, dMax);
-                p3 = HelpMethods.UnNormalize(p3, normalizingBox, dMax);
+                p1 = normalizer.UnNormalize(p1);
+                p2 = normalizer.UnNormalize(p2);
+                p3 = normalizer.UnNormalize(p3);
 
                 Triangle2 t_unnormalized = new Triangle2(p1, p2, p3);
 
@@ -381,14 +380,14 @@ public class VisualizerController : MonoBehaviour
 
     public MyVector2 UnNormalize(MyVector2 p)
     {
-        return HelpMethods.UnNormalize(p, normalizingBox, dMax);
+        return normalizer.UnNormalize(p);
     }
 
 
 
     public void SetActivePoint(MyVector2 p)
     {
-        activePoint = HelpMethods.UnNormalize(p, normalizingBox, dMax);
+        activePoint = normalizer.UnNormalize(p);
     }
 
 
