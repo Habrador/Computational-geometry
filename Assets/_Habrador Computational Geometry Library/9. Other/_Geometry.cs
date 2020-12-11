@@ -301,8 +301,8 @@ namespace Habrador_Computational_Geometry
         //Notice that the plane normal doesnt have to be normalized
 
         //The signed distance from a point to a plane
-        //- Positive distance denotes that the point p is on the front side of the plane (in the direction of the plane normal)
-        //- Negative means it's on the back side
+        //- Positive distance denotes that the point p is outside the plane (in the direction of the plane normal)
+        //- Negative means it's inside
 
         //3d
         public static float GetSignedDistanceFromPointToPlane(Plane3 plane, MyVector3 pointPos)

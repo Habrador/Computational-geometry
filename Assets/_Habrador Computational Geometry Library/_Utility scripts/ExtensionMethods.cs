@@ -73,7 +73,7 @@ namespace Habrador_Computational_Geometry
         // HashSet
         //
 
-        //Get first best value from a hashset and remove it
+        //Get first best value in a hashset and remove it
         public static T FakePop<T>(this HashSet<T> hashSet)
         {
             T firstBestT = default;
@@ -86,6 +86,21 @@ namespace Habrador_Computational_Geometry
             }
 
             hashSet.Remove(firstBestT);
+
+            return firstBestT;
+        }
+
+        //Get a ref to the first best value in a hashset
+        public static T FakePeek<T>(this HashSet<T> hashSet)
+        {
+            T firstBestT = default;
+
+            foreach (T thisT in hashSet)
+            {
+                firstBestT = thisT;
+
+                break;
+            }
 
             return firstBestT;
         }

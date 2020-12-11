@@ -194,6 +194,8 @@ namespace Habrador_Computational_Geometry
 
 
         //Add a triangle to this mesh
+
+        //We dont have a normal so we have to calculate it, so make sure v1-v2-v3 is clock-wise
         public void AddTriangle(MyVector3 p1, MyVector3 p2, MyVector3 p3)
         {
             MyVector3 normal = MyVector3.Normalize(MyVector3.Cross(p3 - p2, p1 - p2));
@@ -257,6 +259,49 @@ namespace Habrador_Computational_Geometry
             edges.Add(e_to_v3);
 
             faces.Add(f);
+        }
+
+
+
+        //Delete a face which we know is a triangle
+        public void DeleteTriangleFace(HalfEdgeFace3 t)
+        {
+            //Update the data structure
+            //In the half-edge data structure there's an edge going in the opposite direction
+            //on the other side of this triangle with a reference to this edge, so we have to set these to null
+            HalfEdge3 t_e1 = t.edge;
+            HalfEdge3 t_e2 = t_e1.nextEdge;
+            HalfEdge3 t_e3 = t_e2.nextEdge;
+
+            //Opposite edge to these edges are referencing these edges, so make sure that connection is removed
+            if (t_e1.oppositeEdge != null)
+            {
+                t_e1.oppositeEdge.oppositeEdge = null;
+            }
+            if (t_e2.oppositeEdge != null)
+            {
+                t_e2.oppositeEdge.oppositeEdge = null;
+            }
+            if (t_e3.oppositeEdge != null)
+            {
+                t_e3.oppositeEdge.oppositeEdge = null;
+            }
+
+
+            //Remove from the data structure
+
+            //Remove from the list of all triangles
+            faces.Remove(t);
+
+            //Remove the edges from the list of all edges
+            edges.Remove(t_e1);
+            edges.Remove(t_e2);
+            edges.Remove(t_e3);
+
+            //Remove the vertices
+            verts.Remove(t_e1.v);
+            verts.Remove(t_e2.v);
+            verts.Remove(t_e3.v);
         }
     }
 

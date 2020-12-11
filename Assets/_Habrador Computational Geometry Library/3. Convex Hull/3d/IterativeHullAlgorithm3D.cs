@@ -45,6 +45,8 @@ namespace Habrador_Computational_Geometry
             //Remove the point
             points.Remove(pointFurthestAway);
 
+
+            //Display the triangle
             Debug.DrawLine(eFurthestApart.p1.ToVector3(), eFurthestApart.p2.ToVector3(), Color.white, 1f);
             Debug.DrawLine(eFurthestApart.p1.ToVector3(), pointFurthestAway.ToVector3(), Color.blue, 1f);
             Debug.DrawLine(eFurthestApart.p2.ToVector3(), pointFurthestAway.ToVector3(), Color.blue, 1f);
@@ -52,13 +54,13 @@ namespace Habrador_Computational_Geometry
 
             //Now we can build two triangles
             //It doesnt matter how we build these triangles as long as they are opposite
-            //But the normal matters, so make sure it is calculated so the triangles are ordered clockwise while the normal is pointing out
+            //But the normal matters, so make sure it is calculated so the triangles are ordered clock-wise while the normal is pointing out
             MyVector3 p1 = eFurthestApart.p1;
             MyVector3 p2 = eFurthestApart.p2;
             MyVector3 p3 = pointFurthestAway;
 
-            //convexHull.AddTriangle(p1, p2, p3);
-            //convexHull.AddTriangle(p1, p3, p2);
+            convexHull.AddTriangle(p1, p2, p3);
+            convexHull.AddTriangle(p1, p3, p2);
 
             //Debug.Log(convexHull.faces.Count);
             /*
@@ -77,6 +79,106 @@ namespace Habrador_Computational_Geometry
                 TestAlgorithmsHelpMethods.DebugDrawCircle(p2_test, 0.2f, Color.blue);
             }
             */
+
+            //Find the point which is furthest away from the triangle (this point cant be co-planar)
+            List<HalfEdgeFace3> triangles = new List<HalfEdgeFace3>(convexHull.faces);
+
+            //Just pick one of the triangles
+            HalfEdgeFace3 triangle = triangles[0];
+
+            //Build a plane
+            Plane3 plane = new Plane3(triangle.edge.v.position, triangle.edge.v.normal);
+
+            //Find the point furthest away from the plane
+            MyVector3 p4 = FindPointFurthestAwayFromPlane(points, plane);
+
+            //Remove the point
+            points.Remove(p4);
+
+            Debug.DrawLine(p1.ToVector3(), p4.ToVector3(), Color.green, 1f);
+            Debug.DrawLine(p2.ToVector3(), p4.ToVector3(), Color.green, 1f);
+            Debug.DrawLine(p3.ToVector3(), p4.ToVector3(), Color.green, 1f);
+
+            //Now we have to remove one of the triangles == the triangle the point is outside of
+            HalfEdgeFace3 triangleToRemove = triangles[0];
+            HalfEdgeFace3 triangleToKeep = triangles[1];
+
+            //This means the point is inside the triangle-plane, so we have to switch
+            //We used triangle #0 to generate the plane
+            if (_Geometry.GetSignedDistanceFromPointToPlane(plane, p4) < 0f)
+            {
+                triangleToRemove = triangles[1];
+                triangleToKeep = triangles[0];
+            }
+
+            //Delete the triangle 
+            convexHull.DeleteTriangleFace(triangleToRemove);
+
+            //Build three new triangles
+
+            //The triangle we keep is ordered clock-wise:
+            MyVector3 p1_opposite = triangleToKeep.edge.v.position;
+            MyVector3 p2_opposite = triangleToKeep.edge.nextEdge.v.position;
+            MyVector3 p3_opposite = triangleToKeep.edge.nextEdge.nextEdge.v.position;
+
+            //But we are looking at it from the back-side, 
+            //so we add those vertices counter-clock-wise to make the new triangles clock-wise
+            convexHull.AddTriangle(p1_opposite, p3_opposite, p4);
+            convexHull.AddTriangle(p3_opposite, p2_opposite, p4);
+            convexHull.AddTriangle(p2_opposite, p1_opposite, p4);
+
+
+            foreach (HalfEdgeFace3 f in convexHull.faces)
+            {
+                Vector3 p1_test = f.edge.v.position.ToVector3();
+                Vector3 p2_test = f.edge.nextEdge.v.position.ToVector3();
+                Vector3 p3_test = f.edge.nextEdge.nextEdge.v.position.ToVector3();
+
+                Vector3 normal = f.edge.v.normal.ToVector3();
+
+                TestAlgorithmsHelpMethods.DebugDrawTriangle(p1_test, p2_test, p3_test, normal * 0.5f, Color.white, Color.red);
+
+                //To test the the triangle is clock-wise
+                //TestAlgorithmsHelpMethods.DebugDrawCircle(p1_test, 0.1f, Color.red);
+                //TestAlgorithmsHelpMethods.DebugDrawCircle(p2_test, 0.2f, Color.blue);
+            }
+        }
+
+
+
+        //Given points and a plane, find the point furthest away from the plane
+        private static MyVector3 FindPointFurthestAwayFromPlane(HashSet<MyVector3> points, Plane3 plane)
+        {
+            //Cant init by picking the first point in a list because it might be co-planar
+            MyVector3 bestPoint = default;
+
+            float bestDistance = -Mathf.Infinity;
+
+            foreach (MyVector3 p in points)
+            {
+                float distance = _Geometry.GetSignedDistanceFromPointToPlane(plane, p);
+
+                //Make sure the point is not co-planar
+                float epsilon = MathUtility.EPSILON;
+
+                //If distance is around 0
+                if (distance > -epsilon && distance < epsilon)
+                {
+                    continue;
+                }
+
+                //Make sure distance is positive
+                if (distance < 0f) distance *= -1f;
+
+                if (distance > bestDistance)
+                {
+                    bestDistance = distance;
+
+                    bestPoint = p;
+                }
+            }
+
+            return bestPoint;
         }
 
 

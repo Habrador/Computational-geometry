@@ -212,7 +212,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numberOfPoints: 10
   halfMapSize: 1
-  seed: 2
+  seed: 0
 --- !u!4 &693793443
 Transform:
   m_ObjectHideFlags: 0
