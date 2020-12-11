@@ -446,6 +446,7 @@ public static class TestAlgorithmsHelpMethods
     // Display shapes with Debug.DrawLine()
     //
 
+    //Display a circle, which doesnt exist built-in - only DrawLine and DrawRay
     public static void DebugDrawCircle(Vector3 center, float radius, Color color)
     {
         Vector3 pos = center + Vector3.right * radius;
@@ -472,6 +473,51 @@ public static class TestAlgorithmsHelpMethods
     }
 
 
+    //Display a circle in 3d
+    public static void DebugDrawCircle3D(Vector3 center, float radius, Color color)
+    {
+        Vector3 posR = center + Vector3.right * radius;
+        Vector3 posF = center + Vector3.forward * radius;
+        Vector3 posU = center + Vector3.right * radius;
+
+        int segments = 12;
+
+        float anglePerSegment = (Mathf.PI * 2f) / (float)segments;
+
+        float angle = anglePerSegment;
+
+        for (int i = 0; i < segments; i++)
+        {
+            float nextPosX_R = center.x + Mathf.Cos(angle) * radius;
+            float nextPosZ_R = center.z + Mathf.Sin(angle) * radius;
+
+            Vector3 nextPosR = new Vector3(nextPosX_R, center.y, nextPosZ_R);
+
+            float nextPosZ_F = center.z + Mathf.Cos(angle) * radius;
+            float nextPosY_F = center.y + Mathf.Sin(angle) * radius;
+
+            Vector3 nextPosF = new Vector3(center.x, nextPosY_F, nextPosZ_F);
+
+            float nextPosX_U = center.x + Mathf.Cos(angle) * radius;
+            float nextPosY_U = center.y + Mathf.Sin(angle) * radius;
+
+            Vector3 nextPosU = new Vector3(nextPosX_U, nextPosY_U, center.z);
+
+            Debug.DrawLine(posR, nextPosR, color, 2f);
+            Debug.DrawLine(posF, nextPosF, color, 2f);
+            Debug.DrawLine(posU, nextPosU, color, 2f);
+
+            posR = nextPosR;
+            posF = nextPosF;
+            posU = nextPosU;
+
+            angle += anglePerSegment;
+        }
+    }
+
+
+
+    //Display a triangle with a normal at the center
     public static void DebugDrawTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 normal, Color lineColor, Color normalColor)
     {
         Debug.DrawLine(p1, p2, lineColor, 2f);
@@ -481,5 +527,23 @@ public static class TestAlgorithmsHelpMethods
         Vector3 center = _Geometry.CalculateTriangleCenter(p1.ToMyVector3(), p2.ToMyVector3(), p3.ToMyVector3()).ToVector3();
 
         Debug.DrawLine(center, center + normal, normalColor, 2f);
+    }
+
+
+
+    //Display a face which we know is a triangle with its normal at the center
+    public static void DebugDrawTriangle(HalfEdgeFace3 f, Color lineColor, Color normalColor)
+    {
+        Vector3 p1_test = f.edge.v.position.ToVector3();
+        Vector3 p2_test = f.edge.nextEdge.v.position.ToVector3();
+        Vector3 p3_test = f.edge.nextEdge.nextEdge.v.position.ToVector3();
+
+        Vector3 normal = f.edge.v.normal.ToVector3();
+
+        TestAlgorithmsHelpMethods.DebugDrawTriangle(p1_test, p2_test, p3_test, normal * 0.5f, Color.white, Color.red);
+
+        //To test the the triangle is clock-wise
+        //TestAlgorithmsHelpMethods.DebugDrawCircle(p1_test, 0.1f, Color.red);
+        //TestAlgorithmsHelpMethods.DebugDrawCircle(p2_test, 0.2f, Color.blue);
     }
 }

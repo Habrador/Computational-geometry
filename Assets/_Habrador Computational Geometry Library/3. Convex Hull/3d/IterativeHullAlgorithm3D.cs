@@ -66,17 +66,7 @@ namespace Habrador_Computational_Geometry
             /*
             foreach (HalfEdgeFace3 f in convexHull.faces)
             {
-                Vector3 p1_test = f.edge.v.position.ToVector3();
-                Vector3 p2_test = f.edge.nextEdge.v.position.ToVector3();
-                Vector3 p3_test = f.edge.nextEdge.nextEdge.v.position.ToVector3();
-
-                Vector3 normal = f.edge.v.normal.ToVector3();
-
-                TestAlgorithmsHelpMethods.DebugDrawTriangle(p1_test, p2_test, p3_test, normal * 0.5f, Color.white, Color.red);
-
-                //To test the the triangle is clock-wise
-                TestAlgorithmsHelpMethods.DebugDrawCircle(p1_test, 0.1f, Color.red);
-                TestAlgorithmsHelpMethods.DebugDrawCircle(p2_test, 0.2f, Color.blue);
+                TestAlgorithmsHelpMethods.DebugDrawTriangle(f, Color.white, Color.red);
             }
             */
 
@@ -128,19 +118,58 @@ namespace Habrador_Computational_Geometry
             convexHull.AddTriangle(p2_opposite, p1_opposite, p4);
 
 
+            //Display what weve got so far
             foreach (HalfEdgeFace3 f in convexHull.faces)
             {
-                Vector3 p1_test = f.edge.v.position.ToVector3();
-                Vector3 p2_test = f.edge.nextEdge.v.position.ToVector3();
-                Vector3 p3_test = f.edge.nextEdge.nextEdge.v.position.ToVector3();
+                TestAlgorithmsHelpMethods.DebugDrawTriangle(f, Color.white, Color.red);
+            }
 
-                Vector3 normal = f.edge.v.normal.ToVector3();
 
-                TestAlgorithmsHelpMethods.DebugDrawTriangle(p1_test, p2_test, p3_test, normal * 0.5f, Color.white, Color.red);
+            //Now we might as well remove all the points that are within the tetrahedron because they are not on the hull
+            RemoveAllPointsWithinConvexHull(points, convexHull);
+        }
 
-                //To test the the triangle is clock-wise
-                //TestAlgorithmsHelpMethods.DebugDrawCircle(p1_test, 0.1f, Color.red);
-                //TestAlgorithmsHelpMethods.DebugDrawCircle(p2_test, 0.2f, Color.blue);
+
+
+        //Remove all points that are within the convex hull
+        private static void RemoveAllPointsWithinConvexHull(HashSet<MyVector3> points, HalfEdgeData3 convexHull)
+        {
+            HashSet<MyVector3> pointsToRemove = new HashSet<MyVector3>();
+        
+            foreach (MyVector3 p in points)
+            {
+                bool isInside = true;
+
+                //We know a point is within the hull if the point is inside all planes formed by the faces of the hull
+                foreach (HalfEdgeFace3 triangle in convexHull.faces)
+                {
+                    //Build a plane
+                    Plane3 plane = new Plane3(triangle.edge.v.position, triangle.edge.v.normal);
+
+                    float distance = _Geometry.GetSignedDistanceFromPointToPlane(plane, p);
+
+                    //This point is outside, which means we don't need to test more planes
+                    //TODO: Figure out what happens if the point is on the plane
+                    if (distance > 0f)
+                    {
+                        isInside = false;
+
+                        break;
+                    }
+                }
+
+                //Remove the point
+                if (isInside)
+                {
+                    pointsToRemove.Add(p);
+                }
+            }
+
+            Debug.Log($"Found {pointsToRemove.Count} points that were inside the hull");
+
+            foreach (MyVector3 p in pointsToRemove)
+            {
+                TestAlgorithmsHelpMethods.DebugDrawCircle3D(p.ToVector3(), 0.05f, Color.green);
             }
         }
 
