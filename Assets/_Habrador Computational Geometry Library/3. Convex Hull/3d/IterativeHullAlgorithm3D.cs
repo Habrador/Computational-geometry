@@ -8,17 +8,53 @@ namespace Habrador_Computational_Geometry
     //Based on "Computational Geometry in C" by Joseph O'Rourke 
     public static class IterativeHullAlgorithm3D
     {
-        public static HalfEdgeData3 GenerateConvexHull(HashSet<MyVector3> originalPoints)
+        public static HalfEdgeData3 GenerateConvexHull(HashSet<MyVector3> points)
         {
             HalfEdgeData3 convexHull = new HalfEdgeData3();
 
-            //Step 1. Init by making a tetrahedron (triangular pyramid)
-            BuildFirstTetrahedron(originalPoints, convexHull);
+            //Step 1. Init by making a tetrahedron (triangular pyramid) and remove all points within the tetrahedron
+            BuildFirstTetrahedron(points, convexHull);
 
-            //Step 2. For each other point, test if the point is inside (or on the surface?) of the mesh we have so far
-            //If inside, remove it because the point is not on the hull
-            //If not inside, see which triangles are visible to the point and remove them
-            //Then build new triangles from the edges that have no neighbor to the point
+            //To easier add and remove triangles, we have to connect the edges with an opposite edge
+            convexHull.ConnectAllEdges();
+
+
+            //Step 2. For each other point: 
+            // -If the point is within the hull constrcuted so far, remove it
+            // - Otherwise, see which triangles are visible to the point and remove them
+            //   Then build new triangles from the edges that have no neighbor to the point
+
+            List<MyVector3> pointsToAdd = new List<MyVector3>(points);
+
+            int removedPointsCounter = 0;
+
+            foreach (MyVector3 p in pointsToAdd)
+            {
+                //Is this point within the tetrahedron
+                bool isWithinHull = _Intersections.IsPointWithinConvexHull(p, convexHull);
+
+                if (isWithinHull)
+                {
+                    points.Remove(p);
+
+                    removedPointsCounter += 1;
+
+                    continue;
+                }
+
+                //Which triangles are visible from this point?
+                //A triangle is visible from a point the point is outside of a plane formed with the triangles position and normal 
+
+
+                //Idea is to find a triangle which is visible
+                //Then flood-fill from that triangle
+                //WHen you cross an edge from a visible triangle to an invisible triangle, save that edge
+                //When flood-fill stops, remove all triangles and connect all edges you've saved with the point 
+
+            }
+
+
+            Debug.Log($"Removed {removedPointsCounter} points during the construction of the hull because they were inside the hull");
 
             return convexHull;
         }
@@ -47,9 +83,9 @@ namespace Habrador_Computational_Geometry
 
 
             //Display the triangle
-            Debug.DrawLine(eFurthestApart.p1.ToVector3(), eFurthestApart.p2.ToVector3(), Color.white, 1f);
-            Debug.DrawLine(eFurthestApart.p1.ToVector3(), pointFurthestAway.ToVector3(), Color.blue, 1f);
-            Debug.DrawLine(eFurthestApart.p2.ToVector3(), pointFurthestAway.ToVector3(), Color.blue, 1f);
+            //Debug.DrawLine(eFurthestApart.p1.ToVector3(), eFurthestApart.p2.ToVector3(), Color.white, 1f);
+            //Debug.DrawLine(eFurthestApart.p1.ToVector3(), pointFurthestAway.ToVector3(), Color.blue, 1f);
+            //Debug.DrawLine(eFurthestApart.p2.ToVector3(), pointFurthestAway.ToVector3(), Color.blue, 1f);
 
 
             //Now we can build two triangles
@@ -85,9 +121,9 @@ namespace Habrador_Computational_Geometry
             //Remove the point
             points.Remove(p4);
 
-            Debug.DrawLine(p1.ToVector3(), p4.ToVector3(), Color.green, 1f);
-            Debug.DrawLine(p2.ToVector3(), p4.ToVector3(), Color.green, 1f);
-            Debug.DrawLine(p3.ToVector3(), p4.ToVector3(), Color.green, 1f);
+            //Debug.DrawLine(p1.ToVector3(), p4.ToVector3(), Color.green, 1f);
+            //Debug.DrawLine(p2.ToVector3(), p4.ToVector3(), Color.green, 1f);
+            //Debug.DrawLine(p3.ToVector3(), p4.ToVector3(), Color.green, 1f);
 
             //Now we have to remove one of the triangles == the triangle the point is outside of
             HalfEdgeFace3 triangleToRemove = triangles[0];
@@ -119,62 +155,35 @@ namespace Habrador_Computational_Geometry
 
 
             //Display what weve got so far
-            foreach (HalfEdgeFace3 f in convexHull.faces)
-            {
-                TestAlgorithmsHelpMethods.DebugDrawTriangle(f, Color.white, Color.red);
-            }
+            //foreach (HalfEdgeFace3 f in convexHull.faces)
+            //{
+            //    TestAlgorithmsHelpMethods.DebugDrawTriangle(f, Color.white, Color.red);
+            //}
 
 
             //Now we might as well remove all the points that are within the tetrahedron because they are not on the hull
-            RemoveAllPointsWithinConvexHull(points, convexHull);
-        }
-
-
-
-        //Remove all points that are within the convex hull
-        private static void RemoveAllPointsWithinConvexHull(HashSet<MyVector3> points, HalfEdgeData3 convexHull)
-        {
             HashSet<MyVector3> pointsToRemove = new HashSet<MyVector3>();
-        
+
             foreach (MyVector3 p in points)
             {
-                bool isInside = true;
+                bool isWithinConvexHull = _Intersections.IsPointWithinConvexHull(p, convexHull);
 
-                //We know a point is within the hull if the point is inside all planes formed by the faces of the hull
-                foreach (HalfEdgeFace3 triangle in convexHull.faces)
-                {
-                    //Build a plane
-                    Plane3 plane = new Plane3(triangle.edge.v.position, triangle.edge.v.normal);
-
-                    float distance = _Geometry.GetSignedDistanceFromPointToPlane(plane, p);
-
-                    //This point is outside, which means we don't need to test more planes
-                    //TODO: Figure out what happens if the point is on the plane
-                    if (distance > 0f)
-                    {
-                        isInside = false;
-
-                        break;
-                    }
-                }
-
-                //Remove the point
-                if (isInside)
+                if (isWithinConvexHull)
                 {
                     pointsToRemove.Add(p);
                 }
             }
 
-            Debug.Log($"Found {pointsToRemove.Count} points that were inside the hull");
+            Debug.Log($"Found {pointsToRemove.Count} points within the tetrahedron that should be removed");
 
             foreach (MyVector3 p in pointsToRemove)
             {
-                TestAlgorithmsHelpMethods.DebugDrawCircle3D(p.ToVector3(), 0.05f, Color.green);
+                points.Remove(p);
             }
         }
 
 
-
+       
         //Given points and a plane, find the point furthest away from the plane
         private static MyVector3 FindPointFurthestAwayFromPlane(HashSet<MyVector3> points, Plane3 plane)
         {

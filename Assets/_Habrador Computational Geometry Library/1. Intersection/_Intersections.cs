@@ -511,6 +511,38 @@ namespace Habrador_Computational_Geometry
 
 
         //
+        // Is a point within a convex hull?
+        //
+        public static bool IsPointWithinConvexHull(MyVector3 point, HalfEdgeData3 convexHull)
+        {
+            bool isInside = true;
+
+            float epsilon = MathUtility.EPSILON;
+
+            //We know a point is within the hull if the point is inside all planes formed by the faces of the hull
+            foreach (HalfEdgeFace3 triangle in convexHull.faces)
+            {
+                //Build a plane
+                Plane3 plane = new Plane3(triangle.edge.v.position, triangle.edge.v.normal);
+
+                float distance = _Geometry.GetSignedDistanceFromPointToPlane(plane, point);
+
+                //This point is outside, which means we don't need to test more planes
+                //TODO: Figure out what happens if the point is on the plane
+                if (distance > 0f + epsilon)
+                {
+                    isInside = false;
+
+                    break;
+                }
+            }
+
+            return isInside;
+        }
+
+
+
+        //
         // Are two triangles intersecting?
         //
 
