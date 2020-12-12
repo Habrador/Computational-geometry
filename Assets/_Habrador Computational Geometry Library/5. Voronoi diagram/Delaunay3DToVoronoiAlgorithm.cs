@@ -27,6 +27,14 @@ namespace Habrador_Computational_Geometry
 
                 MyVector3 circleCenter = _Geometry.CalculateCircleCenter(p1, p2, p3);
 
+                //https://www.redblobgames.com/x/1842-delaunay-voronoi-sphere/ suggested circleCenter should be moved to get a better surface
+                //But it generates a bad result
+                //float d = Mathf.Sqrt(circleCenter.x * circleCenter.x + circleCenter.y * circleCenter.y + circleCenter.z * circleCenter.z);
+
+                //MyVector3 circleCenterMove = new MyVector3(circleCenter.x / d, circleCenter.y / d, circleCenter.z / d);
+
+                //circleCenter = circleCenterMove;
+
                 circleCenterLookup.Add(triangle, circleCenter);
             }
 
