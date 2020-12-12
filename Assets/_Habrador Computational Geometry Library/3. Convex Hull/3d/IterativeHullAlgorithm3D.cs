@@ -32,7 +32,7 @@ namespace Habrador_Computational_Geometry
 
             int removedPointsCounter = 0;
 
-            int debugCounter = 0;
+            //int debugCounter = 0;
 
             foreach (MyVector3 p in pointsToAdd)
             {
