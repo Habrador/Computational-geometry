@@ -299,24 +299,24 @@ namespace Habrador_Computational_Geometry
             return data;
         }
 
-        /*
-        //List<VoronoiCell3>
-        public List<VoronoiCell3> UnNormalize(List<VoronoiCell3> data)
+        
+        //HashSet<VoronoiCell3>
+        public HashSet<VoronoiCell3> UnNormalize(HashSet<VoronoiCell3> data)
         {
-            List<VoronoiCell3> unNormalizedData = new List<VoronoiCell3>();
+            HashSet<VoronoiCell3> unNormalizedData = new HashSet<VoronoiCell3>();
 
-            foreach (VoronoiCell2 cell in data)
+            foreach (VoronoiCell3 cell in data)
             {
-                MyVector2 sitePosUnNormalized = UnNormalize(cell.sitePos);
+                MyVector3 sitePosUnNormalized = UnNormalize(cell.sitePos);
 
-                VoronoiCell2 cellUnNormalized = new VoronoiCell2(sitePosUnNormalized);
+                VoronoiCell3 cellUnNormalized = new VoronoiCell3(sitePosUnNormalized);
 
-                foreach (VoronoiEdge2 e in cell.edges)
+                foreach (VoronoiEdge3 e in cell.edges)
                 {
-                    MyVector2 p1UnNormalized = UnNormalize(e.p1);
-                    MyVector2 p2UnNormalized = UnNormalize(e.p2);
+                    MyVector3 p1UnNormalized = UnNormalize(e.p1);
+                    MyVector3 p2UnNormalized = UnNormalize(e.p2);
 
-                    VoronoiEdge2 eUnNormalized = new VoronoiEdge2(p1UnNormalized, p2UnNormalized, sitePosUnNormalized);
+                    VoronoiEdge3 eUnNormalized = new VoronoiEdge3(p1UnNormalized, p2UnNormalized, sitePosUnNormalized);
 
                     cellUnNormalized.edges.Add(eUnNormalized);
                 }
@@ -326,6 +326,6 @@ namespace Habrador_Computational_Geometry
 
             return unNormalizedData;
         }
-        */
+        
     }
 }

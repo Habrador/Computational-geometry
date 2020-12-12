@@ -106,6 +106,7 @@ namespace Habrador_Computational_Geometry
         private static void TryAddVoronoiEdgeFromTriangleEdge(HalfEdge2 e, MyVector2 voronoiVertex, List<VoronoiEdge2> allEdges)
         {
             //Ignore if this edge has no neighboring triangle
+            //If no opposite exists, we could maybe add a fake opposite to get an edge far away
             if (e.oppositeEdge == null)
             {
                 return;

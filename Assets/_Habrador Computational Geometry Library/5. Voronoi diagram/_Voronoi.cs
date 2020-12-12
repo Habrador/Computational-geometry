@@ -7,7 +7,7 @@ namespace Habrador_Computational_Geometry
     //Generates Voronoi diagrams with different algorithms
     public static class _Voronoi
     {
-        //Algorithm 1. Delaunay to Voronoi
+        //Algorithm 1. Delaunay to Voronoi (Will also generate the delaunay)
         public static HashSet<VoronoiCell2> DelaunyToVoronoi(HashSet<MyVector2> sites)
         {
             HashSet<VoronoiCell2> voronoiCells = DelaunayToVoronoiAlgorithm.GenerateVoronoiDiagram(sites);
@@ -22,6 +22,11 @@ namespace Habrador_Computational_Geometry
 
 
         //Algorithm 3. 3D Delaunay to Voronoi
-        //public static List
+        public static HashSet<VoronoiCell3> Delaunay3DToVoronoi(HalfEdgeData3 delaunayTriangulation)
+        {
+            HashSet<VoronoiCell3> voronoiCells = Delaunay3DToVoronoiAlgorithm.GenerateVoronoiDiagram(delaunayTriangulation);
+
+            return voronoiCells;
+        }
     }
 }
