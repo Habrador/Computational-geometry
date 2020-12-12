@@ -88,33 +88,46 @@ public class VoronoiSphereController : MonoBehaviour
 
         foreach (VoronoiCell3 cell in voronoiCells)
         {
-            List<Vector3> verts = new List<Vector3>();
+            List<Vector3> vertices = new List<Vector3>();
 
             List<int> triangles = new List<int>();
+
+            List<Vector3> normals = new List<Vector3>();
         
             List<VoronoiEdge3> edges = cell.edges;
-            
-            //TODO: Update so they share vertices
-            foreach(VoronoiEdge3 e in edges)
+
+            vertices.Add(cell.sitePos.ToVector3());
+
+            VoronoiEdge3 e0 = edges[0];
+
+            Vector3 normal = Vector3.Cross(e0.p2.ToVector3() - e0.p1.ToVector3(), e0.sitePos.ToVector3() - e0.p1.ToVector3()).normalized;
+
+            normals.Add(normal);
+
+            foreach (VoronoiEdge3 e in edges)
             {
                 //Build a triangle with this edge and the voronoi site which is sort of the center
-                verts.Add(e.p1.ToVector3());
-                verts.Add(e.p2.ToVector3());
-                verts.Add(e.sitePos.ToVector3());
+                vertices.Add(e.p1.ToVector3());
+                vertices.Add(e.p2.ToVector3());
+                //verts.Add(e.sitePos.ToVector3());
+
+                normals.Add(normal);
+                normals.Add(normal);
 
                 int triangleCounter = triangles.Count;
 
-                triangles.Add(triangleCounter + 0);
-                triangles.Add(triangleCounter + 1);
-                triangles.Add(triangleCounter + 2);
+                triangles.Add(0);
+                triangles.Add(vertices.Count - 1);
+                triangles.Add(vertices.Count - 2);
             }
 
             Mesh mesh = new Mesh();
 
-            mesh.SetVertices(verts);
+            mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
+            mesh.SetNormals(normals);
 
-            mesh.RecalculateNormals();
+            //mesh.RecalculateNormals();
 
             meshes.Add(mesh);
         }
