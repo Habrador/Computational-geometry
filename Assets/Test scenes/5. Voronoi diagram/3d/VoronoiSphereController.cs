@@ -4,7 +4,8 @@ using UnityEngine;
 using Habrador_Computational_Geometry;
 using System.Linq;
 
-//Will also generate Delaunay on a sphere
+//Generate a 3d voronoi diagram on a sphere
+//This will use the delaunay triangulation on a sphere, which is the same as the convex hull of the sphere
 public class VoronoiSphereController : MonoBehaviour
 {
     public int seed;
@@ -17,6 +18,7 @@ public class VoronoiSphereController : MonoBehaviour
     private Mesh delaunayMesh;
 
     private HashSet<Vector3> points_Unity;
+
 
 
     //Generates points, delaunay triangulation, and voronoi diagram
