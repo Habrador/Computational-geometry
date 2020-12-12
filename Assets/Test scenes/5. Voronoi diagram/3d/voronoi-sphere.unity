@@ -224,7 +224,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seed: 0
-  numberOfPoints: 500
+  numberOfPoints: 300
   radius: 1
 --- !u!4 &1622247859
 Transform:

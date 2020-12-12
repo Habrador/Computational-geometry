@@ -8,13 +8,13 @@ namespace Habrador_Computational_Geometry
     //From https://stackoverflow.com/questions/85275/how-do-i-derive-a-voronoi-diagram-given-its-point-set-and-its-delaunay-triangula
     public static class DelaunayToVoronoiAlgorithm
     {
-        public static List<VoronoiCell2> GenerateVoronoiDiagram(HashSet<MyVector2> sites)
+        public static HashSet<VoronoiCell2> GenerateVoronoiDiagram(HashSet<MyVector2> sites)
         {
             //First generate the delaunay triangulation
             //This one has caused a bug so should be avoided
             //HalfEdgeData2 data = _Delaunay.FlippingEdges(sites, new HalfEdgeData2());
             //This one is faster and more accurate, so use it. But if you are using it, make sure to normalize the sites!
-            HalfEdgeData2 data = _Delaunay.PointByPoint(sites, new HalfEdgeData2());
+            HalfEdgeData2 delaunayTriangulation = _Delaunay.PointByPoint(sites, new HalfEdgeData2());
 
 
             //Generate the voronoi diagram
@@ -23,8 +23,9 @@ namespace Habrador_Computational_Geometry
             //The voronoi edge is the edge connecting the circumcenters of two neighboring delaunay triangles
             List<VoronoiEdge2> voronoiEdges = new List<VoronoiEdge2>();
 
-            HashSet<HalfEdgeFace2> triangles = data.faces;
+            HashSet<HalfEdgeFace2> triangles = delaunayTriangulation.faces;
 
+            //Loop through each triangle 
             foreach (HalfEdgeFace2 t in triangles)
             {
                 //Each triangle consists of these edges
@@ -39,11 +40,13 @@ namespace Habrador_Computational_Geometry
 
                 //The circumcenter is the center of a circle where the triangles corners is on the circumference of that circle
                 //The circumcenter is also known as a voronoi vertex, which is a position in the diagram where we are equally
-                //close to the surrounding sites
+                //close to the surrounding sites (= the corners ina voronoi cell)
                 MyVector2 voronoiVertex = _Geometry.CalculateCircleCenter(v1, v2, v3);
+                
                 //Debug.Log(voronoiVertex.x + " " + voronoiVertex.y);
-                //This will generate double edges - one belonging to each site, and could maybe be improved in the future
-                //by using the half-edge data structure
+                
+                //We will generate a single edge belonging to this site
+                //Try means that this edge might not have an opposite and then we can't generate an edge
                 TryAddVoronoiEdgeFromTriangleEdge(e1, voronoiVertex, voronoiEdges);
                 TryAddVoronoiEdgeFromTriangleEdge(e2, voronoiVertex, voronoiEdges);
                 TryAddVoronoiEdgeFromTriangleEdge(e3, voronoiVertex, voronoiEdges);
@@ -51,17 +54,19 @@ namespace Habrador_Computational_Geometry
 
 
             //Step 2. Find the voronoi cells where each cell is a list of all edges belonging to a site
-            List<VoronoiCell2> voronoiCells = new List<VoronoiCell2>();
+            //So we have a lot of edges and now each edge should get a cell
+            //These edges are not sorted, so they are added as we find them
+            HashSet<VoronoiCell2> voronoiCells = new HashSet<VoronoiCell2>();
 
             for (int i = 0; i < voronoiEdges.Count; i++)
             {
                 VoronoiEdge2 e = voronoiEdges[i];
 
-                //Find the position in the list of all cells that includes this site
-                int cellPos = TryFindCellPos(e, voronoiCells);
+                //Find the cell in the list of all cells that includes this site
+                VoronoiCell2 cell = TryFindCell(e, voronoiCells);
 
                 //No cell was found so we need to create a new cell
-                if (cellPos == -1)
+                if (cell == null)
                 {
                     VoronoiCell2 newCell = new VoronoiCell2(e.sitePos);
 
@@ -71,7 +76,7 @@ namespace Habrador_Computational_Geometry
                 }
                 else
                 {
-                    voronoiCells[cellPos].edges.Add(e);
+                    cell.edges.Add(e);
                 }
             }
 
@@ -81,19 +86,18 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Find the position in the list of all cells that includes this site
-        //Returns -1 if no cell is found
-        private static int TryFindCellPos(VoronoiEdge2 e, List<VoronoiCell2> voronoiCells)
+        //Find the cell in the list of all cells that includes this site
+        private static VoronoiCell2 TryFindCell(VoronoiEdge2 e, HashSet<VoronoiCell2> voronoiCells)
         {
-            for (int i = 0; i < voronoiCells.Count; i++)
+            foreach (VoronoiCell2 cell in voronoiCells)
             {
-                if (e.sitePos.Equals(voronoiCells[i].sitePos))
+                if (e.sitePos.Equals(cell.sitePos))
                 {
-                    return i;
+                    return cell;
                 }
             }
 
-            return -1;
+            return null;
         }
 
 
@@ -116,7 +120,9 @@ namespace Habrador_Computational_Geometry
 
             MyVector2 voronoiVertexNeighbor = _Geometry.CalculateCircleCenter(v1, v2, v3);
 
-            //Create a new vornoi edge between the voronoi vertices
+            //Create a new voronoi edge between the voronoi vertices
+            //Each edge in the half-edge data structure points TO a vertex, so this edge will be associated
+            //with the vertex the edge is going from
             VoronoiEdge2 edge = new VoronoiEdge2(voronoiVertex, voronoiVertexNeighbor, sitePos: e.prevEdge.v.position);
 
             allEdges.Add(edge);

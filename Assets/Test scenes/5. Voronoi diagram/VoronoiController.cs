@@ -19,9 +19,9 @@ public class VoronoiController : MonoBehaviour
         // Init the sites
         //
 
-        //HashSet<Vector3> sites_3d = GetRandomSites();
+        HashSet<Vector3> sites_3d = GetRandomSites();
         //HashSet<Vector3> sites_3d = GetCustomSites();
-        HashSet<Vector3> sites_3d = GetCustomSites2();
+        //HashSet<Vector3> sites_3d = GetCustomSites2();
 
         //3d to 2d
         HashSet<MyVector2> sites_2d = new HashSet<MyVector2>();
@@ -39,7 +39,7 @@ public class VoronoiController : MonoBehaviour
 
 
         //Generate the voronoi
-        List<VoronoiCell2> voronoiCells = _Voronoi.DelaunyToVoronoi(randomSites_2d_normalized);
+        HashSet<VoronoiCell2> voronoiCells = _Voronoi.DelaunyToVoronoi(randomSites_2d_normalized);
 
 
         //Unnormalize
@@ -113,18 +113,16 @@ public class VoronoiController : MonoBehaviour
 
 
     //Display the voronoi diagram with mesh
-    private void DisplayVoronoiCells(List<VoronoiCell2> cells)
+    private void DisplayVoronoiCells(HashSet<VoronoiCell2> cells)
     {
         Random.InitState(seed);
 
-        for (int i = 0; i < cells.Count; i++)
+        foreach (VoronoiCell2 cell in cells)
         {
             //if (i != 0)
             //{
             //    continue;
             //}
-        
-            VoronoiCell2 cell = cells[i];
 
             //Debug.Log(cell.edges.Count);
 

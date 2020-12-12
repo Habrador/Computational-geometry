@@ -55,14 +55,41 @@ namespace Habrador_Computational_Geometry
             float L_10_square = MyVector2.SqrMagnitude(b - a);
             float L_20_square = MyVector2.SqrMagnitude(c - a);
 
-            float one_divided_by_4_A = 1f / (4f * A);
+            float one_divided_by_4A = 1f / (4f * A);
 
-            float x = a.x + one_divided_by_4_A * ((Y_2 * L_10_square) - (Y_1 * L_20_square));
-            float y = a.y + one_divided_by_4_A * ((X_1 * L_20_square) - (X_2 * L_10_square));
+            float x = a.x + one_divided_by_4A * ((Y_2 * L_10_square) - (Y_1 * L_20_square));
+            float y = a.y + one_divided_by_4A * ((X_1 * L_20_square) - (X_2 * L_10_square));
 
             MyVector2 center = new MyVector2(x, y);
 
             return center;
+        }
+
+
+
+        //
+        // Calculate the center of circle in 3d space given three coordinates
+        //
+        //From https://gamedev.stackexchange.com/questions/60630/how-do-i-find-the-circumcenter-of-a-triangle-in-3d
+        public static MyVector3 CalculateCircleCenter(MyVector3 a, MyVector3 b, MyVector3 c)
+        {
+            MyVector3 ac = c - a;
+            MyVector3 ab = b - a;
+            MyVector3 abXac = MyVector3.Cross(ab, ac);
+
+            //This is the vector from a to the circumsphere center
+            MyVector3 toCircumsphereCenter = MyVector3.Cross(abXac, ab) * Mathf.Pow(MyVector3.Magnitude(ac), 2f);
+
+            toCircumsphereCenter += MyVector3.Cross(ac, abXac) * Mathf.Pow(MyVector3.Magnitude(ab), 2f);
+
+            toCircumsphereCenter *= (1f / (2f * Mathf.Pow(MyVector3.Magnitude(abXac), 2f)));
+            
+            float circumsphereRadius = MyVector3.Magnitude(toCircumsphereCenter);
+
+            //The circumsphere center becomes
+            MyVector3 ccs = a + toCircumsphereCenter;
+
+            return ccs;
         }
 
 
@@ -405,8 +432,6 @@ namespace Habrador_Computational_Geometry
         //Create a supertriangle that contains all other points
         //According to the book "Geometric tools for computer graphics" a reasonably sized triangle
         //is one that contains a circle that contains the axis-aligned bounding rectangle of the points 
-        //Is currently not used anywhere because our points are normalized to the range 0-1
-        //and then we can make a supertriangle by just setting its size to 100
         public static Triangle2 GenerateSupertriangle(HashSet<MyVector2> points)
         {
             //Step 1. Create a AABB around the points

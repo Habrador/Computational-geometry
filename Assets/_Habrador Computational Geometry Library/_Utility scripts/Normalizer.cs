@@ -136,10 +136,10 @@ namespace Habrador_Computational_Geometry
             return data;
         }
 
-        //List<VoronoiCell2>
-        public List<VoronoiCell2> UnNormalize(List<VoronoiCell2> data)
+        //HashSet<VoronoiCell2>
+        public HashSet<VoronoiCell2> UnNormalize(HashSet<VoronoiCell2> data)
         {
-            List<VoronoiCell2> unNormalizedData = new List<VoronoiCell2>();
+            HashSet<VoronoiCell2> unNormalizedData = new HashSet<VoronoiCell2>();
 
             foreach (VoronoiCell2 cell in data)
             {

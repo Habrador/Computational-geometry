@@ -347,7 +347,7 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-            Debug.Log($"Found {pointsToRemove.Count} points within the tetrahedron that should be removed");
+            Debug.Log($"Removed {pointsToRemove.Count} points because they were within the tetrahedron");
 
             foreach (MyVector3 p in pointsToRemove)
             {

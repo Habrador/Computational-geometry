@@ -8,9 +8,9 @@ namespace Habrador_Computational_Geometry
     public static class _Voronoi
     {
         //Algorithm 1. Delaunay to Voronoi
-        public static List<VoronoiCell2> DelaunyToVoronoi(HashSet<MyVector2> sites)
+        public static HashSet<VoronoiCell2> DelaunyToVoronoi(HashSet<MyVector2> sites)
         {
-            List<VoronoiCell2> voronoiCells = DelaunayToVoronoiAlgorithm.GenerateVoronoiDiagram(sites);
+            HashSet<VoronoiCell2> voronoiCells = DelaunayToVoronoiAlgorithm.GenerateVoronoiDiagram(sites);
 
             return voronoiCells;
         }
@@ -18,5 +18,10 @@ namespace Habrador_Computational_Geometry
 
 
         //Algorithm 2. Voronoi by adding point after point
+
+
+
+        //Algorithm 3. 3D Delaunay to Voronoi
+        //public static List
     }
 }
