@@ -50,7 +50,8 @@ namespace Habrador_Computational_Geometry
         //
 
         //Iterative
-        public static HalfEdgeData3 Iterative_3D(HashSet<MyVector3> points)
+        //Normalizer is needed for debugging
+        public static HalfEdgeData3 Iterative_3D(HashSet<MyVector3> points, Normalizer3 normalizer = null)
         {
             List<MyVector3> pointsList = new List<MyVector3>(points);
 
@@ -59,7 +60,7 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
-            HalfEdgeData3 convexHull = IterativeHullAlgorithm3D.GenerateConvexHull(points);
+            HalfEdgeData3 convexHull = IterativeHullAlgorithm3D.GenerateConvexHull(points, normalizer);
 
             return convexHull;
         }

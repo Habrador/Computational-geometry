@@ -8,7 +8,8 @@ namespace Habrador_Computational_Geometry
     //Based on "Computational Geometry in C" by Joseph O'Rourke 
     public static class IterativeHullAlgorithm3D
     {
-        public static HalfEdgeData3 GenerateConvexHull(HashSet<MyVector3> points)
+        //normalizer is only for debugging, so we can display the unnormalized points
+        public static HalfEdgeData3 GenerateConvexHull(HashSet<MyVector3> points, Normalizer3 normalizer = null)
         {
             HalfEdgeData3 convexHull = new HalfEdgeData3();
 
@@ -177,20 +178,31 @@ namespace Habrador_Computational_Geometry
 
                 //Make new triangle by connecting all edges on the border with the point 
                 //Debug.Log($"Number of border edges: {borderEdges.Count}");
+                //int debugStop = 11;
 
                 foreach(HalfEdge3 borderEdge in borderEdges)
                 {
                     //Each edge is point TO a vertex
                     MyVector3 p1 = borderEdge.prevEdge.v.position;
                     MyVector3 p2 = borderEdge.v.position;
-                    
 
-                    //Debug.DrawLine(p1.ToVector3(), p2.ToVector3(), Color.white, 2f);
+                    /*
+                    if (debugCounter > debugStop)
+                    {
+                        Debug.DrawLine(normalizer.UnNormalize(p1).ToVector3(), normalizer.UnNormalize(p2).ToVector3(), Color.white, 2f);
 
-                    //Debug.DrawLine(p1.ToVector3(), p.ToVector3(), Color.white, 2f);
-                    //Debug.DrawLine(p2.ToVector3(), p.ToVector3(), Color.white, 2f);
+                        Debug.DrawLine(normalizer.UnNormalize(p1).ToVector3(), normalizer.UnNormalize(p).ToVector3(), Color.gray, 2f);
+                        Debug.DrawLine(normalizer.UnNormalize(p2).ToVector3(), normalizer.UnNormalize(p).ToVector3(), Color.gray, 2f);
 
-                    //Debug.Log(borderEdge.face);
+                        convexHull.AddTriangle(p2, p1, p);
+                    }
+                    else
+                    {
+                        //Debug.Log(borderEdge.face);
+
+                        convexHull.AddTriangle(p2, p1, p);
+                    }
+                    */
 
                     //The border edge belongs to a triangle which is invisible
                     //Because triangles are oriented clockwise, we have to add the vertices in the other direction
@@ -204,12 +216,13 @@ namespace Habrador_Computational_Geometry
                 convexHull.ConnectAllEdges();
 
 
-                //debugCounter += 1;
-
-                //if (debugCounter > 0)
+                
+                //if (debugCounter > debugStop)
                 //{
                 //    break;
                 //}
+
+                //debugCounter += 1;
             }
 
 

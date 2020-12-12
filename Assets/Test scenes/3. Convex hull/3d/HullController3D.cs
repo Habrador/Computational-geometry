@@ -13,6 +13,7 @@ public class HullController3D : MonoBehaviour
     public int seed;
 
 
+
     void OnDrawGizmosSelected()
 	{
         //Get random points in 3d space
@@ -21,20 +22,27 @@ public class HullController3D : MonoBehaviour
         //To MyVector3
         HashSet<MyVector3> points = new HashSet<MyVector3>(points_Unity.Select(x => x.ToMyVector3()));
 
+        //Normalize
+        Normalizer3 normalizer = new Normalizer3(new List<MyVector3>(points));
+
+        HashSet<MyVector3> points_normalized = normalizer.Normalize(points);
+
 
         //Generate the convex hull
 
         //Iterative algorithm
-        HalfEdgeData3 convexHull = _ConvexHull.Iterative_3D(points);
+        HalfEdgeData3 convexHull_normalized = _ConvexHull.Iterative_3D(points_normalized, normalizer);
 
 
-        //Display
+        //
+        // Display
+        //
 
         //Points
         TestAlgorithmsHelpMethods.DisplayPoints(points_Unity, 0.01f, Color.black);
 
 
-        if (convexHull == null)
+        if (convexHull_normalized == null)
         {
             Debug.Log("Convex hull is null");
 
@@ -42,6 +50,9 @@ public class HullController3D : MonoBehaviour
         }
 
         //To unity mesh
+        //UnNormalize
+        HalfEdgeData3 convexHull = normalizer.UnNormalize(convexHull_normalized);
+
         Mesh convexHullMesh = convexHull.ConvertToUnityMesh("convex hull", shareVertices: false, generateNormals: false);
 
         //Hull
