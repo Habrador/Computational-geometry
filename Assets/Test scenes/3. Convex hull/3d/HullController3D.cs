@@ -28,8 +28,24 @@ public class HullController3D : MonoBehaviour
         HalfEdgeData3 convexHull = _ConvexHull.Iterative_3D(points);
 
 
-        //Display the points
+        //Display
+
+        //Points
         TestAlgorithmsHelpMethods.DisplayPoints(points_Unity, 0.01f, Color.black);
+
+
+        if (convexHull == null)
+        {
+            Debug.Log("Convex hull is null");
+
+            return;
+        }
+
+        //To unity mesh
+        Mesh convexHullMesh = convexHull.ConvertToUnityMesh("convex hull", shareVertices: false, generateNormals: false);
+
+        //Hull
+        TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(convexHullMesh, 0);
 	}
 
     

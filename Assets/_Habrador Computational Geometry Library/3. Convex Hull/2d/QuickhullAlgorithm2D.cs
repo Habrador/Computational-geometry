@@ -346,7 +346,7 @@ namespace Habrador_Computational_Geometry
                 //the point and the plane
                 Plane2 plane = new Plane2(p1, edgeNormal);
 
-                float distanceToEdge = _Geometry.GetSignedDistanceFromPointToPlane(plane, p);
+                float distanceToEdge = _Geometry.GetSignedDistanceFromPointToPlane(p, plane);
 
                 //The distance can be negative if we are behind the plane
                 //and because we just picked a normal out of nowhere, we have to make sure

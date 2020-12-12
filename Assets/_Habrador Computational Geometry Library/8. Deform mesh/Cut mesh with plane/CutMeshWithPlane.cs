@@ -119,9 +119,9 @@ namespace Habrador_Computational_Geometry
 
                 //First check on which side of the plane these vertices are
                 //If they are all on one side we dont have to cut the triangle
-                bool is_p1_front = _Geometry.IsPointOutsidePlane(cutPlane, v1.position);
-                bool is_p2_front = _Geometry.IsPointOutsidePlane(cutPlane, v2.position);
-                bool is_p3_front = _Geometry.IsPointOutsidePlane(cutPlane, v3.position);
+                bool is_p1_front = _Geometry.IsPointOutsidePlane(v1.position, cutPlane);
+                bool is_p2_front = _Geometry.IsPointOutsidePlane(v2.position, cutPlane);
+                bool is_p3_front = _Geometry.IsPointOutsidePlane(v3.position, cutPlane);
 
 
                 //Build triangles belonging to respective mesh
@@ -778,11 +778,11 @@ namespace Habrador_Computational_Geometry
         public static bool ArePointsOnOneSideOfPlane(List<MyVector3> points, Plane3 plane)
         {        
             //First check the first point
-            bool isInFront = _Geometry.IsPointOutsidePlane(plane, points[0]);
+            bool isInFront = _Geometry.IsPointOutsidePlane(points[0], plane);
 
             for (int i = 1; i < points.Count; i++)
             {
-                bool isOtherOutside = _Geometry.IsPointOutsidePlane(plane, points[i]);
+                bool isOtherOutside = _Geometry.IsPointOutsidePlane(points[i], plane);
 
                 //We have found a point which is not at the same side of the plane as the first point
                 if (isInFront != isOtherOutside)

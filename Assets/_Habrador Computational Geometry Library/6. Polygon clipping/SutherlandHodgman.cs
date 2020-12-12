@@ -50,8 +50,8 @@ namespace Habrador_Computational_Geometry
                     //Calculate the distance to the plane from each vertex
                     //This is how we will know if they are inside or outside
                     //If they are inside, the distance is positive, which is why the planes normals have to be oriented to the inside
-                    float dist_to_v1 = _Geometry.GetSignedDistanceFromPointToPlane(plane, v1);
-                    float dist_to_v2 = _Geometry.GetSignedDistanceFromPointToPlane(plane, v2);
+                    float dist_to_v1 = _Geometry.GetSignedDistanceFromPointToPlane(v1, plane);
+                    float dist_to_v2 = _Geometry.GetSignedDistanceFromPointToPlane(v2, plane);
 
                     //TODO: What will happen if they are exactly 0? Should maybe use a tolerance of 0.001
 

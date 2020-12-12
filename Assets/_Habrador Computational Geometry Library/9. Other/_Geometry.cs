@@ -305,7 +305,7 @@ namespace Habrador_Computational_Geometry
         //- Negative means it's inside
 
         //3d
-        public static float GetSignedDistanceFromPointToPlane(Plane3 plane, MyVector3 pointPos)
+        public static float GetSignedDistanceFromPointToPlane(MyVector3 pointPos, Plane3 plane)
         {
             float distance = MyVector3.Dot(plane.normal, pointPos - plane.pos);
 
@@ -313,7 +313,7 @@ namespace Habrador_Computational_Geometry
         }
 
         //2d
-        public static float GetSignedDistanceFromPointToPlane(Plane2 plane, MyVector2 pointPos)
+        public static float GetSignedDistanceFromPointToPlane(MyVector2 pointPos, Plane2 plane)
         {
             float distance = MyVector2.Dot(plane.normal, pointPos - plane.pos);
 
@@ -325,9 +325,9 @@ namespace Habrador_Computational_Geometry
 
         //3d
         //Outside means in the planes normal direction
-        public static bool IsPointOutsidePlane(Plane3 plane, MyVector3 pointPos) 
+        public static bool IsPointOutsidePlane(MyVector3 pointPos, Plane3 plane) 
         {
-            float distance = GetSignedDistanceFromPointToPlane(plane, pointPos);
+            float distance = GetSignedDistanceFromPointToPlane(pointPos, plane);
 
             //To avoid floating point precision issues we can add a small value
             float epsilon = MathUtility.EPSILON;
@@ -343,9 +343,9 @@ namespace Habrador_Computational_Geometry
         }
 
         //3d
-        public static OutsideOnInside IsPoint_Outside_On_Inside_Plane(Plane3 plane, MyVector3 pointPos)
+        public static OutsideOnInside IsPoint_Outside_On_Inside_Plane(MyVector3 pointPos, Plane3 plane)
         {
-            float distance = GetSignedDistanceFromPointToPlane(plane, pointPos);
+            float distance = GetSignedDistanceFromPointToPlane(pointPos, plane);
 
             //To avoid floating point precision issues we can add a small value
             float epsilon = MathUtility.EPSILON;

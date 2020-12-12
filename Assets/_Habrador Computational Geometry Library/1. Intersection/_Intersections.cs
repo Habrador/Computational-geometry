@@ -513,7 +513,9 @@ namespace Habrador_Computational_Geometry
         //
         // Is a point within a convex hull?
         //
-        public static bool IsPointWithinConvexHull(MyVector3 point, HalfEdgeData3 convexHull)
+
+        //If the point is on the hull it's "inside"
+        public static bool PointWithinConvexHull(MyVector3 point, HalfEdgeData3 convexHull)
         {
             bool isInside = true;
 
@@ -525,10 +527,11 @@ namespace Habrador_Computational_Geometry
                 //Build a plane
                 Plane3 plane = new Plane3(triangle.edge.v.position, triangle.edge.v.normal);
 
-                float distance = _Geometry.GetSignedDistanceFromPointToPlane(plane, point);
+                //Find the distance to the plane from the point
+                //The distance is negative if the point is inside the plane
+                float distance = _Geometry.GetSignedDistanceFromPointToPlane(point, plane);
 
                 //This point is outside, which means we don't need to test more planes
-                //TODO: Figure out what happens if the point is on the plane
                 if (distance > 0f + epsilon)
                 {
                     isInside = false;

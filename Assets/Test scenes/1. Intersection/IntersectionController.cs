@@ -376,7 +376,7 @@ public class IntersectionController : MonoBehaviour
         Ray2 ray_2d = new Ray2(rayPos.ToMyVector2(), rayDir.ToMyVector2());
 
         //Might as well test the distance from the point to the plane as well
-        float distance = _Geometry.GetSignedDistanceFromPointToPlane(plane_2d, ray_2d.origin);
+        float distance = _Geometry.GetSignedDistanceFromPointToPlane(ray_2d.origin, plane_2d);
 
         Debug.Log(distance);
 
