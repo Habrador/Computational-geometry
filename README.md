@@ -80,7 +80,9 @@ The code has been tested by using Unity 2018.4 LTS but should work with other ve
 
 A common problem in Computational Geometry is to find the convex hull of a set of points.
 
-![Convex hull jarvis march](/_media/convex-hull-jarvis.png?raw=true)
+#### 2d space
+
+![Convex hull 2d space](/_media/convex-2d.png?raw=true)
 
 **Jarvis March.** Is also known as "Gift wrapping"
 
@@ -99,6 +101,16 @@ A good paper on this algorithm is "Implementing Quickhull" from Valve by Dirk Gr
 2. For each edge (you start with the triangle's three edges) find the points that are "outside" of this edge
 3. For each edge (and by using the points you know are outside of this edge) find the point that is the furthest from this edge. This point is also on the hull. Now the original edge on the triangle has been split into two. Remove all points that are within this new triangle formed by the original edge and the two new edges.   
 4. Repeat 2 and 3 for each new edge
+
+
+#### 3d space
+
+![Convex hull 3d space](/_media/convex-hull-3d.png?raw=true)
+
+**Iterative algorithm.** Is very similar to Quickhull. 
+
+1. Like in Quickhull 2d you start by finding a triangle. But this is 3d, so you have to find another point so you get a tetrahedron. 
+2. Add all other points one-by-one. If the point is inside the hull you have so-far, ingore it. Otherwise you have to check which triangles are visible from the point and remove these. Then you build triangles to the new point. 
 
 
 ### 4. Triangulation
@@ -195,6 +207,15 @@ Metacircles are like Metaballs but in 2D. Is using Marching squares.
 You first generate a Delaunay triangulation by using some method. Then you use the fact that you can get the Voronoi diagram from the Delaunay triangulation. For each Delaunay triangle you generate a circle where the triangle-corners are on the edge of the circle. The center of this circle is a corner in the Voronoi diagram face belonging to the triangle.     
 
 ![Voronoi from delaunay](/_media/voronoi-from-delaunay.png?raw=true)	
+
+
+**From a Delaunay triangulation on a sphere**
+
+To get the Delaunay triangulation of points on a sphere, you just generate the convex hull of those points. To generate the Voronoi diagram in 3d space, the process is the same as in 2d space - except that you need to find the center of a circle given 3 points on the edge of the circle.  
+
+![Delaunay on a sphere](/_media/triangulation-delaunay-sphere.png?raw=true)
+
+![Voronoi on a sphere](/_media/voronoi-from-delaunay-sphere.png?raw=true)
 
 
 

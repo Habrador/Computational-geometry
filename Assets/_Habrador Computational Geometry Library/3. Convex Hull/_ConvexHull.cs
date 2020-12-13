@@ -50,7 +50,7 @@ namespace Habrador_Computational_Geometry
         //
 
         //Iterative
-        //Normalizer is needed for debugging
+        //Normalizer is only needed for debugging
         public static HalfEdgeData3 Iterative_3D(HashSet<MyVector3> points, Normalizer3 normalizer = null)
         {
             List<MyVector3> pointsList = new List<MyVector3>(points);
