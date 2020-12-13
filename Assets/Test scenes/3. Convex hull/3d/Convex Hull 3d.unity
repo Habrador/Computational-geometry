@@ -210,7 +210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cdce8cb99c87ee4ba58325cdc05e7d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfPoints: 500
+  numberOfPoints: 300
   halfMapSize: 1
   seed: 1
 --- !u!4 &693793443

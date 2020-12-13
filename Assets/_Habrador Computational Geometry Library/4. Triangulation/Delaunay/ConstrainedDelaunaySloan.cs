@@ -31,9 +31,18 @@ namespace Habrador_Computational_Geometry
             }
 
 
+            System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+
             //Generate the Delaunay triangulation with some algorithm
+            //timer.Start();
+            
             //triangleData = _Delaunay.FlippingEdges(allPoints);
             triangleData = _Delaunay.PointByPoint(allPoints, triangleData);
+            
+            //timer.Stop();
+
+            //Delaunay take up roughly half of the time
+            //Debug.Log($"Delaunay triangulation took {timer.ElapsedMilliseconds / 1000f} seconds");
 
 
             //Modify the triangulation by adding the constraints to the delaunay triangulation
@@ -297,32 +306,24 @@ namespace Habrador_Computational_Geometry
             //Store the triangles we flood fill in this queue
             Queue<HalfEdgeFace2> trianglesToCheck = new Queue<HalfEdgeFace2>();
 
-            //Step 1. Find all triangles with an edge that is a constraint
-            //We have to find all because they are not always connected, so we cant just find one and flood fill from it 
-            //for (int i = 0; i < constraints.Count; i++)
-            //{
-            //    MyVector2 c_p1 = constraints[i];
-            //    MyVector2 c_p2 = constraints[MathUtility.ClampListIndex(i + 1, constraints.Count)];
 
-            //    HalfEdgeFace2 borderTriangle = FindTriangleWithEdge(c_p1, c_p2, triangleData);
+            //Step 1. Find all half-edges in the current triangulation which are constraint
+            //Maybe faster to find all constraintEdges for ALL constraints because we are doing this per hole and hull
+            //We have to find ALL because some triangles are not connected and will thus be missed if we find just a single start-triangle
+            //Is also needed when flood-filling so we dont jump over a constraint
+            HashSet<HalfEdge2> constraintEdges = FindAllConstraintEdges(constraints, triangleData);
 
-            //    //Maybe this edge has not triangle, which can happen if it's on the border
-            //    if (borderTriangle != null)
-            //    {
-            //        trianglesToCheck.Enqueue(borderTriangle);
-            //    }
-            //}
-
-            HashSet<HalfEdgeFace2> borderFaces = FindAllTrianglesBorderingTheConstraint(constraints, triangleData);
-
-            foreach (HalfEdgeFace2 f in borderFaces)
+            //Each edge is associated with a face which should be deleted
+            foreach (HalfEdge2 e in constraintEdges)
             {
-                trianglesToCheck.Enqueue(f);
+                if (!trianglesToCheck.Contains(e.face))
+                {
+                    trianglesToCheck.Enqueue(e.face);                    
+                }
             }
-
             
 
-            //Step 2. Find the rest of the triangles within the constraint by using a flood fill algorithm
+            //Step 2. Find the rest of the triangles within the constraint by using a flood-fill algorithm
             int safety = 0;
 
             List<HalfEdge2> edgesToCheck = new List<HalfEdge2>();
@@ -377,11 +378,8 @@ namespace Habrador_Computational_Geometry
                         continue;
                     }
 
-                    //We have to check if this edge is a constraint because it might be alone on the border without neighbors that are also constraints
-                    MyVector2 p1 = e.prevEdge.v.position;
-                    MyVector2 p2 = e.v.position;
-
-                    if (IsEdgeAConstraint(p1, p2, constraints))
+                    //This edge is a constraint and we can't jump across constraints 
+                    if (constraintEdges.Contains(e))
                     {
                         continue;
                     }
@@ -396,34 +394,35 @@ namespace Habrador_Computational_Geometry
 
 
         //Find a triangle which has an edge going from p1 to p2
-        private static HalfEdgeFace2 FindTriangleWithEdge(MyVector2 p1, MyVector2 p2, HalfEdgeData2 triangleData)
+        //private static HalfEdgeFace2 FindTriangleWithEdge(MyVector2 p1, MyVector2 p2, HalfEdgeData2 triangleData)
+        //{
+        //    HashSet<HalfEdge2> edges = triangleData.edges;
+
+        //    foreach (HalfEdge2 e in edges)
+        //    {
+        //        //An edge is going TO a vertex
+        //        MyVector2 e_p1 = e.prevEdge.v.position;
+        //        MyVector2 e_p2 = e.v.position;
+
+        //        if (e_p1.Equals(p1) && e_p2.Equals(p2))
+        //        {
+        //            return e.face;
+        //        }
+        //    }
+
+        //    return null;
+        //}
+
+
+
+        //Find all half-edges that are constraint
+        private static HashSet<HalfEdge2> FindAllConstraintEdges(List<MyVector2> constraints, HalfEdgeData2 triangleData)
         {
-            HashSet<HalfEdge2> edges = triangleData.edges;
+            HashSet<HalfEdge2> constrainEdges = new HashSet<HalfEdge2>();
 
-            foreach (HalfEdge2 e in edges)
-            {
-                //An edge is going TO a vertex
-                MyVector2 e_p1 = e.prevEdge.v.position;
-                MyVector2 e_p2 = e.v.position;
-
-                if (e_p1.Equals(p1) && e_p2.Equals(p2))
-                {
-                    return e.face;
-                }
-            }
-
-            return null;
-        }
-
-
-
-        //Find all triangles that share a specific constraint
-        private static HashSet<HalfEdgeFace2> FindAllTrianglesBorderingTheConstraint(List<MyVector2> constraints, HalfEdgeData2 triangleData)
-        {
-            HashSet<HalfEdgeFace2> facesOnTheBorder = new HashSet<HalfEdgeFace2>();
-        
 
             //Create a new set with all constrains, and as we discover new constraints, we delete constrains, which will make searching faster
+            //A constraint can only exist once!
             HashSet<Edge2> constraintsEdges = new HashSet<Edge2>();
 
             for (int i = 0; i < constraints.Count; i++)
@@ -435,59 +434,41 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            //Faster to search faces becase a triangle might have multiple constraints bordering it and we just need to find one
-            HashSet<HalfEdgeFace2> faces = triangleData.faces;
+            //All edges we have to search
+            HashSet<HalfEdge2> edges = triangleData.edges;
 
-            List<HalfEdge2> edges = new List<HalfEdge2>();
-
-            foreach (HalfEdgeFace2 f in faces)
+            foreach (HalfEdge2 e in edges)
             {
-                edges.Clear();
+                //An edge is going TO a vertex
+                MyVector2 e_p1 = e.prevEdge.v.position;
+                MyVector2 e_p2 = e.v.position;
 
-                edges.Add(f.edge);
-                edges.Add(f.edge.nextEdge);
-                edges.Add(f.edge.nextEdge.nextEdge);
-
-                foreach (HalfEdge2 e in edges)
+                //Is this edge a constraint?
+                foreach (Edge2 c_edge in constraintsEdges)
                 {
-                    //An edge is going TO a vertex
-                    MyVector2 e_p1 = e.prevEdge.v.position;
-                    MyVector2 e_p2 = e.v.position;
-
-                    //Is this edge a constraint?
-                    bool foundConstraint = false;
-
-                    foreach (Edge2 c_edge in constraintsEdges)
+                    if (e_p1.Equals(c_edge.p1) && e_p2.Equals(c_edge.p2))
                     {
-                        if(e_p1.Equals(c_edge.p1) && e_p2.Equals(c_edge.p2))
-                        {
-                            facesOnTheBorder.Add(f);
+                        constrainEdges.Add(e);
 
-                            constraintsEdges.Remove(c_edge);
+                        constraintsEdges.Remove(c_edge);
 
-                            foundConstraint = true;
-
-                            break;
-                        }
-                    }
-
-                    if (foundConstraint)
-                    {
+                        //Move on to the next edge
                         break;
                     }
                 }
 
+                //We have found all constraint, so don't need to search anymore
                 if (constraintsEdges.Count == 0)
                 {
                     break;
                 }
             }
 
-            return facesOnTheBorder;
+            return constrainEdges;
         }
 
 
-        
+
         //
         // Find edges that intersect with a constraint
         //
@@ -603,21 +584,21 @@ namespace Habrador_Computational_Geometry
 
 
         //Is an edge between p1 and p2 a constraint?
-        private static bool IsEdgeAConstraint(MyVector2 p1, MyVector2 p2, List<MyVector2> constraints)
-        {
-            for (int i = 0; i < constraints.Count; i++)
-            {
-                MyVector2 c_p1 = constraints[i];
-                MyVector2 c_p2 = constraints[MathUtility.ClampListIndex(i + 1, constraints.Count)];
+        //private static bool IsEdgeAConstraint(MyVector2 p1, MyVector2 p2, List<MyVector2> constraints)
+        //{
+        //    for (int i = 0; i < constraints.Count; i++)
+        //    {
+        //        MyVector2 c_p1 = constraints[i];
+        //        MyVector2 c_p2 = constraints[MathUtility.ClampListIndex(i + 1, constraints.Count)];
 
-                if (AreTwoEdgesTheSame(p1, p2, c_p1, c_p2))
-                {
-                    return true;
-                }
-            }
+        //        if (AreTwoEdgesTheSame(p1, p2, c_p1, c_p2))
+        //        {
+        //            return true;
+        //        }
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
 
 
