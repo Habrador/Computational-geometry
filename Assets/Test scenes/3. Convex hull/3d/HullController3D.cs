@@ -14,6 +14,8 @@ public class HullController3D : MonoBehaviour
 
     public int seed;
 
+    public MeshFilter meshFilter;
+
 
 
     void OnDrawGizmosSelected()
@@ -57,27 +59,33 @@ public class HullController3D : MonoBehaviour
         //
 
         //Points
-        TestAlgorithmsHelpMethods.DisplayPoints(points_Unity, 0.01f, Color.black);
+        //TestAlgorithmsHelpMethods.DisplayPoints(points_Unity, 0.01f, Color.black);
 
 
-        if (convexHull_normalized == null)
+        //Hull mesh
+        if (convexHull_normalized != null)
         {
-            Debug.Log("Convex hull is null");
+            HalfEdgeData3 convexHull = normalizer.UnNormalize(convexHull_normalized);
 
-            return;
+            //To unity mesh
+            Mesh convexHullMesh = convexHull.ConvertToUnityMesh("convex hull", shareVertices: false, generateNormals: false);
+
+            //Using gizmos to display mesh in 3d space gives a bad result
+            //TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(convexHullMesh, 0);
+
+            //Better to add it to a gameobject
+            //Use Shaded Wireframe to see the triangles
+            meshFilter.mesh = convexHullMesh;
+
+            //Points on the hull
+            //These are shining thorugh the mesh
+            //TestAlgorithmsHelpMethods.DisplayMeshCorners(convexHullMesh, 0.01f, Color.black);
         }
+    }
 
-        //To unity mesh
-        //UnNormalize
-        HalfEdgeData3 convexHull = normalizer.UnNormalize(convexHull_normalized);
 
-        Mesh convexHullMesh = convexHull.ConvertToUnityMesh("convex hull", shareVertices: false, generateNormals: false);
 
-        //Hull
-        TestAlgorithmsHelpMethods.DisplayMeshWithRandomColors(convexHullMesh, 0);
-	}
 
-    
 
     //
     // Test points

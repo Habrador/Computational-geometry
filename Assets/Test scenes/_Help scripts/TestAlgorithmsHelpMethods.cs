@@ -269,6 +269,21 @@ public static class TestAlgorithmsHelpMethods
 
 
 
+    //Corners in a mesh
+    public static void DisplayMeshCorners(Mesh mesh, float radius, Color color)
+    {
+        Vector3[] vertices = mesh.vertices;
+
+        Gizmos.color = color;
+
+        foreach(Vector3 v in vertices)
+        {
+            Gizmos.DrawSphere(v, radius);
+        }
+    }
+
+
+
     //Circle
     public static void DisplayCircleMesh(MyVector2 center, float radius, int resolution, Color color)
     {
