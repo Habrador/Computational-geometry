@@ -319,9 +319,8 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 	* Iterative
 	* Divide and Conquer
 * Convex hull 3d:
-	* Quickhull
-	* Iterative
 	* Divide and Conquer
+	* Quickhull
 * Concave hull 2d:
 	* Alpha shape
 * Triangulations:
@@ -335,6 +334,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 	* Mesh decals
 	* Deform mesh after collision like car crash
 	* Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want (https://twitter.com/mattstark256)
+	* Mesh simplification
 * Voronoi: 
 	* Fortune's algorithm
 	* Voronoi: point-by-point
@@ -361,6 +361,8 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 **2020-12**
 
 * Added cut mesh with plane
+* Added 3d convex hull with an iterative algorithm (which is very similar to Quickhull)
+* Added 3d voronoi and delaunay on a sphere
 
 **2020-11** 
 
