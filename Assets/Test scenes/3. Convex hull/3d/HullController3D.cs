@@ -14,6 +14,9 @@ public class HullController3D : MonoBehaviour
 
     public int seed;
 
+    public MeshFilter constructHullFromThisMesh;
+
+    //Display the hull on this go
     public MeshFilter meshFilter;
 
 
@@ -22,6 +25,18 @@ public class HullController3D : MonoBehaviour
 	{
         //Get random points in 3d space
         HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed, halfMapSize, numberOfPoints);
+
+        //Points from a mesh
+        /*
+        Transform meshTrans = constructHullFromThisMesh.transform;
+
+        List<Vector3> vertices = new List<Vector3>(constructHullFromThisMesh.sharedMesh.vertices);
+
+        //Local to global space
+        List<Vector3> verticesGlobal = vertices.Select(x => meshTrans.TransformPoint(x)).ToList();
+
+        HashSet<Vector3> points_Unity = new HashSet<Vector3>(verticesGlobal);
+        */
 
         //To stress-test these algorithms, generate points on a sphere because all of those should be on the hull
         //HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPointsOnSphere(seed, radius: 1f, numberOfPoints);
@@ -50,7 +65,7 @@ public class HullController3D : MonoBehaviour
 
         timer.Stop();
 
-        Debug.Log($"Generated a 3d convex hull in {timer.ElapsedMilliseconds / 1000f} seconds");
+        Debug.Log($"Generated a 3d convex hull in {timer.ElapsedMilliseconds / 1000f} seconds with {convexHull_normalized.faces.Count} triangles");
 
 
 
