@@ -78,6 +78,7 @@ namespace Habrador_Computational_Geometry
                 //int debugStop = 11;
 
                 //Save all ned edges so we can connect them with an opposite edge
+                //To make it faster you can use the ideas in the Valve paper to get a sorted list of newEdges
                 HashSet<HalfEdge3> newEdges = new HashSet<HalfEdge3>(); 
 
                 foreach(HalfEdge3 borderEdge in borderEdges)
