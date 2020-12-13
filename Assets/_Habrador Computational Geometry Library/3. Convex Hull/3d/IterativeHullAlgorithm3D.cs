@@ -75,7 +75,8 @@ namespace Habrador_Computational_Geometry
                 //Debug.Log($"Number of border edges: {borderEdges.Count}");
                 //int debugStop = 11;
 
-                HashSet<HalfEdgeFace3> newTriangles = new HashSet<HalfEdgeFace3>(); 
+                //Save all ned edges so we can connect them with an opposite edge
+                HashSet<HalfEdge3> newEdges = new HashSet<HalfEdge3>(); 
 
                 foreach(HalfEdge3 borderEdge in borderEdges)
                 {
@@ -114,22 +115,26 @@ namespace Habrador_Computational_Geometry
                     edgeToConnect.oppositeEdge = borderEdge;
                     borderEdge.oppositeEdge = edgeToConnect;
 
-
-                    newTriangles.Add(newTriangle);
+                    //Two edges are still not connected, so save those
+                    HalfEdge3 e1 = newTriangle.edge;
+                    //HalfEdge3 e2 = newTriangle.edge.nextEdge;
+                    HalfEdge3 e3 = newTriangle.edge.nextEdge.nextEdge;
+                    
+                    newEdges.Add(e1);
+                    //newEdges.Add(e2);
+                    newEdges.Add(e3);
                 }
 
                 //timer.Start();
                 //Two edges in each triangle is still not connected with an opposite edge
-                //A maybe faster way is to connect the border edges with each other, then we would not need this part
-                foreach (HalfEdgeFace3 triangle in newTriangles)
+                foreach (HalfEdge3 e in newEdges)
                 {
-                    HalfEdge3 e1 = triangle.edge;
-                    HalfEdge3 e2 = triangle.edge.nextEdge;
-                    HalfEdge3 e3 = triangle.edge.nextEdge.nextEdge;
+                    if (e.oppositeEdge != null)
+                    {
+                        continue;
+                    }
 
-                    if (e1.oppositeEdge == null) convexHull.TryFindOppositeEdge(e1);
-                    if (e2.oppositeEdge == null) convexHull.TryFindOppositeEdge(e2);
-                    if (e3.oppositeEdge == null) convexHull.TryFindOppositeEdge(e3);
+                    convexHull.TryFindOppositeEdge(e, newEdges);
                 }
                 //timer.Stop();
 
