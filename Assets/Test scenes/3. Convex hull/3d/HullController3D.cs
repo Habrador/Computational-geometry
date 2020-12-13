@@ -4,6 +4,8 @@ using UnityEngine;
 using Habrador_Computational_Geometry;
 using System.Linq;
 
+
+//Generates a convex hull in 3d space from a set of points
 public class HullController3D : MonoBehaviour
 {
     public int numberOfPoints = 10;
@@ -28,10 +30,23 @@ public class HullController3D : MonoBehaviour
         HashSet<MyVector3> points_normalized = normalizer.Normalize(points);
 
 
-        //Generate the convex hull
 
-        //Iterative algorithm
+        //
+        // Generate the convex hull
+        //
+
+        //Algorithm 1. Iterative algorithm
+
+        System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+
+        timer.Start();
+
         HalfEdgeData3 convexHull_normalized = _ConvexHull.Iterative_3D(points_normalized, normalizer);
+
+        timer.Stop();
+
+        Debug.Log($"Generated a 3d convex hull in {timer.ElapsedMilliseconds / 1000f} seconds");
+
 
 
         //

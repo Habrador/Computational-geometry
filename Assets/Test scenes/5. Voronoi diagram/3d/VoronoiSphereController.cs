@@ -54,12 +54,21 @@ public class VoronoiSphereController : MonoBehaviour
         HashSet<MyVector3> points_normalized = normalizer.Normalize(points);
 
 
+        System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+
+
         //
         // Generate the convex hull, which is the same as the Delaunay triangulation of points on the sphere
         //
 
         //Iterative algorithm
+        timer.Start();
+
         HalfEdgeData3 convexHull_normalized = _ConvexHull.Iterative_3D(points_normalized, normalizer);
+
+        timer.Stop();
+
+        Debug.Log($"Generated a 3d convex hull in {timer.ElapsedMilliseconds / 1000f} seconds");
 
         if (convexHull_normalized == null)
         {
@@ -71,7 +80,13 @@ public class VoronoiSphereController : MonoBehaviour
         //
         // Generate the voronoi diagram from the delaunay triangulation
         //
+        timer.Restart();
+
         HashSet<VoronoiCell3> voronoiCells_normalized = _Voronoi.Delaunay3DToVoronoi(convexHull_normalized);
+
+        timer.Stop();
+
+        Debug.Log($"Generated a 3d voronoi diagram in {timer.ElapsedMilliseconds / 1000f} seconds");
 
         if (voronoiCells_normalized == null)
         {
