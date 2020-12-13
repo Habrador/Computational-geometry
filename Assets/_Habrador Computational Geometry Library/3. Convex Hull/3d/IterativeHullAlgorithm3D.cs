@@ -14,7 +14,15 @@ namespace Habrador_Computational_Geometry
             HalfEdgeData3 convexHull = new HalfEdgeData3();
 
             //Step 1. Init by making a tetrahedron (triangular pyramid) and remove all points within the tetrahedron
+            //System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+
+            //timer.Start();
+
             BuildFirstTetrahedron(points, convexHull);
+
+            //timer.Stop();
+
+            //Debug.Log($"Testrahedron {timer.ElapsedMilliseconds/1000f}");
 
             //To easier add and remove triangles, we have to connect the edges with an opposite edge
             convexHull.ConnectAllEdges();
@@ -248,6 +256,7 @@ namespace Habrador_Computational_Geometry
 
 
             //Find a point which is the furthest away from this edge
+            //TODO: Is this point also on the AABB? So we don't have to search all remaining points...
             MyVector3 pointFurthestAway = FindPointFurthestFromEdge(eFurthestApart, points);
 
             //Remove the point
@@ -333,8 +342,9 @@ namespace Habrador_Computational_Geometry
             //    TestAlgorithmsHelpMethods.DebugDrawTriangle(f, Color.white, Color.red);
             //}
 
-            
+            /*
             //Now we might as well remove all the points that are within the tetrahedron because they are not on the hull
+            //But this is slow if we have many points and none of them are inside
             HashSet<MyVector3> pointsToRemove = new HashSet<MyVector3>();
 
             foreach (MyVector3 p in points)
@@ -353,7 +363,7 @@ namespace Habrador_Computational_Geometry
             {
                 points.Remove(p);
             }
-            
+            */
         }
 
 
@@ -399,10 +409,63 @@ namespace Habrador_Computational_Geometry
         private static Edge3 FindEdgeFurthestApart(HashSet<MyVector3> pointsHashSet)
         {
             List<MyVector3> points = new List<MyVector3>(pointsHashSet);
-        
+
+
+            //Instead of using all points, find the points on the AABB
+            MyVector3 maxX = points[0]; //Cant use default because default doesnt exist and might be a min point
+            MyVector3 minX = points[0];
+            MyVector3 maxY = points[0];
+            MyVector3 minY = points[0];
+            MyVector3 maxZ = points[0];
+            MyVector3 minZ = points[0];
+
+            for (int i = 1; i < points.Count; i++)
+            {
+                MyVector3 p = points[i];
+            
+                if (p.x > maxX.x)
+                {
+                    maxX = p;
+                }
+                if (p.x < minX.x)
+                {
+                    minX = p;
+                }
+
+                if (p.y > maxY.y)
+                {
+                    maxY = p;
+                }
+                if (p.y < minY.y)
+                {
+                    minY = p;
+                }
+
+                if (p.z > maxZ.z)
+                {
+                    maxZ = p;
+                }
+                if (p.z < minZ.z)
+                {
+                    minZ = p;
+                }
+            }
+
+            //Some of these might be the same point (like minZ and minY)
+            //But we have earlier check that the points have a width greater than 0, so we should get the points we need
+            HashSet<MyVector3> extremePointsHashSet = new HashSet<MyVector3>();
+
+            extremePointsHashSet.Add(maxX);
+            extremePointsHashSet.Add(minX);
+            extremePointsHashSet.Add(maxY);
+            extremePointsHashSet.Add(minY);
+            extremePointsHashSet.Add(maxZ);
+            extremePointsHashSet.Add(minZ);
+
+            points = new List<MyVector3>(extremePointsHashSet);
+
 
             //Find all possible combinations of edges between all points
-            //TODO: Better to first find the points on the hull???
             List<Edge3> pointCombinations = new List<Edge3>();
 
             for (int i = 0; i < points.Count; i++)
