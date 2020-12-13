@@ -6,7 +6,8 @@ namespace Habrador_Computational_Geometry
 {
     //Generate a convex hull in 3d space with an iterative algorithm (also known as beneath-beyond)
     //Is very similar to Quickhull
-    //Based on "Computational Geometry in C" by Joseph O'Rourke 
+    //Based on "Computational Geometry in C" by Joseph O'Rourke
+    //and "Implementing Quickhull" pdf from Valve by Dirk Gregorious
     public static class IterativeHullAlgorithm3D
     {
         //normalizer is only for debugging, so we can display the unnormalized points

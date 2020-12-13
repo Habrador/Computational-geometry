@@ -110,7 +110,7 @@ A good paper on this algorithm is "Implementing Quickhull" from Valve by Dirk Gr
 **Iterative algorithm.** Is very similar to Quickhull. 
 
 1. Like in Quickhull 2d you start by finding a triangle. But this is 3d, so you have to find another point so you get a tetrahedron. 
-2. Add all other points one-by-one. If the point is inside the hull you have so-far, ingore it. Otherwise you have to check which triangles are visible from the point and remove these. Then you build triangles to the new point. 
+2. Add all other points one-by-one. If the point is inside the hull you have so-far, ignore it. Otherwise you have to check which triangles are visible from the point and remove them. Then you build triangles to the new point from the border of the triangles you just removed. 
 
 
 ### 4. Triangulation
