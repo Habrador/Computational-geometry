@@ -21,6 +21,9 @@ public class HullController3D : MonoBehaviour
         //Get random points in 3d space
         HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed, halfMapSize, numberOfPoints);
 
+        //To stress-test these algorithms, generate points on a sphere because all of those should be on the hull
+        //HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPointsOnSphere(seed, radius: 1f, numberOfPoints);
+
         //To MyVector3
         HashSet<MyVector3> points = new HashSet<MyVector3>(points_Unity.Select(x => x.ToMyVector3()));
 

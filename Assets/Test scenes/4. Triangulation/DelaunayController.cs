@@ -111,6 +111,10 @@ public class DelaunayController : MonoBehaviour
         // Generate the triangulation
         //
 
+        System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+
+        timer.Start();
+
         //Algorithm 1. Delaunay by triangulate all points with some bad algorithm and then flip edges until we get a delaunay triangulation 
         //HalfEdgeData2 triangleData_normalized = _Delaunay.FlippingEdges(points_2d_normalized, new HalfEdgeData2());
 
@@ -122,6 +126,9 @@ public class DelaunayController : MonoBehaviour
         //Algorithm 3. Constrained delaunay
         HalfEdgeData2 triangleData_normalized = _Delaunay.ConstrainedBySloan(null, hullPoints_2d_normalized, allHolePoints_2d_normalized, shouldRemoveTriangles: true, new HalfEdgeData2());
 
+        timer.Stop();
+
+        Debug.Log($"Generated a delaunay triangulation in {timer.ElapsedMilliseconds / 1000f} seconds");
 
 
         //UnNormalize
