@@ -14,6 +14,10 @@ public class VoronoiSphereController : MonoBehaviour
 
     public float radius;
 
+    //To display voronoi cells with vertex colors
+    public MeshFilter meshFilter;
+
+
     //What will be generated
     private Mesh delaunayMesh;
 
@@ -66,6 +70,14 @@ public class VoronoiSphereController : MonoBehaviour
 
                 //Generate a mesh for each separate cell
                 voronoiCellsMeshes = GenerateVoronoiCellsMeshes(voronoiCells);
+
+                //Generate a single mesh for all cells where each vertex has a color belonging to that cell
+                Mesh oneMesh = GenerateAndDisplaySingleMesh(voronoiCellsMeshes);
+
+                if (meshFilter != null)
+                {
+                    meshFilter.mesh = oneMesh;
+                }
             }
         }
 
@@ -78,6 +90,45 @@ public class VoronoiSphereController : MonoBehaviour
 
             delaunayMesh = convexHull.ConvertToUnityMesh("convex hull aka delaunay triangulation", shareVertices: false, generateNormals: false);
         }
+    }
+
+
+
+    //Make it a single mesh
+    private Mesh GenerateAndDisplaySingleMesh(HashSet<Mesh> meshes)
+    {
+        Mesh voronoiCellsMesh = new Mesh();
+
+        List<Vector3> vertices = new List<Vector3>();
+        List<int> triangles = new List<int>();
+        List<Color> vertexColors = new List<Color>();
+        List<Vector3> normals = new List<Vector3>();
+
+        foreach (Mesh mesh in meshes)
+        {
+            int numberOfVerticesBefore = vertices.Count;
+        
+            vertices.AddRange(mesh.vertices);
+            vertexColors.AddRange(mesh.colors);
+            normals.AddRange(mesh.normals);
+
+            //Triangles are not the same
+            int[] oldTriangles = mesh.triangles;
+
+            for (int i = 0; i < oldTriangles.Length; i++)
+            {
+                triangles.Add(oldTriangles[i] + numberOfVerticesBefore);
+            }
+        }
+
+        Mesh oneMesh = new Mesh();
+
+        oneMesh.SetVertices(vertices);
+        oneMesh.SetTriangles(triangles, 0);
+        oneMesh.SetNormals(normals);
+        oneMesh.SetColors(vertexColors);
+
+        return oneMesh;
     }
 
 
@@ -96,13 +147,37 @@ public class VoronoiSphereController : MonoBehaviour
         
             List<VoronoiEdge3> edges = cell.edges;
 
-            vertices.Add(cell.sitePos.ToVector3());
+            //This is the center of the cell
+            //To build the mesh, we just add triangles from the edges to the site pos
+            MyVector3 sitePos = cell.sitePos;
 
-            VoronoiEdge3 e0 = edges[0];
+            //In 3d space, the corners in the voronoi cell are not on the plane, so shading becomes bad
+            //Shading improves if we calculate an average site pos by looking at each corner in the cell
+            MyVector3 averageSitePos = default;
 
-            Vector3 normal = Vector3.Cross(e0.p2.ToVector3() - e0.p1.ToVector3(), e0.sitePos.ToVector3() - e0.p1.ToVector3()).normalized;
+            for (int i = 0; i < edges.Count; i++)
+            {
+                averageSitePos += edges[i].p1;
+            }
 
-            normals.Add(normal);
+            averageSitePos = averageSitePos * (1f / edges.Count);
+
+            vertices.Add(averageSitePos.ToVector3());
+
+            //VoronoiEdge3 e0 = edges[0];
+
+            //Vector3 normal = Vector3.Cross(e0.p2.ToVector3() - e0.p1.ToVector3(), e0.sitePos.ToVector3() - e0.p1.ToVector3()).normalized;
+
+            //normals.Add(normal);
+
+
+            //Another way to get a nicer looking surface is to use a vertex color
+            //and then use a shader set to non-lit
+            Color color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
+
+            List<Color> vertexColors = new List<Color>();
+
+            vertexColors.Add(color);
 
             foreach (VoronoiEdge3 e in edges)
             {
@@ -111,8 +186,11 @@ public class VoronoiSphereController : MonoBehaviour
                 vertices.Add(e.p2.ToVector3());
                 //verts.Add(e.sitePos.ToVector3());
 
-                normals.Add(normal);
-                normals.Add(normal);
+                //normals.Add(normal);
+                //normals.Add(normal);
+
+                vertexColors.Add(color);
+                vertexColors.Add(color);
 
                 int triangleCounter = triangles.Count;
 
@@ -125,9 +203,11 @@ public class VoronoiSphereController : MonoBehaviour
 
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
-            mesh.SetNormals(normals);
+            //mesh.SetNormals(normals);
 
-            //mesh.RecalculateNormals();
+            mesh.SetColors(vertexColors);
+
+            mesh.RecalculateNormals();
 
             meshes.Add(mesh);
         }
@@ -158,14 +238,14 @@ public class VoronoiSphereController : MonoBehaviour
         //Voronoi cells
         if (voronoiCellsMeshes != null)
         {
-            Random.InitState(seed);
+            //Random.InitState(seed);
         
-            foreach (Mesh mesh in voronoiCellsMeshes)
-            {
-                Color color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
+            //foreach (Mesh mesh in voronoiCellsMeshes)
+            //{
+            //    Color color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
 
-                TestAlgorithmsHelpMethods.DisplayMesh(mesh, color);
-            }
+            //    TestAlgorithmsHelpMethods.DisplayMesh(mesh, color);
+            //}
         }
     }    
 }
