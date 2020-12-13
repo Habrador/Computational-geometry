@@ -6,6 +6,8 @@ using System.Linq;
 
 //Generate a 3d voronoi diagram on a sphere
 //This will use the delaunay triangulation on a sphere, which is the same as the convex hull of the sphere
+//TODO:
+// - Add some optimization to make each voronoi region as flat as possible
 public class VoronoiSphereController : MonoBehaviour
 {
     public int seed;
@@ -52,43 +54,56 @@ public class VoronoiSphereController : MonoBehaviour
         HashSet<MyVector3> points_normalized = normalizer.Normalize(points);
 
 
-        //Generate the convex hull, which is the same as the Delaunay triangulation of points on the sphere
+        //
+        // Generate the convex hull, which is the same as the Delaunay triangulation of points on the sphere
+        //
 
         //Iterative algorithm
         HalfEdgeData3 convexHull_normalized = _ConvexHull.Iterative_3D(points_normalized, normalizer);
-        //HalfEdgeData3 convexHull_normalized = null;
 
-        //Generate the voronoi diagram from the delaunay triangulation
-        if (convexHull_normalized != null)
+        if (convexHull_normalized == null)
         {
-            HashSet<VoronoiCell3> voronoiCells_normalized = _Voronoi.Delaunay3DToVoronoi(convexHull_normalized);
-
-            if (voronoiCells_normalized != null)
-            {
-                //Unnormalize
-                HashSet<VoronoiCell3> voronoiCells = normalizer.UnNormalize(voronoiCells_normalized);
-
-                //Generate a mesh for each separate cell
-                voronoiCellsMeshes = GenerateVoronoiCellsMeshes(voronoiCells);
-
-                //Generate a single mesh for all cells where each vertex has a color belonging to that cell
-                Mesh oneMesh = GenerateAndDisplaySingleMesh(voronoiCellsMeshes);
-
-                if (meshFilter != null)
-                {
-                    meshFilter.mesh = oneMesh;
-                }
-            }
+            return;
         }
 
 
-        if (convexHull_normalized != null)
-        {
-            //To unity mesh
-            //UnNormalize
-            HalfEdgeData3 convexHull = normalizer.UnNormalize(convexHull_normalized);
 
-            delaunayMesh = convexHull.ConvertToUnityMesh("convex hull aka delaunay triangulation", shareVertices: false, generateNormals: false);
+        //
+        // Generate the voronoi diagram from the delaunay triangulation
+        //
+        HashSet<VoronoiCell3> voronoiCells_normalized = _Voronoi.Delaunay3DToVoronoi(convexHull_normalized);
+
+        if (voronoiCells_normalized == null)
+        {
+            return;
+        }
+
+
+        //
+        // Display
+        //
+        
+        //Delaunay
+        HalfEdgeData3 convexHull = normalizer.UnNormalize(convexHull_normalized);
+
+        delaunayMesh = convexHull.ConvertToUnityMesh("convex hull aka delaunay triangulation", shareVertices: false, generateNormals: false);
+
+
+        //Voronoi
+        HashSet<VoronoiCell3> voronoiCells = normalizer.UnNormalize(voronoiCells_normalized);
+
+        //Generate a mesh for each separate cell
+        voronoiCellsMeshes = GenerateVoronoiCellsMeshes(voronoiCells);
+
+        //Generate a single mesh for all cells where each vertex has a color belonging to that cell
+        //Now we can display the mesh with an unlit shader where each vertex is associated with a color belonging to that cell
+        //The problem is that the voronoi cell is not a flat surface on the mesh
+        //But it looks flat if we are using an unlit shader
+        Mesh oneMesh = GenerateAndDisplaySingleMesh(voronoiCellsMeshes);
+
+        if (meshFilter != null)
+        {
+            meshFilter.mesh = oneMesh;
         }
     }
 
@@ -133,6 +148,8 @@ public class VoronoiSphereController : MonoBehaviour
 
 
 
+    //Generate a single mesh for each voronoi cell
+    //Each vertex belonging to a cell gets its a color associated with that cell 
     private HashSet<Mesh> GenerateVoronoiCellsMeshes(HashSet<VoronoiCell3> voronoiCells)
     {
         HashSet<Mesh> meshes = new HashSet<Mesh>();
@@ -182,8 +199,8 @@ public class VoronoiSphereController : MonoBehaviour
             foreach (VoronoiEdge3 e in edges)
             {
                 //Build a triangle with this edge and the voronoi site which is sort of the center
-                vertices.Add(e.p1.ToVector3());
                 vertices.Add(e.p2.ToVector3());
+                vertices.Add(e.p1.ToVector3());
                 //verts.Add(e.sitePos.ToVector3());
 
                 //normals.Add(normal);
