@@ -14,7 +14,7 @@ namespace Habrador_Computational_Geometry
             HalfEdgeData3 convexHull = new HalfEdgeData3();
 
             //Step 1. Init by making a tetrahedron (triangular pyramid) and remove all points within the tetrahedron
-            //System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+            System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
             //timer.Start();
 
@@ -57,125 +57,12 @@ namespace Habrador_Computational_Geometry
                 }
 
 
-                //The point is outside the tetrahedron so find a triangle which is visible from the point
-                HalfEdgeFace3 visibleTriangle = null;
+                //Find visible triangles and edges on the border between the visible and invisible triangles
+                HashSet<HalfEdgeFace3> visibleTriangles = null;
+                HashSet<HalfEdge3> borderEdges = null;
 
-                HashSet<HalfEdgeFace3> triangles = convexHull.faces;
-
-                foreach (HalfEdgeFace3 triangle in triangles)
-                {
-                    //A triangle is visible from a point the point is outside of a plane formed with the triangles position and normal 
-                    Plane3 plane = new Plane3(triangle.edge.v.position, triangle.edge.v.normal);
-
-                    bool isPointOutsidePlane = _Geometry.IsPointOutsidePlane(p, plane);
-
-                    //We have found a triangle which is visible from the point and should be removed
-                    if (isPointOutsidePlane)
-                    {
-                        visibleTriangle = triangle;
-
-                        break;
-                    }
-                }
-
-                //If we didn't find a visible triangle, we have some kind of edge case and should move on for now
-                if (visibleTriangle == null)
-                {
-                    Debug.LogWarning("Couldn't find a visible triangle so will ignore the point");
-
-                    continue;
-                }
-
-
-                //Flood-fill from the visible triangle to find all other visible triangles
-                //WHen you cross an edge from a visible triangle to an invisible triangle, 
-                //save the edge because thhose edge should be used to build triangles with the point
-                //These edges should belong to the triangle which is not visible
-                HashSet<HalfEdge3> borderEdges = new HashSet<HalfEdge3>();
-
-                //Store all visible triangles here so we can't visit triangles multiple times
-                HashSet<HalfEdgeFace3> visibleTriangles = new HashSet<HalfEdgeFace3>();
-
-                //The queue which we will use when flood-filling
-                Queue<HalfEdgeFace3> trianglesToFloodFrom = new Queue<HalfEdgeFace3>();
-
-                //Add the first triangle to init the flood-fill 
-                trianglesToFloodFrom.Enqueue(visibleTriangle);
-
-                List<HalfEdge3> edgesToCross = new List<HalfEdge3>();
-
-                int safety = 0;
-
-                while (true)
-                {
-                    //We have visited all visible triangles
-                    if (trianglesToFloodFrom.Count == 0)
-                    {
-                        break;
-                    }
-
-                    HalfEdgeFace3 triangleToFloodFrom = trianglesToFloodFrom.Dequeue();
-
-                    //This triangle is always visible and should be deleted
-                    visibleTriangles.Add(triangleToFloodFrom);
-
-                    //Investigate bordering triangles
-                    edgesToCross.Clear();
-
-                    edgesToCross.Add(triangleToFloodFrom.edge);
-                    edgesToCross.Add(triangleToFloodFrom.edge.nextEdge);
-                    edgesToCross.Add(triangleToFloodFrom.edge.nextEdge.nextEdge);
-
-                    //Jump from this triangle to a bordering triangle
-                    foreach (HalfEdge3 edgeToCross in edgesToCross)
-                    {
-                        HalfEdge3 oppositeEdge = edgeToCross.oppositeEdge;
-
-                        if (oppositeEdge == null)
-                        {
-                            Debug.LogWarning("Found an opposite edge which is null");
-
-                            break;
-                        }
-
-                        HalfEdgeFace3 oppositeTriangle = oppositeEdge.face;
-
-                        //Have we visited this triangle before (only test visible triangles)?
-                        if (trianglesToFloodFrom.Contains(oppositeTriangle) || visibleTriangles.Contains(oppositeTriangle))
-                        {
-                            continue;
-                        }
-
-                        //Check if this triangle is visible
-                        //A triangle is visible from a point the point is outside of a plane formed with the triangles position and normal 
-                        Plane3 plane = new Plane3(oppositeTriangle.edge.v.position, oppositeTriangle.edge.v.normal);
-
-                        bool isPointOutsidePlane = _Geometry.IsPointOutsidePlane(p, plane);
-
-                        //This triangle is visible so save it so we can flood from it
-                        if (isPointOutsidePlane)
-                        {
-                            trianglesToFloodFrom.Enqueue(oppositeTriangle);
-                        }
-                        //This triangle is invisible. Since we only flood from visible triangles, 
-                        //it means we crossed from a visible triangle to an invisible triangle, so save the crossing edge
-                        else
-                        {
-                            borderEdges.Add(oppositeEdge);
-                        }
-                    }
-
-
-                    safety += 1;
-
-                    if (safety > 50000)
-                    {
-                        Debug.Log("Stuck in infinite loop when flood-filling visible triangles");
-
-                        break;
-                    }
-                }
-
+                FindVisibleTrianglesAndBorderEdgesFromPoint(p, convexHull, out visibleTriangles, out borderEdges);
+                
 
                 //Remove all visible triangles
                 foreach (HalfEdgeFace3 triangle in visibleTriangles)
@@ -187,6 +74,8 @@ namespace Habrador_Computational_Geometry
                 //Make new triangle by connecting all edges on the border with the point 
                 //Debug.Log($"Number of border edges: {borderEdges.Count}");
                 //int debugStop = 11;
+
+                HashSet<HalfEdgeFace3> newTriangles = new HashSet<HalfEdgeFace3>(); 
 
                 foreach(HalfEdge3 borderEdge in borderEdges)
                 {
@@ -215,16 +104,43 @@ namespace Habrador_Computational_Geometry
                     //The border edge belongs to a triangle which is invisible
                     //Because triangles are oriented clockwise, we have to add the vertices in the other direction
                     //to build a new triangle with the point
-                    convexHull.AddTriangle(p2, p1, p);
+                    HalfEdgeFace3 newTriangle = convexHull.AddTriangle(p2, p1, p);
+
+                    //Connect the new triangle with the opposite edge on the border
+                    //When we create the face we give it a reference edge which goes to p2
+                    //So the edge we want to connect is the next edge
+                    HalfEdge3 edgeToConnect = newTriangle.edge.nextEdge;
+
+                    edgeToConnect.oppositeEdge = borderEdge;
+                    borderEdge.oppositeEdge = edgeToConnect;
+
+
+                    newTriangles.Add(newTriangle);
                 }
+
+                //timer.Start();
+                //Two edges in each triangle is still not connected with an opposite edge
+                //A maybe faster way is to connect the border edges with each other, then we would not need this part
+                foreach (HalfEdgeFace3 triangle in newTriangles)
+                {
+                    HalfEdge3 e1 = triangle.edge;
+                    HalfEdge3 e2 = triangle.edge.nextEdge;
+                    HalfEdge3 e3 = triangle.edge.nextEdge.nextEdge;
+
+                    if (e1.oppositeEdge == null) convexHull.TryFindOppositeEdge(e1);
+                    if (e2.oppositeEdge == null) convexHull.TryFindOppositeEdge(e2);
+                    if (e3.oppositeEdge == null) convexHull.TryFindOppositeEdge(e3);
+                }
+                //timer.Stop();
 
 
                 //Connect all new triangles and the triangles on the border, 
-                //so each edge has an opposite edge or flood filling will be impossible 
-                convexHull.ConnectAllEdges();
+                //so each edge has an opposite edge or flood filling will be impossible
+                //timer.Start();
+                //convexHull.ConnectAllEdges();
+                //timer.Stop();
 
 
-                
                 //if (debugCounter > debugStop)
                 //{
                 //    break;
@@ -233,10 +149,147 @@ namespace Habrador_Computational_Geometry
                 //debugCounter += 1;
             }
 
+            //Debug.Log($"Connect half-edges took {timer.ElapsedMilliseconds/1000f} seconds");
 
             Debug.Log($"Removed {removedPointsCounter} points during the construction of the hull because they were inside the hull");
 
             return convexHull;
+        }
+
+
+
+        //Find all visible triangles from a point
+        //Also find edges on the border between invisible and visible triangles
+        private static void FindVisibleTrianglesAndBorderEdgesFromPoint(MyVector3 p, HalfEdgeData3 convexHull, out HashSet<HalfEdgeFace3> visibleTriangles, out HashSet<HalfEdge3> borderEdges)
+        {
+            //Flood-fill from the visible triangle to find all other visible triangles
+            //When you cross an edge from a visible triangle to an invisible triangle, 
+            //save the edge because thhose edge should be used to build triangles with the point
+            //These edges should belong to the triangle which is not visible
+            borderEdges = new HashSet<HalfEdge3>();
+
+            //Store all visible triangles here so we can't visit triangles multiple times
+            visibleTriangles = new HashSet<HalfEdgeFace3>();
+
+
+            //Start the flood-fill by finding a triangle which is visible from the point
+            //The point is outside the tetrahedron so find a triangle which is visible from the point
+            HalfEdgeFace3 visibleTriangle = FindVisibleTriangleFromPoint(p, convexHull.faces);
+
+            //If we didn't find a visible triangle, we have some kind of edge case and should move on for now
+            if (visibleTriangle == null)
+            {
+                Debug.LogWarning("Couldn't find a visible triangle so will ignore the point");
+
+                return;
+            }
+
+
+            //The queue which we will use when flood-filling
+            Queue<HalfEdgeFace3> trianglesToFloodFrom = new Queue<HalfEdgeFace3>();
+
+            //Add the first triangle to init the flood-fill 
+            trianglesToFloodFrom.Enqueue(visibleTriangle);
+
+            List<HalfEdge3> edgesToCross = new List<HalfEdge3>();
+
+            int safety = 0;
+
+            while (true)
+            {
+                //We have visited all visible triangles
+                if (trianglesToFloodFrom.Count == 0)
+                {
+                    break;
+                }
+
+                HalfEdgeFace3 triangleToFloodFrom = trianglesToFloodFrom.Dequeue();
+
+                //This triangle is always visible and should be deleted
+                visibleTriangles.Add(triangleToFloodFrom);
+
+                //Investigate bordering triangles
+                edgesToCross.Clear();
+
+                edgesToCross.Add(triangleToFloodFrom.edge);
+                edgesToCross.Add(triangleToFloodFrom.edge.nextEdge);
+                edgesToCross.Add(triangleToFloodFrom.edge.nextEdge.nextEdge);
+
+                //Jump from this triangle to a bordering triangle
+                foreach (HalfEdge3 edgeToCross in edgesToCross)
+                {
+                    HalfEdge3 oppositeEdge = edgeToCross.oppositeEdge;
+
+                    if (oppositeEdge == null)
+                    {
+                        Debug.LogWarning("Found an opposite edge which is null");
+
+                        break;
+                    }
+
+                    HalfEdgeFace3 oppositeTriangle = oppositeEdge.face;
+
+                    //Have we visited this triangle before (only test visible triangles)?
+                    if (trianglesToFloodFrom.Contains(oppositeTriangle) || visibleTriangles.Contains(oppositeTriangle))
+                    {
+                        continue;
+                    }
+
+                    //Check if this triangle is visible
+                    //A triangle is visible from a point the point is outside of a plane formed with the triangles position and normal 
+                    Plane3 plane = new Plane3(oppositeTriangle.edge.v.position, oppositeTriangle.edge.v.normal);
+
+                    bool isPointOutsidePlane = _Geometry.IsPointOutsidePlane(p, plane);
+
+                    //This triangle is visible so save it so we can flood from it
+                    if (isPointOutsidePlane)
+                    {
+                        trianglesToFloodFrom.Enqueue(oppositeTriangle);
+                    }
+                    //This triangle is invisible. Since we only flood from visible triangles, 
+                    //it means we crossed from a visible triangle to an invisible triangle, so save the crossing edge
+                    else
+                    {
+                        borderEdges.Add(oppositeEdge);
+                    }
+                }
+
+
+                safety += 1;
+
+                if (safety > 50000)
+                {
+                    Debug.Log("Stuck in infinite loop when flood-filling visible triangles");
+
+                    break;
+                }
+            }
+        }
+
+
+
+        //Find a visible triangle from a point
+        private static HalfEdgeFace3 FindVisibleTriangleFromPoint(MyVector3 p, HashSet<HalfEdgeFace3> triangles)
+        {
+            HalfEdgeFace3 visibleTriangle = null;
+
+            foreach (HalfEdgeFace3 triangle in triangles)
+            {
+                //A triangle is visible from a point the point is outside of a plane formed with the triangles position and normal 
+                Plane3 plane = new Plane3(triangle.edge.v.position, triangle.edge.v.normal);
+
+                bool isPointOutsidePlane = _Geometry.IsPointOutsidePlane(p, plane);
+
+                //We have found a triangle which is visible from the point and should be removed
+                if (isPointOutsidePlane)
+                {
+                    visibleTriangle = triangle;
+
+                    break;
+                }
+            }
+
+            return visibleTriangle;
         }
 
 

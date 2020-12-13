@@ -74,14 +74,65 @@ namespace Habrador_Computational_Geometry
         //And when it is connected we don't need to test it if it is pointing at the vertex when seaching for opposite edges
         public void ConnectAllEdges()
         {
-            //Is it faster to create a separate set where we remove edges that have been connected to make it faster to search?
-            //Or maybe we can use a counter because we don't need to search from the beginning when we TryConnectEdge because this method started at the beginning and has already connected those edges
             foreach (HalfEdge3 e in edges)
             {
                 if (e.oppositeEdge == null)
                 {
                     TryFindOppositeEdge(e);
                 }
+            }
+        }
+
+        //If we know that the vertex positions were created in the same way (no floating point precision issues) 
+        //we can generate a lookup table of all edges which makes it faster to find an edge from a position
+        public void ConnectAllEdgesFast()
+        {
+            //Create the lookup table
+            //Important in this case that Edge3 is a struct
+            Dictionary<Edge3, HalfEdge3> edgeLookup = new Dictionary<Edge3, HalfEdge3>();
+
+            foreach (HalfEdge3 e in edges)
+            {
+                //Dont add it if its opposite is not null
+                if (e.oppositeEdge != null)
+                {
+                    continue;
+                }
+
+                //Each edge points TO a vertex
+                MyVector3 p2 = e.v.position;
+                MyVector3 p1 = e.prevEdge.v.position;
+
+                edgeLookup.Add(new Edge3(p1, p2), e);
+            }
+
+            //Connect edges
+            foreach (HalfEdge3 e in edges)
+            {
+                //This edge is already connected
+                if (e.oppositeEdge != null)
+                {
+                    continue;
+                }
+
+                //Each edge points TO a vertex, so the opposite edge goes in the opposite direction
+                MyVector3 p1 = e.v.position;
+                MyVector3 p2 = e.prevEdge.v.position;
+
+                Edge3 edgeToLookup = new Edge3(p1, p2);
+
+                if (edgeLookup.ContainsKey(edgeToLookup))
+                {
+                    HalfEdge3 eOther = edgeLookup[edgeToLookup];
+
+                    //Connect them with each other
+                    e.oppositeEdge = eOther;
+
+                    eOther.oppositeEdge = e;
+
+                    //Debug.Log("Found opposite edge");
+                }
+                //This edge doesnt exist so must be null
             }
         }
 
@@ -196,7 +247,7 @@ namespace Habrador_Computational_Geometry
         //Add a triangle to this mesh
 
         //We dont have a normal so we have to calculate it, so make sure v1-v2-v3 is clock-wise
-        public void AddTriangle(MyVector3 p1, MyVector3 p2, MyVector3 p3)
+        public HalfEdgeFace3 AddTriangle(MyVector3 p1, MyVector3 p2, MyVector3 p3)
         {
             MyVector3 normal = MyVector3.Normalize(MyVector3.Cross(p3 - p2, p1 - p2));
 
@@ -204,11 +255,13 @@ namespace Habrador_Computational_Geometry
             MyMeshVertex v2 = new MyMeshVertex(p2, normal);
             MyMeshVertex v3 = new MyMeshVertex(p3, normal);
 
-            AddTriangle(v1, v2, v3);
+            HalfEdgeFace3 f = AddTriangle(v1, v2, v3);
+
+            return f;
         }
 
         //v1-v2-v3 should be clock-wise which is Unity standard
-        public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3)
+        public HalfEdgeFace3 AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3)
         {
             //Create three new vertices
             HalfEdgeVertex3 half_v1 = new HalfEdgeVertex3(v1.position, v1.normal);
@@ -259,6 +312,8 @@ namespace Habrador_Computational_Geometry
             edges.Add(e_to_v3);
 
             faces.Add(f);
+
+            return f;
         }
 
 

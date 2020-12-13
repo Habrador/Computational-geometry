@@ -23,7 +23,7 @@ namespace Habrador_Computational_Geometry
 
 
     //And edge between two vertices in 3d space
-    public class Edge3
+    public struct Edge3
     {
         public MyVector3 p1;
         public MyVector3 p2;
