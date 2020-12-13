@@ -43,10 +43,19 @@ public class CutMeshWithPlaneController : MonoBehaviour
             {
                 continue;
             }
-        
+
+            //Cut the mesh
+            System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+
+            timer.Start();
 
             //Should return null (if we couldn't cut the mesh because the mesh didn't intersect with the plane)
             List<Mesh> cutMeshes = CutMeshWithPlane.CutMesh(childTransToCut, cutPlane);
+
+            timer.Stop();
+
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to cut the mesh");
+
 
             if (cutMeshes == null)
             {
