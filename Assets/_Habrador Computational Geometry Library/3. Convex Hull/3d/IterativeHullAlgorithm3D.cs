@@ -126,7 +126,7 @@ namespace Habrador_Computational_Geometry
                 }
 
                 //timer.Start();
-                //Two edges in each triangle is still not connected with an opposite edge
+                //Two edges in each triangle are still not connected with an opposite edge
                 foreach (HalfEdge3 e in newEdges)
                 {
                     if (e.oppositeEdge != null)

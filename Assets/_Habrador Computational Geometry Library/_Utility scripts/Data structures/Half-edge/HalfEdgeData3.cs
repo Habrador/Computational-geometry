@@ -142,37 +142,11 @@ namespace Habrador_Computational_Geometry
         //If no opposite edge exists, it means it has no neighbor which is possible if there's a hole
         public void TryFindOppositeEdge(HalfEdge3 e)
         {
-            //We need to find an edge which is: 
-            // - going to a position where this edge is coming from
-            // - coming from a position this edge points to
-            //An edge is pointing to a position
-            MyVector3 pTo = e.prevEdge.v.position;
-            MyVector3 pFrom = e.v.position;
-
-            foreach (HalfEdge3 eOther in edges)
-            {
-                //Don't need to check edges that have already been connected
-                if (eOther.oppositeEdge != null)
-                {
-                    continue;
-                }
-            
-                //Is this edge pointing from a specific vertex to a specific vertex
-                //If so it means we have found an edge going in the other direction
-                if (eOther.v.position.Equals(pTo) && eOther.prevEdge.v.position.Equals(pFrom))
-                {
-                    //Connect them with each other
-                    e.oppositeEdge = eOther;
-
-                    eOther.oppositeEdge = e;
-
-                    break;
-                }
-            }
+            TryFindOppositeEdge(e, edges);
         }
 
 
-
+        //An optimization is to have a list of opposite edges, so we don't have to search ALL edges in the entire triangulation
         public void TryFindOppositeEdge(HalfEdge3 e, HashSet<HalfEdge3> otherEdges)
         {
             //We need to find an edge which is: 
