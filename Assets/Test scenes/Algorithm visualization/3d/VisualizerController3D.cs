@@ -70,20 +70,20 @@ public class VisualizerController3D : MonoBehaviour
         {
             return;
         }
-    
-        ////Display the mesh with lines
-        //Gizmos.color = Color.black;
 
-        //foreach (HalfEdgeFace3 f in meshData)
-        //{
-        //    Vector3 p1 = normalizer.UnNormalize(f.edge.v.position).ToVector3();
-        //    Vector3 p2 = normalizer.UnNormalize(f.edge.prevEdge.v.position).ToVector3();
-        //    Vector3 p3 = normalizer.UnNormalize(f.edge.prevEdge.v.position).ToVector3();
+        //Display the mesh with lines
+        Gizmos.color = Color.black;
 
-        //    Gizmos.DrawLine(p1, p2);
-        //    Gizmos.DrawLine(p2, p3);
-        //    Gizmos.DrawLine(p3, p1);
-        //}
+        foreach (HalfEdgeFace3 f in meshData)
+        {
+            Vector3 p1 = normalizer.UnNormalize(f.edge.v.position).ToVector3();
+            Vector3 p2 = normalizer.UnNormalize(f.edge.nextEdge.v.position).ToVector3();
+            Vector3 p3 = normalizer.UnNormalize(f.edge.prevEdge.v.position).ToVector3();
+
+            Gizmos.DrawLine(p1, p2);
+            Gizmos.DrawLine(p2, p3);
+            Gizmos.DrawLine(p3, p1);
+        }
 
         ////Debug.Log("hello");
     }
@@ -91,30 +91,36 @@ public class VisualizerController3D : MonoBehaviour
 
 
     //Display a mesh, which is called from the coroutine when a mesh has changed
-    public void DisplayMesh(HashSet<HalfEdgeFace3> meshData, MeshFilter mf)
+    public void DisplayMesh(HashSet<HalfEdgeFace3> meshDataUnNormalized, MeshFilter mf)
+    {
+        //Generate a mesh
+        Mesh mesh = HalfEdgeData3.ConvertToUnityMesh("Main visualization mesh", meshDataUnNormalized);
+
+        mf.mesh = mesh;
+    }
+
+    public void DisplayMeshMain(HashSet<HalfEdgeFace3> meshData)
     {
         //UnNormalize (will modify the original data so we have to normalize when we are finished)
         HashSet<HalfEdgeFace3> meshDataUnNormalized = normalizer.UnNormalize(meshData);
 
         this.meshData = meshDataUnNormalized;
 
-        //Generate a mesh
-        Mesh mesh = HalfEdgeData3.ConvertToUnityMesh("Main visualization mesh", meshDataUnNormalized);
-
-        mf.mesh = mesh;
+        DisplayMesh(meshDataUnNormalized, displayMeshHere);
 
         //Normalize again
         meshData = normalizer.Normalize(meshDataUnNormalized);
     }
 
-    public void DisplayMeshMain(HashSet<HalfEdgeFace3> meshData)
-    {
-        DisplayMesh(meshData, displayMeshHere);
-    }
-
     public void DisplayMeshOther(HashSet<HalfEdgeFace3> meshData)
     {
-        DisplayMesh(meshData, displayOtherMeshHere);
+        //UnNormalize (will modify the original data so we have to normalize when we are finished)
+        HashSet<HalfEdgeFace3> meshDataUnNormalized = normalizer.UnNormalize(meshData);
+
+        DisplayMesh(meshDataUnNormalized, displayOtherMeshHere);
+
+        //Normalize again
+        meshData = normalizer.Normalize(meshDataUnNormalized);
     }
 
 

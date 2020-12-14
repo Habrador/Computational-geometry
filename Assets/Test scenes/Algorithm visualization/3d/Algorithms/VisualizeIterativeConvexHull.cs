@@ -102,7 +102,7 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
                 controller.DisplayMeshOther(visibleTriangles);
 
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(0.5f);
             }
 
 
@@ -125,7 +125,7 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
                 //PAUSE FOR VISUALIZATION
                 controller.DisplayMeshMain(convexHull.faces);
 
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(0.5f);
 
 
                 //Connect the new triangle with the opposite edge on the border
