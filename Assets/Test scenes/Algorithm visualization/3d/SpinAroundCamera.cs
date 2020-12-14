@@ -67,16 +67,25 @@ public class SpinAroundCamera : MonoBehaviour
 
         float camVerticalSpeed = maxCamMoveVerticalSpeed;
 
-        bool shouldMoveUp = wantedHeight > transform.position.y ? true : false;
-
-        if (shouldMoveUp)
+        if (wantedHeight > transform.position.y)
         {
             transform.Translate(Vector3.up * Time.deltaTime * camVerticalSpeed, Space.World);
+
+            if (wantedHeight < transform.position.y)
+            {
+                transform.position = new Vector3(transform.position.x, wantedHeight, transform.position.z);
+            }
         }
-        else
+        else if (wantedHeight < transform.position.y)
         {
             transform.Translate(-Vector3.up * Time.deltaTime * camVerticalSpeed, Space.World);
+
+            if (wantedHeight > transform.position.y)
+            {
+                transform.position = new Vector3(transform.position.x, wantedHeight, transform.position.z);
+            }
         }
+        
 
         ////Change move up/down direction
         //if (transform.position.y > maxMinHeight && shouldMoveUp)
