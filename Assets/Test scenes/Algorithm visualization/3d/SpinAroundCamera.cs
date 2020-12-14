@@ -42,6 +42,7 @@ public class SpinAroundCamera : MonoBehaviour
         }
         else
         {
+            //We are basically comparing vectors, so to make sure the vectors are the same we have to cheat
             transform.LookAt(new Vector3(0f, transform.position.y, 0f));
 
             //Quaternion currentCameraRotation = transform.rotation;

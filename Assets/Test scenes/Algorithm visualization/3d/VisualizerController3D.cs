@@ -30,7 +30,10 @@ public class VisualizerController3D : MonoBehaviour
         pointActiveObj.SetActive(false);
 
         //Get random points in 3d space
-        HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed: 0, halfCubeSize: 1f, numberOfPoints: 50);
+        //HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed: 0, halfCubeSize: 1f, numberOfPoints: 50);
+
+        //Get random points on a sphere
+        HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPointsOnSphere(seed: 0, radius: 1f, numberOfPoints: 50);
 
         //Generate points we can display
         foreach (Vector3 p in points_Unity)
