@@ -19,7 +19,7 @@ public class VisualizerController3D : MonoBehaviour
 
     private HashSet<GameObject> allPoints = new HashSet<GameObject>();
 
-    private Normalizer3 normalizer;
+    public Normalizer3 normalizer;
 
 
 
@@ -29,7 +29,7 @@ public class VisualizerController3D : MonoBehaviour
         pointActiveObj.SetActive(false);
 
         //Get random points in 3d space
-        HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed: 0, halfCubeSize: 1f, numberOfPoints: 20);
+        HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed: 0, halfCubeSize: 1f, numberOfPoints: 50);
 
         //Generate points we can display
         foreach (Vector3 p in points_Unity)

@@ -17,7 +17,7 @@ public class SpinAroundCamera : MonoBehaviour
 
     private bool shouldMoveUp = true;
 
-    public Vector3 wantedDirection = Vector3.zero;
+    private Vector3 wantedDirection = Vector3.zero;
 
     Quaternion currentCameraRotation;
 
@@ -31,19 +31,24 @@ public class SpinAroundCamera : MonoBehaviour
         //transform.RotateAround(Vector3.zero, Vector3.up, -Time.deltaTime * camRotationSpeed);
         //transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(0f, 90f, 0f), Time.deltaTime * camRotationSpeed);
 
-        if (wantedDirection == Vector3.zero)
+        //Debug.Log(wantedDirection);
+
+        if (wantedDirection.Equals(Vector3.zero))
         {
-            transform.RotateAround(Vector3.zero, Vector3.up, -Time.deltaTime * camRotationSpeed);
+            transform.RotateAround(Vector3.zero, Vector3.up, -Time.deltaTime * camRotationSpeed * 10f);
+
+            //Debug.Log("hello");
         }
         else
         {
-            Quaternion currentCameraRotation = transform.rotation;
+            //Quaternion currentCameraRotation = transform.rotation;
+            Quaternion currentCameraRotation = Quaternion.LookRotation(transform.forward, Vector3.up);
 
             Quaternion futureCameraRotation = Quaternion.LookRotation(wantedDirection, Vector3.up);
 
             float angleDelta = Quaternion.Angle(currentCameraRotation, futureCameraRotation);
 
-            Debug.Log(angleDelta);
+            //Debug.Log(transform.forward + " " + wantedDirection);
 
             transform.RotateAround(Vector3.zero, Vector3.up, angleDelta * camRotationSpeed * Time.deltaTime);
         }
@@ -81,5 +86,12 @@ public class SpinAroundCamera : MonoBehaviour
 
         //Look at center, which will rotate the camera
         transform.LookAt(Vector3.zero);
+    }
+
+
+
+    public void SetWantedDirection(Vector3 dir)
+    {
+        this.wantedDirection = dir;
     }
 }

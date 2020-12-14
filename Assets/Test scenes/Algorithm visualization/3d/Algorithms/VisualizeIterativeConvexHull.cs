@@ -59,9 +59,9 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
             //Rotate camera to this point
             //Important to turn this vector to 2d
-            Vector3 tmp = p.ToVector3();
+            Vector3 tmp = controller.normalizer.UnNormalize(p).ToVector3();
             tmp.y = 0f;
-            controller.cameraScript.wantedDirection = Vector3.Normalize(Vector3.zero - tmp);
+            controller.cameraScript.SetWantedDirection((Vector3.zero - tmp).normalized);
 
             yield return new WaitForSeconds(2f);
 
@@ -164,6 +164,8 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
 
         controller.HideActivePoint();
+
+        controller.cameraScript.SetWantedDirection(Vector3.zero);
 
         //controller.DisplayMeshMain(convexHull.faces);
 
