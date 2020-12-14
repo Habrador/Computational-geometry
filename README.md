@@ -8,7 +8,7 @@ Some of these algorithms are available in tutorial form here: https://www.habrad
 
 The code has been tested by using Unity 2018.4 LTS but should work with other versions. 
 
-1. [Intersections](#1-intersection)
+1. [Intersections](#1-intersections)
 2. [Generate mesh](#2-generate-mesh)
 3. [Convex hull](#3-convex-hull)
 4. [Triangulation](#4-triangulation)
@@ -82,7 +82,7 @@ A common problem in Computational Geometry is to find the convex hull of a set o
 
 #### 2d space
 
-![Convex hull 2d space](/_media/convex-2d.png?raw=true)
+![Convex hull 2d space](/_media/convex-hull-2d.png?raw=true)
 
 **Jarvis March.** Is also known as "Gift wrapping"
 
