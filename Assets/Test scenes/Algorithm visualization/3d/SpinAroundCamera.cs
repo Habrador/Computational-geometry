@@ -8,7 +8,7 @@ using Habrador_Computational_Geometry;
 //Rotate a camera around origo while moving it up and down to show entire mesh
 public class SpinAroundCamera : MonoBehaviour
 {
-    private float camRotationSpeed = 3f;
+    private float camRotationSpeed = 20f;
 
     private float maxCamMoveVerticalSpeed = 1f;
 
@@ -22,7 +22,9 @@ public class SpinAroundCamera : MonoBehaviour
     void LateUpdate()
     {
         //Rotate around
-        transform.Translate(Vector3.right * Time.deltaTime * camRotationSpeed);
+        //transform.Translate(Vector3.right * Time.deltaTime * camRotationSpeed);
+        //This is resulting in less stutter
+        transform.RotateAround(Vector3.zero, Vector3.up, -Time.deltaTime * camRotationSpeed);
 
 
         //Move up/down
