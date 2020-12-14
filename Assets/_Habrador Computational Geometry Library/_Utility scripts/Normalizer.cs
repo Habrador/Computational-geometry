@@ -247,6 +247,23 @@ namespace Habrador_Computational_Geometry
             return data;
         }
 
+        //HashSet<HalfEdgeFace3> (TODO: add get-vertices in HalfEdgeFace3 because the face might not be a triangle)
+        public HashSet<HalfEdgeFace3> Normalize(HashSet<HalfEdgeFace3> data)
+        {
+            foreach (HalfEdgeFace3 f in data)
+            {
+                HalfEdgeVertex3 v1 = f.edge.v;
+                HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
+                HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
+
+                v1.position = Normalize(v1.position);
+                v2.position = Normalize(v2.position);
+                v3.position = Normalize(v3.position);
+            }
+
+            return data;
+        }
+
 
 
         //
@@ -312,7 +329,23 @@ namespace Habrador_Computational_Geometry
             return data;
         }
 
-        
+        //HashSet<HalfEdgeFace3>
+        public HashSet<HalfEdgeFace3> UnNormalize(HashSet<HalfEdgeFace3> data)
+        {
+            foreach (HalfEdgeFace3 f in data)
+            {
+                HalfEdgeVertex3 v1 = f.edge.v;
+                HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
+                HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
+
+                v1.position = UnNormalize(v1.position);
+                v2.position = UnNormalize(v2.position);
+                v3.position = UnNormalize(v3.position);
+            }
+
+            return data;
+        }
+
         //HashSet<VoronoiCell3>
         public HashSet<VoronoiCell3> UnNormalize(HashSet<VoronoiCell3> data)
         {

@@ -209,7 +209,33 @@ namespace Habrador_Computational_Geometry
                 MyMeshVertex my_v2 = new MyMeshVertex(v2.position, v2.normal);
                 MyMeshVertex my_v3 = new MyMeshVertex(v3.position, v3.normal);
 
-                myMesh.AddTriangle(my_v1, my_v2, my_v3, shareVertices: true);
+                myMesh.AddTriangle(my_v1, my_v2, my_v3, shareVertices);
+            }
+
+
+            Mesh unityMesh = myMesh.ConvertToUnityMesh(name);
+
+            return unityMesh;
+        }
+
+        public static Mesh ConvertToUnityMesh(string name, HashSet<HalfEdgeFace3> faces)
+        {
+            MyMesh myMesh = new MyMesh();
+
+            //Loop through each triangle
+            foreach (HalfEdgeFace3 f in faces)
+            {
+                //These should have been stored clock-wise
+                HalfEdgeVertex3 v1 = f.edge.v;
+                HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
+                HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
+
+                //Standardize
+                MyMeshVertex my_v1 = new MyMeshVertex(v1.position, v1.normal);
+                MyMeshVertex my_v2 = new MyMeshVertex(v2.position, v2.normal);
+                MyMeshVertex my_v3 = new MyMeshVertex(v3.position, v3.normal);
+
+                myMesh.AddTriangle(my_v1, my_v2, my_v3, shareVertices: false);
             }
 
 

@@ -12,7 +12,7 @@ public class VisualizerController3D : MonoBehaviour
     public MeshFilter displayOtherMeshHere;
 
     public GameObject pointObj;
-
+    //Should be bigger so we can display it above the non-active point
     public GameObject pointActiveObj;
 
 
@@ -64,17 +64,36 @@ public class VisualizerController3D : MonoBehaviour
 
 
     //Display a mesh, which is called from the coroutine when a mesh has changed
-    public void DisplayMesh(HalfEdgeData3 meshData)
+    public void DisplayMesh(HashSet<HalfEdgeFace3> meshData, MeshFilter mf)
     {
         //UnNormalize (will modify the original data so we have to normalize when we are finished)
-        HalfEdgeData3 meshDataUnNormalized = normalizer.UnNormalize(meshData);
+        HashSet<HalfEdgeFace3> meshDataUnNormalized = normalizer.UnNormalize(meshData);
 
         //Generate a mesh
-        Mesh mesh = meshData.ConvertToUnityMesh("Main visualization mesh", shareVertices: false, generateNormals: false);
+        Mesh mesh = HalfEdgeData3.ConvertToUnityMesh("Main visualization mesh", meshDataUnNormalized);
 
-        displayMeshHere.mesh = mesh;
+        mf.mesh = mesh;
 
         //Normalize again
         meshData = normalizer.Normalize(meshDataUnNormalized);
+    }
+
+    public void DisplayMeshMain(HashSet<HalfEdgeFace3> meshData)
+    {
+        DisplayMesh(meshData, displayMeshHere);
+    }
+
+    public void DisplayMeshOther(HashSet<HalfEdgeFace3> meshData)
+    {
+        DisplayMesh(meshData, displayOtherMeshHere);
+    }
+
+
+    //Display active point
+    public void DisplayActivePoint(Vector3 pos)
+    {
+        pointActiveObj.SetActive(true);
+
+        pointActiveObj.transform.position = pos;
     }
 }

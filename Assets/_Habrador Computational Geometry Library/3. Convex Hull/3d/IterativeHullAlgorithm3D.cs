@@ -177,7 +177,7 @@ namespace Habrador_Computational_Geometry
 
         //Find all visible triangles from a point
         //Also find edges on the border between invisible and visible triangles
-        private static void FindVisibleTrianglesAndBorderEdgesFromPoint(MyVector3 p, HalfEdgeData3 convexHull, out HashSet<HalfEdgeFace3> visibleTriangles, out HashSet<HalfEdge3> borderEdges)
+        public static void FindVisibleTrianglesAndBorderEdgesFromPoint(MyVector3 p, HalfEdgeData3 convexHull, out HashSet<HalfEdgeFace3> visibleTriangles, out HashSet<HalfEdge3> borderEdges)
         {
             //Flood-fill from the visible triangle to find all other visible triangles
             //When you cross an edge from a visible triangle to an invisible triangle, 
