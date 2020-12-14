@@ -18,6 +18,9 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
         //Generate the first tertahedron
         IterativeHullAlgorithm3D.BuildFirstTetrahedron(points, convexHull);
 
+        convexHull.ConnectAllEdges();
+        
+
         //Main visualization algorithm
         StartCoroutine(GenerateHull(points, convexHull));
     }
@@ -28,11 +31,11 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
     {
         //PAUSE FOR VISUALIZATION
         //Display what we have so far
-        controller.DisplayMeshMain(convexHull.faces);
+        //controller.DisplayMeshMain(convexHull.faces);
 
-        yield return new WaitForSeconds(5f);
+        //yield return new WaitForSeconds(5f);
 
-
+        
         //Add all other points one-by-one
         List<MyVector3> pointsToAdd = new List<MyVector3>(points);
 
@@ -51,9 +54,9 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
             //PAUSE FOR VISUALIZATION
             //Display active point
-            controller.DisplayActivePoint(p.ToVector3());
+            //controller.DisplayActivePoint(p);
 
-            yield return new WaitForSeconds(2f);
+            //yield return new WaitForSeconds(2f);
 
 
             //Find visible triangles and edges on the border between the visible and invisible triangles
@@ -71,24 +74,24 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
             //PAUSE FOR VISUALIZATION
             //For visualization purposes we now need to create two meshes and then remove the triangles again
-            controller.DisplayMeshMain(convexHull.faces);
-            controller.DisplayMeshOther(visibleTriangles);
+            //controller.DisplayMeshMain(convexHull.faces);
+            //controller.DisplayMeshOther(visibleTriangles);
 
-            yield return new WaitForSeconds(2f);
+            //yield return new WaitForSeconds(2f);
 
 
             //PAUSE FOR VISUALIZATION
             //Remove all now visible triangles
-            List<HalfEdgeFace3> visibleTrianglesList = new List<HalfEdgeFace3>(visibleTriangles);
+            //List<HalfEdgeFace3> visibleTrianglesList = new List<HalfEdgeFace3>(visibleTriangles);
 
-            for (int i = visibleTrianglesList.Count - 1; i >= 0; i--)
-            {
-                visibleTriangles.Remove(visibleTrianglesList[i]);
+            //for (int i = visibleTrianglesList.Count - 1; i >= 0; i--)
+            //{
+            //    visibleTriangles.Remove(visibleTrianglesList[i]);
 
-                controller.DisplayMeshOther(visibleTriangles);
+            //    controller.DisplayMeshOther(visibleTriangles);
 
-                yield return new WaitForSeconds(2f);
-            }
+            //    yield return new WaitForSeconds(2f);
+            //}
 
 
             //Save all ned edges so we can connect them with an opposite edge
@@ -111,9 +114,9 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
 
                 //PAUSE FOR VISUALIZATION
-                controller.DisplayMeshMain(convexHull.faces);
+                //controller.DisplayMeshMain(convexHull.faces);
 
-                yield return new WaitForSeconds(2f);
+                //yield return new WaitForSeconds(2f);
 
 
                 //Connect the new triangle with the opposite edge on the border
@@ -145,7 +148,18 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
                 convexHull.TryFindOppositeEdge(e, newEdges);
             }
+
+
+            //PAUSE FOR VISUALIZATION
+            //controller.DisplayMeshMain(convexHull.faces);
+
+            //yield return new WaitForSeconds(2f);
         }
+        
+
+        controller.DisplayMeshMain(convexHull.faces);
+
+        yield return new WaitForSeconds(5f);
 
 
         yield return null;

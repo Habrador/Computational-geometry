@@ -58,7 +58,6 @@ public class VisualizerController3D : MonoBehaviour
         VisualizeIterativeConvexHull visualizeThisAlgorithm = GetComponent<VisualizeIterativeConvexHull>();
 
         visualizeThisAlgorithm.StartVisualizer(points_normalized);
-
     }
 
 
@@ -90,10 +89,12 @@ public class VisualizerController3D : MonoBehaviour
 
 
     //Display active point
-    public void DisplayActivePoint(Vector3 pos)
+    public void DisplayActivePoint(MyVector3 pos)
     {
+        Vector3 pos_unNormalized = normalizer.UnNormalize(pos).ToVector3();
+    
         pointActiveObj.SetActive(true);
 
-        pointActiveObj.transform.position = pos;
+        pointActiveObj.transform.position = pos_unNormalized;
     }
 }
