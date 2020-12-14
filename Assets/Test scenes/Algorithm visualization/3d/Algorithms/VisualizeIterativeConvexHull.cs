@@ -32,7 +32,7 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
         controller.DisplayMeshMain(convexHull.faces);
         controller.HideAllVisiblePoints(convexHull.verts);
 
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(10f);
 
         
         //Add all other points one-by-one
@@ -59,9 +59,13 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
             //Rotate camera to this point
             //Important to turn this vector to 2d
-            Vector3 tmp = controller.normalizer.UnNormalize(p).ToVector3();
-            tmp.y = 0f;
-            controller.cameraScript.SetWantedDirection((Vector3.zero - tmp).normalized);
+            Vector3 unity_pos = controller.normalizer.UnNormalize(p).ToVector3();
+
+            controller.cameraScript.SetWantedHeight(unity_pos.y);
+
+            unity_pos.y = 0f;
+
+            controller.cameraScript.SetWantedDirection((Vector3.zero - unity_pos).normalized);
 
             yield return new WaitForSeconds(2f);
 
@@ -166,6 +170,7 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
         controller.HideActivePoint();
 
         controller.cameraScript.SetWantedDirection(Vector3.zero);
+        controller.cameraScript.SetWantedHeight(0f);
 
         //controller.DisplayMeshMain(convexHull.faces);
 

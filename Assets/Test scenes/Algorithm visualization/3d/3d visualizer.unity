@@ -420,7 +420,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 989822939}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -3}
+  m_LocalPosition: {x: 0, y: 0, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -563,6 +563,7 @@ MonoBehaviour:
   displayOtherMeshHere: {fileID: 796583356}
   pointObj: {fileID: 915376702}
   pointActiveObj: {fileID: 770621893}
+  cameraScript: {fileID: 989822943}
 --- !u!114 &1480053371
 MonoBehaviour:
   m_ObjectHideFlags: 0

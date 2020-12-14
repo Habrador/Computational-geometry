@@ -21,6 +21,7 @@ public class VisualizerController3D : MonoBehaviour
 
     public Normalizer3 normalizer;
 
+    public HashSet<HalfEdgeFace3> meshData;
 
 
     void Start()
@@ -63,11 +64,39 @@ public class VisualizerController3D : MonoBehaviour
 
 
 
+    private void OnDrawGizmos()
+    {
+        if (meshData == null)
+        {
+            return;
+        }
+    
+        ////Display the mesh with lines
+        //Gizmos.color = Color.black;
+
+        //foreach (HalfEdgeFace3 f in meshData)
+        //{
+        //    Vector3 p1 = normalizer.UnNormalize(f.edge.v.position).ToVector3();
+        //    Vector3 p2 = normalizer.UnNormalize(f.edge.prevEdge.v.position).ToVector3();
+        //    Vector3 p3 = normalizer.UnNormalize(f.edge.prevEdge.v.position).ToVector3();
+
+        //    Gizmos.DrawLine(p1, p2);
+        //    Gizmos.DrawLine(p2, p3);
+        //    Gizmos.DrawLine(p3, p1);
+        //}
+
+        ////Debug.Log("hello");
+    }
+
+
+
     //Display a mesh, which is called from the coroutine when a mesh has changed
     public void DisplayMesh(HashSet<HalfEdgeFace3> meshData, MeshFilter mf)
     {
         //UnNormalize (will modify the original data so we have to normalize when we are finished)
         HashSet<HalfEdgeFace3> meshDataUnNormalized = normalizer.UnNormalize(meshData);
+
+        this.meshData = meshDataUnNormalized;
 
         //Generate a mesh
         Mesh mesh = HalfEdgeData3.ConvertToUnityMesh("Main visualization mesh", meshDataUnNormalized);

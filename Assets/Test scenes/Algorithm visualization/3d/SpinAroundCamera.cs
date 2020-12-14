@@ -15,11 +15,12 @@ public class SpinAroundCamera : MonoBehaviour
     //How far will the camera move above/below zero
     private float maxMinHeight = 2f;
 
-    private bool shouldMoveUp = true;
+    //private bool shouldMoveUp = true;
 
     private Vector3 wantedDirection = Vector3.zero;
 
-    Quaternion currentCameraRotation;
+    private float wantedHeight = 0f;
+    
 
     void LateUpdate()
     {
@@ -41,6 +42,8 @@ public class SpinAroundCamera : MonoBehaviour
         }
         else
         {
+            transform.LookAt(new Vector3(0f, transform.position.y, 0f));
+
             //Quaternion currentCameraRotation = transform.rotation;
             Quaternion currentCameraRotation = Quaternion.LookRotation(transform.forward, Vector3.up);
 
@@ -56,20 +59,24 @@ public class SpinAroundCamera : MonoBehaviour
 
         //Move up/down
         //camVerticalSpeed should be smaller the closer we are to a turning point to make it smoother
-        //float camHeight = Mathf.Abs(transform.position.y);
+        float camHeight = Mathf.Abs(transform.position.y);
 
-        //float camVerticalSpeed = _Interpolation.Sinerp(maxCamMoveVerticalSpeed, maxCamMoveVerticalSpeed * 0.99f, camHeight / maxMinHeight);
+        //float camVerticalSpeed = _Interpolation.Sinerp(maxCamMoveVerticalSpeed, maxCamMoveVerticalSpeed * 0.99f, camHeight / wantedHeight);
 
         //Debug.Log(camSpeed);
 
-        //if (shouldMoveUp)
-        //{
-        //    transform.Translate(Vector3.up * Time.deltaTime * camVerticalSpeed, Space.World);
-        //}
-        //else
-        //{
-        //    transform.Translate(-Vector3.up * Time.deltaTime * camVerticalSpeed, Space.World);
-        //}
+        float camVerticalSpeed = maxCamMoveVerticalSpeed;
+
+        bool shouldMoveUp = wantedHeight > transform.position.y ? true : false;
+
+        if (shouldMoveUp)
+        {
+            transform.Translate(Vector3.up * Time.deltaTime * camVerticalSpeed, Space.World);
+        }
+        else
+        {
+            transform.Translate(-Vector3.up * Time.deltaTime * camVerticalSpeed, Space.World);
+        }
 
         ////Change move up/down direction
         //if (transform.position.y > maxMinHeight && shouldMoveUp)
@@ -93,5 +100,9 @@ public class SpinAroundCamera : MonoBehaviour
     public void SetWantedDirection(Vector3 dir)
     {
         this.wantedDirection = dir;
+    }
+    public void SetWantedHeight(float y)
+    {
+        this.wantedHeight = y;
     }
 }
