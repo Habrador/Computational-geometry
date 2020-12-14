@@ -26,9 +26,6 @@ namespace Habrador_Computational_Geometry
 
             //Debug.Log($"Testrahedron {timer.ElapsedMilliseconds/1000f}");
 
-            //To easier add and remove triangles, we have to connect the edges with an opposite edge
-            convexHull.ConnectAllEdges();
-
             //Debug.Log(convexHull.faces.Count);
 
             //return convexHull;
@@ -404,6 +401,9 @@ namespace Habrador_Computational_Geometry
             convexHull.AddTriangle(p1_opposite, p3_opposite, p4);
             convexHull.AddTriangle(p3_opposite, p2_opposite, p4);
             convexHull.AddTriangle(p2_opposite, p1_opposite, p4);
+
+            //Make sure all opposite edges are connected
+            convexHull.ConnectAllEdges();
 
             //Debug.Log(convexHull.faces.Count);
 

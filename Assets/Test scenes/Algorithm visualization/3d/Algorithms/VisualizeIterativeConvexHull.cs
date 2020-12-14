@@ -17,8 +17,6 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
         //Generate the first tertahedron
         IterativeHullAlgorithm3D.BuildFirstTetrahedron(points, convexHull);
-
-        convexHull.ConnectAllEdges();
         
 
         //Main visualization algorithm
