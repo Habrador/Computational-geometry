@@ -31,7 +31,7 @@ public class SpinAroundCamera : MonoBehaviour
         //camVerticalSpeed should be smaller the closer we are to a turning point to make it smoother
         float camHeight = Mathf.Abs(transform.position.y);
 
-        float camVerticalSpeed = _Interpolation.Sinerp(maxCamMoveVerticalSpeed, maxCamMoveVerticalSpeed * 0.9f, camHeight / maxMinHeight);
+        float camVerticalSpeed = _Interpolation.Sinerp(maxCamMoveVerticalSpeed, maxCamMoveVerticalSpeed * 0.99f, camHeight / maxMinHeight);
 
         //Debug.Log(camSpeed);
 

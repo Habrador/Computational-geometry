@@ -316,7 +316,7 @@ namespace Habrador_Computational_Geometry
         //We could use the ideas from Quickhull to make the start triangle as big as possible
         //Then find a point which is the furthest away as possible from these triangles
         //Add that point and you have a tetrahedron (triangular pyramid)
-        private static void BuildFirstTetrahedron(HashSet<MyVector3> points, HalfEdgeData3 convexHull)
+        public static void BuildFirstTetrahedron(HashSet<MyVector3> points, HalfEdgeData3 convexHull)
         {
             //Of all points, find the two points that are furthes away from each other
             Edge3 eFurthestApart = FindEdgeFurthestApart(points);

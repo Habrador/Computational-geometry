@@ -234,6 +234,19 @@ namespace Habrador_Computational_Geometry
             return normalizedPoints;
         }
 
+        //HalfEdgeData3
+        public HalfEdgeData3 Normalize(HalfEdgeData3 data)
+        {
+            foreach (HalfEdgeVertex3 v in data.verts)
+            {
+                MyVector3 vNormalized = Normalize(v.position);
+
+                v.position = vNormalized;
+            }
+
+            return data;
+        }
+
 
 
         //
