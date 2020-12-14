@@ -26,6 +26,8 @@ public class HullController3D : MonoBehaviour
         //Get random points in 3d space
         HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed, halfMapSize, numberOfPoints);
 
+        //HashSet<Vector3> points_Unity = GetCubeTestPoints();
+
         //Points from a mesh
         /*
         Transform meshTrans = constructHullFromThisMesh.transform;
@@ -105,18 +107,21 @@ public class HullController3D : MonoBehaviour
     //
     // Test points
     //
-    private HashSet<MyVector3> GetCubeTestPoints()
+    private HashSet<Vector3> GetCubeTestPoints()
     {
-        HashSet<MyVector3> cube = new HashSet<MyVector3>();
+        HashSet<Vector3> cube = new HashSet<Vector3>();
 
-        cube.Add(new MyVector3(0f, 0f, 0f));
-        cube.Add(new MyVector3(0f, 1f, 0f));
-        cube.Add(new MyVector3(1f, 1f, 0f));
-        cube.Add(new MyVector3(1f, 0f, 0f));
-        cube.Add(new MyVector3(0f, 0f, 1f));
-        cube.Add(new MyVector3(0f, 1f, 1f));
-        cube.Add(new MyVector3(1f, 1f, 1f));
-        cube.Add(new MyVector3(1f, 0f, 1f));
+        cube.Add(new Vector3(0f, 0f, 0f));
+        cube.Add(new Vector3(0f, 1f, 0f));
+        cube.Add(new Vector3(1f, 1f, 0f));
+        cube.Add(new Vector3(1f, 0f, 0f));
+        cube.Add(new Vector3(0f, 0f, 1f));
+        cube.Add(new Vector3(0f, 1f, 1f));
+        cube.Add(new Vector3(1f, 1f, 1f));
+        cube.Add(new Vector3(1f, 0f, 1f));
+
+        //Split sides
+        cube.Add(new Vector3(1f, 0.5f, 1f));
 
         return cube;
     }

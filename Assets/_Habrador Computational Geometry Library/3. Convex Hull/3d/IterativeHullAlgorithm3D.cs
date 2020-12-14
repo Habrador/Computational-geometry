@@ -161,6 +161,15 @@ namespace Habrador_Computational_Geometry
 
             Debug.Log($"Removed {removedPointsCounter} points during the construction of the hull because they were inside the hull");
 
+
+            //
+            // Clean up 
+            //
+
+            //Merge concave edges according to the paper
+
+
+
             return convexHull;
         }
 
@@ -181,7 +190,8 @@ namespace Habrador_Computational_Geometry
 
 
             //Start the flood-fill by finding a triangle which is visible from the point
-            //The point is outside the tetrahedron so find a triangle which is visible from the point
+            //A triangle is visible if the point is outside the plane formed at the triangles
+            //Another sources is using the signed volume of a tetrahedron formed by the triangle and the point
             HalfEdgeFace3 visibleTriangle = FindVisibleTriangleFromPoint(p, convexHull.faces);
 
             //If we didn't find a visible triangle, we have some kind of edge case and should move on for now
