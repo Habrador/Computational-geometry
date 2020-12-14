@@ -29,9 +29,10 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
     {
         //PAUSE FOR VISUALIZATION
         //Display what we have so far
-        //controller.DisplayMeshMain(convexHull.faces);
+        controller.DisplayMeshMain(convexHull.faces);
+        controller.HideAllVisiblePoints(convexHull.verts);
 
-        //yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(5f);
 
         
         //Add all other points one-by-one
@@ -46,15 +47,23 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
             {
                 points.Remove(p);
 
+                controller.HideVisiblePoint(p);
+
                 continue;
             }
 
 
             //PAUSE FOR VISUALIZATION
             //Display active point
-            //controller.DisplayActivePoint(p);
+            controller.DisplayActivePoint(p);
 
-            //yield return new WaitForSeconds(2f);
+            //Rotate camera to this point
+            //Important to turn this vector to 2d
+            Vector3 tmp = p.ToVector3();
+            tmp.y = 0f;
+            controller.cameraScript.wantedDirection = Vector3.Normalize(Vector3.zero - tmp);
+
+            yield return new WaitForSeconds(2f);
 
 
             //Find visible triangles and edges on the border between the visible and invisible triangles
@@ -72,32 +81,30 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
             //PAUSE FOR VISUALIZATION
             //For visualization purposes we now need to create two meshes and then remove the triangles again
-            //controller.DisplayMeshMain(convexHull.faces);
-            //controller.DisplayMeshOther(visibleTriangles);
+            controller.DisplayMeshMain(convexHull.faces);
+            controller.DisplayMeshOther(visibleTriangles);
+            controller.HideAllVisiblePoints(convexHull.verts);
 
-            //yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(2f);
 
 
             //PAUSE FOR VISUALIZATION
-            //Remove all now visible triangles
-            //List<HalfEdgeFace3> visibleTrianglesList = new List<HalfEdgeFace3>(visibleTriangles);
+            //Remove all now visible triangles that forms the hole
+            List<HalfEdgeFace3> visibleTrianglesList = new List<HalfEdgeFace3>(visibleTriangles);
 
-            //for (int i = visibleTrianglesList.Count - 1; i >= 0; i--)
-            //{
-            //    visibleTriangles.Remove(visibleTrianglesList[i]);
+            for (int i = 0; i < visibleTrianglesList.Count; i++)
+            {
+                visibleTriangles.Remove(visibleTrianglesList[i]);
 
-            //    controller.DisplayMeshOther(visibleTriangles);
+                controller.DisplayMeshOther(visibleTriangles);
 
-            //    yield return new WaitForSeconds(2f);
-            //}
+                yield return new WaitForSeconds(1f);
+            }
 
 
             //Save all ned edges so we can connect them with an opposite edge
             //To make it faster you can use the ideas in the Valve paper to get a sorted list of newEdges
             HashSet<HalfEdge3> newEdges = new HashSet<HalfEdge3>();
-
-            //For visualization we have to save each new triangle
-            //HashSet<HalfEdgeFace3> newFaces = new HashSet<HalfEdgeFace3>();
 
             foreach (HalfEdge3 borderEdge in borderEdges)
             {
@@ -112,9 +119,9 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
 
 
                 //PAUSE FOR VISUALIZATION
-                //controller.DisplayMeshMain(convexHull.faces);
+                controller.DisplayMeshMain(convexHull.faces);
 
-                //yield return new WaitForSeconds(2f);
+                yield return new WaitForSeconds(1f);
 
 
                 //Connect the new triangle with the opposite edge on the border
@@ -152,12 +159,15 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
             //controller.DisplayMeshMain(convexHull.faces);
 
             //yield return new WaitForSeconds(2f);
+            controller.HideVisiblePoint(p);
         }
-        
 
-        controller.DisplayMeshMain(convexHull.faces);
 
-        yield return new WaitForSeconds(5f);
+        controller.HideActivePoint();
+
+        //controller.DisplayMeshMain(convexHull.faces);
+
+        //yield return new WaitForSeconds(5f);
 
 
         yield return null;

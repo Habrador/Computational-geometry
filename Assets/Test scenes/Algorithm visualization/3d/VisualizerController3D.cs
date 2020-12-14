@@ -15,6 +15,7 @@ public class VisualizerController3D : MonoBehaviour
     //Should be bigger so we can display it above the non-active point
     public GameObject pointActiveObj;
 
+    public SpinAroundCamera cameraScript;
 
     private HashSet<GameObject> allPoints = new HashSet<GameObject>();
 
@@ -28,7 +29,7 @@ public class VisualizerController3D : MonoBehaviour
         pointActiveObj.SetActive(false);
 
         //Get random points in 3d space
-        HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed: 0, halfCubeSize: 1f, numberOfPoints: 10);
+        HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed: 0, halfCubeSize: 1f, numberOfPoints: 20);
 
         //Generate points we can display
         foreach (Vector3 p in points_Unity)
@@ -96,5 +97,41 @@ public class VisualizerController3D : MonoBehaviour
         pointActiveObj.SetActive(true);
 
         pointActiveObj.transform.position = pos_unNormalized;
+    }
+
+    //Hide active point
+    public void HideActivePoint()
+    {
+        pointActiveObj.SetActive(false);
+    }
+
+    //Hide visible point
+    public void HideVisiblePoint(MyVector3 pos)
+    {
+        Vector3 pos_unNormalized = normalizer.UnNormalize(pos).ToVector3();
+
+        foreach (GameObject go in allPoints)
+        {
+            if (!go.activeInHierarchy)
+            {
+                continue;
+            }
+
+            if (Mathf.Abs(Vector3.Magnitude(pos_unNormalized - go.transform.position)) < 0.0001f)
+            {
+                go.SetActive(false);
+
+                break;
+            }
+        }
+    }
+
+    //Hide all visible points that are in some collection
+    public void HideAllVisiblePoints(HashSet<HalfEdgeVertex3> verts)
+    {
+        foreach (HalfEdgeVertex3 v in verts)
+        {
+            HideVisiblePoint(v.position);
+        }
     }
 }
