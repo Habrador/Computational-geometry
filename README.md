@@ -110,7 +110,9 @@ A good paper on this algorithm is "Implementing Quickhull" from Valve by Dirk Gr
 **Iterative algorithm.** Is very similar to Quickhull. 
 
 1. Like in Quickhull 2d you start by finding a triangle. But this is 3d, so you have to find another point so you get a tetrahedron. 
-2. Add all other points one-by-one. If the point is inside the hull you have so-far, ignore it. Otherwise you have to check which triangles are visible from the point and remove them. Then you build triangles to the new point from the border of the triangles you just removed. 
+2. Add all other points one-by-one. If the point is inside the hull you have so-far, ignore it. Otherwise you have to check which triangles are visible from the point and remove them. Then you build triangles to the new point from the border of the triangles you just removed.
+
+A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=Yv2OhCV1BpU  
 
 
 ### 4. Triangulation
@@ -214,6 +216,8 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 To get the Delaunay triangulation of points on a sphere, you just generate the convex hull of those points. To generate the Voronoi diagram in 3d space, the process is the same as in 2d space - except that you need to find the center of a circle given 3 points on the edge of the circle.  
 
 ![Delaunay on a sphere](/_media/triangulation-delaunay-sphere.png?raw=true)
+
+A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=xAVL4qz_2AE
 
 ![Voronoi on a sphere](/_media/voronoi-from-delaunay-sphere.png?raw=true)
 
