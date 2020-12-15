@@ -165,6 +165,9 @@ namespace Habrador_Computational_Geometry
 
             //Merge concave edges according to the paper
 
+            //Remove: 
+            // - Slivers (triangle with one angle is much bigger than the other two). You can detect these by finding the biggest angle. If this angle is bigger than 150 degrees, remove it
+            // - Needles (a triangle with two edges much longer than third edge) from the 3d convex hull. You can detect these by by finding the ratio between the shortest and second shortest side. If this ratio is below 0.01 then remove it
 
 
             return convexHull;

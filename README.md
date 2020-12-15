@@ -21,12 +21,10 @@ The code has been tested by using Unity 2018.4 LTS but should work with other ve
 11. [Updates](#big-updates)
 
 
-## Finished
 
+## 1. Intersections
 
-### 1. Intersections
-
-#### 1.1 2d-space
+### 1.1 2d-space
 
 **Point-triangle**
 
@@ -65,7 +63,7 @@ The code has been tested by using Unity 2018.4 LTS but should work with other ve
 ![Intersection point-circle](/_media/intersections-point-circle.png?raw=true)			
 
 
-### 2. Generate mesh
+## 2. Generate mesh
 
 **Grid mesh**
 
@@ -76,11 +74,11 @@ The code has been tested by using Unity 2018.4 LTS but should work with other ve
 ![Mesh shapes](/_media/mesh-shapes.png?raw=true)	
 
 
-### 3. Convex Hull
+## 3. Convex Hull
 
 A common problem in Computational Geometry is to find the convex hull of a set of points.
 
-#### 2d space
+### 2d space
 
 ![Convex hull 2d space](/_media/convex-hull-2d.png?raw=true)
 
@@ -103,7 +101,7 @@ A good paper on this algorithm is "Implementing Quickhull" from Valve by Dirk Gr
 4. Repeat 2 and 3 for each new edge
 
 
-#### 3d space
+### 3d space
 
 ![Convex hull 3d space](/_media/convex-hull-3d.png?raw=true)
 
@@ -115,10 +113,10 @@ A good paper on this algorithm is "Implementing Quickhull" from Valve by Dirk Gr
 A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=Yv2OhCV1BpU  
 
 
-### 4. Triangulation
+## 4. Triangulation
 
 
-#### 4.1 Triangulate convex polygon
+### 4.1 Triangulate convex polygon
 
 You have points on a convex hull you want to triangulate. You have four options here if you have colinear points (points on the same line): 
 1. Triangulate the convex hull while ignoring the colinear points. The area covered will be the same anyway.
@@ -129,7 +127,7 @@ You have points on a convex hull you want to triangulate. You have four options 
 ![Triangulation convex polygon](/_media/triangulation-convex-polygon.png?raw=true)	
 
 
-#### 4.2 Triangulate concave polygon 
+### 4.2 Triangulate concave polygon 
 	
 **Ear Clipping**
 
@@ -140,7 +138,7 @@ A visualization of this algorithm can be found here: https://www.youtube.com/wat
 ![Ear Clipping](/_media/ear-clipping.png?raw=true)
 
 
-#### 4.3 Triangulate points
+### 4.3 Triangulate points
 
 **Triangulate points with "visible edge" algorithm.**
 
@@ -164,7 +162,7 @@ You have some points you want to triangulate, you follow the steps:
 ![Triangulation point-by-point](/_media/triangulation-point-by-point.png?raw=true)		
 
 
-#### 4.4 Delaunay triangulation
+### 4.4 Delaunay triangulation
 
 **"point-by-point" method** 
 
@@ -187,7 +185,7 @@ You add the constraints to the points and generate a Delaunay triangulation by u
 ![Triangulation Delaunay constrained](/_media/triangulation-delaunay-constrained.png?raw=true)	
 
 
-#### 4.2 Marching algorithms
+### 4.2 Marching algorithms
 
 **Marching squares:**
 
@@ -202,7 +200,8 @@ Metacircles are like Metaballs but in 2D. Is using Marching squares.
 ![Metacircles](/_media/metacircles.png?raw=true)
 
 
-### 5. Voronoi diagram
+
+## 5. Voronoi diagram
 
 **From a Delaunay triangulation**
 
@@ -213,7 +212,7 @@ You first generate a Delaunay triangulation by using some method. Then you use t
 
 **From a Delaunay triangulation on a sphere**
 
-To get the Delaunay triangulation of points on a sphere, you just generate the convex hull of those points. To generate the Voronoi diagram in 3d space, the process is the same as in 2d space - except that you need to find the center of a circle given 3 points on the edge of the circle.  
+To get the Delaunay triangulation of points on a sphere, you just generate the convex hull of those points. To generate the Voronoi diagram in 3d space, the process is the same as in 2d space - except that you need to find the center of a circle given 3 points on the edge of the circle in 3d space.  
 
 ![Delaunay on a sphere](/_media/triangulation-delaunay-sphere.png?raw=true)
 
@@ -223,7 +222,7 @@ A visualization of this algorithm can be found here: https://www.youtube.com/wat
 
 
 
-### 6. Polygon clipping
+## 6. Polygon clipping
 
 **Greiner-Hormann method** 
 
@@ -235,7 +234,7 @@ A visualization of this algorithm can be found here: https://www.youtube.com/wat
 
 
 
-### 7. Extrude mesh along curve
+## 7. Extrude mesh along curve
 
 **Catmull-Rom splines**
 
@@ -269,7 +268,7 @@ A visualization of this algorithm can be found here: https://www.youtube.com/wat
 
 
 
-### 8. Deform mesh
+## 8. Deform mesh
 
 The fun part of computational geometry!
 
@@ -280,7 +279,7 @@ If the new meshes are not connected, then it will separate the meshes, so you mi
 ![Cut mesh with plane](/_media/cut-mesh-with-plane.png?raw=true)
 
 
-### 9. Other
+## 9. Other
 
 **Is a triangle oriented clockwise?** 
 
@@ -347,7 +346,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 
 
 
-### Stuff to fix
+## Stuff to fix
 
 * Optimize Constrained Delaunay - there's a faster method to find edges that intersects with the constrained edge. I also think the method where triangles within the constrain is removed can be faster. 
 * Make a test scene to test that the "find which triangle a point is in by triangulation walk" is working
