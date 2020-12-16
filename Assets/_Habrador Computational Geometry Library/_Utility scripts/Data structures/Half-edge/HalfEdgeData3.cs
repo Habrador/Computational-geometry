@@ -155,7 +155,9 @@ namespace Habrador_Computational_Geometry
             foreach (HalfEdge3 e in edges)
             {
                 //This edge is already connected
+                //Is faster to do this check
                 if (e.oppositeEdge != null)
+                //if (!(e.oppositeEdge is null)) //Is slightly slower
                 {
                     continue;
                 }
@@ -166,17 +168,19 @@ namespace Habrador_Computational_Geometry
 
                 Edge3 edgeToLookup = new Edge3(p1, p2);
 
-                if (edgeLookup.ContainsKey(edgeToLookup))
-                {
-                    HalfEdge3 eOther = edgeLookup[edgeToLookup];
+                //This is slightly faster than first edgeLookup.ContainsKey(edgeToLookup)
+                HalfEdge3 eOther = null;
 
+                edgeLookup.TryGetValue(edgeToLookup, out eOther);
+
+                if (eOther != null)
+                {
                     //Connect them with each other
                     e.oppositeEdge = eOther;
 
                     eOther.oppositeEdge = e;
-
-                    //Debug.Log("Found opposite edge");
                 }
+
                 //This edge doesnt exist so opposite edge must be null
             }
         }
