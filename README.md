@@ -18,13 +18,13 @@ The code has been tested by using Unity 2018.4 LTS but should work with other ve
 8. [Deform mesh](#8-deform-mesh)
 9. [Other](#9-other)
 10. [TODO](#todo)
-11. [Updates](#big-updates)
+11. [Major Updates](#major-updates)
 
 
 
 ## 1. Intersections
 
-### 1.1 2d-space
+### 1.1 2d space (some are also implemented in 3d space)
 
 **Point-triangle**
 
@@ -359,7 +359,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 
 
 
-## Big Updates
+## Major Updates
 
 **2020-12**
 
@@ -377,3 +377,11 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 **2020-03** 
 
 * Added interpolation such as Bezier curves and Catmull-Rom
+
+
+
+## Socials
+
+* Visit my [Portfolio](https://www.habrador.com)
+
+* Follow me on [Twitter](https://twitter.com/eriknordeus)
