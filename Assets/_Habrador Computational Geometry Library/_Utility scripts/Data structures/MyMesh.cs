@@ -22,6 +22,22 @@ namespace Habrador_Computational_Geometry
 
 
 
+        public MyMesh(Mesh mesh_Unity)
+        {
+            //Standardize data
+            List<Vector3> vertices_Unity = new List<Vector3>(mesh_Unity.vertices);
+            List<Vector3> normals_Unity = new List<Vector3>(mesh_Unity.normals);
+
+            //Vector3 -> MyVector3 
+            this.vertices = vertices_Unity.Select(x => x.ToMyVector3()).ToList();
+            this.normals = normals_Unity.Select(x => x.ToMyVector3()).ToList();
+
+            //Triangles are the same
+            this.triangles = new List<int>(mesh_Unity.triangles);
+        }
+
+
+
         //Add a triangle (oriented clock-wise) to the mesh
         //If we want hard edges, set shareVertices to false. Otherwise we will get a smooth surface
         public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, bool shareVertices)
