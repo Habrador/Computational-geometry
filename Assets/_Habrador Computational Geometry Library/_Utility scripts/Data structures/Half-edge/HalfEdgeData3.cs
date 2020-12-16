@@ -393,8 +393,8 @@ namespace Habrador_Computational_Geometry
             //You could do this afterwards when all triangles have been generate
             //Doing it in this method takes 2.7 seconds for the bunny
             //Doing it afterwards takes 0.1 seconds by using the fast method and 1.6 seconds for the slow method
-            //THe reason is that we keep searching the list for an opposite which doesnt exist yet, so we get more searches even though
-            //the list is shorter when we build the mesh
+            //The reason is that we keep searching the list for an opposite which doesnt exist yet, so we get more searches even though
+            //the list is shorter as we build up the mesh
             //But you could maybe do it here if you just add a new triangle?
             if (findOppositeEdge)
             {
@@ -421,7 +421,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Delete a face which we know is a triangle
+        // Delete a face which if know is a triangle
         //
         public void DeleteTriangleFace(HalfEdgeFace3 t)
         {
@@ -461,6 +461,86 @@ namespace Habrador_Computational_Geometry
             verts.Remove(t_e1.v);
             verts.Remove(t_e2.v);
             verts.Remove(t_e3.v);
+        }
+
+
+
+        //
+        // Merge and edge if we know we are dealing only with triangles
+        //
+        public void MergeEdge(HalfEdge3 e, MyVector3 mergePos)
+        {
+            //Step 1. Delete the triangle belonging to the edge
+
+            //The edges on this side of the edge, belonging to the triangle A-B-C
+            //The edge starts at A
+            HalfEdge3 e_AB = e; 
+            HalfEdge3 e_BC = e.nextEdge;
+            HalfEdge3 e_CA = e.nextEdge.nextEdge;
+
+            //The triangle
+            HalfEdgeFace3 f_ABC = e.face;
+
+            //Delete the triangle (which will set the opposite-opposite edge of e to null, which is fine because we dont need it)
+            //But we have to do it before we connect the edges
+            DeleteTriangleFace(f_ABC);
+
+            //Connect the opposite edges of the edges which are not a part of the edge we want to delete
+            if (e_BC.oppositeEdge != null)
+            {
+                //The edge on the opposite side of BC should have its opposite edge connected with the opposite edge of CA
+                e_BC.oppositeEdge.oppositeEdge = e_CA.oppositeEdge;
+            }
+            if (e_CA.oppositeEdge != null)
+            {
+                e_CA.oppositeEdge.oppositeEdge = e_CA.oppositeEdge;
+            }
+            
+
+            //Step 2. Merge the triangle that might belong to the opposite edge
+
+            //We might also have an opposite triangle
+            if (e.oppositeEdge != null)
+            {
+                f_ABC = e.oppositeEdge.face;
+
+                e_AB = e.oppositeEdge;
+                e_BC = e.oppositeEdge.nextEdge;
+                e_CA = e.oppositeEdge.nextEdge.nextEdge;
+
+                //Delete the triangle
+                DeleteTriangleFace(f_ABC);
+
+                //Connect the opposite edges of the edges which are not a part of the edge we want to delete
+                if (e_BC.oppositeEdge != null)
+                {
+                    //The edge on the opposite side of BC should have its opposite edge connected with the opposite edge of CA
+                    e_BC.oppositeEdge.oppositeEdge = e_CA.oppositeEdge;
+                }
+                if (e_CA.oppositeEdge != null)
+                {
+                    e_CA.oppositeEdge.oppositeEdge = e_CA.oppositeEdge;
+                }
+            }
+
+
+            //Step 3. Move the vertices to the merge position
+            //And edge is going TO a vertex
+            MyVector3 p1 = e.prevEdge.v.position;
+            MyVector3 p2 = e.v.position;
+
+            //Alternative 1. Brute force: search thorugh all vertices in the entire mesh and 
+            //check if they are part of the merge-edge and should move
+            foreach (HalfEdgeVertex3 v in verts)
+            {
+                if (v.position.Equals(p1) || v.position.Equals(p2))
+                {
+                    v.position = mergePos;
+                }
+            }
+
+            //Alternative 2. Rotate around the vertex to find all edgs pointing to the vertex
+            //Which might be tricky if we have holes in the middle and can't rotate all way around
         }
     }
 

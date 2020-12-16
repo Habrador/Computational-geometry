@@ -26,12 +26,11 @@ namespace Habrador_Computational_Geometry
             //timer.Reset();
 
             //timer.Start();
+            //Takes 0.1 seconds for the bunny
             meshData.ConnectAllEdgesFast();
             //timer.Stop();
 
             //Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to connect all opposite edges");
-
-            //Measure which way is the best to connect all edges
 
 
 
