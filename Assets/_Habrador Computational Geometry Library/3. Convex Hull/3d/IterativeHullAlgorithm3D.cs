@@ -406,7 +406,7 @@ namespace Habrador_Computational_Geometry
             convexHull.AddTriangle(p2_opposite, p1_opposite, p4);
 
             //Make sure all opposite edges are connected
-            convexHull.ConnectAllEdges();
+            convexHull.ConnectAllEdgesSlow();
 
             //Debug.Log(convexHull.faces.Count);
 

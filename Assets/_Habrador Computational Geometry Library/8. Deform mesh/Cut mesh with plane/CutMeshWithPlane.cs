@@ -193,8 +193,8 @@ namespace Habrador_Computational_Geometry
 
             //Find opposite edges to each edge
             //This is a slow process, so should be done only if the mesh is intersecting with the plane
-            newMeshO.ConnectAllEdges();
-            newMeshI.ConnectAllEdges();
+            newMeshO.ConnectAllEdgesSlow();
+            newMeshI.ConnectAllEdgesSlow();
 
             //Display all edges which have no opposite
             DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshO.edges, meshTrans, Color.white);

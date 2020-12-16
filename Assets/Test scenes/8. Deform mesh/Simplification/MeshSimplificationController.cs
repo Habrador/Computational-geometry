@@ -36,6 +36,7 @@ public class MeshSimplificationController : MonoBehaviour
         // Simplify
         //
 
+        MyMesh mySimplifiedMesh = MeshSimplification.SimplifyByMergingEdges(myMeshToSimplify);
 
 
         //

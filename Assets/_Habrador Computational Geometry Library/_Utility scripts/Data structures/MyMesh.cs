@@ -25,8 +25,8 @@ namespace Habrador_Computational_Geometry
         public MyMesh(Mesh mesh_Unity)
         {
             //Standardize data
-            List<Vector3> vertices_Unity = new List<Vector3>(mesh_Unity.vertices);
-            List<Vector3> normals_Unity = new List<Vector3>(mesh_Unity.normals);
+            Vector3[] vertices_Unity = mesh_Unity.vertices;
+            Vector3[] normals_Unity = mesh_Unity.normals;
 
             //Vector3 -> MyVector3 
             this.vertices = vertices_Unity.Select(x => x.ToMyVector3()).ToList();
