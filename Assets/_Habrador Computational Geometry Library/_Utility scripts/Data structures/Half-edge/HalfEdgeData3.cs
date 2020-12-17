@@ -5,9 +5,14 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //A collection of classes that implements the Half-Edge Data Structure
-    //From https://www.openmesh.org/media/Documentations/OpenMesh-6.3-Documentation/a00010.html
+    //From https://fgiesen.wordpress.com/2012/02/21/half-edge-based-mesh-representations-theory/
+    // http://graphics.stanford.edu/courses/cs248-18-spring-content/lectures/07_geometryprocessing/07_geometryprocessing_slides.pdf
 
     //3D space
+    //TODO: An idea is to keep the original lists and then the half-edge data structure is references these lists
+    //making it easier to change vertex positions, etc? Then we only need to compare 2 ints when comparing edge directions, which should be faster than comparing 6 floats
+    //So instead of point at a Vector3, each vertex should point at a position in a list of all vertices 
+    //TODO: Make sure the methods are more general - they are not only working on triangles
     public class HalfEdgeData3
     {
         //Should be called verts because have the same #letters as faces, edges, so makes it pretty
@@ -155,7 +160,7 @@ namespace Habrador_Computational_Geometry
             foreach (HalfEdge3 e in edges)
             {
                 //This edge is already connected
-                //Is faster to do this check
+                //Is faster to first do a null check
                 if (e.oppositeEdge != null)
                 //if (!(e.oppositeEdge is null)) //Is slightly slower
                 {
@@ -575,6 +580,49 @@ namespace Habrador_Computational_Geometry
 
             this.normal = normal;
         }
+
+
+
+        //Return all unique edges around this vertex
+        //So we don't add opposite edges
+        //Assumes there are no holes in the triangulation around the vertex
+        public List<HalfEdge3> GetEdgesGoingFromVertex()
+        {
+            List<HalfEdge3> allEdges = new List<HalfEdge3>();
+
+            //This is the edge that goes from this vertex
+            HalfEdge3 currentEdge = this.edge;
+
+            int safety = 0;
+
+            do
+            {
+                allEdges.Add(currentEdge);
+
+                HalfEdge3 oppositeEdge = currentEdge.oppositeEdge;
+
+                if (oppositeEdge == null)
+                {
+                    Debug.LogWarning("We cant rotate around this vertex because there are holes in the mesh");
+
+                    return null;
+                }
+
+                currentEdge = oppositeEdge.nextEdge;
+
+                safety += 1;
+
+                if (safety > 100000)
+                {
+                    Debug.LogWarning("Stuck in infinite loop when getting all edges around a vertex");
+
+                    return null;
+                }
+            }
+            while (currentEdge != this.edge);
+
+            return allEdges;
+        }
     }
 
 
@@ -591,6 +639,69 @@ namespace Habrador_Computational_Geometry
         public HalfEdgeFace3(HalfEdge3 edge)
         {
             this.edge = edge;
+        }
+
+
+
+        //Get all edges that make up this face
+        public List<HalfEdge3> GetEdges()
+        {
+            List<HalfEdge3> allEdges = new List<HalfEdge3>();
+        
+            HalfEdge3 currentEdge = this.edge;
+
+            int safety = 0;
+
+            do
+            {
+                allEdges.Add(currentEdge);
+
+                currentEdge = currentEdge.nextEdge;
+
+                safety += 1;
+
+                if (safety > 100000)
+                {
+                    Debug.LogWarning("Stuck in infinite loop when getting all edges from a face");
+
+                    return null;
+                }
+            }
+            while (currentEdge != this.edge);
+
+            return allEdges;
+        }
+
+
+
+        //Get all vertices that make up this face
+        public List<HalfEdgeVertex3> GetVertices()
+        {
+            List<HalfEdgeVertex3> allVertices = new List<HalfEdgeVertex3>();
+
+            HalfEdge3 currentEdge = this.edge;
+
+            int safety = 0;
+
+            do
+            {
+                //Add the vertex this edge points to
+                allVertices.Add(currentEdge.v);
+
+                currentEdge = currentEdge.nextEdge;
+
+                safety += 1;
+
+                if (safety > 100000)
+                {
+                    Debug.LogWarning("Stuck in infinite loop when getting all vertices from a face");
+
+                    return null;
+                }
+            }
+            while (currentEdge != this.edge);
+
+            return allVertices;
         }
     }
 
