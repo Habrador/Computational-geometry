@@ -35,6 +35,7 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //Convert from MyMesh (which is face-vertex data structure) to half-edge data structure
         public HalfEdgeData3(MyMesh mesh) : this()
         {
             //Loop through all triangles in the mesh
@@ -250,7 +251,7 @@ namespace Habrador_Computational_Geometry
         // Convert to Unity mesh
         //
 
-        //We know we have stored triangles in the data structure)
+        //We know we have stored triangles in the data structure
         //shareVertices means that we want a smooth surface where some vertices are shared between triangles
         public Mesh ConvertToUnityMesh(string name, bool shareVertices, bool generateNormals)
         {
@@ -278,7 +279,7 @@ namespace Habrador_Computational_Geometry
             return unityMesh;
         }
 
-        //We have just the faces
+        //We have just the faces (which we know are triangles)
         public static Mesh ConvertToUnityMesh(string name, HashSet<HalfEdgeFace3> faces)
         {
             MyMesh myMesh = new MyMesh();
@@ -311,25 +312,25 @@ namespace Habrador_Computational_Geometry
         // We have faces, but we also want a list with vertices, edges, etc
         //
         
-        //Assume the faces are triangles
         public static HalfEdgeData3 GenerateHalfEdgeDataFromFaces(HashSet<HalfEdgeFace3> faces)
         {
             HalfEdgeData3 meshData = new HalfEdgeData3();
 
-            //WHat we need to fill
+            //What we need to fill
             HashSet<HalfEdge3> edges = new HashSet<HalfEdge3>();
 
             HashSet<HalfEdgeVertex3> verts = new HashSet<HalfEdgeVertex3>();
 
             foreach (HalfEdgeFace3 f in faces)
             {
-                edges.Add(f.edge);
-                edges.Add(f.edge.nextEdge);
-                edges.Add(f.edge.nextEdge.nextEdge);
+                //Get all edges in this face
+                List<HalfEdge3> edgesInFace = f.GetEdges();
 
-                verts.Add(f.edge.v);
-                verts.Add(f.edge.nextEdge.v);
-                verts.Add(f.edge.nextEdge.nextEdge.v);
+                foreach (HalfEdge3 e in edgesInFace)
+                {
+                    edges.Add(e);
+                    verts.Add(e.v);
+                }
             }
 
             meshData.faces = faces;
@@ -584,7 +585,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Return all unique edges around this vertex
-        //So we don't add opposite edges
+        //So we don't add opposite edges going to the vertex
         //Assumes there are no holes in the triangulation around the vertex
         public List<HalfEdge3> GetEdgesGoingFromVertex()
         {
@@ -599,6 +600,7 @@ namespace Habrador_Computational_Geometry
             {
                 allEdges.Add(currentEdge);
 
+                //This edge is going to the vertex
                 HalfEdge3 oppositeEdge = currentEdge.oppositeEdge;
 
                 if (oppositeEdge == null)
@@ -608,6 +610,7 @@ namespace Habrador_Computational_Geometry
                     return null;
                 }
 
+                //The edges are clock-wise so the next edge must be going from the vertex
                 currentEdge = oppositeEdge.nextEdge;
 
                 safety += 1;

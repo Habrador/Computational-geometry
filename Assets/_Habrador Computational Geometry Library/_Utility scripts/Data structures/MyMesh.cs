@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Habrador_Computational_Geometry
 {
-    //Similar to Unity's mesh
+    //Similar to Unity's mesh - known as face-vertex data structure 
     public class MyMesh
     {
         public List<MyVector3> vertices;
