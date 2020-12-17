@@ -12,6 +12,7 @@ namespace Habrador_Computational_Geometry
     //TODO: An idea is to keep the original lists and then the half-edge data structure is references these lists
     //making it easier to change vertex positions, etc? Then we only need to compare 2 ints when comparing edge directions, which should be faster than comparing 6 floats
     //So instead of point at a Vector3, each vertex should point at a position in a list of all vertices 
+    //This should also prevent floatig point problems when using the position as key in a dictionary
     //TODO: Make sure the methods are more general - they are not only working on triangles
     public class HalfEdgeData3
     {
@@ -551,6 +552,8 @@ namespace Habrador_Computational_Geometry
 
             //Alternative 2. Rotate around the vertex to find all edgs pointing to the vertex
             //Which might be tricky if we have holes in the middle and can't rotate all way around
+            //We can try this first and if we can't rotate around the vertex (it returns null in that case)
+            //we can go for the brute force approach
         }
     }
 
