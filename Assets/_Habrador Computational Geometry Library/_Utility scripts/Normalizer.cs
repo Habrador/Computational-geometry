@@ -208,6 +208,7 @@ namespace Habrador_Computational_Geometry
             return pNormalized;
         }
 
+
         //List<MyVector3>
         public List<MyVector3> Normalize(List<MyVector3> points)
         {
@@ -220,6 +221,7 @@ namespace Habrador_Computational_Geometry
 
             return normalizedPoints;
         }
+
 
         //HashSet<MyVector3> 
         public HashSet<MyVector3> Normalize(HashSet<MyVector3> points)
@@ -234,6 +236,7 @@ namespace Habrador_Computational_Geometry
             return normalizedPoints;
         }
 
+
         //HalfEdgeData3
         public HalfEdgeData3 Normalize(HalfEdgeData3 data)
         {
@@ -247,18 +250,26 @@ namespace Habrador_Computational_Geometry
             return data;
         }
 
-        //HashSet<HalfEdgeFace3> (TODO: add get-vertices in HalfEdgeFace3 because the face might not be a triangle)
+
+        //HashSet<HalfEdgeFace3>
         public HashSet<HalfEdgeFace3> Normalize(HashSet<HalfEdgeFace3> data)
         {
             foreach (HalfEdgeFace3 f in data)
             {
-                HalfEdgeVertex3 v1 = f.edge.v;
-                HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
-                HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
+                //TODO: This will generate a new list for each face, so maybe better to put the code from the method here
+                List<HalfEdge3> edges = f.GetEdges();
 
-                v1.position = Normalize(v1.position);
-                v2.position = Normalize(v2.position);
-                v3.position = Normalize(v3.position);
+                if (edges == null)
+                {
+                    continue;
+                }
+
+                foreach (HalfEdge3 e in edges)
+                {
+                    HalfEdgeVertex3 v = e.v;
+
+                    v.position = Normalize(v.position);
+                }
             }
 
             return data;
@@ -282,6 +293,7 @@ namespace Habrador_Computational_Geometry
             return pUnNormalized;
         }
 
+
         //List<MyVector3>
         public List<MyVector3> UnNormalize(List<MyVector3> normalized)
         {
@@ -296,6 +308,7 @@ namespace Habrador_Computational_Geometry
 
             return unNormalized;
         }
+
 
         //HashSet<Triangle3>
         public HashSet<Triangle3> UnNormalize(HashSet<Triangle3> normalized)
@@ -316,6 +329,7 @@ namespace Habrador_Computational_Geometry
             return unNormalized;
         }
 
+
         //HalfEdgeData3
         public HalfEdgeData3 UnNormalize(HalfEdgeData3 data)
         {
@@ -329,22 +343,31 @@ namespace Habrador_Computational_Geometry
             return data;
         }
 
+
         //HashSet<HalfEdgeFace3>
         public HashSet<HalfEdgeFace3> UnNormalize(HashSet<HalfEdgeFace3> data)
         {
             foreach (HalfEdgeFace3 f in data)
             {
-                HalfEdgeVertex3 v1 = f.edge.v;
-                HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
-                HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
+                //TODO: This will generate a new list for each face, so maybe better to put the code from the method here
+                List<HalfEdge3> edges = f.GetEdges();
 
-                v1.position = UnNormalize(v1.position);
-                v2.position = UnNormalize(v2.position);
-                v3.position = UnNormalize(v3.position);
+                if (edges == null)
+                {
+                    continue;
+                }
+
+                foreach (HalfEdge3 e in edges)
+                {
+                    HalfEdgeVertex3 v = e.v;
+
+                    v.position = UnNormalize(v.position);
+                }
             }
 
             return data;
         }
+
 
         //HashSet<VoronoiCell3>
         public HashSet<VoronoiCell3> UnNormalize(HashSet<VoronoiCell3> data)

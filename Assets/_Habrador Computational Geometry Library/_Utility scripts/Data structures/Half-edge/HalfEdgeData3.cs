@@ -644,6 +644,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Get all edges that make up this face
+        //If you need all vertices you can use this method because each edge points to a vertex
         public List<HalfEdge3> GetEdges()
         {
             List<HalfEdge3> allEdges = new List<HalfEdge3>();
@@ -670,38 +671,6 @@ namespace Habrador_Computational_Geometry
             while (currentEdge != this.edge);
 
             return allEdges;
-        }
-
-
-
-        //Get all vertices that make up this face
-        public List<HalfEdgeVertex3> GetVertices()
-        {
-            List<HalfEdgeVertex3> allVertices = new List<HalfEdgeVertex3>();
-
-            HalfEdge3 currentEdge = this.edge;
-
-            int safety = 0;
-
-            do
-            {
-                //Add the vertex this edge points to
-                allVertices.Add(currentEdge.v);
-
-                currentEdge = currentEdge.nextEdge;
-
-                safety += 1;
-
-                if (safety > 100000)
-                {
-                    Debug.LogWarning("Stuck in infinite loop when getting all vertices from a face");
-
-                    return null;
-                }
-            }
-            while (currentEdge != this.edge);
-
-            return allVertices;
         }
     }
 
