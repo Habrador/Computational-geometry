@@ -77,44 +77,104 @@ namespace Habrador_Computational_Geometry
 
         //Calculate the angle between two vectors 
         //This angle should be measured in 360 degrees (Vector3.Angle is measured in 180 degrees)
-        
-        //Alternative 1 in 3d space [degrees]
-        //From should be Vector3.forward if you measure y angle, and to is the direction
-        public static float CalculateAngle(Vector3 from, Vector3 to)
+        //Should maybe be moved to _Geometry??
+
+        //In 3d space [radians]
+        //https://stackoverflow.com/questions/5188561/signed-angle-between-two-3d-vectors-with-same-origin-within-the-same-plane
+        //https://math.stackexchange.com/questions/2906314/how-to-calculate-angle-between-two-vectors-in-3d-with-clockwise-or-counter-clock
+        public static float AngleFromToCCW(MyVector3 from, MyVector3 to, MyVector3 upRef)
         {
-            return Quaternion.FromToRotation(from, to).eulerAngles.y;
+            //This is only working in 2d space
+            //float angleDegrees = Quaternion.FromToRotation(to.ToVector3(), from.ToVector3()).eulerAngles.y;
+
+            from = MyVector3.Normalize(from);
+            to = MyVector3.Normalize(to);
+            upRef = MyVector3.Normalize(upRef);
+
+            float angleRad = AngleBetween(from, to, shouldNormalize: false);
+
+            //To get 0-2pi (360 degrees) we can use the determinant [a, b, u] = (a x b) dot u
+            //Where u is a reference up vector
+
+            //Remember that the cross product is not alwayspointing up - it can change to down depending on how the vectors are aligned
+            //Which is why we need a fixed reference up
+            MyVector3 cross = MyVector3.Cross(from, to);
+
+            float determinant = MyVector3.Dot(MyVector3.Cross(from, to), upRef);
+
+            //Debug.Log(determinant);
+
+            if (determinant >= 0f)
+            {
+                return angleRad;
+            }
+            else
+            {
+                return (Mathf.PI * 2f) - angleRad;
+            }
         }
 
-        //Alternative 2 in 2d space [radians]
-        //The vectors dont have to be normlized (but you might run into floating point precision issues if they are too big?)
-        public static float AngleFromToCCW(MyVector2 from, MyVector2 to, bool shouldNormalize = false)
+        //The angle between two vectors 0 <= angle <= 180
+        //Same as Vector3.Angle() but we are using MyVector3
+        public static float AngleBetween(MyVector3 from, MyVector3 to, bool shouldNormalize = true)
         {
+            //from and to should be normalized
+            //But sometimes they are already normalized and then we dont need to do it again
             if (shouldNormalize)
             {
-                from = MyVector2.Normalize(from);
-                to = MyVector2.Normalize(to);
+                from = MyVector3.Normalize(from);
+                to = MyVector3.Normalize(to);
             }
-        
+
+            //dot(a_normalized, b_normalized) = cos(alpha) -> acos(dot(a_normalized, b_normalized)) = alpha
+            float dot = MyVector3.Dot(from, to);
+
+            //This shouldn't happen but may happen because of floating point precision issues
+            dot = Mathf.Clamp(dot, -1f, 1f);
+
+            float angleRad = Mathf.Acos(dot);
+
+            return angleRad;
+        }
+
+
+        //In 2d space [radians]
+        //If you want to calculate the angle from vector a to b both originating from c, from is a-c and to is b-c
+        public static float AngleFromToCCW(MyVector2 from, MyVector2 to, bool shouldNormalize = false)
+        {
+            from = MyVector2.Normalize(from);
+            to = MyVector2.Normalize(to);
+
+            float angleRad = AngleBetween(from, to, shouldNormalize = false);
+
             //The determinant is similar to the dot product
             //The dot product is always 0 no matter in which direction the perpendicular vector is pointing
             //But the determinant is -1 or 1 depending on which way the perpendicular vector is pointing (up or down)
             //AngleBetween goes from 0 to 180 so we can now determine if we need to compensate to get 360 degrees
             if (MathUtility.Det2(from, to) > 0f)
             {
-                return AngleBetween(from, to);
+                return angleRad;
             }
             else
             {
-                return (Mathf.PI * 2f) - AngleBetween(from, to);
+                return (Mathf.PI * 2f) - angleRad;
             }
         }
 
         //The angle between two vectors 0 <= angle <= 180
         //Same as Vector2.Angle() but we are using MyVector2
-        public static float AngleBetween(MyVector2 from, MyVector2 to)
+        public static float AngleBetween(MyVector2 from, MyVector2 to, bool shouldNormalize = true)
         {
+            //from and to should be normalized
+            //But sometimes they are already normalized and then we dont need to do it again
+            if (shouldNormalize)
+            {
+                from = MyVector2.Normalize(from);
+                to = MyVector2.Normalize(to);
+            }
+
             //dot(a_normalized, b_normalized) = cos(alpha) -> acos(dot(a_normalized, b_normalized)) = alpha
-            float dot = MyVector2.Dot(MyVector2.Normalize(from), MyVector2.Normalize(to));
+            float dot = MyVector2.Dot(from, to);
 
             //This shouldn't happen but may happen because of floating point precision issues
             dot = Mathf.Clamp(dot, -1f, 1f);

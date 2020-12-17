@@ -19,6 +19,11 @@ public class OtherController : MonoBehaviour
         MyVector2 c = pointCTrans.position.ToMyVector2();
         MyVector2 d = pointDTrans.position.ToMyVector2();
 
+        MyVector3 a_3d = pointATrans.position.ToMyVector3();
+        MyVector3 b_3d = pointBTrans.position.ToMyVector3();
+        MyVector3 c_3d = pointCTrans.position.ToMyVector3();
+        MyVector3 d_3d = pointDTrans.position.ToMyVector3();
+
         //PointInRelationToVector(a, b, c);
 
         //IsTriangleOrientedClockwise(a, b, c);
@@ -29,13 +34,15 @@ public class OtherController : MonoBehaviour
 
         //IsPointBetweenPoints(a, b, c);
 
-        ClosestPointOnLineSegment(a, b, c);
+        //ClosestPointOnLineSegment(a, b, c);
 
         //PassedWaypoint(a, b, c);
 
         //CenterOfCircle(a, b, c);
 
-        //AngeBetweenVectors(a, b, c);
+        //AngleBetweenVectors(a, b, c);
+
+        AngleBetweenVectors3D(a_3d, b_3d, c_3d);
 
         Gizmos.DrawWireSphere(pointATrans.position, 0.1f);
         Gizmos.DrawWireSphere(pointBTrans.position, 0.1f);
@@ -46,7 +53,7 @@ public class OtherController : MonoBehaviour
 
 
     //Calculate the angle between Vector a and b both originating from c
-    private void AngeBetweenVectors(MyVector2 a, MyVector2 b, MyVector2 c)
+    private void AngleBetweenVectors(MyVector2 a, MyVector2 b, MyVector2 c)
     {
         Gizmos.DrawLine(pointCTrans.position, pointATrans.position);
         Gizmos.DrawLine(pointCTrans.position, pointBTrans.position);
@@ -55,6 +62,22 @@ public class OtherController : MonoBehaviour
         MyVector2 to = b - c;
 
         float angle = MathUtility.AngleFromToCCW(from, to);
+
+        Debug.Log(angle * Mathf.Rad2Deg);
+    }
+
+
+
+    //Calculate the angle between Vector a and b both originating from c
+    private void AngleBetweenVectors3D(MyVector3 a, MyVector3 b, MyVector3 c)
+    {
+        Gizmos.DrawLine(pointCTrans.position, pointATrans.position);
+        Gizmos.DrawLine(pointCTrans.position, pointBTrans.position);
+
+        MyVector3 from = a - c;
+        MyVector3 to = b - c;
+
+        float angle = MathUtility.AngleFromToCCW(from, to, Vector3.forward.ToMyVector3());
 
         Debug.Log(angle * Mathf.Rad2Deg);
     }
