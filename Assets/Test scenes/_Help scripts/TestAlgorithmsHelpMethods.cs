@@ -547,15 +547,24 @@ public static class TestAlgorithmsHelpMethods
 
 
     //Display a face which we know is a triangle with its normal at the center
-    public static void DebugDrawTriangle(HalfEdgeFace3 f, Color lineColor, Color normalColor)
+    public static void DebugDrawTriangle(HalfEdgeFace3 f, Color lineColor, Color normalColor, Normalizer3 normalizer = null)
     {
-        Vector3 p1_test = f.edge.v.position.ToVector3();
-        Vector3 p2_test = f.edge.nextEdge.v.position.ToVector3();
-        Vector3 p3_test = f.edge.nextEdge.nextEdge.v.position.ToVector3();
+        MyVector3 p1 = f.edge.v.position;
+        MyVector3 p2 = f.edge.nextEdge.v.position;
+        MyVector3 p3 = f.edge.nextEdge.nextEdge.v.position;
+
+        if (normalizer != null)
+        {
+            p1 = normalizer.UnNormalize(p1);
+            p2 = normalizer.UnNormalize(p2);
+            p3 = normalizer.UnNormalize(p3);
+        }
 
         Vector3 normal = f.edge.v.normal.ToVector3();
 
-        TestAlgorithmsHelpMethods.DebugDrawTriangle(p1_test, p2_test, p3_test, normal * 0.5f, Color.white, Color.red);
+        TestAlgorithmsHelpMethods.DebugDrawTriangle(p1.ToVector3(), p2.ToVector3(), p3.ToVector3(), normal * 0.5f, Color.white, Color.red);
+
+        //Debug.Log("Displayed Triangle");
 
         //To test the the triangle is clock-wise
         //TestAlgorithmsHelpMethods.DebugDrawCircle(p1_test, 0.1f, Color.red);

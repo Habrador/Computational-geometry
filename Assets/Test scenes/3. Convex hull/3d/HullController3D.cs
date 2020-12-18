@@ -21,7 +21,8 @@ public class HullController3D : MonoBehaviour
 
 
 
-    void OnDrawGizmosSelected()
+    //Called from editor script
+    public void GenerateHull()
 	{
         //Get random points in 3d space
         HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed, halfMapSize, numberOfPoints);

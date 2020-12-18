@@ -165,11 +165,13 @@ namespace Habrador_Computational_Geometry
 
             //Merge concave edges according to the paper
 
-            
+
             //Remove unwanted triangles, such as slivers and needles
             //Which is maybe not needed because when you add a Unity convex mesh collider to the result of this algorithm, there are still slivers
             //Unity's mesh collider is also using quads and not just triangles
-            //But if you add enough points, so you end up with many points on the hull you can see that Unitys convex mesh collider is not capturing all points, so they must be using some simplification algorithm 
+            //But if you add enough points, so you end up with many points on the hull you can see that Unitys convex mesh collider is not capturing all points, so they must be using some simplification algorithm
+            RemoveUnwantedTriangles.Remove(convexHull, normalizer);
+
 
             return convexHull;
         }

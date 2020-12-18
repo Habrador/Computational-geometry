@@ -11,28 +11,30 @@ namespace Habrador_Computational_Geometry
     public static class RemoveUnwantedTriangles
     {
         //meshData should be triangles only
-        public static void Remove(HalfEdgeData3 meshData)
+        //normalizer is just for debugging
+        public static void Remove(HalfEdgeData3 meshData, Normalizer3 normalizer = null)
         {
             //We are going to remove the following (some triangles can be a combination of these):
             // - Caps. Triangle where one angle is close to 180 degrees. Are difficult to remove. If the vertex is connected to three triangles, we can maybe just remove the vertex and build one big triangle. This can be said to be a flat terahedron?
             // - Needles. Triangle where the longest edge is much longer than the shortest one.  Same as saying that the smallest angle is close to 0 degrees? Can often be removed by collapsing the shortest edge
 
-            RemoveNeedles(meshData);
+            RemoveNeedles(meshData, normalizer);
         }
 
 
 
         //Needles. Triangle where the longest edge is much longer than the shortest one.
-        private static void RemoveNeedles(HalfEdgeData3 meshData)
+        private static void RemoveNeedles(HalfEdgeData3 meshData, Normalizer3 normalizer = null)
         {
             //To find a needle you can:
             // - One angle in the triangle is close to 0
             // - The ratio between the shortest and longest side is below 0.01
-            float needleRatio = 0.01f;
-
+            float needleRatio = 0.1f;
 
             HashSet<HalfEdgeFace3> triangles = meshData.faces;
-        
+
+            int needleCounter = 0;
+
             foreach (HalfEdgeFace3 triangle in triangles)
             {
                 /*
@@ -63,9 +65,16 @@ namespace Habrador_Computational_Geometry
 
                 if (edgeLengthRatio < needleRatio)
                 {
-                    Debug.Log("We found a needle triangle");
+                    //Debug.Log("We found a needle triangle");
+
+                    TestAlgorithmsHelpMethods.DebugDrawTriangle(triangle, Color.blue, Color.red, normalizer);
+
+                    needleCounter += 1;
                 }
             }
+
+
+            Debug.Log($"Found {needleCounter} needles");
         }
     }
 }
