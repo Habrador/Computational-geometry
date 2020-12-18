@@ -20,11 +20,12 @@ namespace Habrador_Computational_Geometry
         }
 
 
+        //p1-p2-p3 should be ordered clock-wise
         public Plane3(MyVector3 p1, MyVector3 p2, MyVector3 p3)
         {
             this.pos = p1;
 
-            MyVector3 normal = 
+            MyVector3 normal = _Geometry.CalculateNormal(p1, p2, p3);
 
             this.normal = normal;
         }

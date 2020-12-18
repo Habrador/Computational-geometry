@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace Habrador_Computational_Geometry
 {
@@ -71,7 +72,7 @@ namespace Habrador_Computational_Geometry
                     //...and a normal
                     MyVector3 normal = _Geometry.CalculateNormal(p1, p2, p3);
 
-                    //To calculate the Kp matrix, we have to define the plane by the equation 
+                    //To calculate the Kp matrix, we have to define the plane on the form: 
                     //ax + by + cz + d = 0 where a^2 + b^2 + c^2 = 1
                     //a, b, c are given by the normal: 
                     float a = normal.x;
@@ -90,7 +91,7 @@ namespace Habrador_Computational_Geometry
                         new Vector4(a*d, b*d, c*d, d*d)
                         );
 
-                    //So Q is the sum of all Kp around the vertex
+                    //Q is the sum of all Kp around the vertex
                     Q = Q.Add(Kp);
                 }
 
@@ -99,16 +100,35 @@ namespace Habrador_Computational_Geometry
 
 
 
-            //Step 2. Select all valid pairs
+            //Step 2. Select all valid pairs (unique edges?)
+            List<HalfEdge3> validPairs = new List<HalfEdge3>(meshData.edges);
 
 
-            //Step 3. Compute the optimal contraction target for each valid pair (v1, v2). The error of this target vertex becomes the cost of contracting that pair
+            //Step 3. Compute the optimal contraction target v for each valid pair (v1, v2). The error of this target vertex becomes the cost of contracting that pair
+            //Assume for simplicity that the contraction target v = (v1 + v2) * 0.5f
+            //The error for v1, v2 is given by v^T * (Q1 + Q2) * v 
+            //where v = [v.x, v.y, v.z, 1]
+            List<QEM_Edge> QEM_edges = new List<QEM_Edge>();
+
+            foreach (HalfEdge3 e in validPairs)
+            {            
+                MyVector3 p1 = e.prevEdge.v.position;
+                MyVector3 p2 = e.v.position;
+
+                Matrix4x4 Q1 = qMatrices[p1];
+                Matrix4x4 Q2 = qMatrices[p2];
+
+                QEM_Edge qemEdge = new QEM_Edge(p1, p2, Q1, Q2);
+
+                QEM_edges.Add(qemEdge);
+            }
 
 
             //Step 4. Sort all pairs, with the minimum cost pair at the top
+            QEM_edges.OrderBy(x => x.qem);
 
 
-            //Step 5. Iteratively remove the pair (v1, v2) of the least cost, contract the pair, and update the costs of all valid pairs involving just v1?
+            //Step 5. Iteratively remove the pair (v1,v2) of the least cost, contract the pair, and update the costs of all valid pairs
 
 
 

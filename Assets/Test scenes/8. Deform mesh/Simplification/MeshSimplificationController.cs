@@ -36,7 +36,15 @@ public class MeshSimplificationController : MonoBehaviour
         // Simplify
         //
 
+        System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+
+        timer.Start();
+
         MyMesh mySimplifiedMesh = MeshSimplification.SimplifyByMergingEdges(myMeshToSimplify);
+
+        timer.Stop();
+
+        Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} to simplify the mesh");
 
 
         //
