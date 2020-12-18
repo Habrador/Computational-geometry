@@ -11,7 +11,9 @@ namespace Habrador_Computational_Geometry
     public static class IterativeHullAlgorithm3D
     {
         //normalizer is only for debugging, so we can display the unnormalized points
-        public static HalfEdgeData3 GenerateConvexHull(HashSet<MyVector3> points, Normalizer3 normalizer = null)
+        //removeUnwantedTriangles means that we will remove triangles from the hull that we dont want, 
+        //such as needles where one edge is much shorter than the other edges in the triangle
+        public static HalfEdgeData3 GenerateConvexHull(HashSet<MyVector3> points, bool removeUnwantedTriangles, Normalizer3 normalizer = null)
         {
             HalfEdgeData3 convexHull = new HalfEdgeData3();
 
@@ -170,7 +172,11 @@ namespace Habrador_Computational_Geometry
             //Which is maybe not needed because when you add a Unity convex mesh collider to the result of this algorithm, there are still slivers
             //Unity's mesh collider is also using quads and not just triangles
             //But if you add enough points, so you end up with many points on the hull you can see that Unitys convex mesh collider is not capturing all points, so they must be using some simplification algorithm
-            RemoveUnwantedTriangles.Remove(convexHull, normalizer);
+            if (removeUnwantedTriangles)
+            {
+                RemoveUnwantedTriangles.Remove(convexHull, normalizer);
+            }
+            
 
 
             return convexHull;

@@ -64,7 +64,7 @@ public class VoronoiSphereController : MonoBehaviour
         //Iterative algorithm
         timer.Start();
 
-        HalfEdgeData3 convexHull_normalized = _ConvexHull.Iterative_3D(points_normalized, normalizer);
+        HalfEdgeData3 convexHull_normalized = _ConvexHull.Iterative_3D(points_normalized, removeUnwantedTriangles: false, normalizer);
 
         timer.Stop();
 

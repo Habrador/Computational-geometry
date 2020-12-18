@@ -14,6 +14,8 @@ public class HullController3D : MonoBehaviour
 
     public int seed;
 
+    public bool removeUnwantedTriangles;
+
     public MeshFilter constructHullFromThisMesh;
 
     //Display the hull on this go
@@ -64,7 +66,7 @@ public class HullController3D : MonoBehaviour
 
         timer.Start();
 
-        HalfEdgeData3 convexHull_normalized = _ConvexHull.Iterative_3D(points_normalized, normalizer);
+        HalfEdgeData3 convexHull_normalized = _ConvexHull.Iterative_3D(points_normalized, removeUnwantedTriangles, normalizer);
 
         timer.Stop();
 

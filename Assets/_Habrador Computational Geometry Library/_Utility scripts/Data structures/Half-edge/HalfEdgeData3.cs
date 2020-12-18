@@ -481,6 +481,17 @@ namespace Habrador_Computational_Geometry
         //
         public void MergeEdge(HalfEdge3 e, MyVector3 mergePos)
         {
+            //Step 0. Get all edges pointing to the vertices we will move
+            //And edge is going TO a vertex
+            HalfEdgeVertex3 v1 = e.prevEdge.v;
+            HalfEdgeVertex3 v2 = e.v;
+
+            //We have to get these before we remove triangles 
+            //These might be null if the mesh has holes
+            HashSet<HalfEdge3> edgesGoingToVertex_v1 = v1.GetEdgesGoingToVertex();
+            HashSet<HalfEdge3> edgesGoingToVertex_v2 = v2.GetEdgesGoingToVertex();
+
+
             //Step 1. Delete the triangle belonging to the edge
 
             //The edges on this side of the edge, belonging to the triangle A-B-C
@@ -536,24 +547,48 @@ namespace Habrador_Computational_Geometry
 
 
             //Step 3. Move the vertices to the merge position
-            //And edge is going TO a vertex
-            MyVector3 p1 = e.prevEdge.v.position;
-            MyVector3 p2 = e.v.position;
-
-            //Alternative 1. Brute force: search thorugh all vertices in the entire mesh and 
-            //check if they are part of the merge-edge and should move
-            foreach (HalfEdgeVertex3 v in verts)
+            
+            //First try to use the list with all edges going to a vertex
+            //Some of these edges belong to the triangle we removes, but it doesnt matter
+            if (edgesGoingToVertex_v1 != null)
             {
-                if (v.position.Equals(p1) || v.position.Equals(p2))
+                foreach (HalfEdge3 eTo in edgesGoingToVertex_v1)
                 {
-                    v.position = mergePos;
+                    eTo.v.position = mergePos;
+                }
+            }
+            //Brute force: search thorugh all vertices in the entire mesh and
+            //check if they are part of the merge-edge and should move
+            else
+            {
+                foreach (HalfEdgeVertex3 v in verts)
+                {
+                    if (v.position.Equals(v1.position))
+                    {
+                        v.position = mergePos;
+                    }
                 }
             }
 
-            //Alternative 2. Rotate around the vertex to find all edgs pointing to the vertex
-            //Which might be tricky if we have holes in the middle and can't rotate all way around
-            //We can try this first and if we can't rotate around the vertex (it returns null in that case)
-            //we can go for the brute force approach
+            if (edgesGoingToVertex_v2 != null)
+            {
+                foreach (HalfEdge3 eTo in edgesGoingToVertex_v2)
+                {
+                    eTo.v.position = mergePos;
+                }
+            }
+            //Brute force: search thorugh all vertices in the entire mesh and
+            //check if they are part of the merge-edge and should move
+            else
+            {
+                foreach (HalfEdgeVertex3 v in verts)
+                {
+                    if (v.position.Equals(v2.position))
+                    {
+                        v.position = mergePos;
+                    }
+                }
+            }
         }
     }
 
@@ -591,15 +626,14 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Return all unique edges around this vertex
-        //So we don't add opposite edges going to the vertex
-        //Assumes there are no holes in the triangulation around the vertex
-        public List<HalfEdge3> GetEdgesGoingFromVertex()
+        //Return all edges going to this vertex = all edges that references this vertex position, so we can change the position
+        //Assumes there are no holes in the triangulation around the vertex, if so it will return null
+        public HashSet<HalfEdge3> GetEdgesGoingToVertex()
         {
-            List<HalfEdge3> allEdges = new List<HalfEdge3>();
+            HashSet<HalfEdge3> allEdges = new HashSet<HalfEdge3>();
 
-            //This is the edge that goes from this vertex
-            HalfEdge3 currentEdge = this.edge;
+            //This is the edge that goes to this vertex
+            HalfEdge3 currentEdge = this.edge.prevEdge;
 
             int safety = 0;
 
@@ -607,8 +641,8 @@ namespace Habrador_Computational_Geometry
             {
                 allEdges.Add(currentEdge);
 
-                //This edge is going to the vertex
-                HalfEdge3 oppositeEdge = currentEdge.oppositeEdge;
+                //This edge is going to the vertex but in another triangle
+                HalfEdge3 oppositeEdge = currentEdge.nextEdge.oppositeEdge;
 
                 if (oppositeEdge == null)
                 {
@@ -617,8 +651,7 @@ namespace Habrador_Computational_Geometry
                     return null;
                 }
 
-                //The edges are clock-wise so the next edge must be going from the vertex
-                currentEdge = oppositeEdge.nextEdge;
+                currentEdge = oppositeEdge;
 
                 safety += 1;
 
@@ -629,7 +662,7 @@ namespace Habrador_Computational_Geometry
                     return null;
                 }
             }
-            while (currentEdge != this.edge);
+            while (currentEdge != this.edge.prevEdge);
 
             return allEdges;
         }

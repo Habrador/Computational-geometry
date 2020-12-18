@@ -16,8 +16,9 @@ namespace Habrador_Computational_Geometry
         {
             //We are going to remove the following (some triangles can be a combination of these):
             // - Caps. Triangle where one angle is close to 180 degrees. Are difficult to remove. If the vertex is connected to three triangles, we can maybe just remove the vertex and build one big triangle. This can be said to be a flat terahedron?
-            // - Needles. Triangle where the longest edge is much longer than the shortest one.  Same as saying that the smallest angle is close to 0 degrees? Can often be removed by collapsing the shortest edge
 
+
+            // - Needles. Triangle where the longest edge is much longer than the shortest one.  Same as saying that the smallest angle is close to 0 degrees? Can often be removed by collapsing the shortest edge
             RemoveNeedles(meshData, normalizer);
         }
 
@@ -35,44 +36,76 @@ namespace Habrador_Computational_Geometry
 
             int needleCounter = 0;
 
-            foreach (HalfEdgeFace3 triangle in triangles)
+            bool foundNeedle = false;
+
+            int safety = 0;
+
+            do
             {
-                /*
-                List<HalfEdge3> edges = triangle.GetEdges();
+                foundNeedle = false;
 
-                //Sort the edges from shortest to longest
-                List<HalfEdge3> edgesSorted = edges.OrderBy(e => e.Length()).ToList();
-
-                //The ratio between the shortest and longest side
-                float edgeLengthRatio = edgesSorted[0].Length() / edgesSorted[2].Length();
-                */
-
-                //Instead of using a million lists, we know we have just three edges we have to sort, so we can do better
-                HalfEdge3 e1 = triangle.edge;
-                HalfEdge3 e2 = triangle.edge.nextEdge;
-                HalfEdge3 e3 = triangle.edge.nextEdge.nextEdge;
-
-                //We want e1 to be the shortest and e3 to be the longest
-                if (e1.SqrLength() > e3.SqrLength()) (e1, e3) = (e3, e1);
-                
-                if (e1.SqrLength() > e2.SqrLength()) (e1, e2) = (e2, e1);
-                
-                //e1 is now the shortest edge, so we just need to check the second and third
-
-                if (e2.SqrLength() > e3.SqrLength()) (e2, e3) = (e3, e2);
-
-                float edgeLengthRatio = e1.Length() / e3.Length();
-
-                if (edgeLengthRatio < needleRatio)
+                foreach (HalfEdgeFace3 triangle in triangles)
                 {
-                    //Debug.Log("We found a needle triangle");
+                    /*
+                    List<HalfEdge3> edges = triangle.GetEdges();
 
-                    TestAlgorithmsHelpMethods.DebugDrawTriangle(triangle, Color.blue, Color.red, normalizer);
+                    //Sort the edges from shortest to longest
+                    List<HalfEdge3> edgesSorted = edges.OrderBy(e => e.Length()).ToList();
 
-                    needleCounter += 1;
+                    //The ratio between the shortest and longest side
+                    float edgeLengthRatio = edgesSorted[0].Length() / edgesSorted[2].Length();
+                    */
+
+                    //Instead of using a million lists, we know we have just three edges we have to sort, so we can do better
+                    HalfEdge3 e1 = triangle.edge;
+                    HalfEdge3 e2 = triangle.edge.nextEdge;
+                    HalfEdge3 e3 = triangle.edge.nextEdge.nextEdge;
+
+                    //We want e1 to be the shortest and e3 to be the longest
+                    if (e1.SqrLength() > e3.SqrLength()) (e1, e3) = (e3, e1);
+
+                    if (e1.SqrLength() > e2.SqrLength()) (e1, e2) = (e2, e1);
+
+                    //e1 is now the shortest edge, so we just need to check the second and third
+
+                    if (e2.SqrLength() > e3.SqrLength()) (e2, e3) = (e3, e2);
+
+
+                    //The ratio between the shortest and longest edge
+                    float edgeLengthRatio = e1.Length() / e3.Length();
+
+                    //This is a needle
+                    if (edgeLengthRatio < needleRatio)
+                    {
+                        //Debug.Log("We found a needle triangle");
+
+                        TestAlgorithmsHelpMethods.DebugDrawTriangle(triangle, Color.blue, Color.red, normalizer);
+
+                        needleCounter += 1;
+
+                        //Remove the needle by merging the shortest edge
+                        MyVector3 mergePosition = (e1.v.position + e1.prevEdge.v.position) * 0.5f;
+
+                        meshData.MergeEdge(e1, mergePosition);
+
+                        foundNeedle = true;
+
+                        //Now we have to restart because the triangulation has changed
+                        break;
+                    }
+                }
+
+
+                safety += 1;
+
+                if (safety > 100000)
+                {
+                    Debug.LogWarning("Stuck in infinite loop while removing needles");
+
+                    break;
                 }
             }
-
+            while (foundNeedle);
 
             Debug.Log($"Found {needleCounter} needles");
         }

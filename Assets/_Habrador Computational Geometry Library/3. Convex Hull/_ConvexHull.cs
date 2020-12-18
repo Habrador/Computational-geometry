@@ -51,7 +51,8 @@ namespace Habrador_Computational_Geometry
 
         //Iterative
         //Normalizer is only needed for debugging
-        public static HalfEdgeData3 Iterative_3D(HashSet<MyVector3> points, Normalizer3 normalizer = null)
+        //removeUnwantedTriangles means that we will try to improve the quality of the triangles in the hull
+        public static HalfEdgeData3 Iterative_3D(HashSet<MyVector3> points, bool removeUnwantedTriangles, Normalizer3 normalizer = null)
         {
             List<MyVector3> pointsList = new List<MyVector3>(points);
 
@@ -60,7 +61,7 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
-            HalfEdgeData3 convexHull = IterativeHullAlgorithm3D.GenerateConvexHull(points, normalizer);
+            HalfEdgeData3 convexHull = IterativeHullAlgorithm3D.GenerateConvexHull(points, removeUnwantedTriangles, normalizer);
 
             return convexHull;
         }
