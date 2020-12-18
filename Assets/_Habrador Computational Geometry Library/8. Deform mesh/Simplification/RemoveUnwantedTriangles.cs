@@ -141,9 +141,9 @@ namespace Habrador_Computational_Geometry
 
             foreach (HalfEdgeVertex3 vertex in vertices)
             {
-                HashSet<HalfEdge3> edgesGoingToVertex = vertex.GetEdgesPointingToVertex();
+                HashSet<HalfEdge3> edgesGoingToVertex = vertex.GetEdgesPointingToVertex(meshData);
 
-                if (edgesGoingToVertex != null && edgesGoingToVertex.Count == 3)
+                if (edgesGoingToVertex.Count == 3)
                 {
                     //Find the vertices of the triangle covering this vertex clock-wise
                     HalfEdgeVertex3 v1 = vertex.edge.v;

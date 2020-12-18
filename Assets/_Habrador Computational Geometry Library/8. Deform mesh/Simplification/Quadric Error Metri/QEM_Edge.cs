@@ -21,8 +21,10 @@ namespace Habrador_Computational_Geometry
             this.v1 = v1;
             this.v2 = v2;
 
-            //Compute the optimal contraction target v for each valid pair(v1, v2)
+            //Compute the optimal contraction target v for the pair (v1, v2)
+            //This is the position to which we move v1 and v2 after merging the edge
             //Assume for simplicity that the contraction target v = (v1 + v2) * 0.5f
+            //Add the other versions in the future!
 
             this.v = (v1 + v2) * 0.5f;
 
@@ -36,6 +38,7 @@ namespace Habrador_Computational_Geometry
             float z = v.z;
 
             //v^T * Q * v
+            //Verify that this is true (was found at bottom in research paper)
             float qemCalculations = 0f;
             qemCalculations += (1f * Q[0, 0] * x * x);
             qemCalculations += (2f * Q[0, 1] * x * y);

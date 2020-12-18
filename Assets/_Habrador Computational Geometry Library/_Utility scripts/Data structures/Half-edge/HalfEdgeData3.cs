@@ -626,7 +626,9 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Return all edges going to this vertex = all edges that references this vertex position, so we can change the position
+        //Return all edges going to this vertex = all edges that references this vertex position
+        //meshData is needed if we cant spring around this vertex because there might be a hole in the mesh
+        //If so we have to search through all edges in the entire mesh
         public HashSet<HalfEdge3> GetEdgesPointingToVertex(HalfEdgeData3 meshData = null)
         {
             HashSet<HalfEdge3> allEdgesGoingToVertex = new HashSet<HalfEdge3>();
@@ -673,13 +675,12 @@ namespace Habrador_Computational_Geometry
             //If there are holes in the triangulation around the vertex, we have to use the brute force approach
             if (allEdgesGoingToVertex.Count == 0 && meshData != null)
             {
-                allEdgesGoingToVertex = new HashSet<HalfEdge3>();
-
                 HashSet<HalfEdge3> edges = meshData.edges;
 
                 foreach (HalfEdge3 e in edges)
                 {
-                    if (e.v.Equals(position))
+                    //An edge points TO a vertex
+                    if (e.v.position.Equals(position))
                     {
                         allEdgesGoingToVertex.Add(e);
                     }

@@ -40,7 +40,7 @@ public class MeshSimplificationController : MonoBehaviour
 
         timer.Start();
 
-        MyMesh mySimplifiedMesh = MeshSimplification.SimplifyByMergingEdges(myMeshToSimplify);
+        MyMesh mySimplifiedMesh = MeshSimplificationQEM.SimplifyByMergingEdges(myMeshToSimplify);
 
         timer.Stop();
 

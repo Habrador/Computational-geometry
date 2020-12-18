@@ -5,8 +5,12 @@ using System.Linq;
 
 namespace Habrador_Computational_Geometry
 {
-    public static class MeshSimplification
+    public static class MeshSimplificationQEM
     {
+        //TODO:
+        //- Calculate the optimal contraction target v and not just the average between two vertices
+
+
         //Merge edges to simplify a mesh
         //Based on reports by Garland and Heckbert
         //Is called: "Iterative pair contraction with the Quadric Error Metric (QEM)"
@@ -57,7 +61,7 @@ namespace Habrador_Computational_Geometry
                 //Calculate the Q matrix for this vertex
 
                 //Find all triangles meeting at this vertex
-                HashSet<HalfEdge3> edgesPointingToVertex = v.GetEdgesPointingToVertex();
+                HashSet<HalfEdge3> edgesPointingToVertex = v.GetEdgesPointingToVertex(meshData);
 
                 Matrix4x4 Q = Matrix4x4.zero;
 
