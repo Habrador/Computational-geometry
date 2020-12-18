@@ -565,6 +565,10 @@ namespace Habrador_Computational_Geometry
         //The position of the vertex
         public MyVector3 position;
         //In 3d space we also need a normal, which should maybe be a class so it can be null
+        //Instead of storing normals, uvs, etc for each vertex, some people are using a data structure called "wedge"
+        //A wedge includes the same normal, uv, etc for the vertices that's sharing this data. 
+        //For example, some normals are the same to get a smooth edge and then they all have the same wedge
+        //So if the wedge is not the same for two vertices with the same position, we know we have to add both vertices because we have an hard edge
         public MyVector3 normal;
 
         //Each vertex references an half-edge that starts at this point
@@ -708,6 +712,31 @@ namespace Habrador_Computational_Geometry
         public HalfEdge3(HalfEdgeVertex3 v)
         {
             this.v = v;
+        }
+
+
+
+        //The length of this edge
+        public float Length()
+        {
+            //The edge points TO a vertex
+            MyVector3 p2 = v.position;
+            MyVector3 p1 = prevEdge.v.position;
+
+            float length = MyVector3.Distance(p1, p2);
+
+            return length;
+        }
+
+        public float SqrLength()
+        {
+            //The edge points TO a vertex
+            MyVector3 p2 = v.position;
+            MyVector3 p1 = prevEdge.v.position;
+
+            float length = MyVector3.SqrDistance(p1, p2);
+
+            return length;
         }
     }
 }
