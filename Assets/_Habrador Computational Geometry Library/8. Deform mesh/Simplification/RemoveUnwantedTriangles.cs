@@ -141,7 +141,7 @@ namespace Habrador_Computational_Geometry
 
             foreach (HalfEdgeVertex3 vertex in vertices)
             {
-                HashSet<HalfEdge3> edgesGoingToVertex = vertex.GetEdgesGoingToVertex();
+                HashSet<HalfEdge3> edgesGoingToVertex = vertex.GetEdgesPointingToVertex();
 
                 if (edgesGoingToVertex != null && edgesGoingToVertex.Count == 3)
                 {

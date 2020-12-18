@@ -488,8 +488,8 @@ namespace Habrador_Computational_Geometry
 
             //We have to get these before we remove triangles 
             //These might be null if the mesh has holes
-            HashSet<HalfEdge3> edgesGoingToVertex_v1 = v1.GetEdgesGoingToVertex();
-            HashSet<HalfEdge3> edgesGoingToVertex_v2 = v2.GetEdgesGoingToVertex();
+            HashSet<HalfEdge3> edgesGoingToVertex_v1 = v1.GetEdgesPointingToVertex();
+            HashSet<HalfEdge3> edgesGoingToVertex_v2 = v2.GetEdgesPointingToVertex();
 
 
             //Step 1. Delete the triangle belonging to the edge
@@ -627,10 +627,9 @@ namespace Habrador_Computational_Geometry
 
 
         //Return all edges going to this vertex = all edges that references this vertex position, so we can change the position
-        //Assumes there are no holes in the triangulation around the vertex, if so it will return null
-        public HashSet<HalfEdge3> GetEdgesGoingToVertex()
+        public HashSet<HalfEdge3> GetEdgesPointingToVertex(HalfEdgeData3 meshData = null)
         {
-            HashSet<HalfEdge3> allEdges = new HashSet<HalfEdge3>();
+            HashSet<HalfEdge3> allEdgesGoingToVertex = new HashSet<HalfEdge3>();
 
             //This is the edge that goes to this vertex
             HalfEdge3 currentEdge = this.edge.prevEdge;
@@ -639,7 +638,7 @@ namespace Habrador_Computational_Geometry
 
             do
             {
-                allEdges.Add(currentEdge);
+                allEdgesGoingToVertex.Add(currentEdge);
 
                 //This edge is going to the vertex but in another triangle
                 HalfEdge3 oppositeEdge = currentEdge.nextEdge.oppositeEdge;
@@ -648,7 +647,10 @@ namespace Habrador_Computational_Geometry
                 {
                     Debug.LogWarning("We cant rotate around this vertex because there are holes in the mesh");
 
-                    return null;
+                    //Better to clear than to null or we have to create a new hashset when filling it the brute force way 
+                    allEdgesGoingToVertex.Clear();
+
+                    break;
                 }
 
                 currentEdge = oppositeEdge;
@@ -659,12 +661,33 @@ namespace Habrador_Computational_Geometry
                 {
                     Debug.LogWarning("Stuck in infinite loop when getting all edges around a vertex");
 
-                    return null;
+                    allEdgesGoingToVertex.Clear();
+
+                    break;
                 }
             }
             while (currentEdge != this.edge.prevEdge);
 
-            return allEdges;
+
+
+            //If there are holes in the triangulation around the vertex, we have to use the brute force approach
+            if (allEdgesGoingToVertex.Count == 0 && meshData != null)
+            {
+                allEdgesGoingToVertex = new HashSet<HalfEdge3>();
+
+                HashSet<HalfEdge3> edges = meshData.edges;
+
+                foreach (HalfEdge3 e in edges)
+                {
+                    if (e.v.Equals(position))
+                    {
+                        allEdgesGoingToVertex.Add(e);
+                    }
+                }
+            }
+
+
+            return allEdgesGoingToVertex;
         }
     }
 

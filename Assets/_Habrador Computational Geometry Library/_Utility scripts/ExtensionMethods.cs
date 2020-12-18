@@ -104,5 +104,26 @@ namespace Habrador_Computational_Geometry
 
             return firstBestT;
         }
+
+
+
+        //
+        // Matrix4x4
+        //
+
+        //Add b to a
+        //Operator overloads dont work unless they are in the Matrix4x4 class 
+        public static Matrix4x4 Add(this Matrix4x4 a, Matrix4x4 b)
+        {
+            //Can access element in matric by [row, column]
+
+            //Matrix addition is just adding element by element
+            return new Matrix4x4(
+                new Vector4(a[0, 0] + b[0, 0], a[1, 0] + b[1, 0], a[2, 0] + b[2, 0], a[3, 0] + b[3, 0]),
+                new Vector4(a[0, 1] + b[0, 1], a[1, 1] + b[1, 1], a[2, 1] + b[2, 1], a[3, 1] + b[3, 1]),
+                new Vector4(a[0, 2] + b[0, 2], a[1, 2] + b[1, 2], a[2, 2] + b[2, 2], a[3, 2] + b[3, 2]),
+                new Vector4(a[0, 3] + b[0, 3], a[1, 3] + b[1, 3], a[2, 3] + b[2, 3], a[3, 3] + b[3, 3])
+            );
+        }
     }
 }

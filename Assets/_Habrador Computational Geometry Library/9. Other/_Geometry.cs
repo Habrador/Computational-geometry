@@ -501,5 +501,17 @@ namespace Habrador_Computational_Geometry
                 return false;
             }
         }
+
+
+
+        //
+        // Calculate the normal of a clock-wise oriented triangle
+        //
+        public static MyVector3 CalculateNormal(MyVector3 p1, MyVector3 p2, MyVector3 p3)
+        {
+            MyVector3 normal = MyVector3.Normalize(MyVector3.Cross(p3 - p2, p1 - p2));
+
+            return normal;
+        }
     }
 }
