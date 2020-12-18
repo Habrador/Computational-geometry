@@ -10,6 +10,13 @@ namespace Habrador_Computational_Geometry
     //I haven't found a general algorithm on how to do it - so compare it with the mesh simplification algorithms
     public static class RemoveUnwantedTriangles
     {
+        //To find a needle you can:
+        // - One angle in the triangle is close to 0
+        // - The ratio between the shortest and longest side is below 0.01
+        private const float NEEDLE_RATIO = 0.01f;
+
+
+
         //meshData should be triangles only
         //normalizer is just for debugging
         public static void Remove(HalfEdgeData3 meshData, Normalizer3 normalizer = null)
@@ -17,9 +24,10 @@ namespace Habrador_Computational_Geometry
             //We are going to remove the following (some triangles can be a combination of these):
             // - Caps. Triangle where one angle is close to 180 degrees. Are difficult to remove. If the vertex is connected to three triangles, we can maybe just remove the vertex and build one big triangle. This can be said to be a flat terahedron?
 
-
             // - Needles. Triangle where the longest edge is much longer than the shortest one.  Same as saying that the smallest angle is close to 0 degrees? Can often be removed by collapsing the shortest edge
             RemoveNeedles(meshData, normalizer);
+
+            //TODO: The above should be in the same loop because when we have removed a needle we might get a new cap, etc
         }
 
 
@@ -27,11 +35,6 @@ namespace Habrador_Computational_Geometry
         //Needles. Triangle where the longest edge is much longer than the shortest one.
         private static void RemoveNeedles(HalfEdgeData3 meshData, Normalizer3 normalizer = null)
         {
-            //To find a needle you can:
-            // - One angle in the triangle is close to 0
-            // - The ratio between the shortest and longest side is below 0.01
-            float needleRatio = 0.1f;
-
             HashSet<HalfEdgeFace3> triangles = meshData.faces;
 
             int needleCounter = 0;
@@ -75,7 +78,7 @@ namespace Habrador_Computational_Geometry
                     float edgeLengthRatio = e1.Length() / e3.Length();
 
                     //This is a needle
-                    if (edgeLengthRatio < needleRatio)
+                    if (edgeLengthRatio < NEEDLE_RATIO)
                     {
                         //Debug.Log("We found a needle triangle");
 
