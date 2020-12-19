@@ -477,9 +477,9 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Merge and edge if we know we are dealing only with triangles
+        // Contract an edge if we know we are dealing only with triangles
         //
-        public void MergeEdge(HalfEdge3 e, MyVector3 mergePos)
+        public void ContractEdge(HalfEdge3 e, MyVector3 mergePos)
         {
             //Step 0. Get all edges pointing to the vertices we will move
             //And edge is going TO a vertex

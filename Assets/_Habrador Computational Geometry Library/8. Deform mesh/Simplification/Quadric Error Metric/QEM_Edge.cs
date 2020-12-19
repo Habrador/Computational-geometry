@@ -5,10 +5,10 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Help class to sort edges
-    public struct QEM_Edge
+    public class QEM_Edge
     {
-        public MyVector3 v1;
-        public MyVector3 v2;
+        public HalfEdge3 edge;
+        public HalfEdge3 edgeOpposite;
 
         //Optimal contraction target
         public MyVector3 v;
@@ -16,17 +16,19 @@ namespace Habrador_Computational_Geometry
         //The Quadric Error Metric at this target
         public float qem;
         
-        public QEM_Edge(MyVector3 v1, MyVector3 v2, Matrix4x4 Q1, Matrix4x4 Q2)
+        public QEM_Edge(HalfEdge3 edge, Matrix4x4 Q1, Matrix4x4 Q2)
         {
-            this.v1 = v1;
-            this.v2 = v2;
+            this.edge = edge;
+            this.edgeOpposite = edge.oppositeEdge;
 
             //Compute the optimal contraction target v for the pair (v1, v2)
             //This is the position to which we move v1 and v2 after merging the edge
             //Assume for simplicity that the contraction target v = (v1 + v2) * 0.5f
             //Add the other versions in the future!
+            MyVector3 p1 = edge.prevEdge.v.position;
+            MyVector3 p2 = edge.v.position;
 
-            this.v = (v1 + v2) * 0.5f;
+            this.v = (p1 + p2) * 0.5f;
 
             //Compute the Quadric Error Metric at this point v
             //qem = v^T * (Q1 + Q2) * v

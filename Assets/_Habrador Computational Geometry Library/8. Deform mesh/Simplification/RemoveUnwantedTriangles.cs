@@ -118,7 +118,7 @@ namespace Habrador_Computational_Geometry
                     //Remove the needle by merging the shortest edge
                     MyVector3 mergePosition = (e1.v.position + e1.prevEdge.v.position) * 0.5f;
 
-                    meshData.MergeEdge(e1, mergePosition);
+                    meshData.ContractEdge(e1, mergePosition);
 
                     foundNeedle = true;
 

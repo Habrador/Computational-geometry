@@ -106,7 +106,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-            //Step 2. Select all valid pairs (unique edges?)
+            //Step 2. Select all valid pairs
             List<HalfEdge3> validPairs = new List<HalfEdge3>(meshData.edges);
 
 
@@ -114,28 +114,82 @@ namespace Habrador_Computational_Geometry
             //Assume for simplicity that the contraction target v = (v1 + v2) * 0.5f
             //The error for v1, v2 is given by v^T * (Q1 + Q2) * v 
             //where v = [v.x, v.y, v.z, 1]
-            List<QEM_Edge> QEM_edges = new List<QEM_Edge>();
+            HashSet<QEM_Edge> QEM_edges = new HashSet<QEM_Edge>();
 
-            foreach (HalfEdge3 e in validPairs)
+            //HashSet to keep track of unique vertices
+            //In the half-edge data structure may have an edge going in the opposite direction with the same 
+            //error, so it's a waste of time to sort twice as many edges as needed
+            HashSet<Edge3> uniqueEdges = new HashSet<Edge3>();
+
+            foreach (HalfEdge3 edge in validPairs)
             {            
-                MyVector3 p1 = e.prevEdge.v.position;
-                MyVector3 p2 = e.v.position;
+                MyVector3 p1 = edge.prevEdge.v.position;
+                MyVector3 p2 = edge.v.position;
+
+                //Does this edge already exist but in the opposite direction?
+                if (!uniqueEdges.Contains(new Edge3(p2, p1)))
+                {
+                    //It can't exist in this direction because only one edge can go in this direction
+                    uniqueEdges.Add(new Edge3(p1, p2));
+                }
 
                 Matrix4x4 Q1 = qMatrices[p1];
                 Matrix4x4 Q2 = qMatrices[p2];
 
-                QEM_Edge qemEdge = new QEM_Edge(p1, p2, Q1, Q2);
+                QEM_Edge qemEdge = new QEM_Edge(edge, Q1, Q2);
 
                 QEM_edges.Add(qemEdge);
             }
 
 
             //Step 4. Sort all pairs, with the minimum cost pair at the top
-            QEM_edges.OrderBy(x => x.qem);
+            //Find the QEM edge with the smallest error
+            QEM_Edge smallestErrorEdge = null;
+
+            float smallestError = Mathf.Infinity;
+
+            foreach (QEM_Edge QEM_edge in QEM_edges)
+            {
+                if (QEM_edge.qem < smallestError)
+                {
+                    smallestError = QEM_edge.qem;
+
+                    smallestErrorEdge = QEM_edge;
+                }
+            }
+
+            QEM_edges.Remove(smallestErrorEdge);
 
 
-            //Step 5. Iteratively remove the pair (v1,v2) of the least cost, contract the pair, and update the costs of all valid pairs
+            //Step 5. Iteratively remove the pair (v1,v2) of the least cost, contract the pair, and update the costs of all valid pairs           
 
+            //Get the half-edge corresponding 
+            HalfEdge3 edgeToContract = smallestErrorEdge.edge;
+
+            if (edgeToContract == null)
+            {
+                edgeToContract = smallestErrorEdge.edgeOpposite;
+            }
+
+            //We also need to remove the edge from the dictionary???
+            //uniqueEdges.Remove(edgeToContract.);
+
+            //Need to save this so we can remove all old edges that pointed to these vertices
+            Edge3 removedEdgeEndpoints = new Edge3(edgeToContract.prevEdge.v.position, edgeToContract.v.position);
+
+            //Contract edge
+            meshData.ContractEdge(edgeToContract, smallestErrorEdge.v);
+
+
+            //Update all QEM_edges that have changed
+            
+            //The easiest way is to maybe remove all QEM_edges that have changed and add new ones???
+            
+            //We need to remove all edges that were pointing to/from the two vertices we removed
+
+
+
+            //Then as before we get all edges that points to the new merged vertex
 
 
             MyMesh simplifiedMesh = null;
