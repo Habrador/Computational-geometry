@@ -41,20 +41,22 @@ namespace Habrador_Computational_Geometry
             
             //timer.Stop();
 
-            //Delaunay take up roughly half of the time
+            //Delaunay takes 0.003 seconds for the house so is not the bottle neck
             //Debug.Log($"Delaunay triangulation took {timer.ElapsedMilliseconds / 1000f} seconds");
 
 
             //Modify the triangulation by adding the constraints to the delaunay triangulation
-            triangleData = AddConstraints(triangleData, hull, shouldRemoveTriangles);
+            triangleData = AddConstraints(triangleData, hull, shouldRemoveTriangles, timer);
 
             foreach (List<MyVector2> hole in holes)
             {
-                triangleData = AddConstraints(triangleData, hole, shouldRemoveTriangles);
+                triangleData = AddConstraints(triangleData, hole, shouldRemoveTriangles, timer);
             }
-            
+
 
             //Debug.Log(triangleData.faces.Count);
+
+            //Debug.Log($"Whatever time we measured it took {timer.ElapsedMilliseconds / 1000f} seconds");
 
             return triangleData;
         }
@@ -65,21 +67,23 @@ namespace Habrador_Computational_Geometry
         // Add the constraints to the delaunay triangulation
         //
 
-        private static HalfEdgeData2 AddConstraints(HalfEdgeData2 triangleData, List<MyVector2> constraints, bool shouldRemoveTriangles)
+        //timer is for debugging
+        private static HalfEdgeData2 AddConstraints(HalfEdgeData2 triangleData, List<MyVector2> constraints, bool shouldRemoveTriangles, System.Diagnostics.Stopwatch timer = null)
         {
             //Validate the data
             if (constraints == null)
             {
                 return triangleData;
             }
-        
-        
-            //First create a list with all unique edges
-            //In the half-edge data structure, we have for each edge an half edge going in each direction,
-            //making it unneccessary to loop through all edges for intersection tests
-            //The report suggest we should do a triangle walk, but it will not work if the mesh has holes
-            List<HalfEdge2> uniqueEdges = triangleData.GetUniqueEdges();
 
+
+            //Get a list with all edges
+            //This is faster than first searching for unique edges
+            //The report suggest we should do a triangle walk, but it will not work if the mesh has holes
+            //The mesh has holes because we remove triangles while adding constraints one-by-one
+            //so maybe better to remove triangles after we added all constraints...
+            HashSet<HalfEdge2> edges = triangleData.edges;
+         
 
             //The steps numbering is from the report
             //Step 1. Loop over each constrained edge. For each of these edges, do steps 2-4 
@@ -91,28 +95,41 @@ namespace Habrador_Computational_Geometry
 
                 //Check if this constraint already exists in the triangulation, 
                 //if so we are happy and dont need to worry about this edge
-                if (IsEdgeInListOfEdges(uniqueEdges, c_p1, c_p2))
+                //timer.Start();
+                if (IsEdgeInListOfEdges(edges, c_p1, c_p2))
                 {
                     continue;
                 }
+                //timer.Stop();
 
                 //Step 2. Find all edges in the current triangulation that intersects with this constraint
-                Queue<HalfEdge2> intersectingEdges = FindIntersectingEdges_BruteForce(uniqueEdges, c_p1, c_p2);
-                
+                //Is returning unique edges only, so not one edge going in the opposite direction
+                //timer.Start();
+                Queue<HalfEdge2> intersectingEdges = FindIntersectingEdges_BruteForce(edges, c_p1, c_p2);
+                //timer.Stop();
+
                 //Debug.Log("Intersecting edges: " + intersectingEdges.Count);
-                
+
                 //Step 3. Remove intersecting edges by flipping triangles
+                //This takes 0 seconds so is not bottleneck
+                //timer.Start();
                 List<HalfEdge2> newEdges = RemoveIntersectingEdges(c_p1, c_p2, intersectingEdges);
+                //timer.Stop();
 
                 //Step 4. Try to restore delaunay triangulation 
                 //Because we have constraints we will never get a delaunay triangulation
+                //This takes 0 seconds so is not bottleneck
+                //timer.Start();
                 RestoreDelaunayTriangulation(c_p1, c_p2, newEdges);
+                //timer.Stop();
             }
 
             //Step 5. Remove superfluous triangles, such as the triangles "inside" the constraints  
             if (shouldRemoveTriangles)
             {
+                //timer.Start();
                 RemoveSuperfluousTriangles(triangleData, constraints);
+                //timer.Stop();
             }
 
             return triangleData;
@@ -255,7 +272,7 @@ namespace Habrador_Computational_Geometry
                 //We have searched through all edges and havent found an edge to flip, so we cant improve anymore
                 if (!hasFlippedEdge)
                 {
-                    Debug.Log("Found a constrained delaunay triangulation in " + flippedEdges + " flips");
+                    //Debug.Log("Found a constrained delaunay triangulation in " + flippedEdges + " flips");
 
                     break;
                 }
@@ -475,27 +492,37 @@ namespace Habrador_Computational_Geometry
 
         //Method 1. Brute force by testing all unique edges
         //Find all edges of the current triangulation that intersects with the constraint edge between p1 and p2
-        private static Queue<HalfEdge2> FindIntersectingEdges_BruteForce(List<HalfEdge2> uniqueEdges, MyVector2 c_p1, MyVector2 c_p2)
+        private static Queue<HalfEdge2> FindIntersectingEdges_BruteForce(HashSet<HalfEdge2> edges, MyVector2 c_p1, MyVector2 c_p2)
         {
             //Should be in a queue because we will later plop the first in the queue and add edges in the back of the queue 
             Queue<HalfEdge2> intersectingEdges = new Queue<HalfEdge2>();
 
-            //Loop through all edges and see if they are intersecting with the constrained edge
-            for (int i = 0; i < uniqueEdges.Count; i++)
-            {
-                //The edges the triangle consists of
-                HalfEdge2 e = uniqueEdges[i];
+            //We also need to make sure that we are only adding unique edges to the queue
+            //In the half-edge data structure we have an edge going in the opposite direction
+            //and we only need to add an edge going in one direction
+            HashSet<Edge2> edgesInQueue = new HashSet<Edge2>();
 
+            //Loop through all edges and see if they are intersecting with the constrained edge
+            foreach (HalfEdge2 e in edges)
+            {
                 //The position the edge is going to
-                MyVector2 e_p1 = e.v.position;
+                MyVector2 e_p2 = e.v.position;
                 //The position the edge is coming from
-                MyVector2 e_p2 = e.prevEdge.v.position;
+                MyVector2 e_p1 = e.prevEdge.v.position;
+
+                //Has this edge been added, but in the opposite direction?
+                if (edgesInQueue.Contains(new Edge2(e_p2, e_p1)))
+                {
+                    continue;
+                }
 
                 //Is this edge intersecting with the constraint?
                 if (IsEdgeCrossingEdge(e_p1, e_p2, c_p1, c_p2))
                 {
                     //If so add it to the queue of edges
                     intersectingEdges.Enqueue(e);
+
+                    edgesInQueue.Add(new Edge2(e_p1, e_p2));
                 }
             }
 
@@ -562,16 +589,19 @@ namespace Habrador_Computational_Geometry
 
 
         //Is an edge (between p1 and p2) in a list with edges
-        private static bool IsEdgeInListOfEdges(List<HalfEdge2> edges, MyVector2 p1, MyVector2 p2)
+        private static bool IsEdgeInListOfEdges(HashSet<HalfEdge2> edges, MyVector2 p1, MyVector2 p2)
         {
-            for (int i = 0; i < edges.Count; i++)
+            foreach (HalfEdge2 e in edges)
             {
                 //The vertices positions of the current triangle
-                MyVector2 e_p1 = edges[i].v.position;
-                MyVector2 e_p2 = edges[i].prevEdge.v.position;
+                MyVector2 e_p2 = e.v.position;
+                MyVector2 e_p1 = e.prevEdge.v.position;
 
                 //Check if edge has the same coordinates as the constrained edge
                 //We have no idea about direction so we have to check both directions
+                //This is fast because we only need to test one coordinate and if that 
+                //coordinate doesn't match the edges can't be the same
+                //We can't use a dictionary because we flip edges constantly so it would have to change?
                 if (AreTwoEdgesTheSame(p1, p2, e_p1, e_p2))
                 {
                     return true;

@@ -31,6 +31,12 @@ namespace Habrador_Computational_Geometry
             return new MyVector2(v.x, v.z);
         }
 
+        //Vector2 - MyVector2
+        public static MyVector2 ToMyVector2(this Vector2 v)
+        {
+            return new MyVector2(v.x, v.y);
+        }
+
         //Vector3 -> MyVector3
         public static MyVector3 ToMyVector3(this Vector3 v)
         {

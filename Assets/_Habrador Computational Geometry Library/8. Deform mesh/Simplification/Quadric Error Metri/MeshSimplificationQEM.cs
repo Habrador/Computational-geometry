@@ -95,6 +95,8 @@ namespace Habrador_Computational_Geometry
                         new Vector4(a*d, b*d, c*d, d*d)
                         );
 
+                    //You can multiply this Kp with the area of the triangle to get a weighted-Kp which may improve the result
+
                     //Q is the sum of all Kp around the vertex
                     Q = Q.Add(Kp);
                 }

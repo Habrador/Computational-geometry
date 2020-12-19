@@ -74,9 +74,10 @@ namespace Habrador_Computational_Geometry
         //
 
         //Currently we have two half-edges for each edge, making it time consuming to go through them 
-        public List<HalfEdge3> GetUniqueEdges()
+        //But it's also time consuming to create this list so make sure you measure time which is better
+        public HashSet<HalfEdge3> GetUniqueEdges()
         {
-            List<HalfEdge3> uniqueEdges = new List<HalfEdge3>();
+            HashSet<HalfEdge3> uniqueEdges = new HashSet<HalfEdge3>();
 
             foreach (HalfEdge3 e in edges)
             {
@@ -85,12 +86,11 @@ namespace Habrador_Computational_Geometry
 
                 bool isInList = false;
 
-                for (int j = 0; j < uniqueEdges.Count; j++)
+                //TODO: Use a dictionary to make this searcg faster
+                foreach (HalfEdge3 uniqueEdge in uniqueEdges)
                 {
-                    HalfEdge3 testEdge = uniqueEdges[j];
-
-                    MyVector3 p1_test = testEdge.v.position;
-                    MyVector3 p2_test = testEdge.prevEdge.v.position;
+                    MyVector3 p1_test = uniqueEdge.v.position;
+                    MyVector3 p2_test = uniqueEdge.prevEdge.v.position;
 
                     if ((p1.Equals(p1_test) && p2.Equals(p2_test)) || (p2.Equals(p1_test) && p1.Equals(p2_test)))
                     {

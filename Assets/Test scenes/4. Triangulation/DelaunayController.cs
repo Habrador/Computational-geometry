@@ -33,9 +33,9 @@ public class DelaunayController : MonoBehaviour
     {
         
         //Get the random points
-        //HashSet<Vector3> randomPoints = TestAlgorithmsHelpMethods.GenerateRandomPoints(seed, halfMapSize, numberOfPoints);
+        //HashSet<Vector2> randomPoints = TestAlgorithmsHelpMethods.GenerateRandomPoints2D(seed, halfMapSize, numberOfPoints);
 
-        //From 3d to 2d
+        //To MyVector2
         //HashSet<MyVector2> randomPoints_2d = new HashSet<MyVector2>(randomPoints.Select(x => x.ToMyVector2()));
 
         /*
