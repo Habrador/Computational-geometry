@@ -498,6 +498,10 @@ namespace Habrador_Computational_Geometry
                     edgeTo_v1.v.position = mergePos;
                 }
             }
+            else
+            {
+                Debug.LogWarning("There are no edges going to v1");
+            }
             
             if (edgesGoingToVertex_v2 != null)
             {
@@ -505,6 +509,10 @@ namespace Habrador_Computational_Geometry
                 {
                     edgeTo_v2.v.position = mergePos;
                 }
+            }
+            else
+            {
+                Debug.LogWarning("There are no edges going to v2");
             }
         }
 
@@ -533,7 +541,7 @@ namespace Habrador_Computational_Geometry
             }
             if (e_CA.oppositeEdge != null)
             {
-                e_CA.oppositeEdge.oppositeEdge = e_CA.oppositeEdge;
+                e_CA.oppositeEdge.oppositeEdge = e_BC.oppositeEdge;
             }
         }
     }
