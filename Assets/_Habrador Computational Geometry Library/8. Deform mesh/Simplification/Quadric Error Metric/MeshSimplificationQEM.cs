@@ -94,7 +94,7 @@ namespace Habrador_Computational_Geometry
 
 
             //For each edge we want to remove
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 100; i++)
             {
                 //Step 4. Sort all pairs, with the minimum cost pair at the top
                 //Find the QEM edge with the smallest error
@@ -177,7 +177,7 @@ namespace Habrador_Computational_Geometry
 
                 HashSet<HalfEdge3> edgesPointingToVertex = contractedVertex.GetEdgesPointingToVertex(meshData);
 
-                Debug.Log(edgesPointingToVertex.Count);
+                //Debug.Log(edgesPointingToVertex.Count);
 
                 Matrix4x4 QNew = CalculateQMatrix(edgesPointingToVertex);
 

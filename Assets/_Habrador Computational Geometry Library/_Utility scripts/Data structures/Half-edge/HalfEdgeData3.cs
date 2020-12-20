@@ -609,7 +609,7 @@ namespace Habrador_Computational_Geometry
 
                 safety += 1;
 
-                if (safety > 10000)
+                if (safety > 1000)
                 {
                     Debug.LogWarning("Stuck in infinite loop when getting all edges around a vertex");
 
