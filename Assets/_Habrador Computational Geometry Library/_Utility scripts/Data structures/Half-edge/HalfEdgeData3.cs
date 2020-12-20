@@ -438,6 +438,7 @@ namespace Habrador_Computational_Geometry
         public void DeleteFace(HalfEdgeFace3 f)
         {
             //Get all edges belonging to this face
+            //TODO: This creates garbage because we create a list for each face, so maybe better to move the loop to here...
             List<HalfEdge3> edgesToRemove = f.GetEdges();
 
             if (edgesToRemove == null)
@@ -470,34 +471,66 @@ namespace Habrador_Computational_Geometry
         // Contract an edge if we know we are dealing only with triangles
         //
 
-        public void ContractTriangleEdge(HalfEdge3 e, MyVector3 mergePos)
+        public void ContractTriangleHalfEdge(HalfEdge3 e, MyVector3 mergePos)
         {
-            //Step 0. Get all edges pointing to the vertices we will move
-            //And edge is going TO a vertex
+            //Step 1. Get all edges pointing to the vertices we will merge
+            //And edge is going TO a vertex, so this edge goes from v1 to v2
             HalfEdgeVertex3 v1 = e.prevEdge.v;
             HalfEdgeVertex3 v2 = e.v;
 
-            //We have to get these before we remove triangles 
+            //It's faster to get these before we remove triangles because then we will get a messed up half-edge system? 
             HashSet<HalfEdge3> edgesGoingToVertex_v1 = v1.GetEdgesPointingToVertex();
             HashSet<HalfEdge3> edgesGoingToVertex_v2 = v2.GetEdgesPointingToVertex();
 
 
-            //Step 1. Delete the triangle belonging to the edge
+            //Step 2. Remove the triangles, which will create a hole, 
+            //and the edges on the opposite sides of the hole are connected
+            RemoveTriangleAndConnectOppositeSides(e);
 
-            //The edges on this side of the edge, belonging to the triangle A-B-C
-            //The edge starts at A
-            HalfEdge3 e_AB = e; 
+            //We might also have an opposite triangle, so we may have to delete a total of two triangles
+            if (e.oppositeEdge != null)
+            {
+                RemoveTriangleAndConnectOppositeSides(e.oppositeEdge);
+            }
+
+
+            //Step 3. Move the vertices to the merge position
+            //Some of these edges belong to the triangles we removed, but it doesnt matter because this operation is fast
+            if (edgesGoingToVertex_v1 != null)
+            {
+                foreach (HalfEdge3 edgeTo_v1 in edgesGoingToVertex_v1)
+                {
+                    edgeTo_v1.v.position = mergePos;
+                }
+            }
+            
+            if (edgesGoingToVertex_v2 != null)
+            {
+                foreach (HalfEdge3 edgeTo_v2 in edgesGoingToVertex_v2)
+                {
+                    edgeTo_v2.v.position = mergePos;
+                }
+            }
+        }
+
+        //Help method to above
+        private void RemoveTriangleAndConnectOppositeSides(HalfEdge3 e)
+        {
+            //AB is the edge we want to contract
+            HalfEdge3 e_AB = e;
             HalfEdge3 e_BC = e.nextEdge;
             HalfEdge3 e_CA = e.nextEdge.nextEdge;
 
-            //The triangle
+            //The triangle belonging to this edge
             HalfEdgeFace3 f_ABC = e.face;
 
             //Delete the triangle (which will also delete the vertices and edges belonging to that face)
-            //We have to do it before we re-connect the edges
+            //We have to do it before we re-connect the edges because it sets all opposite edges to null, making a hole
             DeleteFace(f_ABC);
 
             //Connect the opposite edges of the edges which are not a part of the edge we want to delete
+            //This will connect the opposite sides of the hole
+            //We move vertices in another method
             if (e_BC.oppositeEdge != null)
             {
                 //The edge on the opposite side of BC should have its opposite edge connected with the opposite edge of CA
@@ -506,52 +539,6 @@ namespace Habrador_Computational_Geometry
             if (e_CA.oppositeEdge != null)
             {
                 e_CA.oppositeEdge.oppositeEdge = e_CA.oppositeEdge;
-            }
-            
-
-            //Step 2. Merge the triangle that might belong to the opposite edge
-
-            //We might also have an opposite triangle, so we have to delete a total of two triangles
-            if (e.oppositeEdge != null)
-            {
-                f_ABC = e.oppositeEdge.face;
-
-                e_AB = e.oppositeEdge;
-                e_BC = e.oppositeEdge.nextEdge;
-                e_CA = e.oppositeEdge.nextEdge.nextEdge;
-
-                //Delete the triangle
-                DeleteFace(f_ABC);
-
-                //Connect the opposite edges of the edges which are not a part of the edge we want to delete
-                if (e_BC.oppositeEdge != null)
-                {
-                    //The edge on the opposite side of BC should have its opposite edge connected with the opposite edge of CA
-                    e_BC.oppositeEdge.oppositeEdge = e_CA.oppositeEdge;
-                }
-                if (e_CA.oppositeEdge != null)
-                {
-                    e_CA.oppositeEdge.oppositeEdge = e_CA.oppositeEdge;
-                }
-            }
-
-
-            //Step 3. Move the vertices to the merge position
-            //Some of these edges belong to the triangle we removed, but it doesnt matter
-            if (edgesGoingToVertex_v1 != null)
-            {
-                foreach (HalfEdge3 eTo in edgesGoingToVertex_v1)
-                {
-                    eTo.v.position = mergePos;
-                }
-            }
-            
-            if (edgesGoingToVertex_v2 != null)
-            {
-                foreach (HalfEdge3 eTo in edgesGoingToVertex_v2)
-                {
-                    eTo.v.position = mergePos;
-                }
             }
         }
     }

@@ -173,7 +173,7 @@ namespace Habrador_Computational_Geometry
             Edge3 removedEdgeEndpoints = new Edge3(edgeToContract.prevEdge.v.position, edgeToContract.v.position);
 
             //Contract edge
-            meshData.ContractTriangleEdge(edgeToContract, smallestErrorEdge.v);
+            meshData.ContractTriangleHalfEdge(edgeToContract, smallestErrorEdge.v);
 
 
             //Update all QEM_edges that have changed
