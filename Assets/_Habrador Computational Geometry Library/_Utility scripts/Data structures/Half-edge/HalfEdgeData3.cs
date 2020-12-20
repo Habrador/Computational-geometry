@@ -437,16 +437,16 @@ namespace Habrador_Computational_Geometry
         public void DeleteFace(HalfEdgeFace3 f)
         {
             //Get all edges belonging to this face
-            List<HalfEdge3> edges = f.GetEdges();
+            List<HalfEdge3> edgesToRemove = f.GetEdges();
 
-            if (edges == null)
+            if (edgesToRemove == null)
             {
                 Debug.LogWarning("This face can't be deleted because the edges are not fully connected");
 
                 return;
             }
 
-            foreach (HalfEdge3 edgeToRemove in edges)
+            foreach (HalfEdge3 edgeToRemove in edgesToRemove)
             {
                 //The opposite edge to this edge is referencing this edges, so remove that connection
                 if (edgeToRemove.oppositeEdge != null)
@@ -455,12 +455,12 @@ namespace Habrador_Computational_Geometry
                 }
 
                 //Remove the edge and the vertex the edge points to from the list of all vertices and edges
-                edges.Remove(edgeToRemove);
-                verts.Remove(edgeToRemove.v);
+                this.edges.Remove(edgeToRemove);
+                this.verts.Remove(edgeToRemove.v);
             }
 
             //Remove the face from the list of all faces
-            faces.Remove(f);
+            this.faces.Remove(f);
         }
 
 
