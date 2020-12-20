@@ -57,15 +57,17 @@ namespace Habrador_Computational_Geometry
 
 
         //Compute the Quadric Error Metric at this point v
-        private float CalculateQEM(MyVector3 pos, Matrix4x4 Q1, Matrix4x4 Q2)
+        //The error for v1, v2 is given by v^T * (Q1 + Q2) * v 
+        //where v = [v.x, v.y, v.z, 1] is the optimal contraction target position
+        private float CalculateQEM(MyVector3 v, Matrix4x4 Q1, Matrix4x4 Q2)
         {
             //qem = v^T * (Q1 + Q2) * v
 
             Matrix4x4 Q = Q1.Add(Q2);
 
-            float x = pos.x;
-            float y = pos.y;
-            float z = pos.z;
+            float x = v.x;
+            float y = v.y;
+            float z = v.z;
 
             //v^T * Q * v
             //Verify that this is true (was found at bottom in research paper)

@@ -47,16 +47,23 @@ public class MeshSimplificationController : MonoBehaviour
         Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} to simplify the mesh");
 
 
+
         //
         // Change data structure and un-normalize
         //
 
         //Un-Normalize
-
+        mySimplifiedMesh.vertices = normalizer.UnNormalize(mySimplifiedMesh.vertices);
 
         //Convert to global space
+        Transform trans = meshFilterToSimplify.transform;
 
+        mySimplifiedMesh.vertices = mySimplifiedMesh.vertices.Select(x => trans.TransformPoint(x.ToVector3()).ToMyVector3()).ToList();
+
+        //Convert to mesh
+        Mesh unitySimplifiedMesh = mySimplifiedMesh.ConvertToUnityMesh(generateNormals: true, meshName: "simplified mesh");
 
         //Attach to new game object
+        meshFilterToShowSimplifiedMesh.mesh = unitySimplifiedMesh;
     }
 }

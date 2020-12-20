@@ -224,14 +224,18 @@ namespace Habrador_Computational_Geometry
 
             foreach (HalfEdgeData3 meshData in newMeshesO)
             {
-                Mesh unityMesh = meshData.ConvertToUnityMesh("Outside mesh", shareVertices: true, generateNormals: false);
+                MyMesh myMesh = meshData.ConvertToMyMesh("Outside mesh", shareVertices: true);
+
+                Mesh unityMesh = myMesh.ConvertToUnityMesh(generateNormals: false);
 
                 cuttedUnityMeshes.Add(unityMesh);
             }
 
             foreach (HalfEdgeData3 meshData in newMeshesI)
             {
-                Mesh unityMesh = meshData.ConvertToUnityMesh("Inside mesh", shareVertices: true, generateNormals: false);
+                MyMesh myMesh = meshData.ConvertToMyMesh("Inside mesh", shareVertices: true);
+
+                Mesh unityMesh = myMesh.ConvertToUnityMesh(generateNormals: false);
 
                 cuttedUnityMeshes.Add(unityMesh);
             }

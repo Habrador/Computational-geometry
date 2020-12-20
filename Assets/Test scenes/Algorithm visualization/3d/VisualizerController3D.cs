@@ -97,7 +97,9 @@ public class VisualizerController3D : MonoBehaviour
     public void DisplayMesh(HashSet<HalfEdgeFace3> meshDataUnNormalized, MeshFilter mf)
     {
         //Generate a mesh
-        Mesh mesh = HalfEdgeData3.ConvertToUnityMesh("Main visualization mesh", meshDataUnNormalized);
+        MyMesh myMesh = HalfEdgeData3.ConvertToMyMesh("Main visualization mesh", meshDataUnNormalized);
+
+        Mesh mesh = myMesh.ConvertToUnityMesh(generateNormals: false);
 
         mf.mesh = mesh;
     }

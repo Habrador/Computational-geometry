@@ -249,14 +249,14 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Convert to Unity mesh
+        // Convert to mesh
         //
 
         //We know we have stored triangles in the data structure
         //shareVertices means that we want a smooth surface where some vertices are shared between triangles
-        public Mesh ConvertToUnityMesh(string name, bool shareVertices, bool generateNormals)
+        public MyMesh ConvertToMyMesh(string meshName, bool shareVertices)
         {
-            MyMesh myMesh = new MyMesh();
+            MyMesh myMesh = new MyMesh(meshName);
         
             //Loop through each triangle
             foreach (HalfEdgeFace3 f in faces)
@@ -274,16 +274,13 @@ namespace Habrador_Computational_Geometry
                 myMesh.AddTriangle(my_v1, my_v2, my_v3, shareVertices);
             }
 
-
-            Mesh unityMesh = myMesh.ConvertToUnityMesh(name);
-
-            return unityMesh;
+            return myMesh;
         }
 
         //We have just the faces (which we know are triangles)
-        public static Mesh ConvertToUnityMesh(string name, HashSet<HalfEdgeFace3> faces)
+        public static MyMesh ConvertToMyMesh(string meshName, HashSet<HalfEdgeFace3> faces)
         {
-            MyMesh myMesh = new MyMesh();
+            MyMesh myMesh = new MyMesh(meshName);
 
             //Loop through each triangle
             foreach (HalfEdgeFace3 f in faces)
@@ -301,10 +298,7 @@ namespace Habrador_Computational_Geometry
                 myMesh.AddTriangle(my_v1, my_v2, my_v3, shareVertices: false);
             }
 
-
-            Mesh unityMesh = myMesh.ConvertToUnityMesh(name);
-
-            return unityMesh;
+            return myMesh;
         }
 
 

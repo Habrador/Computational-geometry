@@ -101,7 +101,9 @@ public class VoronoiSphereController : MonoBehaviour
         //Delaunay
         HalfEdgeData3 convexHull = normalizer.UnNormalize(convexHull_normalized);
 
-        delaunayMesh = convexHull.ConvertToUnityMesh("convex hull aka delaunay triangulation", shareVertices: false, generateNormals: false);
+        MyMesh myMesh = convexHull.ConvertToMyMesh("convex hull aka delaunay triangulation", shareVertices: false);
+
+        delaunayMesh = myMesh.ConvertToUnityMesh(generateNormals: false);
 
 
         //Voronoi

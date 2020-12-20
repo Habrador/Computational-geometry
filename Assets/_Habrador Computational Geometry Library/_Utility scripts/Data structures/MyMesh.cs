@@ -12,9 +12,14 @@ namespace Habrador_Computational_Geometry
         public List<MyVector3> normals;
         public List<int> triangles;
 
+        //Cant be name because then we get the name of the game object
+        public string meshName;
 
-        public MyMesh()
+
+        public MyMesh(string meshName = null)
         {
+            this.meshName = meshName;
+        
             vertices = new List<MyVector3>();
             normals = new List<MyVector3>();
             triangles = new List<int>();
@@ -127,7 +132,7 @@ namespace Habrador_Computational_Geometry
         
         
         //Convert this mesh to a unity mesh
-        public Mesh ConvertToUnityMesh(string name)
+        public Mesh ConvertToUnityMesh(bool generateNormals, string meshName = null)
         {
             Mesh mesh = new Mesh();
 
@@ -139,7 +144,7 @@ namespace Habrador_Computational_Geometry
             mesh.SetTriangles(triangles, 0);
 
             //Generate normals
-            if (normals.Count == 0)
+            if (normals.Count == 0 || generateNormals)
             {
                 mesh.RecalculateNormals();
             }
@@ -151,7 +156,19 @@ namespace Habrador_Computational_Geometry
                 mesh.normals = normals_Unity;
             }
 
-            mesh.name = name;
+            if (meshName != null)
+            {
+                mesh.name = meshName;
+            }
+            else
+            {
+                if (this.meshName != null)
+                {
+                    mesh.name = this.meshName;
+                }
+            }
+
+            
 
             mesh.RecalculateBounds();
 
