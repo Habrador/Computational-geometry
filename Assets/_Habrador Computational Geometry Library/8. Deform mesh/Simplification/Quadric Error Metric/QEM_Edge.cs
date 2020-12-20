@@ -9,8 +9,8 @@ namespace Habrador_Computational_Geometry
     {
         public HalfEdge3 halfEdge;
 
-        //Optimal contraction target
-        public MyVector3 v;
+        //Optimal contraction target position
+        public MyVector3 mergePosition;
 
         //The Quadric Error Metric at this target
         public float qem;
@@ -26,16 +26,19 @@ namespace Habrador_Computational_Geometry
             MyVector3 p1 = edge.prevEdge.v.position;
             MyVector3 p2 = edge.v.position;
 
-            this.v = (p1 + p2) * 0.5f;
+            this.mergePosition = (p1 + p2) * 0.5f;
+
+            //We dont need a normal for the contraction position because the normal depends on the surrounding vertices
+
 
             //Compute the Quadric Error Metric at this point v
             //qem = v^T * (Q1 + Q2) * v
 
             Matrix4x4 Q = Q1.Add(Q2);
 
-            float x = v.x;
-            float y = v.y;
-            float z = v.z;
+            float x = this.mergePosition.x;
+            float y = this.mergePosition.y;
+            float z = this.mergePosition.z;
 
             //v^T * Q * v
             //Verify that this is true (was found at bottom in research paper)

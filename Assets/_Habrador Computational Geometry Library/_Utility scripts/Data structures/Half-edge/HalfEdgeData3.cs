@@ -471,6 +471,7 @@ namespace Habrador_Computational_Geometry
         // Contract an edge if we know we are dealing only with triangles
         //
 
+        //Should maybe return a vertex belonging to the contracted position
         public void ContractTriangleHalfEdge(HalfEdge3 e, MyVector3 mergePos)
         {
             //Step 1. Get all edges pointing to the vertices we will merge

@@ -9,6 +9,8 @@ namespace Habrador_Computational_Geometry
     {
         //TODO:
         //- Calculate the optimal contraction target v and not just the average between two vertices
+        //- Calculate weighted Q matrix by multiplying each Kp matrix with the area of the triangle
+
 
 
         //Merge edges to simplify a mesh
@@ -59,47 +61,10 @@ namespace Habrador_Computational_Geometry
                 }
 
                 //Calculate the Q matrix for this vertex
-
                 //Find all triangles meeting at this vertex
-                HashSet<HalfEdge3> edgesPointingToVertex = v.GetEdgesPointingToVertex(meshData);
+                HashSet<HalfEdge3> edgesPointingToThisVertex = v.GetEdgesPointingToVertex(meshData);
 
-                Matrix4x4 Q = Matrix4x4.zero;
-
-                //Calculate a Kp matrix for each triangle attached to this vertex and add it to the sumOfKp 
-                foreach (HalfEdge3 e in edgesPointingToVertex)
-                {
-                    //To calculate the Kp matric we need all vertices
-                    MyVector3 p1 = e.v.position;
-                    MyVector3 p2 = e.nextEdge.v.position;
-                    MyVector3 p3 = e.nextEdge.nextEdge.v.position;
-
-                    //...and a normal
-                    MyVector3 normal = _Geometry.CalculateNormal(p1, p2, p3);
-
-                    //To calculate the Kp matrix, we have to define the plane on the form: 
-                    //ax + by + cz + d = 0 where a^2 + b^2 + c^2 = 1
-                    //a, b, c are given by the normal: 
-                    float a = normal.x;
-                    float b = normal.y;
-                    float c = normal.z;
-
-                    //To calculate d we just use one of the points on the plane (in the triangle)
-                    //d = -(ax + by + cz)
-                    float d = -(a * p1.x + b * p1.y + c * p1.z);
-
-                    //This built-in matrix is initialized by giving it columns
-                    Matrix4x4 Kp = new Matrix4x4(
-                        new Vector4(a*a, a*b, a*c, a*d),
-                        new Vector4(a*b, b*b, b*c, b*d),
-                        new Vector4(a*c, b*c, c*c, c*d),
-                        new Vector4(a*d, b*d, c*d, d*d)
-                        );
-
-                    //You can multiply this Kp with the area of the triangle to get a weighted-Kp which may improve the result
-
-                    //Q is the sum of all Kp around the vertex
-                    Q = Q.Add(Kp);
-                }
+                Matrix4x4 Q = CalculateQMatrix(edgesPointingToThisVertex);
 
                 qMatrices.Add(v.position, Q);
             }
@@ -166,31 +131,136 @@ namespace Habrador_Computational_Geometry
             //Get the half-edge we want to contract 
             HalfEdge3 edgeToContract = smallestErrorEdge.halfEdge;
 
-            //We also need to remove the edge from the dictionary???
-            //uniqueEdges.Remove(edgeToContract.);
-
             //Need to save this so we can remove all old edges that pointed to these vertices
             Edge3 removedEdgeEndpoints = new Edge3(edgeToContract.prevEdge.v.position, edgeToContract.v.position);
 
             //Contract edge
-            meshData.ContractTriangleHalfEdge(edgeToContract, smallestErrorEdge.v);
+            meshData.ContractTriangleHalfEdge(edgeToContract, smallestErrorEdge.mergePosition);
+
+            
 
 
             //Update all QEM_edges that have changed
-            
+
             //We need to remove the two edges that were a part of the triangle of the edge we contracted
+            //This could become faster if we had a dictionary that saved the half-edge QEM_edge relationship
+            //Or maybe we don't need to generate a QEM_edge for all edges, we just need the best one...
+            RemoveHalfEdgeFromQEMEdge(edgeToContract.nextEdge, QEM_edges);
+            RemoveHalfEdgeFromQEMEdge(edgeToContract.nextEdge.nextEdge, QEM_edges);
 
             //We need to remove three edges belonging to the triangle on the opposite side of the edge we contracted
-            //If there was an opposite side...
+            //If there was an opposite side!
+            if (edgeToContract.oppositeEdge != null)
+            {
+                HalfEdge3 oppositeEdge = edgeToContract.oppositeEdge;
+
+                RemoveHalfEdgeFromQEMEdge(oppositeEdge, QEM_edges);
+                RemoveHalfEdgeFromQEMEdge(oppositeEdge.nextEdge, QEM_edges);
+                RemoveHalfEdgeFromQEMEdge(oppositeEdge.nextEdge.nextEdge, QEM_edges);
+            }
 
 
+            //We have a dictionary with all Q matrices for each vertex position
+            
+            //Remove the old positions from the Q matrices dictionary
+            qMatrices.Remove(removedEdgeEndpoints.p1);
+            qMatrices.Remove(removedEdgeEndpoints.p2);
 
-            //Then as before we get all edges that points to the new merged vertex
+            //Calculate a new Q matrix for the contracted position 
+
+            //To get the edges going to a position we need a vertex from the half-edge data structure
+            HalfEdgeVertex3 contractedVertex = null;
+
+            HashSet<HalfEdgeVertex3> verts = meshData.verts;
+
+            foreach (HalfEdgeVertex3 v in verts)
+            {
+                if (v.position.Equals(smallestErrorEdge.mergePosition))
+                {
+                    contractedVertex = v;
+
+                    break;
+                }
+            }
+
+            HashSet<HalfEdge3> edgesPointingToVertex = contractedVertex.GetEdgesPointingToVertex(meshData);
+
+            Matrix4x4 QNew = CalculateQMatrix(edgesPointingToVertex);
+
+            qMatrices.Add(smallestErrorEdge.mergePosition, QNew);
+
+
+            //Update the errors of the QEM_edges of the edges that pointed to one of the two old Q matrices
+            //Those edges are the same edges that points to the new vertex and goes from the new vertex
+
 
 
             MyMesh simplifiedMesh = null;
 
             return simplifiedMesh;
+        }
+
+
+
+        private static void RemoveHalfEdgeFromQEMEdge(HalfEdge3 e, HashSet<QEM_Edge> QEM_edges)
+        {
+            foreach (QEM_Edge QEM_edge in QEM_edges)
+            {
+                if (QEM_edge.halfEdge.Equals(e))
+                {
+                    QEM_edges.Remove(QEM_edge);
+
+                    //Debug.Log("Removed surplus qem edge");
+
+                    break;
+                }
+            }
+        }
+
+
+
+        private static Matrix4x4 CalculateQMatrix(HashSet<HalfEdge3> edgesPointingToVertex)
+        {
+            Matrix4x4 Q = Matrix4x4.zero;
+
+            //Calculate a Kp matrix for each triangle attached to this vertex and add it to the sumOfKp 
+            foreach (HalfEdge3 e in edgesPointingToVertex)
+            {
+                //To calculate the Kp matric we need all vertices
+                MyVector3 p1 = e.v.position;
+                MyVector3 p2 = e.nextEdge.v.position;
+                MyVector3 p3 = e.nextEdge.nextEdge.v.position;
+
+                //...and a normal
+                MyVector3 normal = _Geometry.CalculateNormal(p1, p2, p3);
+
+                //To calculate the Kp matrix, we have to define the plane on the form: 
+                //ax + by + cz + d = 0 where a^2 + b^2 + c^2 = 1
+                //a, b, c are given by the normal: 
+                float a = normal.x;
+                float b = normal.y;
+                float c = normal.z;
+
+                //To calculate d we just use one of the points on the plane (in the triangle)
+                //d = -(ax + by + cz)
+                float d = -(a * p1.x + b * p1.y + c * p1.z);
+
+                //This built-in matrix is initialized by giving it columns
+                Matrix4x4 Kp = new Matrix4x4(
+                    new Vector4(a * a, a * b, a * c, a * d),
+                    new Vector4(a * b, b * b, b * c, b * d),
+                    new Vector4(a * c, b * c, c * c, c * d),
+                    new Vector4(a * d, b * d, c * d, d * d)
+                    );
+
+                //You can multiply this Kp with the area of the triangle to get a weighted-Kp which may improve the result
+
+                //Q is the sum of all Kp around the vertex
+                Q = Q.Add(Kp);
+            }
+
+
+            return Q;
         }
     }
 }
