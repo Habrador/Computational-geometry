@@ -570,4 +570,15 @@ public static class TestAlgorithmsHelpMethods
         //TestAlgorithmsHelpMethods.DebugDrawCircle(p1_test, 0.1f, Color.red);
         //TestAlgorithmsHelpMethods.DebugDrawCircle(p2_test, 0.2f, Color.blue);
     }
+
+
+
+    //
+    // Display data structures
+    //
+    
+    public static void DisplayMyVector3(MyVector3 v)
+    {
+        Debug.Log($"({v.x}, {v.y}, {v.z})");
+    }
 }

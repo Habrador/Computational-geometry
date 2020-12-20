@@ -474,8 +474,8 @@ namespace Habrador_Computational_Geometry
             HalfEdgeVertex3 v2 = e.v;
 
             //It's faster to get these before we remove triangles because then we will get a messed up half-edge system? 
-            HashSet<HalfEdge3> edgesGoingToVertex_v1 = v1.GetEdgesPointingToVertex();
-            HashSet<HalfEdge3> edgesGoingToVertex_v2 = v2.GetEdgesPointingToVertex();
+            HashSet<HalfEdge3> edgesGoingToVertex_v1 = v1.GetEdgesPointingToVertex(this);
+            HashSet<HalfEdge3> edgesGoingToVertex_v2 = v2.GetEdgesPointingToVertex(this);
 
 
             //Step 2. Remove the triangles, which will create a hole, 
@@ -575,12 +575,14 @@ namespace Habrador_Computational_Geometry
         //Return all edges going to this vertex = all edges that references this vertex position
         //meshData is needed if we cant spring around this vertex because there might be a hole in the mesh
         //If so we have to search through all edges in the entire mesh
-        public HashSet<HalfEdge3> GetEdgesPointingToVertex(HalfEdgeData3 meshData = null)
+        public HashSet<HalfEdge3> GetEdgesPointingToVertex(HalfEdgeData3 meshData)
         {
             HashSet<HalfEdge3> allEdgesGoingToVertex = new HashSet<HalfEdge3>();
 
             //This is the edge that goes to this vertex
             HalfEdge3 currentEdge = this.edge.prevEdge;
+
+            //if (currentEdge == null) Debug.Log("Edge is null");
 
             int safety = 0;
 
@@ -589,7 +591,7 @@ namespace Habrador_Computational_Geometry
                 allEdgesGoingToVertex.Add(currentEdge);
 
                 //This edge is going to the vertex but in another triangle
-                HalfEdge3 oppositeEdge = currentEdge.nextEdge.oppositeEdge;
+                HalfEdge3 oppositeEdge = currentEdge.oppositeEdge;
 
                 if (oppositeEdge == null)
                 {
@@ -601,11 +603,13 @@ namespace Habrador_Computational_Geometry
                     break;
                 }
 
-                currentEdge = oppositeEdge;
+                //if (oppositeEdge == null) Debug.Log("Opposite edge is null");
+
+                currentEdge = oppositeEdge.prevEdge;
 
                 safety += 1;
 
-                if (safety > 100000)
+                if (safety > 10000)
                 {
                     Debug.LogWarning("Stuck in infinite loop when getting all edges around a vertex");
 
