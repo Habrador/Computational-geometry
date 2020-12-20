@@ -241,9 +241,9 @@ namespace Habrador_Computational_Geometry
         //
         public void MergeMesh(HalfEdgeData3 otherMesh)
         {
-            verts.UnionWith(otherMesh.verts);
-            faces.UnionWith(otherMesh.faces);
-            edges.UnionWith(otherMesh.edges);
+            this.verts.UnionWith(otherMesh.verts);
+            this.faces.UnionWith(otherMesh.faces);
+            this.edges.UnionWith(otherMesh.edges);
         }
 
 
@@ -416,15 +416,15 @@ namespace Habrador_Computational_Geometry
 
 
             //Save the data
-            verts.Add(half_v1);
-            verts.Add(half_v2);
-            verts.Add(half_v3);
+            this.verts.Add(half_v1);
+            this.verts.Add(half_v2);
+            this.verts.Add(half_v3);
 
-            edges.Add(e_to_v1);
-            edges.Add(e_to_v2);
-            edges.Add(e_to_v3);
+            this.edges.Add(e_to_v1);
+            this.edges.Add(e_to_v2);
+            this.edges.Add(e_to_v3);
 
-            faces.Add(f);
+            this.faces.Add(f);
 
             return f;
         }
@@ -432,8 +432,9 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Delete a face
+        // Delete a face from this data structure
         //
+
         public void DeleteFace(HalfEdgeFace3 f)
         {
             //Get all edges belonging to this face
@@ -468,7 +469,8 @@ namespace Habrador_Computational_Geometry
         //
         // Contract an edge if we know we are dealing only with triangles
         //
-        public void ContractEdge(HalfEdge3 e, MyVector3 mergePos)
+
+        public void ContractTriangleEdge(HalfEdge3 e, MyVector3 mergePos)
         {
             //Step 0. Get all edges pointing to the vertices we will move
             //And edge is going TO a vertex
@@ -491,8 +493,8 @@ namespace Habrador_Computational_Geometry
             //The triangle
             HalfEdgeFace3 f_ABC = e.face;
 
-            //Delete the triangle (which will set the opposite-opposite edge of e to null, which is fine because we dont need it)
-            //But we have to do it before we connect the edges
+            //Delete the triangle (which will also delete the vertices and edges belonging to that face)
+            //We have to do it before we re-connect the edges
             DeleteFace(f_ABC);
 
             //Connect the opposite edges of the edges which are not a part of the edge we want to delete
@@ -509,7 +511,7 @@ namespace Habrador_Computational_Geometry
 
             //Step 2. Merge the triangle that might belong to the opposite edge
 
-            //We might also have an opposite triangle
+            //We might also have an opposite triangle, so we have to delete a total of two triangles
             if (e.oppositeEdge != null)
             {
                 f_ABC = e.oppositeEdge.face;
