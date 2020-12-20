@@ -432,46 +432,35 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Delete a face which if know is a triangle
+        // Delete a face
         //
-        public void DeleteTriangleFace(HalfEdgeFace3 t)
+        public void DeleteFace(HalfEdgeFace3 f)
         {
-            //Update the data structure
-            //In the half-edge data structure there's an edge going in the opposite direction
-            //on the other side of this triangle with a reference to this edge, so we have to set these to null
-            HalfEdge3 t_e1 = t.edge;
-            HalfEdge3 t_e2 = t_e1.nextEdge;
-            HalfEdge3 t_e3 = t_e2.nextEdge;
+            //Get all edges belonging to this face
+            List<HalfEdge3> edges = f.GetEdges();
 
-            //Opposite edge to these edges are referencing these edges, so make sure that connection is removed
-            if (t_e1.oppositeEdge != null)
+            if (edges == null)
             {
-                t_e1.oppositeEdge.oppositeEdge = null;
-            }
-            if (t_e2.oppositeEdge != null)
-            {
-                t_e2.oppositeEdge.oppositeEdge = null;
-            }
-            if (t_e3.oppositeEdge != null)
-            {
-                t_e3.oppositeEdge.oppositeEdge = null;
+                Debug.LogWarning("This face can't be deleted because the edges are not fully connected");
+
+                return;
             }
 
+            foreach (HalfEdge3 edgeToRemove in edges)
+            {
+                //The opposite edge to this edge is referencing this edges, so remove that connection
+                if (edgeToRemove.oppositeEdge != null)
+                {
+                    edgeToRemove.oppositeEdge.oppositeEdge = null;
+                }
 
-            //Remove from the data structure
+                //Remove the edge and the vertex the edge points to from the list of all vertices and edges
+                edges.Remove(edgeToRemove);
+                verts.Remove(edgeToRemove.v);
+            }
 
-            //Remove from the list of all triangles
-            faces.Remove(t);
-
-            //Remove the edges from the list of all edges
-            edges.Remove(t_e1);
-            edges.Remove(t_e2);
-            edges.Remove(t_e3);
-
-            //Remove the vertices
-            verts.Remove(t_e1.v);
-            verts.Remove(t_e2.v);
-            verts.Remove(t_e3.v);
+            //Remove the face from the list of all faces
+            faces.Remove(f);
         }
 
 
@@ -487,7 +476,6 @@ namespace Habrador_Computational_Geometry
             HalfEdgeVertex3 v2 = e.v;
 
             //We have to get these before we remove triangles 
-            //These might be null if the mesh has holes
             HashSet<HalfEdge3> edgesGoingToVertex_v1 = v1.GetEdgesPointingToVertex();
             HashSet<HalfEdge3> edgesGoingToVertex_v2 = v2.GetEdgesPointingToVertex();
 
@@ -505,7 +493,7 @@ namespace Habrador_Computational_Geometry
 
             //Delete the triangle (which will set the opposite-opposite edge of e to null, which is fine because we dont need it)
             //But we have to do it before we connect the edges
-            DeleteTriangleFace(f_ABC);
+            DeleteFace(f_ABC);
 
             //Connect the opposite edges of the edges which are not a part of the edge we want to delete
             if (e_BC.oppositeEdge != null)
@@ -531,7 +519,7 @@ namespace Habrador_Computational_Geometry
                 e_CA = e.oppositeEdge.nextEdge.nextEdge;
 
                 //Delete the triangle
-                DeleteTriangleFace(f_ABC);
+                DeleteFace(f_ABC);
 
                 //Connect the opposite edges of the edges which are not a part of the edge we want to delete
                 if (e_BC.oppositeEdge != null)
@@ -547,9 +535,7 @@ namespace Habrador_Computational_Geometry
 
 
             //Step 3. Move the vertices to the merge position
-            
-            //First try to use the list with all edges going to a vertex
-            //Some of these edges belong to the triangle we removes, but it doesnt matter
+            //Some of these edges belong to the triangle we removed, but it doesnt matter
             if (edgesGoingToVertex_v1 != null)
             {
                 foreach (HalfEdge3 eTo in edgesGoingToVertex_v1)
@@ -557,36 +543,12 @@ namespace Habrador_Computational_Geometry
                     eTo.v.position = mergePos;
                 }
             }
-            //Brute force: search thorugh all vertices in the entire mesh and
-            //check if they are part of the merge-edge and should move
-            else
-            {
-                foreach (HalfEdgeVertex3 v in verts)
-                {
-                    if (v.position.Equals(v1.position))
-                    {
-                        v.position = mergePos;
-                    }
-                }
-            }
-
+            
             if (edgesGoingToVertex_v2 != null)
             {
                 foreach (HalfEdge3 eTo in edgesGoingToVertex_v2)
                 {
                     eTo.v.position = mergePos;
-                }
-            }
-            //Brute force: search thorugh all vertices in the entire mesh and
-            //check if they are part of the merge-edge and should move
-            else
-            {
-                foreach (HalfEdgeVertex3 v in verts)
-                {
-                    if (v.position.Equals(v2.position))
-                    {
-                        v.position = mergePos;
-                    }
                 }
             }
         }

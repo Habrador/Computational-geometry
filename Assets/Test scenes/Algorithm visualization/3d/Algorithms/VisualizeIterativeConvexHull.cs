@@ -79,7 +79,7 @@ public class VisualizeIterativeConvexHull : MonoBehaviour
             //Remove all visible triangles
             foreach (HalfEdgeFace3 triangle in visibleTriangles)
             {
-                convexHull.DeleteTriangleFace(triangle);
+                convexHull.DeleteFace(triangle);
             }
 
 

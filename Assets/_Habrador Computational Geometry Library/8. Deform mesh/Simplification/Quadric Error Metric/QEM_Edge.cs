@@ -7,8 +7,7 @@ namespace Habrador_Computational_Geometry
     //Help class to sort edges
     public class QEM_Edge
     {
-        public HalfEdge3 edge;
-        public HalfEdge3 edgeOpposite;
+        public HalfEdge3 halfEdge;
 
         //Optimal contraction target
         public MyVector3 v;
@@ -18,8 +17,7 @@ namespace Habrador_Computational_Geometry
         
         public QEM_Edge(HalfEdge3 edge, Matrix4x4 Q1, Matrix4x4 Q2)
         {
-            this.edge = edge;
-            this.edgeOpposite = edge.oppositeEdge;
+            this.halfEdge = edge;
 
             //Compute the optimal contraction target v for the pair (v1, v2)
             //This is the position to which we move v1 and v2 after merging the edge

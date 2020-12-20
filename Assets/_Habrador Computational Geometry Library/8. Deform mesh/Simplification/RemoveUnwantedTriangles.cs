@@ -182,7 +182,7 @@ namespace Habrador_Computational_Geometry
                         //Remove the three triangles
                         foreach (HalfEdge3 e in edgesGoingToVertex)
                         {
-                            meshData.DeleteTriangleFace(e.face);
+                            meshData.DeleteFace(e.face);
                         }
 
                         //Add the new triangle (could maybe connect it ourselves)

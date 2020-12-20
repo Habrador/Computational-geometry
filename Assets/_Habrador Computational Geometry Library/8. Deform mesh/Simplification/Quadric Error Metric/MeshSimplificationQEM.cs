@@ -119,7 +119,7 @@ namespace Habrador_Computational_Geometry
             //HashSet to keep track of unique vertices
             //In the half-edge data structure may have an edge going in the opposite direction with the same 
             //error, so it's a waste of time to sort twice as many edges as needed
-            HashSet<Edge3> uniqueEdges = new HashSet<Edge3>();
+            //HashSet<Edge3> uniqueEdges = new HashSet<Edge3>();
 
             foreach (HalfEdge3 edge in validPairs)
             {            
@@ -127,11 +127,11 @@ namespace Habrador_Computational_Geometry
                 MyVector3 p2 = edge.v.position;
 
                 //Does this edge already exist but in the opposite direction?
-                if (!uniqueEdges.Contains(new Edge3(p2, p1)))
-                {
-                    //It can't exist in this direction because only one edge can go in this direction
-                    uniqueEdges.Add(new Edge3(p1, p2));
-                }
+                //if (!uniqueEdges.Contains(new Edge3(p2, p1)))
+                //{
+                //    //It can't exist in this direction because only one edge can go in this direction
+                //    uniqueEdges.Add(new Edge3(p1, p2));
+                //}
 
                 Matrix4x4 Q1 = qMatrices[p1];
                 Matrix4x4 Q2 = qMatrices[p2];
@@ -163,13 +163,8 @@ namespace Habrador_Computational_Geometry
 
             //Step 5. Iteratively remove the pair (v1,v2) of the least cost, contract the pair, and update the costs of all valid pairs           
 
-            //Get the half-edge corresponding 
-            HalfEdge3 edgeToContract = smallestErrorEdge.edge;
-
-            if (edgeToContract == null)
-            {
-                edgeToContract = smallestErrorEdge.edgeOpposite;
-            }
+            //Get the half-edge we want to contract 
+            HalfEdge3 edgeToContract = smallestErrorEdge.halfEdge;
 
             //We also need to remove the edge from the dictionary???
             //uniqueEdges.Remove(edgeToContract.);
@@ -183,9 +178,10 @@ namespace Habrador_Computational_Geometry
 
             //Update all QEM_edges that have changed
             
-            //The easiest way is to maybe remove all QEM_edges that have changed and add new ones???
-            
-            //We need to remove all edges that were pointing to/from the two vertices we removed
+            //We need to remove the two edges that were a part of the triangle of the edge we contracted
+
+            //We need to remove three edges belonging to the triangle on the opposite side of the edge we contracted
+            //If there was an opposite side...
 
 
 

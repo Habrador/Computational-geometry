@@ -68,7 +68,7 @@ namespace Habrador_Computational_Geometry
                 //Remove all visible triangles
                 foreach (HalfEdgeFace3 triangle in visibleTriangles)
                 {
-                    convexHull.DeleteTriangleFace(triangle);
+                    convexHull.DeleteFace(triangle);
                 }
 
 
@@ -399,7 +399,7 @@ namespace Habrador_Computational_Geometry
             }
 
             //Delete the triangle 
-            convexHull.DeleteTriangleFace(triangleToRemove);
+            convexHull.DeleteFace(triangleToRemove);
 
             //Build three new triangles
 
