@@ -145,8 +145,8 @@ namespace Habrador_Computational_Geometry
             //We need to remove the two edges that were a part of the triangle of the edge we contracted
             //This could become faster if we had a dictionary that saved the half-edge QEM_edge relationship
             //Or maybe we don't need to generate a QEM_edge for all edges, we just need the best one...
-            RemoveHalfEdgeFromQEMEdge(edgeToContract.nextEdge, QEM_edges);
-            RemoveHalfEdgeFromQEMEdge(edgeToContract.nextEdge.nextEdge, QEM_edges);
+            RemoveHalfEdgeFromQEMEdges(edgeToContract.nextEdge, QEM_edges);
+            RemoveHalfEdgeFromQEMEdges(edgeToContract.nextEdge.nextEdge, QEM_edges);
 
             //We need to remove three edges belonging to the triangle on the opposite side of the edge we contracted
             //If there was an opposite side!
@@ -154,9 +154,9 @@ namespace Habrador_Computational_Geometry
             {
                 HalfEdge3 oppositeEdge = edgeToContract.oppositeEdge;
 
-                RemoveHalfEdgeFromQEMEdge(oppositeEdge, QEM_edges);
-                RemoveHalfEdgeFromQEMEdge(oppositeEdge.nextEdge, QEM_edges);
-                RemoveHalfEdgeFromQEMEdge(oppositeEdge.nextEdge.nextEdge, QEM_edges);
+                RemoveHalfEdgeFromQEMEdges(oppositeEdge, QEM_edges);
+                RemoveHalfEdgeFromQEMEdges(oppositeEdge.nextEdge, QEM_edges);
+                RemoveHalfEdgeFromQEMEdges(oppositeEdge.nextEdge.nextEdge, QEM_edges);
             }
 
 
@@ -190,9 +190,34 @@ namespace Habrador_Computational_Geometry
             qMatrices.Add(smallestErrorEdge.mergePosition, QNew);
 
 
-            //Update the errors of the QEM_edges of the edges that pointed to one of the two old Q matrices
+            //Update the QEM_edges of the edges that pointed to and from one of the two old Q matrices
             //Those edges are the same edges that points to the new vertex and goes from the new vertex
+            HashSet<HalfEdge3> edgesThatNeedToBeUpdated = new HashSet<HalfEdge3>(edgesPointingToVertex);
+            //The edges going from the new vertex is the next edge of the edges going to the vertex
+            foreach (HalfEdge3 e in edgesPointingToVertex)
+            {
+                edgesThatNeedToBeUpdated.Add(e.nextEdge);
+            }
 
+            foreach (QEM_Edge this_QEM_edge in QEM_edges)
+            {
+                if (edgesThatNeedToBeUpdated.Contains(this_QEM_edge.halfEdge))
+                {
+                    Edge3 endPoints = this_QEM_edge.GetEdgeEndPoints();
+
+                    Matrix4x4 Q1 = qMatrices[endPoints.p1];
+                    Matrix4x4 Q2 = qMatrices[endPoints.p2];
+
+                    this_QEM_edge.UpdateEdge(this_QEM_edge.halfEdge, Q1, Q2);
+
+                    edgesThatNeedToBeUpdated.Remove(this_QEM_edge.halfEdge);
+                }
+
+                if (edgesThatNeedToBeUpdated.Count == 0)
+                {
+                    break;
+                }
+            }
 
 
             MyMesh simplifiedMesh = null;
@@ -202,7 +227,11 @@ namespace Habrador_Computational_Geometry
 
 
 
-        private static void RemoveHalfEdgeFromQEMEdge(HalfEdge3 e, HashSet<QEM_Edge> QEM_edges)
+
+
+
+
+        private static void RemoveHalfEdgeFromQEMEdges(HalfEdge3 e, HashSet<QEM_Edge> QEM_edges)
         {
             foreach (QEM_Edge QEM_edge in QEM_edges)
             {

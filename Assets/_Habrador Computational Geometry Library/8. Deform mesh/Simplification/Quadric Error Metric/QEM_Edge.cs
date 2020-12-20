@@ -15,30 +15,57 @@ namespace Habrador_Computational_Geometry
         //The Quadric Error Metric at this target
         public float qem;
         
-        public QEM_Edge(HalfEdge3 edge, Matrix4x4 Q1, Matrix4x4 Q2)
+
+
+        public QEM_Edge(HalfEdge3 halfEdge, Matrix4x4 Q1, Matrix4x4 Q2)
         {
-            this.halfEdge = edge;
+            UpdateEdge(halfEdge, Q1, Q2);
+        }
+
+
+
+        public void UpdateEdge(HalfEdge3 halfEdge, Matrix4x4 Q1, Matrix4x4 Q2)
+        {
+            this.halfEdge = halfEdge;
 
             //Compute the optimal contraction target v for the pair (v1, v2)
+            this.mergePosition = CalculateMergePosition(this.halfEdge);
+
+            //Compute the Quadric Error Metric at this point v
+            this.qem = CalculateQEM(this.mergePosition, Q1, Q2);
+        }
+
+
+
+        //Compute the optimal contraction target v for the pair (v1, v2)
+        private MyVector3 CalculateMergePosition(HalfEdge3 e)
+        {
             //This is the position to which we move v1 and v2 after merging the edge
             //Assume for simplicity that the contraction target v = (v1 + v2) * 0.5f
             //Add the other versions in the future!
-            MyVector3 p1 = edge.prevEdge.v.position;
-            MyVector3 p2 = edge.v.position;
+            MyVector3 p1 = e.prevEdge.v.position;
+            MyVector3 p2 = e.v.position;
 
-            this.mergePosition = (p1 + p2) * 0.5f;
+            MyVector3 mergePosition = (p1 + p2) * 0.5f;
+
 
             //We dont need a normal for the contraction position because the normal depends on the surrounding vertices
 
+            return mergePosition;
+        }
 
-            //Compute the Quadric Error Metric at this point v
+
+
+        //Compute the Quadric Error Metric at this point v
+        private float CalculateQEM(MyVector3 pos, Matrix4x4 Q1, Matrix4x4 Q2)
+        {
             //qem = v^T * (Q1 + Q2) * v
 
             Matrix4x4 Q = Q1.Add(Q2);
 
-            float x = this.mergePosition.x;
-            float y = this.mergePosition.y;
-            float z = this.mergePosition.z;
+            float x = pos.x;
+            float y = pos.y;
+            float z = pos.z;
 
             //v^T * Q * v
             //Verify that this is true (was found at bottom in research paper)
@@ -54,7 +81,22 @@ namespace Habrador_Computational_Geometry
             qemCalculations += (2f * Q[2, 3] * z);
             qemCalculations += (1f * Q[3, 3]);
 
-            this.qem = qemCalculations;
+            float qem = qemCalculations;
+
+            return qem;
+        }
+
+
+
+        //Get the positions where this edge starts and end
+        public Edge3 GetEdgeEndPoints()
+        {
+            MyVector3 p1 = this.halfEdge.prevEdge.v.position;
+            MyVector3 p2 = this.halfEdge.v.position;
+
+            Edge3 e = new Edge3(p1, p2);
+
+            return e;
         }
     }
 }
