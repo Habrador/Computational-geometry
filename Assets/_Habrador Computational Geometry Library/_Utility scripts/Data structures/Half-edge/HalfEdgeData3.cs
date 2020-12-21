@@ -254,7 +254,7 @@ namespace Habrador_Computational_Geometry
 
         //We know we have stored triangles in the data structure
         //shareVertices means that we want a smooth surface where some vertices are shared between triangles
-        public MyMesh ConvertToMyMesh(string meshName, bool shareVertices)
+        public MyMesh ConvertToMyMesh(string meshName, bool shareVertices, bool hasHardAndSoftEdges = false)
         {
             MyMesh myMesh = new MyMesh(meshName);
         
@@ -271,7 +271,7 @@ namespace Habrador_Computational_Geometry
                 MyMeshVertex my_v2 = new MyMeshVertex(v2.position, v2.normal);
                 MyMeshVertex my_v3 = new MyMeshVertex(v3.position, v3.normal);
 
-                myMesh.AddTriangle(my_v1, my_v2, my_v3, shareVertices);
+                myMesh.AddTriangle(my_v1, my_v2, my_v3, shareVertices, hasHardAndSoftEdges);
             }
 
             return myMesh;

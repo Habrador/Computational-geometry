@@ -275,7 +275,7 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            //Timers: 1.231 to generate the bunny (2400 edge contractions)
+            //Timers: 1.23 to generate the simplified bunny (2400 edge contractions)
             //Init:
             // - 0.1 to convert to half-edge data structure
             // - 0.14 to calculate a Q matrix for each unique vertex
@@ -288,7 +288,7 @@ namespace Habrador_Computational_Geometry
 
 
             //From half-edge to mesh
-            MyMesh simplifiedMesh = meshData.ConvertToMyMesh("Simplified mesh", shareVertices: true);
+            MyMesh simplifiedMesh = meshData.ConvertToMyMesh("Simplified mesh", shareVertices: true, hasHardAndSoftEdges: false);
 
 
             return simplifiedMesh;

@@ -45,11 +45,11 @@ namespace Habrador_Computational_Geometry
 
         //Add a triangle (oriented clock-wise) to the mesh
         //If we want hard edges, set shareVertices to false. Otherwise we will get a smooth surface
-        public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, bool shareVertices)
+        public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, bool shareVertices, bool hasHardAndSoftEdges = false)
         {
-            int index1 = AddVertexAndReturnIndex(v1, shareVertices);
-            int index2 = AddVertexAndReturnIndex(v2, shareVertices);
-            int index3 = AddVertexAndReturnIndex(v3, shareVertices);
+            int index1 = AddVertexAndReturnIndex(v1, shareVertices, hasHardAndSoftEdges);
+            int index2 = AddVertexAndReturnIndex(v2, shareVertices, hasHardAndSoftEdges);
+            int index3 = AddVertexAndReturnIndex(v3, shareVertices, hasHardAndSoftEdges);
 
             AddTrianglePositions(index1, index2, index3);
         }
@@ -57,8 +57,9 @@ namespace Habrador_Computational_Geometry
 
 
         //Add a vertex to the mesh and return its position in the array
-        //If we want hard edges, set shareVertices to false. Otherwise we will get a smooth surface
-        public int AddVertexAndReturnIndex(MyMeshVertex v, bool shareVertices)
+        //If we want only hard edges, set shareVertices to false. Otherwise we will get a smooth surface
+        //If we want combination of smooth surface and hard edges, set shareVertices and hasHardEdges to true
+        public int AddVertexAndReturnIndex(MyMeshVertex v, bool shareVertices, bool hasHardAndSoftEdges)
         {
             int vertexPosInList = -1;
 
@@ -70,11 +71,21 @@ namespace Habrador_Computational_Geometry
                     MyVector3 thisPos = vertices[i];
                     MyVector3 thisNormal = normals[i];
 
-                    if (thisPos.Equals(v.position) && thisNormal.Equals(v.normal))
+                    if (thisPos.Equals(v.position))
                     {
-                        vertexPosInList = i;
+                        if (hasHardAndSoftEdges && thisNormal.Equals(v.normal))
+                        {
+                            vertexPosInList = i;
 
-                        return vertexPosInList;
+                            return vertexPosInList;
+                        }
+                    
+                        if (!hasHardAndSoftEdges)
+                        {
+                            vertexPosInList = i;
+
+                            return vertexPosInList;
+                        }
                     }
                 }
             }
