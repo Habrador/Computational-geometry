@@ -131,5 +131,19 @@ namespace Habrador_Computational_Geometry
                 new Vector4(a[0, 3] + b[0, 3], a[1, 3] + b[1, 3], a[2, 3] + b[2, 3], a[3, 3] + b[3, 3])
             );
         }
+
+        //Multiplay matrix with a
+        public static Matrix4x4 Multiply(this Matrix4x4 a, float b)
+        {
+            //Can access element in matric by [row, column]
+
+            //Matrix multiplication is just multiplying each element by b
+            return new Matrix4x4(
+                new Vector4(a[0, 0] * b, a[1, 0] * b, a[2, 0] * b, a[3, 0] * b),
+                new Vector4(a[0, 1] * b, a[1, 1] * b, a[2, 1] * b, a[3, 1] * b),
+                new Vector4(a[0, 2] * b, a[1, 2] * b, a[2, 2] * b, a[3, 2] * b),
+                new Vector4(a[0, 3] * b, a[1, 3] * b, a[2, 3] * b, a[3, 3] * b)
+            );
+        }
     }
 }

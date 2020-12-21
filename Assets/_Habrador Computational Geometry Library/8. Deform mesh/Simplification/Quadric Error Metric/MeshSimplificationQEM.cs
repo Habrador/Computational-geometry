@@ -9,9 +9,8 @@ namespace Habrador_Computational_Geometry
     {
         //TODO:
         //- Calculate the optimal contraction target v and not just the average between two vertices
-        //- Calculate weighted Q matrix by multiplying each Kp matrix with the area of the triangle
         //- Sometimes at the end of a simplification process, the QEM is NaN because the normal of the triangle has length 0 because two vertices are at the same position. This has maybe to do with "mesh inversion." The reports says that you should compare the normal of each neighboring face before and after the contraction. If the normal flips, undo the contraction or penalize it. The temp solution to solve this problem is to set the matrix to zero matrix
-        //- The algorithm can also join vertices that are within ||v1 - v2|| < distance, so test to add that. It should merge the hole in  the bunny
+        //- The algorithm can also join vertices that are within ||v1 - v2|| < distance, so test to add that. It should merge the hole in the bunny
         //- Maybe there's a faster (and simpler) way by using unique edges instead of double the calculations for an edge going in the opposite direction?
         //- A major bottleneck is finding edges going to a specific vertex. Maybe we could use a lookup table?
 
@@ -20,8 +19,9 @@ namespace Habrador_Computational_Geometry
         //Merge edges to simplify a mesh
         //Based on reports by Garland and Heckbert, "Surface simplification using quadric error metrics"
         //Is called: "Iterative pair contraction with the Quadric Error Metric (QEM)"
-        //Normalizer is only needed for debugging
-        public static MyMesh SimplifyByMergingEdges(MyMesh originalMesh, int edgesToContract, Normalizer3 normalizer = null)
+        //- normalizeTriangles is if we want to multiply the QEM with the area of the triangle, which might sometimes give a better result 
+        //- normalizer is only needed for debugging
+        public static MyMesh SimplifyByMergingEdges(MyMesh originalMesh, int edgesToContract, bool normalizeTriangles = false, Normalizer3 normalizer = null)
         {
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
@@ -75,7 +75,7 @@ namespace Habrador_Computational_Geometry
                 //timer.Stop();
 
                 //timer.Start();
-                Matrix4x4 Q = CalculateQMatrix(edgesPointingToThisVertex);
+                Matrix4x4 Q = CalculateQMatrix(edgesPointingToThisVertex, normalizeTriangles);
                 //timer.Stop();
 
                 qMatrices.Add(v.position, Q);
@@ -237,7 +237,7 @@ namespace Habrador_Computational_Geometry
                 //
 
                 //The contracted position has a new Q matrix
-                Matrix4x4 QNew = CalculateQMatrix(edgesPointingToNewVertex);
+                Matrix4x4 QNew = CalculateQMatrix(edgesPointingToNewVertex, normalizeTriangles);
 
                 //Add the Q matrix to the vertex - Q matrix lookup table
                 qMatrices.Add(smallestErrorEdge.mergePosition, QNew);
@@ -281,7 +281,7 @@ namespace Habrador_Computational_Geometry
             // - 0.14 to calculate a Q matrix for each unique vertex
             //Loop (total time):
             // - 0.50 to find smallest QEM error
-            // - 0.25 to merge the edges (the bottleneck is where ee have to find all edges pointing to a vertex)
+            // - 0.25 to merge the edges (the bottleneck is where we have to find all edges pointing to a vertex)
             // - 0.02 to remove the data that was destroyed when we contracted an edge
             // - 0.13 to update QEM edges
             Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds");
@@ -309,7 +309,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Calculate the Q matrix for a vertex if we know all edges pointing to the vertex
-        private static Matrix4x4 CalculateQMatrix(HashSet<HalfEdge3> edgesPointingToVertex)
+        private static Matrix4x4 CalculateQMatrix(HashSet<HalfEdge3> edgesPointingToVertex, bool normalizeTriangles)
         {
             Matrix4x4 Q = Matrix4x4.zero;
 
@@ -322,7 +322,7 @@ namespace Habrador_Computational_Geometry
                 MyVector3 p3 = e.nextEdge.nextEdge.v.position;
 
                 //...and a normal
-                MyVector3 normal = _Geometry.CalculateNormal(p1, p2, p3);
+                MyVector3 normal = _Geometry.CalculateTriangleNormal(p1, p2, p3);
 
                 if (float.IsNaN(normal.x) || float.IsNaN(normal.y) || float.IsNaN(normal.z))
                 {
@@ -357,6 +357,13 @@ namespace Habrador_Computational_Geometry
                     );
 
                 //You can multiply this Kp with the area of the triangle to get a weighted-Kp which may improve the result
+                //This is only needed if the triangles have very different size
+                if (normalizeTriangles)
+                {
+                    float triangleArea = _Geometry.CalculateTriangleArea(p1, p2, p3);
+
+                    Kp = Kp.Multiply(triangleArea);
+                }
 
                 //Q is the sum of all Kp around the vertex
                 Q = Q.Add(Kp);

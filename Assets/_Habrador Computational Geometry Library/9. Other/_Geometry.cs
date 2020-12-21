@@ -505,13 +505,35 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Calculate the normal of a clock-wise oriented triangle
+        // Calculate the normal of a clock-wise oriented triangle in 3d space
         //
-        public static MyVector3 CalculateNormal(MyVector3 p1, MyVector3 p2, MyVector3 p3)
+        public static MyVector3 CalculateTriangleNormal(MyVector3 p1, MyVector3 p2, MyVector3 p3, bool shouldNormalize = true)
         {
-            MyVector3 normal = MyVector3.Normalize(MyVector3.Cross(p3 - p2, p1 - p2));
+            MyVector3 normal = MyVector3.Cross(p3 - p2, p1 - p2);
+
+            if (shouldNormalize)
+            {
+                normal = MyVector3.Normalize(normal);
+            }
 
             return normal;
+        }
+
+
+
+        //
+        // Calculate the area of a triangle in 3d space
+        //
+        //https://math.stackexchange.com/questions/128991/how-to-calculate-the-area-of-a-3d-triangle
+        public static float CalculateTriangleArea(MyVector3 p1, MyVector3 p2, MyVector3 p3)
+        {
+            MyVector3 normal = CalculateTriangleNormal(p1, p2, p3, shouldNormalize: false);
+
+            float parallelogramArea = MyVector3.Magnitude(normal);
+
+            float triangleArea = parallelogramArea * 0.5f;
+
+            return triangleArea;
         }
     }
 }

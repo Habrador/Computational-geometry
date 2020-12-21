@@ -25,7 +25,7 @@ namespace Habrador_Computational_Geometry
         {
             this.pos = p1;
 
-            MyVector3 normal = _Geometry.CalculateNormal(p1, p2, p3);
+            MyVector3 normal = _Geometry.CalculateTriangleNormal(p1, p2, p3);
 
             this.normal = normal;
         }
