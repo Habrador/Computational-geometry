@@ -279,6 +279,16 @@ If the new meshes are not connected, then it will separate the meshes, so you mi
 ![Cut mesh with plane](/_media/cut-mesh-with-plane.png?raw=true)
 
 
+**Simplify mesh**
+
+Will generate a mesh similar to the original mesh but with fewer triangles. Is useful for generating LODs, etc. The following algorithms are implemented:
+
+* Iterative pair contraction with the Quadric Error Metric (QEM). This is the most common mesh simplification algorithm. 
+
+![Mesh simplification](/_media/mesh-simplification-qem.png?raw=true)
+
+
+
 ## 9. Other
 
 **Is a triangle oriented clockwise?** 
@@ -366,6 +376,7 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Added cut mesh with plane
 * Added 3d convex hull with an iterative algorithm (which is very similar to Quickhull)
 * Added 3d voronoi and delaunay on a sphere
+* Added mesh simplification by using "Iterative pair contraction with the Quadric Error Metric (QEM)"
 
 **2020-11** 
 

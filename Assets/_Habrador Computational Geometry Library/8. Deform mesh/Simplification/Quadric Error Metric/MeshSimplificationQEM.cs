@@ -11,8 +11,9 @@ namespace Habrador_Computational_Geometry
         //- Calculate the optimal contraction target v and not just the average between two vertices
         //- Calculate weighted Q matrix by multiplying each Kp matrix with the area of the triangle
         //- Sometimes at the end of a simplification process, the QEM is NaN because the normal of the triangle has length 0 because two vertices are at the same position. This has maybe to do with "mesh inversion." The reports says that you should compare the normal of each neighboring face before and after the contraction. If the normal flips, undo the contraction or penalize it. The temp solution to solve this problem is to set the matrix to zero matrix
-        //- The algorithm can also join vertices that are within ||v1 - v2|| < distance, so add that!
-        //- Maybe there's a faster way by using unique edges instead of double the calculations for an edge going in the opposite direction?
+        //- The algorithm can also join vertices that are within ||v1 - v2|| < distance, so test to add that. It should merge the hole in  the bunny
+        //- Maybe there's a faster (and simpler) way by using unique edges instead of double the calculations for an edge going in the opposite direction?
+        //- A major bottleneck is finding edges going to a specific vertex. Maybe we could use a lookup table?
 
 
 
@@ -54,7 +55,7 @@ namespace Habrador_Computational_Geometry
 
             //The input to this method is a MyMesh which includes a list of all individual vertices (some might be doubles if we have hard edges)
             //Maybe we can use it? But then we still would have to find the corresponding half-edge vertices...
-
+            //0.142 seconds for the bunny (0.012 for dictionary lookup, 0.024 to calculate the Q matrices, 0.087 to find edges going to vertex)
             foreach (HalfEdgeVertex3 v in vertices)
             {
                 //Have we already calculated a Q matrix for this vertex?
@@ -82,11 +83,8 @@ namespace Habrador_Computational_Geometry
 
             //timer.Stop();
 
-            //0.142 seconds for the bunny (0.012 for dictionary lookup, 0.024 to calculate the Q matrices, 0.087 to find edges going to vertex)
-            //Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds");
-
-
-
+         
+           
             //
             // Select all valid pairs that can be contracted
             //
@@ -135,10 +133,10 @@ namespace Habrador_Computational_Geometry
             for (int i = 0; i < edgesToContract; i++)
             {
                 //Check that we can simplify the mesh
-                //The smallest mesh we can have is a terahedron with 4 faces
+                //The smallest mesh we can have is a tetrahedron with 4 faces
                 if (meshData.faces.Count <= 4)
                 {
-                    Debug.Log($"Contracted {i} edges");
+                    Debug.Log($"Cant contract more than {i} edges");
                 
                     break;
                 }
