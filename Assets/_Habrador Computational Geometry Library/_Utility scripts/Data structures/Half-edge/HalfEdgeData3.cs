@@ -453,6 +453,9 @@ namespace Habrador_Computational_Geometry
                 //Remove the edge and the vertex the edge points to from the list of all vertices and edges
                 this.edges.Remove(edgeToRemove);
                 this.verts.Remove(edgeToRemove.v);
+
+                //Set face reference to null, which is needed for some other methods
+                edgeToRemove.face = null;
             }
 
             //Remove the face from the list of all faces
@@ -465,15 +468,15 @@ namespace Habrador_Computational_Geometry
         // Contract an edge if we know we are dealing only with triangles
         //
 
-        //Should maybe return a vertex belonging to the contracted position
-        public void ContractTriangleHalfEdge(HalfEdge3 e, MyVector3 mergePos)
+        //Returns all edge pointing to the new vertex
+        public HashSet<HalfEdge3> ContractTriangleHalfEdge(HalfEdge3 e, MyVector3 mergePos)
         {
             //Step 1. Get all edges pointing to the vertices we will merge
             //And edge is going TO a vertex, so this edge goes from v1 to v2
             HalfEdgeVertex3 v1 = e.prevEdge.v;
             HalfEdgeVertex3 v2 = e.v;
 
-            //It's faster to get these before we remove triangles because then we will get a messed up half-edge system? 
+            //It's better to get these before we remove triangles because then we will get a messed up half-edge system? 
             HashSet<HalfEdge3> edgesGoingToVertex_v1 = v1.GetEdgesPointingToVertex(this);
             HashSet<HalfEdge3> edgesGoingToVertex_v2 = v2.GetEdgesPointingToVertex(this);
 
@@ -491,29 +494,43 @@ namespace Habrador_Computational_Geometry
 
             //Step 3. Move the vertices to the merge position
             //Some of these edges belong to the triangles we removed, but it doesnt matter because this operation is fast
+
+            //We can at the same time find the edges pointing to the new vertex
+            HashSet<HalfEdge3> edgesPointingToVertex = new HashSet<HalfEdge3>();
+
             if (edgesGoingToVertex_v1 != null)
             {
-                foreach (HalfEdge3 edgeTo_v1 in edgesGoingToVertex_v1)
+                foreach (HalfEdge3 edgeToV in edgesGoingToVertex_v1)
                 {
-                    edgeTo_v1.v.position = mergePos;
+                    //This edge belonged to one of the faces we removed
+                    if (edgeToV.face == null)
+                    {
+                        continue;
+                    }
+                
+                    edgeToV.v.position = mergePos;
+
+                    edgesPointingToVertex.Add(edgeToV);
                 }
             }
-            else
-            {
-                Debug.LogWarning("There are no edges going to v1");
-            }
-            
             if (edgesGoingToVertex_v2 != null)
             {
-                foreach (HalfEdge3 edgeTo_v2 in edgesGoingToVertex_v2)
+                foreach (HalfEdge3 edgeToV in edgesGoingToVertex_v2)
                 {
-                    edgeTo_v2.v.position = mergePos;
+                    //This edge belonged to one of the faces we removed
+                    if (edgeToV.face == null)
+                    {
+                        continue;
+                    }
+
+                    edgeToV.v.position = mergePos;
+
+                    edgesPointingToVertex.Add(edgeToV);
                 }
             }
-            else
-            {
-                Debug.LogWarning("There are no edges going to v2");
-            }
+
+
+            return edgesPointingToVertex;
         }
 
         //Help method to above
