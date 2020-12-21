@@ -40,7 +40,7 @@ public class MeshSimplificationController : MonoBehaviour
 
         timer.Start();
 
-        MyMesh mySimplifiedMesh = MeshSimplificationQEM.SimplifyByMergingEdges(myMeshToSimplify);
+        MyMesh mySimplifiedMesh = MeshSimplificationQEM.SimplifyByMergingEdges(myMeshToSimplify, edgesToContract: 2400);
 
         timer.Stop();
 
@@ -51,6 +51,9 @@ public class MeshSimplificationController : MonoBehaviour
         //
         // Change data structure and un-normalize
         //
+
+        timer.Reset();
+        timer.Start();
 
         //Un-Normalize
         mySimplifiedMesh.vertices = normalizer.UnNormalize(mySimplifiedMesh.vertices);
@@ -65,5 +68,9 @@ public class MeshSimplificationController : MonoBehaviour
 
         //Attach to new game object
         meshFilterToShowSimplifiedMesh.mesh = unitySimplifiedMesh;
+
+        timer.Stop();
+
+        Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to finalize the mesh after simplifying");
     }
 }
