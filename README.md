@@ -347,7 +347,6 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 	* Mesh decals
 	* Deform mesh after collision like car crash
 	* Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want (https://twitter.com/mattstark256)
-	* Mesh simplification
 * Voronoi: 
 	* Fortune's algorithm
 	* Voronoi: point-by-point
