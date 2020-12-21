@@ -25,9 +25,7 @@ namespace Habrador_Computational_Geometry
         {
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
-            //
-            // Convert the mesh to half-edge data structure
-            //
+            //Convert the mesh to half-edge data structure
 
             //timer.Start();
             HalfEdgeData3 meshData = new HalfEdgeData3(originalMesh);
@@ -37,6 +35,19 @@ namespace Habrador_Computational_Geometry
             meshData.ConnectAllEdgesFast();
             //timer.Stop();
 
+            HalfEdgeData3 simplifiedMeshData = SimplifyByMergingEdges(meshData, edgesToContract, normalizeTriangles, normalizer);
+
+            //From half-edge to mesh
+            MyMesh simplifiedMesh = meshData.ConvertToMyMesh("Simplified mesh", MyMesh.MeshStyle.SoftEdges);
+
+            return simplifiedMesh;
+        }
+
+
+
+        public static HalfEdgeData3 SimplifyByMergingEdges(HalfEdgeData3 meshData, int edgesToContract, bool normalizeTriangles = false, Normalizer3 normalizer = null)
+        {
+            System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
 
             //
@@ -287,11 +298,7 @@ namespace Habrador_Computational_Geometry
             Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds");
 
 
-            //From half-edge to mesh
-            MyMesh simplifiedMesh = meshData.ConvertToMyMesh("Simplified mesh", MyMesh.MeshStyle.SoftEdges);
-
-
-            return simplifiedMesh;
+            return meshData;
         }
 
 
