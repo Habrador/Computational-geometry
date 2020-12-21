@@ -165,31 +165,12 @@ namespace Habrador_Computational_Geometry
                 // Remove the pair (v1,v2) of the least cost and contract the pair         
                 //
 
-                //Find the QEM edge with the smallest error
                 //timer.Start();
-                /*
-                QEM_Edge smallestErrorEdge = null;
-
-                float smallestError = Mathf.Infinity;
-
-                foreach (QEM_Edge QEM_edge in QEM_edges)
-                {
-                    if (QEM_edge.qem < smallestError)
-                    {
-                        smallestError = QEM_edge.qem;
-
-                        smallestErrorEdge = QEM_edge;
-                    }
-                }
-                //timer.Stop();
-                QEM_edges.Remove(smallestErrorEdge);
-                */
-
-                timer.Start();
 
                 QEM_Edge smallestErrorEdge = sorted_QEM_edges.RemoveFirst();
 
-                //We cant yet remove edges from the heap, so we do it this way for now, which is fine
+                //This means an edge in this face has already been contracted
+                //We cant yet remove edges from the heap, so we do it this way for now, which is maybe better?
                 if (smallestErrorEdge.halfEdge.face == null)
                 {
                     //This edge wasn't contracted so don't add it to iteration
@@ -197,8 +178,6 @@ namespace Habrador_Computational_Geometry
                 
                     continue;
                 }
-
-                timer.Stop();
 
                 //timer.Stop();
 
@@ -315,7 +294,7 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            //Timers: 0.78 to generate the simplified bunny (2400 edge contractions)
+            //Timers: 0.78 to generate the simplified bunny (2400 edge contractions) (normalizing triangles is 0.05 seconds slower)
             //Init:
             // - 0.1 to convert to half-edge data structure
             // - 0.14 to calculate a Q matrix for each unique vertex
@@ -324,7 +303,7 @@ namespace Habrador_Computational_Geometry
             // - 0.25 to merge the edges (the bottleneck is where we have to find all edges pointing to a vertex)
             // - 0.02 to remove the data that was destroyed when we contracted an edge
             // - 0.13 to update QEM edges
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds");
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to measure whatever we measured");
 
 
             return meshData;
