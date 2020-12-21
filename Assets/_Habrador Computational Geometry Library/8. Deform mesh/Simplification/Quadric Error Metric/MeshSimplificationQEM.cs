@@ -9,17 +9,18 @@ namespace Habrador_Computational_Geometry
     {
         //TODO:
         //- Calculate the optimal contraction target v and not just the average between two vertices
-        //- Sometimes at the end of a simplification process, the QEM is NaN because the normal of the triangle has length 0 because two vertices are at the same position. This has maybe to do with "mesh inversion." The reports says that you should compare the normal of each neighboring face before and after the contraction. If the normal flips, undo the contraction or penalize it. The temp solution to solve this problem is to set the matrix to zero matrix
+        //- Sometimes at the end of a simplification process, the QEM is NaN because the normal of the triangle has length 0 because two vertices are at the same position. This has maybe to do with "mesh inversion." The reports says that you should compare the normal of each neighboring face before and after the contraction. If the normal flips, undo the contraction or penalize it. The temp solution to solve this problem is to set the matrix to zero matrix if the normal is NaN
         //- The algorithm can also join vertices that are within ||v1 - v2|| < distance, so test to add that. It should merge the hole in the bunny
         //- Maybe there's a faster (and simpler) way by using unique edges instead of double the calculations for an edge going in the opposite direction?
         //- A major bottleneck is finding edges going to a specific vertex. Maybe we could use a lookup table?
+        //- Is edgesToContract the correct way to stop the algorithm? Maybe it should be number of vertices in the final mesh?
 
 
 
         //Merge edges to simplify a mesh
         //Based on reports by Garland and Heckbert, "Surface simplification using quadric error metrics"
         //Is called: "Iterative pair contraction with the Quadric Error Metric (QEM)"
-        //- normalizeTriangles is if we want to multiply the QEM with the area of the triangle, which might sometimes give a better result 
+        //- normalizeTriangles is if we want to multiply the QEM with the area of the triangle, which might give a better result 
         //- normalizer is only needed for debugging
         public static MyMesh SimplifyByMergingEdges(MyMesh originalMesh, int edgesToContract, bool normalizeTriangles = false, Normalizer3 normalizer = null)
         {
@@ -134,6 +135,13 @@ namespace Habrador_Computational_Geometry
             // Sort all pairs, with the minimum cost pair at the top
             //
 
+            Heap<QEM_Edge> sorted_QEM_edges = new Heap<QEM_Edge>(QEM_edges.Count);
+
+            foreach (QEM_Edge e in QEM_edges)
+            {
+                sorted_QEM_edges.Add(e);
+            }
+
 
 
             //
@@ -159,6 +167,7 @@ namespace Habrador_Computational_Geometry
 
                 //Find the QEM edge with the smallest error
                 //timer.Start();
+                /*
                 QEM_Edge smallestErrorEdge = null;
 
                 float smallestError = Mathf.Infinity;
@@ -174,6 +183,22 @@ namespace Habrador_Computational_Geometry
                 }
                 //timer.Stop();
                 QEM_edges.Remove(smallestErrorEdge);
+                */
+
+                timer.Start();
+
+                QEM_Edge smallestErrorEdge = sorted_QEM_edges.RemoveFirst();
+
+                //We cant yet remove edges from the heap, so we do it this way for now, which is fine
+                if (smallestErrorEdge.halfEdge.face == null)
+                {
+                    //This edge wasn't contracted so don't add it to iteration
+                    i -= 1;
+                
+                    continue;
+                }
+
+                timer.Stop();
 
                 //timer.Stop();
 
@@ -213,7 +238,7 @@ namespace Habrador_Computational_Geometry
                 //
                 // Remove all QEM_edges that belonged to the faces we contracted
                 //
-                
+                /*
                 //timer.Start();
 
                 //This edge doesnt exist anymore, so remove it from the lookup
@@ -234,7 +259,7 @@ namespace Habrador_Computational_Geometry
                     RemoveHalfEdgeFromQEMEdges(oppositeEdge.nextEdge.nextEdge, QEM_edges, halfEdge_QEM_Lookup);
                 }
                 //timer.Stop();
-
+                */
 
                 //Remove the edges start and end vertices from the vertex - Q matrix lookup table
                 qMatrices.Remove(contractedEdgeEndpoints.p1);
@@ -272,6 +297,8 @@ namespace Habrador_Computational_Geometry
 
                     QEM_edgeToV.UpdateEdge(edgeToV, Q1_edgeToV, Q2_edgeToV);
 
+                    sorted_QEM_edges.UpdateItem(QEM_edgeToV);
+
                     //From
                     QEM_Edge QEM_edgeFromV = halfEdge_QEM_Lookup[edgeFromV];
 
@@ -281,17 +308,19 @@ namespace Habrador_Computational_Geometry
                     Matrix4x4 Q2_edgeFromV = qMatrices[edgeFromV_endPoints.p2];
 
                     QEM_edgeFromV.UpdateEdge(edgeFromV, Q1_edgeFromV, Q2_edgeFromV);
+
+                    sorted_QEM_edges.UpdateItem(QEM_edgeFromV);
                 }
                 //timer.Stop();
             }
 
 
-            //Timers: 1.23 to generate the simplified bunny (2400 edge contractions)
+            //Timers: 0.78 to generate the simplified bunny (2400 edge contractions)
             //Init:
             // - 0.1 to convert to half-edge data structure
             // - 0.14 to calculate a Q matrix for each unique vertex
             //Loop (total time):
-            // - 0.50 to find smallest QEM error
+            // - 0.04 to find smallest QEM error
             // - 0.25 to merge the edges (the bottleneck is where we have to find all edges pointing to a vertex)
             // - 0.02 to remove the data that was destroyed when we contracted an edge
             // - 0.13 to update QEM edges

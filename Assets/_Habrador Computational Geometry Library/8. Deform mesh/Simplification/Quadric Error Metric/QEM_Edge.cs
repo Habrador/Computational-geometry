@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Help class to sort edges
-    public class QEM_Edge
+    public class QEM_Edge : IHeapItem<QEM_Edge>
     {
         public HalfEdge3 halfEdge;
 
@@ -14,8 +14,15 @@ namespace Habrador_Computational_Geometry
 
         //The Quadric Error Metric at this target
         public float qem;
-        
 
+        private int heapIndex;
+
+        //To be able to sort the items in the heap
+        public int HeapIndex 
+        {
+            get { return heapIndex; }
+            set { this.heapIndex = value; }
+        }
 
         public QEM_Edge(HalfEdge3 halfEdge, Matrix4x4 Q1, Matrix4x4 Q2)
         {
@@ -99,6 +106,21 @@ namespace Habrador_Computational_Geometry
             Edge3 e = new Edge3(p1, p2);
 
             return e;
+        }
+
+
+
+        //To be able to sort items in the heap
+        //https://docs.microsoft.com/en-us/previous-versions/windows/silverlight/dotnet-windows-silverlight/74z9b11e(v=vs.95)?redirectedfrom=MSDN
+        public int CompareTo(QEM_Edge other)
+        {
+            //Compare
+            int compare = qem.CompareTo(other.qem);
+
+            //We want to return 1 if the item has a higher priority than then item we are comparing it with has
+            //meaning that qem < other.qem
+            //But CompareTo is return 1 of qem > other.qem, so we have to return the negative
+            return -compare;
         }
     }
 }
