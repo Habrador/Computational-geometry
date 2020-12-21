@@ -469,17 +469,18 @@ namespace Habrador_Computational_Geometry
         //
 
         //Returns all edge pointing to the new vertex
-        public HashSet<HalfEdge3> ContractTriangleHalfEdge(HalfEdge3 e, MyVector3 mergePos)
+        public HashSet<HalfEdge3> ContractTriangleHalfEdge(HalfEdge3 e, MyVector3 mergePos, System.Diagnostics.Stopwatch timer = null)
         {
             //Step 1. Get all edges pointing to the vertices we will merge
             //And edge is going TO a vertex, so this edge goes from v1 to v2
             HalfEdgeVertex3 v1 = e.prevEdge.v;
             HalfEdgeVertex3 v2 = e.v;
 
+            //timer.Start();
             //It's better to get these before we remove triangles because then we will get a messed up half-edge system? 
             HashSet<HalfEdge3> edgesGoingToVertex_v1 = v1.GetEdgesPointingToVertex(this);
             HashSet<HalfEdge3> edgesGoingToVertex_v2 = v2.GetEdgesPointingToVertex(this);
-
+            //timer.Stop();
 
             //Step 2. Remove the triangles, which will create a hole, 
             //and the edges on the opposite sides of the hole are connected

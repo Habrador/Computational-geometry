@@ -90,6 +90,7 @@ namespace Habrador_Computational_Geometry
             //
             // Select all valid pairs that can be contracted
             //
+
             List<HalfEdge3> validPairs = new List<HalfEdge3>(meshData.edges);
 
 
@@ -97,6 +98,7 @@ namespace Habrador_Computational_Geometry
             //
             // Compute the cost of contraction for each pair
             //
+
             HashSet<QEM_Edge> QEM_edges = new HashSet<QEM_Edge>();
 
             //We need a lookup table to faster remove and update QEM_edges
@@ -161,7 +163,7 @@ namespace Habrador_Computational_Geometry
                         smallestErrorEdge = QEM_edge;
                     }
                 }
-
+                //timer.Stop();
                 QEM_edges.Remove(smallestErrorEdge);
 
                 //timer.Stop();
@@ -182,18 +184,20 @@ namespace Habrador_Computational_Geometry
                     break;
                 }
 
-                timer.Start();
+
+                //timer.Start();
 
                 //Get the half-edge we want to contract 
                 HalfEdge3 edgeToContract = smallestErrorEdge.halfEdge;
 
                 //Need to save this so we can remove the old Q matrices from the pos-matrix lookup table
+                //We may move the edgeToContract when contracting it for optimization purposes???
                 Edge3 contractedEdgeEndpoints = new Edge3(edgeToContract.prevEdge.v.position, edgeToContract.v.position);
 
                 //Contract edge
-                HashSet<HalfEdge3> edgesPointingToNewVertex = meshData.ContractTriangleHalfEdge(edgeToContract, smallestErrorEdge.mergePosition);
+                HashSet<HalfEdge3> edgesPointingToNewVertex = meshData.ContractTriangleHalfEdge(edgeToContract, smallestErrorEdge.mergePosition, timer);
 
-                timer.Stop();
+                //timer.Stop();
 
 
 
@@ -275,19 +279,19 @@ namespace Habrador_Computational_Geometry
 
             //Timers: 1.231 to generate the bunny (2400 edge contractions)
             //Init:
-            // - 0.01 to convert to half-edge data structure
-            // - 0.1 to connect all opposite edges in the half-edge data structure
-            // - 0.142 to calculate a Q matrix for each unique vertex
-            //Loop:
-            // - 0.544 to find smallest QEM error
-            // - 0.250 to merge the edges
-            // - 0.015 to remove the data that was destroyed when we contracted an edge
-            // - 0.128 to update QEM edges
+            // - 0.1 to convert to half-edge data structure
+            // - 0.14 to calculate a Q matrix for each unique vertex
+            //Loop (total time):
+            // - 0.50 to find smallest QEM error
+            // - 0.25 to merge the edges (the bottleneck is where ee have to find all edges pointing to a vertex)
+            // - 0.02 to remove the data that was destroyed when we contracted an edge
+            // - 0.13 to update QEM edges
             Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds");
 
 
             //From half-edge to mesh
             MyMesh simplifiedMesh = meshData.ConvertToMyMesh("Simplified mesh", shareVertices: true);
+
 
             return simplifiedMesh;
         }
@@ -329,7 +333,7 @@ namespace Habrador_Computational_Geometry
                     //TestAlgorithmsHelpMethods.DisplayMyVector3(p2);
                     //TestAlgorithmsHelpMethods.DisplayMyVector3(p3);
 
-                    //Temp solution of the normal i zero
+                    //Temp solution if the normal is zero
                     Q = Q.Add(Matrix4x4.zero);
 
                     continue;
