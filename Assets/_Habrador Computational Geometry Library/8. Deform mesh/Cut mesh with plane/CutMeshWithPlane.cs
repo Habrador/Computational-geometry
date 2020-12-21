@@ -224,7 +224,7 @@ namespace Habrador_Computational_Geometry
 
             foreach (HalfEdgeData3 meshData in newMeshesO)
             {
-                MyMesh myMesh = meshData.ConvertToMyMesh("Outside mesh", shareVertices: true);
+                MyMesh myMesh = meshData.ConvertToMyMesh("Outside mesh", MyMesh.MeshStyle.HardAndSoftEdges);
 
                 Mesh unityMesh = myMesh.ConvertToUnityMesh(generateNormals: false);
 
@@ -233,7 +233,7 @@ namespace Habrador_Computational_Geometry
 
             foreach (HalfEdgeData3 meshData in newMeshesI)
             {
-                MyMesh myMesh = meshData.ConvertToMyMesh("Inside mesh", shareVertices: true);
+                MyMesh myMesh = meshData.ConvertToMyMesh("Inside mesh", MyMesh.MeshStyle.HardAndSoftEdges);
 
                 Mesh unityMesh = myMesh.ConvertToUnityMesh(generateNormals: false);
 

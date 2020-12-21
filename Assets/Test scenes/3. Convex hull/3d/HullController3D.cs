@@ -87,7 +87,7 @@ public class HullController3D : MonoBehaviour
         {
             HalfEdgeData3 convexHull = normalizer.UnNormalize(convexHull_normalized);
 
-            MyMesh myMesh = convexHull.ConvertToMyMesh("convex hull", shareVertices: false);
+            MyMesh myMesh = convexHull.ConvertToMyMesh("convex hull", MyMesh.MeshStyle.HardEdges);
 
             //To unity mesh
             Mesh convexHullMesh = myMesh.ConvertToUnityMesh(generateNormals: false, myMesh.meshName);

@@ -288,7 +288,7 @@ namespace Habrador_Computational_Geometry
 
 
             //From half-edge to mesh
-            MyMesh simplifiedMesh = meshData.ConvertToMyMesh("Simplified mesh", shareVertices: true, hasHardAndSoftEdges: false);
+            MyMesh simplifiedMesh = meshData.ConvertToMyMesh("Simplified mesh", MyMesh.MeshStyle.SoftEdges);
 
 
             return simplifiedMesh;

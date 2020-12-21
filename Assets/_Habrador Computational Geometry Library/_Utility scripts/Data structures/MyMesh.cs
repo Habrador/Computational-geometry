@@ -15,6 +15,15 @@ namespace Habrador_Computational_Geometry
         //Cant be name because then we get the name of the game object
         public string meshName;
 
+        //What mesh style do we want?
+        //Hard edges only, etc...
+        public enum MeshStyle
+        {
+            HardEdges,
+            SoftEdges,
+            HardAndSoftEdges
+        }
+
 
         public MyMesh(string meshName = null)
         {
@@ -44,12 +53,11 @@ namespace Habrador_Computational_Geometry
 
 
         //Add a triangle (oriented clock-wise) to the mesh
-        //If we want hard edges, set shareVertices to false. Otherwise we will get a smooth surface
-        public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, bool shareVertices, bool hasHardAndSoftEdges = false)
+        public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, MeshStyle meshStyle)
         {
-            int index1 = AddVertexAndReturnIndex(v1, shareVertices, hasHardAndSoftEdges);
-            int index2 = AddVertexAndReturnIndex(v2, shareVertices, hasHardAndSoftEdges);
-            int index3 = AddVertexAndReturnIndex(v3, shareVertices, hasHardAndSoftEdges);
+            int index1 = AddVertexAndReturnIndex(v1, meshStyle);
+            int index2 = AddVertexAndReturnIndex(v2, meshStyle);
+            int index3 = AddVertexAndReturnIndex(v3, meshStyle);
 
             AddTrianglePositions(index1, index2, index3);
         }
@@ -59,28 +67,30 @@ namespace Habrador_Computational_Geometry
         //Add a vertex to the mesh and return its position in the array
         //If we want only hard edges, set shareVertices to false. Otherwise we will get a smooth surface
         //If we want combination of smooth surface and hard edges, set shareVertices and hasHardEdges to true
-        public int AddVertexAndReturnIndex(MyMeshVertex v, bool shareVertices, bool hasHardAndSoftEdges)
+        public int AddVertexAndReturnIndex(MyMeshVertex v, MeshStyle meshStyle)
         {
             int vertexPosInList = -1;
 
-            if (shareVertices)
+            if (meshStyle == MeshStyle.SoftEdges || meshStyle == MeshStyle.HardAndSoftEdges)
             {
                 for (int i = 0; i < vertices.Count; i++)
                 {
-                    //Here we have to compare both position and normal or we can't get hard edges in combination with soft edges
                     MyVector3 thisPos = vertices[i];
-                    MyVector3 thisNormal = normals[i];
-
+                   
                     if (thisPos.Equals(v.position))
                     {
-                        if (hasHardAndSoftEdges && thisNormal.Equals(v.normal))
+                        //Here we have to compare both position and normal or we can't get hard edges in combination with soft edges
+                        MyVector3 thisNormal = normals[i];
+
+                        if (meshStyle == MeshStyle.HardAndSoftEdges && thisNormal.Equals(v.normal))
                         {
                             vertexPosInList = i;
 
                             return vertexPosInList;
                         }
-                    
-                        if (!hasHardAndSoftEdges)
+                        
+                        //Sometimes we dont have a normal to compare
+                        if (meshStyle == MeshStyle.SoftEdges)
                         {
                             vertexPosInList = i;
 
