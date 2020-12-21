@@ -44,7 +44,7 @@ public class MeshSimplificationController : MonoBehaviour
 
         timer.Stop();
 
-        Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} to simplify the mesh");
+        Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to simplify the mesh");
 
 
 

@@ -630,7 +630,8 @@ namespace Habrador_Computational_Geometry
 
 
 
-            //If there are holes in the triangulation around the vertex, we have to use the brute force approach
+            //If there are holes in the triangulation around the vertex, 
+            //we have to use the brute force approach and look at edges
             if (allEdgesGoingToVertex.Count == 0 && meshData != null)
             {
                 HashSet<HalfEdge3> edges = meshData.edges;

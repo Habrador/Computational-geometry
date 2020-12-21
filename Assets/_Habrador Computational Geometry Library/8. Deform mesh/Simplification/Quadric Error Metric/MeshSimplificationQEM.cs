@@ -10,6 +10,7 @@ namespace Habrador_Computational_Geometry
         //TODO:
         //- Calculate the optimal contraction target v and not just the average between two vertices
         //- Calculate weighted Q matrix by multiplying each Kp matrix with the area of the triangle
+        //- Sometimes at the end of a simplification process, the QEM is NaN because the normal of the triangle has length 0 because two vertices are at the same position
 
 
 
@@ -51,24 +52,40 @@ namespace Habrador_Computational_Geometry
 
             HashSet<HalfEdgeVertex3> vertices = meshData.verts;
 
+            //timer.Start();
+
+            //The input to this method is a MyMesh which includes a list of all individual vertices (some might be doubles if we have hard edges)
+            //Maybe we can use it?
+
             foreach (HalfEdgeVertex3 v in vertices)
             {
                 //Have we already calculated a Q matrix for this vertex?
                 //Remember that we have multiple vertices at the same position in the half-edge data structure
+                //timer.Start();
                 if (qMatrices.ContainsKey(v.position))
                 {
                     continue;
                 }
+                //timer.Stop();
 
                 //Calculate the Q matrix for this vertex
-                //Find all triangles meeting at this vertex
+                //Find all edges meeting at this vertex
+                //Maybe we can speed up by saving all vertices which can't be rotated around, while removing edges of those that can, which will result in fewer edges to search through when using the brute force approach?
+                //timer.Start();
                 HashSet<HalfEdge3> edgesPointingToThisVertex = v.GetEdgesPointingToVertex(meshData);
+                //timer.Stop();
 
+                //timer.Start();
                 Matrix4x4 Q = CalculateQMatrix(edgesPointingToThisVertex);
+                //timer.Stop();
 
                 qMatrices.Add(v.position, Q);
             }
 
+            //timer.Stop();
+
+            //0.142 seconds for the bunny (0.012 for dictionary lookup, 0.024 to calculate the Q matrices, 0.087 to find edges going to vertex)
+            //Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to calculate the Q matrices for the initial vertices");
 
 
             //Step 2. Select all valid pairs
@@ -94,10 +111,18 @@ namespace Habrador_Computational_Geometry
 
 
             //For each edge we want to remove
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 2400; i++)
             {
+                //Check that we can simplify the mesh
+                if (meshData.faces.Count <= 4)
+                {
+                    break;
+                }
+
+
                 //Step 4. Sort all pairs, with the minimum cost pair at the top
                 //Find the QEM edge with the smallest error
+                //timer.Start();
                 QEM_Edge smallestErrorEdge = null;
 
                 float smallestError = Mathf.Infinity;
@@ -113,7 +138,23 @@ namespace Habrador_Computational_Geometry
                 }
 
                 QEM_edges.Remove(smallestErrorEdge);
+                //timer.Stop();
 
+                if (smallestErrorEdge == null)
+                {
+                    Debug.LogWarning("Cant find a smallest QEM edge");
+
+                    Debug.Log($"Number of QEM_edges: {QEM_edges.Count}");
+
+                    foreach (QEM_Edge QEM_edge in QEM_edges)
+                    {
+                        Debug.Log(QEM_edge.qem);
+                    }
+                
+                    Debug.Log($"Faces: {meshData.faces.Count} Edges: {meshData.edges.Count} Verts: {meshData.verts.Count}");
+
+                    break;
+                }
 
                 //Step 5. Remove the pair (v1,v2) of the least cost, contract the pair, and update the costs of all valid pairs           
 
@@ -134,6 +175,7 @@ namespace Habrador_Computational_Geometry
                 //We need to remove the two edges that were a part of the triangle of the edge we contracted
                 //This could become faster if we had a dictionary that saved the half-edge QEM_edge relationship
                 //Or maybe we don't need to generate a QEM_edge for all edges, we just need the best one...
+                //timer.Start();
                 RemoveHalfEdgeFromQEMEdges(edgeToContract.nextEdge, QEM_edges);
                 RemoveHalfEdgeFromQEMEdges(edgeToContract.nextEdge.nextEdge, QEM_edges);
 
@@ -147,6 +189,7 @@ namespace Habrador_Computational_Geometry
                     RemoveHalfEdgeFromQEMEdges(oppositeEdge.nextEdge, QEM_edges);
                     RemoveHalfEdgeFromQEMEdges(oppositeEdge.nextEdge.nextEdge, QEM_edges);
                 }
+                //timer.Stop();
 
 
                 //We have a dictionary with all Q matrices for each vertex position
@@ -154,9 +197,11 @@ namespace Habrador_Computational_Geometry
                 //Remove the old positions from the Q matrices dictionary
                 qMatrices.Remove(removedEdgeEndpoints.p1);
                 qMatrices.Remove(removedEdgeEndpoints.p2);
+                //timer.Stop();
+
 
                 //Calculate a new Q matrix for the contracted position 
-
+                //timer.Start();
                 //To get the edges going to a position we need a vertex from the half-edge data structure
                 HalfEdgeVertex3 contractedVertex = null;
 
@@ -171,21 +216,23 @@ namespace Habrador_Computational_Geometry
                         break;
                     }
                 }
-
+                //timer.Stop();
                 //TestAlgorithmsHelpMethods.DisplayMyVector3(contractedVertex.position);
                 //TestAlgorithmsHelpMethods.DisplayMyVector3(smallestErrorEdge.mergePosition);
-
+                //timer.Start();
                 HashSet<HalfEdge3> edgesPointingToVertex = contractedVertex.GetEdgesPointingToVertex(meshData);
-
+                //timer.Stop();
                 //Debug.Log(edgesPointingToVertex.Count);
 
                 Matrix4x4 QNew = CalculateQMatrix(edgesPointingToVertex);
 
+                //Add the Q matrix to the vertex - Q matrix lookup table
                 qMatrices.Add(smallestErrorEdge.mergePosition, QNew);
 
 
                 //Update the QEM_edges of the edges that pointed to and from one of the two old Q matrices
                 //Those edges are the same edges that points to the new vertex and goes from the new vertex
+                timer.Start();
                 HashSet<HalfEdge3> edgesThatNeedToBeUpdated = new HashSet<HalfEdge3>(edgesPointingToVertex);
                 //The edges going from the new vertex is the next edge of the edges going to the vertex
                 foreach (HalfEdge3 e in edgesPointingToVertex)
@@ -212,8 +259,20 @@ namespace Habrador_Computational_Geometry
                         break;
                     }
                 }
+                timer.Stop();
             }
 
+
+            //Timers: 4.672 to generate the bunny
+            // - 0.01 to fonvert to half-edge data structure
+            // - 0.1 to connect all opposite edges in the half-edge data structure
+            // - 0.142 to calculate a Q matrix for each unique vertex
+            // - 0.544 to find smallest QEM error, would be faster if we used a heap?
+            // - 1.728 to remove the edge we contract from the data structure, so RemoveHalfEdgeFromQEMEdges() has to be optimized
+            // - 0.372 to find a reference to the contracted vertex
+            // - 0.145 to find edges pointing to the new vertex
+            // - 1.251 to update QEM edges
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds");
 
 
             //From half-edge to mesh
@@ -224,10 +283,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-
-
-
-
+        //Remove a single QEM error edge given the half-edge belonging to that QEM error edge
         private static void RemoveHalfEdgeFromQEMEdges(HalfEdge3 e, HashSet<QEM_Edge> QEM_edges)
         {
             foreach (QEM_Edge QEM_edge in QEM_edges)
@@ -245,6 +301,7 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //Calculate the Q matrix for a vertex if we know all edges pointing to the vertex
         private static Matrix4x4 CalculateQMatrix(HashSet<HalfEdge3> edgesPointingToVertex)
         {
             Matrix4x4 Q = Matrix4x4.zero;
@@ -259,6 +316,14 @@ namespace Habrador_Computational_Geometry
 
                 //...and a normal
                 MyVector3 normal = _Geometry.CalculateNormal(p1, p2, p3);
+
+                if (float.IsNaN(normal.x) || float.IsNaN(normal.y) || float.IsNaN(normal.z))
+                {
+                    Debug.LogWarning("This normal has length 0");
+                    //TestAlgorithmsHelpMethods.DisplayMyVector3(p1);
+                    //TestAlgorithmsHelpMethods.DisplayMyVector3(p2);
+                    //TestAlgorithmsHelpMethods.DisplayMyVector3(p3);
+                }
 
                 //To calculate the Kp matrix, we have to define the plane on the form: 
                 //ax + by + cz + d = 0 where a^2 + b^2 + c^2 = 1
