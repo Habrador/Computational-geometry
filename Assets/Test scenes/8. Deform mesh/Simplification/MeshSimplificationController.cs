@@ -30,6 +30,8 @@ public class MeshSimplificationController : MonoBehaviour
         //We only need to normalize the vertices
         myMeshToSimplify.vertices = normalizer.Normalize(myMeshToSimplify.vertices);
 
+        HalfEdgeData3 myMeshToSimplify_HalfEdge = new HalfEdgeData3(myMeshToSimplify, HalfEdgeData3.ConnectOppositeEdges.Fast);
+
 
 
         //
@@ -40,7 +42,7 @@ public class MeshSimplificationController : MonoBehaviour
 
         timer.Start();
 
-        MyMesh mySimplifiedMesh = MeshSimplification_QEM.Simplify(myMeshToSimplify, edgesToContract: 2400, normalizeTriangles: true);
+        HalfEdgeData3 mySimplifiedMesh_HalfEdge = MeshSimplification_QEM.Simplify(myMeshToSimplify_HalfEdge, edgesToContract: 2400, normalizeTriangles: true);
 
         timer.Stop();
 
@@ -54,6 +56,9 @@ public class MeshSimplificationController : MonoBehaviour
 
         timer.Reset();
         timer.Start();
+
+        //From half-edge to mesh
+        MyMesh mySimplifiedMesh = mySimplifiedMesh_HalfEdge.ConvertToMyMesh("Simplified mesh", MyMesh.MeshStyle.SoftEdges);
 
         //Un-Normalize
         mySimplifiedMesh.vertices = normalizer.UnNormalize(mySimplifiedMesh.vertices);

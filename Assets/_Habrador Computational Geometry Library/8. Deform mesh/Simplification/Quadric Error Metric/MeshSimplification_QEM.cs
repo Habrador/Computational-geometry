@@ -8,44 +8,25 @@ namespace Habrador_Computational_Geometry
     public static class MeshSimplification_QEM
     {
         //TODO:
-        //- Calculate the optimal contraction target v and not just the average between two vertices
+        //- Calculate the optimal contraction target v and not just the average between two vertices or one of the two endpoints
         //- Sometimes at the end of a simplification process, the QEM is NaN because the normal of the triangle has length 0 because two vertices are at the same position. This has maybe to do with "mesh inversion." The reports says that you should compare the normal of each neighboring face before and after the contraction. If the normal flips, undo the contraction or penalize it. The temp solution to solve this problem is to set the matrix to zero matrix if the normal is NaN
         //- The algorithm can also join vertices that are within ||v1 - v2|| < distance, so test to add that. It should merge the hole in the bunny
         //- Maybe there's a faster (and simpler) way by using unique edges instead of double the calculations for an edge going in the opposite direction?
-        //- A major bottleneck is finding edges going to a specific vertex. Maybe we could use a lookup table?
+        //- A major bottleneck is finding edges going to a specific vertex. The problem is that if there are holes in the mesh, we can't just rotate around the vertex to find the edges - we have to search through ALL edges
         //- Is edgesToContract the correct way to stop the algorithm? Maybe it should be number of vertices in the final mesh?
 
 
 
-        //Merge edges to simplify a mesh
-        //Based on reports by Garland and Heckbert, "Surface simplification using quadric error metrics"
-        //Is called: "Iterative pair contraction with the Quadric Error Metric (QEM)"
-        //- normalizeTriangles is if we want to multiply the QEM with the area of the triangle, which might give a better result 
-        //- normalizer is only needed for debugging
-        public static MyMesh Simplify(MyMesh originalMesh, int edgesToContract, bool normalizeTriangles = false, Normalizer3 normalizer = null)
-        {
-            System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
-
-            //Convert the mesh to half-edge data structure
-
-            //timer.Start();
-            HalfEdgeData3 meshData = new HalfEdgeData3(originalMesh);
-            //timer.Stop();
-
-            //timer.Start();
-            meshData.ConnectAllEdgesFast();
-            //timer.Stop();
-
-            HalfEdgeData3 simplifiedMeshData = Simplify(meshData, edgesToContract, normalizeTriangles, normalizer);
-
-            //From half-edge to mesh
-            MyMesh simplifiedMesh = meshData.ConvertToMyMesh("Simplified mesh", MyMesh.MeshStyle.SoftEdges);
-
-            return simplifiedMesh;
-        }
-
-
-
+        /// <summary>
+        /// Merge edges to simplify a mesh
+        /// Based on reports by Garland and Heckbert, "Surface simplification using quadric error metrics"
+        /// Is called: "Iterative pair contraction with the Quadric Error Metric (QEM)"
+        /// </summary>
+        /// <param name="meshData">Original mesh</param>
+        /// <param name="edgesToContract">How many edges do we want to merge (the algorithm stops if it can't merge more edges)</param>
+        /// <param name="normalizeTriangles">Sometimes the quality improves if we take triangle area into account when calculating ther error</param>
+        /// <param name="normalizer">Is only needed for debugging</param>
+        /// <returns>The simplified mesh</returns>
         public static HalfEdgeData3 Simplify(HalfEdgeData3 meshData, int edgesToContract, bool normalizeTriangles = false, Normalizer3 normalizer = null)
         {
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();

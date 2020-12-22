@@ -23,6 +23,12 @@ namespace Habrador_Computational_Geometry
 
         public HashSet<HalfEdge3> edges;
 
+        public enum ConnectOppositeEdges
+        {
+            No,
+            Fast,
+            Slow
+        }
 
 
         public HalfEdgeData3()
@@ -37,7 +43,8 @@ namespace Habrador_Computational_Geometry
 
 
         //Convert from MyMesh (which is face-vertex data structure) to half-edge data structure
-        public HalfEdgeData3(MyMesh mesh) : this()
+        //In the half-edge data structure, each edge has an opposite edge, which may have to be connected
+        public HalfEdgeData3(MyMesh mesh, ConnectOppositeEdges connectOppositeEdges) : this()
         {
             //Loop through all triangles in the mesh
             List<int> triangles = mesh.triangles;
@@ -64,6 +71,17 @@ namespace Habrador_Computational_Geometry
                 MyMeshVertex v3 = new MyMeshVertex(p3, n3);
 
                 AddTriangle(v1, v2, v3);
+            }
+
+            //The fast method is only working if there are no floating point precision issues
+            //So all vertices at the same position are actually at the same position
+            if (connectOppositeEdges == ConnectOppositeEdges.Fast)
+            {
+                ConnectAllEdgesFast();
+            }
+            else if (connectOppositeEdges == ConnectOppositeEdges.Slow)
+            {
+                ConnectAllEdgesSlow();
             }
         }
 
