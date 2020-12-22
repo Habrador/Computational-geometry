@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Habrador_Computational_Geometry
 {
-    public static class MeshSimplificationQEM
+    public static class MeshSimplification_QEM
     {
         //TODO:
         //- Calculate the optimal contraction target v and not just the average between two vertices
@@ -22,7 +22,7 @@ namespace Habrador_Computational_Geometry
         //Is called: "Iterative pair contraction with the Quadric Error Metric (QEM)"
         //- normalizeTriangles is if we want to multiply the QEM with the area of the triangle, which might give a better result 
         //- normalizer is only needed for debugging
-        public static MyMesh SimplifyByMergingEdges(MyMesh originalMesh, int edgesToContract, bool normalizeTriangles = false, Normalizer3 normalizer = null)
+        public static MyMesh Simplify(MyMesh originalMesh, int edgesToContract, bool normalizeTriangles = false, Normalizer3 normalizer = null)
         {
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
@@ -36,7 +36,7 @@ namespace Habrador_Computational_Geometry
             meshData.ConnectAllEdgesFast();
             //timer.Stop();
 
-            HalfEdgeData3 simplifiedMeshData = SimplifyByMergingEdges(meshData, edgesToContract, normalizeTriangles, normalizer);
+            HalfEdgeData3 simplifiedMeshData = Simplify(meshData, edgesToContract, normalizeTriangles, normalizer);
 
             //From half-edge to mesh
             MyMesh simplifiedMesh = meshData.ConvertToMyMesh("Simplified mesh", MyMesh.MeshStyle.SoftEdges);
@@ -46,7 +46,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-        public static HalfEdgeData3 SimplifyByMergingEdges(HalfEdgeData3 meshData, int edgesToContract, bool normalizeTriangles = false, Normalizer3 normalizer = null)
+        public static HalfEdgeData3 Simplify(HalfEdgeData3 meshData, int edgesToContract, bool normalizeTriangles = false, Normalizer3 normalizer = null)
         {
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
