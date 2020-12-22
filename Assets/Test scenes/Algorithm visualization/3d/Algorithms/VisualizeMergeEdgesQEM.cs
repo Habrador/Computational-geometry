@@ -117,7 +117,9 @@ public class VisualizeMergeEdgesQEM : MonoBehaviour
         //Display what we have so far
         controller.DisplayMeshMain(halfEdgeMeshData.faces);
 
-        yield return new WaitForSeconds(1f);
+        controller.displayStuffUI.text = "Triangles: " + halfEdgeMeshData.faces.Count.ToString();
+
+        yield return new WaitForSeconds(2f);
 
 
         //
@@ -269,6 +271,8 @@ public class VisualizeMergeEdgesQEM : MonoBehaviour
             //PAUSE FOR VISUALIZATION
             //Display what we have so far
             controller.DisplayMeshMain(halfEdgeMeshData.faces);
+
+            controller.displayStuffUI.text = "Triangles: " + halfEdgeMeshData.faces.Count.ToString();
 
             yield return new WaitForSeconds(0.02f);
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Habrador_Computational_Geometry;
 using System.Linq;
+using UnityEngine.UI;
 
 
 
@@ -15,6 +16,9 @@ public class VisualizerController3D : MonoBehaviour
     public GameObject pointObj;
     //Should be bigger so we can display it above the non-active point
     public GameObject pointActiveObj;
+
+    //GUI
+    public TMPro.TextMeshProUGUI displayStuffUI;
 
     public SpinAroundAndMoveToDirectionCamera cameraScript;
 
