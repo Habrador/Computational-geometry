@@ -5,6 +5,8 @@ using System.Linq;
 
 namespace Habrador_Computational_Geometry
 {
+    //A mesh simplification set to some max error will achieve a very similar result, so use that instead!!!
+
     //Will try to remove unwanted triangles (slivers) from a mesh to get a mesh withn higher quality
     //The quality of a triangle can be measured as the ratio of the shortest edge to the radius of the triangle's circumcircle
     //I haven't found a general algorithm on how to do it - so compare it with the mesh simplification algorithms
