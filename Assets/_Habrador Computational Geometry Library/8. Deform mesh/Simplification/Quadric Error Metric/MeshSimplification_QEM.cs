@@ -24,10 +24,11 @@ namespace Habrador_Computational_Geometry
         /// </summary>
         /// <param name="meshData">Original mesh</param>
         /// <param name="edgesToContract">How many edges do we want to merge (the algorithm stops if it can't merge more edges)</param>
+        /// <param name="maxError">Stop merging edges if the error is bigger than the maxError, which will prevent the algorithm from changing the shape of the mesh</param>
         /// <param name="normalizeTriangles">Sometimes the quality improves if we take triangle area into account when calculating ther error</param>
         /// <param name="normalizer">Is only needed for debugging</param>
         /// <returns>The simplified mesh</returns>
-        public static HalfEdgeData3 Simplify(HalfEdgeData3 meshData, int edgesToContract, bool normalizeTriangles = false, Normalizer3 normalizer = null)
+        public static HalfEdgeData3 Simplify(HalfEdgeData3 meshData, int edgesToContract, float maxError, bool normalizeTriangles = false, Normalizer3 normalizer = null)
         {
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
@@ -158,6 +159,13 @@ namespace Habrador_Computational_Geometry
                     continue;
                 }
 
+                if (smallestErrorEdge.qem > maxError)
+                {
+                    Debug.Log($"Cant contract more than {i} edges because reached max error");
+
+                    break;
+                }
+
                 //timer.Stop();
 
 
@@ -270,7 +278,7 @@ namespace Habrador_Computational_Geometry
             // - 0.25 to merge the edges (the bottleneck is where we have to find all edges pointing to a vertex)
             // - 0.02 to remove the data that was destroyed when we contracted an edge
             // - 0.13 to update QEM edges
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to measure whatever we measured");
+            //Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to measure whatever we measured");
 
 
             return meshData;

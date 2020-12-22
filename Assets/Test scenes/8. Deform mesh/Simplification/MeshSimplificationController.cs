@@ -42,7 +42,7 @@ public class MeshSimplificationController : MonoBehaviour
 
         timer.Start();
 
-        HalfEdgeData3 mySimplifiedMesh_HalfEdge = MeshSimplification_QEM.Simplify(myMeshToSimplify_HalfEdge, edgesToContract: 2400, normalizeTriangles: true);
+        HalfEdgeData3 mySimplifiedMesh_HalfEdge = MeshSimplification_QEM.Simplify(myMeshToSimplify_HalfEdge, edgesToContract: 2400, maxError: Mathf.Infinity, normalizeTriangles: true);
 
         timer.Stop();
 

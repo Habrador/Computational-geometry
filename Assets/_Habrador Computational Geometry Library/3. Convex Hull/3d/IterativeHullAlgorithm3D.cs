@@ -172,13 +172,14 @@ namespace Habrador_Computational_Geometry
             //Which is maybe not needed because when you add a Unity convex mesh collider to the result of this algorithm, there are still slivers
             //Unity's mesh collider is also using quads and not just triangles
             //But if you add enough points, so you end up with many points on the hull you can see that Unitys convex mesh collider is not capturing all points, so they must be using some simplification algorithm
-            //if (removeUnwantedTriangles)
-            //{
-            //    RemoveUnwantedTriangles.Remove(convexHull, normalizer);
-            //}
+
+            //Run the hull through the mesh simplification algorithm
+            if (removeUnwantedTriangles)
+            {
+                convexHull = MeshSimplification_QEM.Simplify(convexHull, edgesToContract: int.MaxValue, maxError: 0.0001f, normalizeTriangles: true);
+            }
+                
             
-
-
             return convexHull;
         }
 
