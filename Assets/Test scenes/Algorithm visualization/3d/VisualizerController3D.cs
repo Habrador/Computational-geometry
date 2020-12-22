@@ -8,6 +8,7 @@ using System.Linq;
 
 public class VisualizerController3D : MonoBehaviour
 {
+    public MeshFilter meshInput;
     public MeshFilter displayMeshHere;
     public MeshFilter displayOtherMeshHere;
 
@@ -15,7 +16,7 @@ public class VisualizerController3D : MonoBehaviour
     //Should be bigger so we can display it above the non-active point
     public GameObject pointActiveObj;
 
-    public SpinAroundCamera cameraScript;
+    public SpinAroundAndMoveToDirectionCamera cameraScript;
 
     private HashSet<GameObject> allPoints = new HashSet<GameObject>();
 
@@ -27,8 +28,54 @@ public class VisualizerController3D : MonoBehaviour
     void Start()
 	{
         pointObj.SetActive(false);
-        pointActiveObj.SetActive(false);
+        pointActiveObj.SetActive(false); 
 
+        displayMeshHere.mesh = null;
+        displayOtherMeshHere.mesh = null;
+
+        //StartConvexHull();
+
+        StartMeshSimplification();
+    }
+
+
+
+    private void StartMeshSimplification()
+    {
+        Mesh meshToSimplify = meshInput.sharedMesh;
+
+        meshInput.transform.gameObject.SetActive(false);
+
+
+        //
+        // Change data structure and normalize
+        //
+
+        //Mesh -> MyMesh
+        MyMesh myMeshToSimplify = new MyMesh(meshToSimplify);
+
+        //From local to global space
+        myMeshToSimplify.vertices = myMeshToSimplify.vertices.Select(x => meshInput.transform.TransformPoint(x.ToVector3()).ToMyVector3()).ToList();
+
+        //Normalize to 0-1
+        this.normalizer = new Normalizer3(myMeshToSimplify.vertices);
+
+        //We only need to normalize the vertices
+        myMeshToSimplify.vertices = normalizer.Normalize(myMeshToSimplify.vertices);
+
+        HalfEdgeData3 myMeshToSimplify_HalfEdge = new HalfEdgeData3(myMeshToSimplify, HalfEdgeData3.ConnectOppositeEdges.Fast);
+
+
+        //Start
+        VisualizeMergeEdgesQEM visualizeThisAlgorithm = GetComponent<VisualizeMergeEdgesQEM>();
+
+        visualizeThisAlgorithm.StartVisualizer(myMeshToSimplify_HalfEdge, maxEdgesToContract: 2400, maxError: Mathf.Infinity);
+    }
+
+
+
+    private void StartConvexHull()
+    {
         //Get random points in 3d space
         //HashSet<Vector3> points_Unity = TestAlgorithmsHelpMethods.GenerateRandomPoints3D(seed: 0, halfCubeSize: 1f, numberOfPoints: 50);
 
@@ -44,11 +91,6 @@ public class VisualizerController3D : MonoBehaviour
 
             allPoints.Add(newPoint);
         }
-
-
-        displayMeshHere.mesh = null;
-        displayOtherMeshHere.mesh = null;
-
 
         //Standardize the data
         //To MyVector3

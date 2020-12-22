@@ -14,6 +14,7 @@ namespace Habrador_Computational_Geometry
         //- Maybe there's a faster (and simpler) way by using unique edges instead of double the calculations for an edge going in the opposite direction?
         //- A major bottleneck is finding edges going to a specific vertex. The problem is that if there are holes in the mesh, we can't just rotate around the vertex to find the edges - we have to search through ALL edges
         //- Is edgesToContract the correct way to stop the algorithm? Maybe it should be number of vertices in the final mesh?
+        //- Visualize the error by using some color scale.
 
 
 
@@ -22,7 +23,7 @@ namespace Habrador_Computational_Geometry
         /// Based on reports by Garland and Heckbert, "Surface simplification using quadric error metrics"
         /// Is called: "Iterative pair contraction with the Quadric Error Metric (QEM)"
         /// </summary>
-        /// <param name="meshData">Original mesh</param>
+        /// <param name="halfEdgeMeshData">Original mesh</param>
         /// <param name="maxEdgesToContract">How many edges do we want to merge (the algorithm stops if it can't merge more edges)</param>
         /// <param name="maxError">Stop merging edges if the error is bigger than the maxError, which will prevent the algorithm from changing the shape of the mesh</param>
         /// <param name="normalizeTriangles">Sometimes the quality improves if we take triangle area into account when calculating ther error</param>
@@ -30,7 +31,7 @@ namespace Habrador_Computational_Geometry
         /// <returns>The simplified mesh</returns>
         /// If you set edgesToContract to max value, then it will continue until it cant merge any more edges or the maxError is reached
         /// If you set maxError to max value, then it will continue to merge edges until it cant merge or max edgesToContract is reached 
-        public static HalfEdgeData3 Simplify(HalfEdgeData3 meshData, int maxEdgesToContract, float maxError, bool normalizeTriangles = false, Normalizer3 normalizer = null)
+        public static HalfEdgeData3 Simplify(HalfEdgeData3 halfEdgeMeshData, int maxEdgesToContract, float maxError, bool normalizeTriangles = false, Normalizer3 normalizer = null)
         {
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
@@ -43,7 +44,7 @@ namespace Habrador_Computational_Geometry
             //This assumes we have no floating point precision issues, so vertices at the same position have to be at the same position
             Dictionary<MyVector3, Matrix4x4> qMatrices = new Dictionary<MyVector3, Matrix4x4>();
 
-            HashSet<HalfEdgeVertex3> vertices = meshData.verts;
+            HashSet<HalfEdgeVertex3> vertices = halfEdgeMeshData.verts;
 
             //timer.Start();
 
@@ -63,7 +64,7 @@ namespace Habrador_Computational_Geometry
 
                 //timer.Start();
                 //Find all edges meeting at this vertex
-                HashSet<HalfEdge3> edgesPointingToThisVertex = v.GetEdgesPointingToVertex(meshData);
+                HashSet<HalfEdge3> edgesPointingToThisVertex = v.GetEdgesPointingToVertex(halfEdgeMeshData);
                 //timer.Stop();
 
                 //timer.Start();
@@ -81,7 +82,7 @@ namespace Habrador_Computational_Geometry
             // Select all valid pairs that can be contracted
             //
 
-            List<HalfEdge3> validPairs = new List<HalfEdge3>(meshData.edges);
+            List<HalfEdge3> validPairs = new List<HalfEdge3>(halfEdgeMeshData.edges);
 
 
 
@@ -134,7 +135,7 @@ namespace Habrador_Computational_Geometry
             {
                 //Check that we can simplify the mesh
                 //The smallest mesh we can have is a tetrahedron with 4 faces, itherwise we get a flat triangle
-                if (meshData.faces.Count <= 4)
+                if (halfEdgeMeshData.faces.Count <= 4)
                 {
                     Debug.Log($"Cant contract more than {i} edges");
                 
@@ -180,7 +181,7 @@ namespace Habrador_Computational_Geometry
                 Edge3 contractedEdgeEndpoints = new Edge3(edgeToContract.prevEdge.v.position, edgeToContract.v.position);
 
                 //Contract edge
-                HashSet<HalfEdge3> edgesPointingToNewVertex = meshData.ContractTriangleHalfEdge(edgeToContract, smallestErrorEdge.mergePosition, timer);
+                HashSet<HalfEdge3> edgesPointingToNewVertex = halfEdgeMeshData.ContractTriangleHalfEdge(edgeToContract, smallestErrorEdge.mergePosition, timer);
 
                 //timer.Stop();
 
@@ -283,13 +284,13 @@ namespace Habrador_Computational_Geometry
             //Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to measure whatever we measured");
 
 
-            return meshData;
+            return halfEdgeMeshData;
         }
 
 
 
         //Calculate the Q matrix for a vertex if we know all edges pointing to the vertex
-        private static Matrix4x4 CalculateQMatrix(HashSet<HalfEdge3> edgesPointingToVertex, bool normalizeTriangles)
+        public static Matrix4x4 CalculateQMatrix(HashSet<HalfEdge3> edgesPointingToVertex, bool normalizeTriangles)
         {
             Matrix4x4 Q = Matrix4x4.zero;
 

@@ -5,8 +5,8 @@ using Habrador_Computational_Geometry;
 
 
 
-//Rotate a camera around origo while moving up and down to sow the entire mesh
-public class SpinAroundCamera : MonoBehaviour
+//Rotate a camera around origo while moving to a certain part of the mesh we want to look at
+public class SpinAroundAndMoveToDirectionCamera : MonoBehaviour
 {
     private float camRotationSpeed = 2f;
 
