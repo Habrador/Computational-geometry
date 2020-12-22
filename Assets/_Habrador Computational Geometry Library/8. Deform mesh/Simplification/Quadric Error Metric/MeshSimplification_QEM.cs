@@ -23,12 +23,14 @@ namespace Habrador_Computational_Geometry
         /// Is called: "Iterative pair contraction with the Quadric Error Metric (QEM)"
         /// </summary>
         /// <param name="meshData">Original mesh</param>
-        /// <param name="edgesToContract">How many edges do we want to merge (the algorithm stops if it can't merge more edges)</param>
+        /// <param name="maxEdgesToContract">How many edges do we want to merge (the algorithm stops if it can't merge more edges)</param>
         /// <param name="maxError">Stop merging edges if the error is bigger than the maxError, which will prevent the algorithm from changing the shape of the mesh</param>
         /// <param name="normalizeTriangles">Sometimes the quality improves if we take triangle area into account when calculating ther error</param>
         /// <param name="normalizer">Is only needed for debugging</param>
         /// <returns>The simplified mesh</returns>
-        public static HalfEdgeData3 Simplify(HalfEdgeData3 meshData, int edgesToContract, float maxError, bool normalizeTriangles = false, Normalizer3 normalizer = null)
+        /// If you set edgesToContract to max value, then it will continue until it cant merge any more edges or the maxError is reached
+        /// If you set maxError to max value, then it will continue to merge edges until it cant merge or max edgesToContract is reached 
+        public static HalfEdgeData3 Simplify(HalfEdgeData3 meshData, int maxEdgesToContract, float maxError, bool normalizeTriangles = false, Normalizer3 normalizer = null)
         {
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
@@ -128,7 +130,7 @@ namespace Habrador_Computational_Geometry
             //
 
             //For each edge we want to remove
-            for (int i = 0; i < edgesToContract; i++)
+            for (int i = 0; i < maxEdgesToContract; i++)
             {
                 //Check that we can simplify the mesh
                 //The smallest mesh we can have is a tetrahedron with 4 faces, itherwise we get a flat triangle

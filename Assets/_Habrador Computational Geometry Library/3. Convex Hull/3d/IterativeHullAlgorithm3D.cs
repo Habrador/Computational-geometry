@@ -10,9 +10,14 @@ namespace Habrador_Computational_Geometry
     //and "Implementing Quickhull" pdf from Valve by Dirk Gregorious
     public static class IterativeHullAlgorithm3D
     {
-        //normalizer is only for debugging, so we can display the unnormalized points
-        //removeUnwantedTriangles means that we will remove triangles from the hull that we dont want, 
-        //such as needles where one edge is much shorter than the other edges in the triangle
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="points">The points from which we want to build the convex hull</param>
+        /// <param name="removeUnwantedTriangles">At the end of the algorithm, try to remove triangles from the hull that we dont want, 
+        //such as needles where one edge is much shorter than the other edges in the triangle</param>
+        /// <param name="normalizer">Is only needed for debugging</param>
+        /// <returns></returns>
         public static HalfEdgeData3 GenerateConvexHull(HashSet<MyVector3> points, bool removeUnwantedTriangles, Normalizer3 normalizer = null)
         {
             HalfEdgeData3 convexHull = new HalfEdgeData3();
@@ -176,7 +181,7 @@ namespace Habrador_Computational_Geometry
             //Run the hull through the mesh simplification algorithm
             if (removeUnwantedTriangles)
             {
-                convexHull = MeshSimplification_QEM.Simplify(convexHull, edgesToContract: int.MaxValue, maxError: 0.0001f, normalizeTriangles: true);
+                convexHull = MeshSimplification_QEM.Simplify(convexHull, maxEdgesToContract: int.MaxValue, maxError: 0.0001f, normalizeTriangles: true);
             }
                 
             
