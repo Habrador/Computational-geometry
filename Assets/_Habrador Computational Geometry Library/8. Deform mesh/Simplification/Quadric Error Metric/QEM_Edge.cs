@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //Help class to sort edges
+    //Will also calculate at what position this edge should merge
     public class QEM_Edge : IHeapItem<QEM_Edge>
     {
         public HalfEdge3 halfEdge;
@@ -12,17 +13,10 @@ namespace Habrador_Computational_Geometry
         //Optimal contraction target position
         public MyVector3 mergePosition;
 
-        //The Quadric Error Metric at this target
+        //The Quadric Error Metric at the merge position
         public float qem;
 
-        private int heapIndex;
 
-        //To be able to sort the items in the heap
-        public int HeapIndex 
-        {
-            get { return heapIndex; }
-            set { this.heapIndex = value; }
-        }
 
         public QEM_Edge(HalfEdge3 halfEdge, Matrix4x4 Q1, Matrix4x4 Q2)
         {
@@ -35,35 +29,57 @@ namespace Habrador_Computational_Geometry
         {
             this.halfEdge = halfEdge;
 
-            //Compute the optimal contraction target v for the pair (v1, v2)
-            this.mergePosition = CalculateMergePosition(this.halfEdge);
-
-            //Compute the Quadric Error Metric at this point v
-            this.qem = CalculateQEM(this.mergePosition, Q1, Q2);
+            //Compute the optimal contraction target v for the pair (v1, v2) and the qem at this position
+            CalculateMergePositionANDqem(this.halfEdge, Q1, Q2);
         }
 
 
 
         //Compute the optimal contraction target v for the pair (v1, v2)
-        private MyVector3 CalculateMergePosition(HalfEdge3 e)
+        private void CalculateMergePositionANDqem(HalfEdge3 e, Matrix4x4 Q1, Matrix4x4 Q2)
         {
-            //This is the position to which we move v1 and v2 after merging the edge
-            //Assume for simplicity that the contraction target v = (v1 + v2) * 0.5f
+            //The basic idea is that we want to find a position on the edge that minimizes the error
+
+            //Assume for simplicity that the contraction target are v = (v1 + v2) * 0.5f, or v = v1, or v = v2
             //Add the other versions in the future!
+            //Adding just 3 alternatives instead of using just the average position, adds 0.2 seconds for the bunny (2400 iterations)
+            //But the result is slightly better
             MyVector3 p1 = e.prevEdge.v.position;
             MyVector3 p2 = e.v.position;
 
-            MyVector3 mergePosition = (p1 + p2) * 0.5f;
+            MyVector3 v1 = p1;
+            MyVector3 v2 = p2;
+            MyVector3 v3 = (p1 + p2) * 0.5f;
 
+            //Compute the Quadric Error Metric at each point v
+            float qem1 = CalculateQEM(v1, Q1, Q2);
+            float qem2 = CalculateQEM(v2, Q1, Q2);
+            float qem3 = CalculateQEM(v3, Q1, Q2);
+           
+            //Find which vertex minimized the qem
+            if (qem1 < qem2 && qem1 < qem3)
+            {
+                this.mergePosition = v1;
 
-            //We dont need a normal for the contraction position because the normal depends on the surrounding vertices
+                this.qem = qem1;
+            }
+            else if (qem2 < qem1 && qem2 < qem3)
+            {
+                this.mergePosition = v2;
 
-            return mergePosition;
+                this.qem = qem2;
+            }
+            else
+            {
+                this.mergePosition = v3;
+
+                this.qem = qem3;
+            }
         }
 
 
 
-        //Compute the Quadric Error Metric at this point v
+        //Compute the Quadric Error Metric at point v
         //The error for v1, v2 is given by v^T * (Q1 + Q2) * v 
         //where v = [v.x, v.y, v.z, 1] is the optimal contraction target position
         private float CalculateQEM(MyVector3 v, Matrix4x4 Q1, Matrix4x4 Q2)
@@ -109,6 +125,19 @@ namespace Habrador_Computational_Geometry
         }
 
 
+
+        //
+        // For the heap
+        //
+
+        private int heapIndex;
+
+        //To be able to sort the items in the heap
+        public int HeapIndex
+        {
+            get { return heapIndex; }
+            set { this.heapIndex = value; }
+        }
 
         //To be able to sort items in the heap
         //https://docs.microsoft.com/en-us/previous-versions/windows/silverlight/dotnet-windows-silverlight/74z9b11e(v=vs.95)?redirectedfrom=MSDN
