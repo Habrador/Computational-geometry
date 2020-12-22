@@ -58,10 +58,10 @@ public class VisualizerController3D : MonoBehaviour
         myMeshToSimplify.vertices = myMeshToSimplify.vertices.Select(x => meshInput.transform.TransformPoint(x.ToVector3()).ToMyVector3()).ToList();
 
         //Normalize to 0-1
-        this.normalizer = new Normalizer3(myMeshToSimplify.vertices);
+        //this.normalizer = new Normalizer3(myMeshToSimplify.vertices);
 
         //We only need to normalize the vertices
-        myMeshToSimplify.vertices = normalizer.Normalize(myMeshToSimplify.vertices);
+        //myMeshToSimplify.vertices = normalizer.Normalize(myMeshToSimplify.vertices);
 
         HalfEdgeData3 myMeshToSimplify_HalfEdge = new HalfEdgeData3(myMeshToSimplify, HalfEdgeData3.ConnectOppositeEdges.Fast);
 
@@ -69,7 +69,7 @@ public class VisualizerController3D : MonoBehaviour
         //Start
         VisualizeMergeEdgesQEM visualizeThisAlgorithm = GetComponent<VisualizeMergeEdgesQEM>();
 
-        visualizeThisAlgorithm.StartVisualizer(myMeshToSimplify_HalfEdge, maxEdgesToContract: 2400, maxError: Mathf.Infinity);
+        visualizeThisAlgorithm.StartVisualizer(myMeshToSimplify_HalfEdge, maxEdgesToContract: 2450, maxError: Mathf.Infinity);
     }
 
 
@@ -116,14 +116,21 @@ public class VisualizerController3D : MonoBehaviour
             return;
         }
 
+        return; 
+
         //Display the mesh with lines
-        Gizmos.color = Color.black;
+        Gizmos.color = Color.gray;
 
         foreach (HalfEdgeFace3 f in meshData)
         {
-            Vector3 p1 = normalizer.UnNormalize(f.edge.v.position).ToVector3();
-            Vector3 p2 = normalizer.UnNormalize(f.edge.nextEdge.v.position).ToVector3();
-            Vector3 p3 = normalizer.UnNormalize(f.edge.prevEdge.v.position).ToVector3();
+            //Vector3 p1 = normalizer.UnNormalize(f.edge.v.position).ToVector3();
+            //Vector3 p2 = normalizer.UnNormalize(f.edge.nextEdge.v.position).ToVector3();
+            //Vector3 p3 = normalizer.UnNormalize(f.edge.prevEdge.v.position).ToVector3();
+
+            Vector3 p1 = f.edge.v.position.ToVector3();
+            Vector3 p2 = f.edge.nextEdge.v.position.ToVector3();
+            Vector3 p3 = f.edge.prevEdge.v.position.ToVector3();
+
 
             Gizmos.DrawLine(p1, p2);
             Gizmos.DrawLine(p2, p3);
@@ -141,7 +148,7 @@ public class VisualizerController3D : MonoBehaviour
         //Generate a mesh
         MyMesh myMesh = HalfEdgeData3.ConvertToMyMesh("Main visualization mesh", meshDataUnNormalized, MyMesh.MeshStyle.HardEdges);
 
-        Mesh mesh = myMesh.ConvertToUnityMesh(generateNormals: false);
+        Mesh mesh = myMesh.ConvertToUnityMesh(generateNormals: true);
 
         mf.mesh = mesh;
     }
@@ -149,14 +156,16 @@ public class VisualizerController3D : MonoBehaviour
     public void DisplayMeshMain(HashSet<HalfEdgeFace3> meshData)
     {
         //UnNormalize (will modify the original data so we have to normalize when we are finished)
-        HashSet<HalfEdgeFace3> meshDataUnNormalized = normalizer.UnNormalize(meshData);
+        //HashSet<HalfEdgeFace3> meshDataUnNormalized = normalizer.UnNormalize(meshData);
+
+        HashSet<HalfEdgeFace3> meshDataUnNormalized = meshData;
 
         this.meshData = meshDataUnNormalized;
 
         DisplayMesh(meshDataUnNormalized, displayMeshHere);
 
         //Normalize again
-        meshData = normalizer.Normalize(meshDataUnNormalized);
+        //meshData = normalizer.Normalize(meshDataUnNormalized);
     }
 
     public void DisplayMeshOther(HashSet<HalfEdgeFace3> meshData)
