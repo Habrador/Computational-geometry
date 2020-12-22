@@ -272,6 +272,7 @@ A visualization of this algorithm can be found here: https://www.youtube.com/wat
 
 The fun part of computational geometry!
 
+
 **Cut mesh with plane**
 
 If the new meshes are not connected, then it will separate the meshes, so you might end up with more than two meshes after the cut.  
@@ -283,7 +284,7 @@ If the new meshes are not connected, then it will separate the meshes, so you mi
 
 Will generate a mesh similar to the original mesh but with fewer triangles. Is useful for generating LODs, etc. The following algorithms are implemented:
 
-* Iterative pair contraction with the Quadric Error Metric (QEM). This is the most common mesh simplification algorithm. 
+* Iterative pair contraction with the Quadric Error Metric (QEM). This is the most common mesh simplification algorithm. A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=biLY19kuGOs
 
 ![Mesh simplification](/_media/mesh-simplification-qem.png?raw=true)
 
