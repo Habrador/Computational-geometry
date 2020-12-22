@@ -58,7 +58,7 @@ public class MeshSimplificationController : MonoBehaviour
         timer.Start();
 
         //From half-edge to mesh
-        MyMesh mySimplifiedMesh = mySimplifiedMesh_HalfEdge.ConvertToMyMesh("Simplified mesh", MyMesh.MeshStyle.SoftEdges);
+        MyMesh mySimplifiedMesh = mySimplifiedMesh_HalfEdge.ConvertToMyMesh("Simplified mesh", MyMesh.MeshStyle.HardEdges);
 
         //Un-Normalize
         mySimplifiedMesh.vertices = normalizer.UnNormalize(mySimplifiedMesh.vertices);

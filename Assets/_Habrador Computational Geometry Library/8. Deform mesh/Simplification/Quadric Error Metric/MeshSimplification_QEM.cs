@@ -36,18 +36,14 @@ namespace Habrador_Computational_Geometry
             // Compute the Q matrices for all the initial vertices
             //
 
-            //Put the result in a lookupm dictionary
-            //In the half-edge data structure we have more than one vertex per vertex position if multiple edges are connected to that vertex
-            //But we only need to calculate a q matrix for each vertex position
-            //This assumes we have no floating point precision issues, which is why the half-edge data stucture should reference positions in a list
+            //Put the result in a lookup dictionary
+            //This assumes we have no floating point precision issues, so vertices at the same position have to be at the same position
             Dictionary<MyVector3, Matrix4x4> qMatrices = new Dictionary<MyVector3, Matrix4x4>();
 
             HashSet<HalfEdgeVertex3> vertices = meshData.verts;
 
             //timer.Start();
 
-            //The input to this method is a MyMesh which includes a list of all individual vertices (some might be doubles if we have hard edges)
-            //Maybe we can use it? But then we still would have to find the corresponding half-edge vertices...
             //0.142 seconds for the bunny (0.012 for dictionary lookup, 0.024 to calculate the Q matrices, 0.087 to find edges going to vertex)
             foreach (HalfEdgeVertex3 v in vertices)
             {
@@ -61,9 +57,9 @@ namespace Habrador_Computational_Geometry
                 //timer.Stop();
 
                 //Calculate the Q matrix for this vertex
-                //Find all edges meeting at this vertex
-                //Maybe we can speed up by saving all vertices which can't be rotated around, while removing edges of those that can, which will result in fewer edges to search through when using the brute force approach?
+
                 //timer.Start();
+                //Find all edges meeting at this vertex
                 HashSet<HalfEdge3> edgesPointingToThisVertex = v.GetEdgesPointingToVertex(meshData);
                 //timer.Stop();
 
@@ -116,6 +112,7 @@ namespace Habrador_Computational_Geometry
             // Sort all pairs, with the minimum cost pair at the top
             //
 
+            //The fastest way to keep the data sorted is to use a heap
             Heap<QEM_Edge> sorted_QEM_edges = new Heap<QEM_Edge>(QEM_edges.Count);
 
             foreach (QEM_Edge e in QEM_edges)
@@ -133,7 +130,7 @@ namespace Habrador_Computational_Geometry
             for (int i = 0; i < edgesToContract; i++)
             {
                 //Check that we can simplify the mesh
-                //The smallest mesh we can have is a tetrahedron with 4 faces
+                //The smallest mesh we can have is a tetrahedron with 4 faces, itherwise we get a flat triangle
                 if (meshData.faces.Count <= 4)
                 {
                     Debug.Log($"Cant contract more than {i} edges");
@@ -151,7 +148,8 @@ namespace Habrador_Computational_Geometry
                 QEM_Edge smallestErrorEdge = sorted_QEM_edges.RemoveFirst();
 
                 //This means an edge in this face has already been contracted
-                //We cant yet remove edges from the heap, so we do it this way for now, which is maybe better?
+                //We are never removing edges from the heap after contracting and edges, 
+                //so we do it this way for now, which is maybe better?
                 if (smallestErrorEdge.halfEdge.face == null)
                 {
                     //This edge wasn't contracted so don't add it to iteration
@@ -162,30 +160,13 @@ namespace Habrador_Computational_Geometry
 
                 //timer.Stop();
 
-                if (smallestErrorEdge == null)
-                {
-                    Debug.LogWarning("Cant find a smallest QEM edge");
-
-                    Debug.Log($"Number of QEM_edges: {QEM_edges.Count}");
-
-                    foreach (QEM_Edge QEM_edge in QEM_edges)
-                    {
-                        Debug.Log(QEM_edge.qem);
-                    }
-                
-                    Debug.Log($"Faces: {meshData.faces.Count} Edges: {meshData.edges.Count} Verts: {meshData.verts.Count}");
-
-                    break;
-                }
-
 
                 //timer.Start();
 
                 //Get the half-edge we want to contract 
                 HalfEdge3 edgeToContract = smallestErrorEdge.halfEdge;
 
-                //Need to save this so we can remove the old Q matrices from the pos-matrix lookup table
-                //We may move the edgeToContract when contracting it for optimization purposes???
+                //Need to save the endpoints so we can remove the old Q matrices from the pos-matrix lookup table
                 Edge3 contractedEdgeEndpoints = new Edge3(edgeToContract.prevEdge.v.position, edgeToContract.v.position);
 
                 //Contract edge
@@ -198,6 +179,9 @@ namespace Habrador_Computational_Geometry
                 //
                 // Remove all QEM_edges that belonged to the faces we contracted
                 //
+
+                //This is not needed if we check if an edge in the triangle has already been contracted
+
                 /*
                 //timer.Start();
 
@@ -221,7 +205,7 @@ namespace Habrador_Computational_Geometry
                 //timer.Stop();
                 */
 
-                //Remove the edges start and end vertices from the vertex - Q matrix lookup table
+                //Remove the edges start and end vertices from the pos-matrix lookup table
                 qMatrices.Remove(contractedEdgeEndpoints.p1);
                 qMatrices.Remove(contractedEdgeEndpoints.p2);
                 //timer.Stop();
@@ -235,7 +219,7 @@ namespace Habrador_Computational_Geometry
                 //The contracted position has a new Q matrix
                 Matrix4x4 QNew = CalculateQMatrix(edgesPointingToNewVertex, normalizeTriangles);
 
-                //Add the Q matrix to the vertex - Q matrix lookup table
+                //Add the Q matrix to the pos-matrix lookup table
                 qMatrices.Add(smallestErrorEdge.mergePosition, QNew);
 
 
@@ -243,9 +227,10 @@ namespace Habrador_Computational_Geometry
                 //Those edges are the same edges that points to the new vertex and goes from the new vertex
                 //timer.Start();
                 foreach (HalfEdge3 edgeToV in edgesPointingToNewVertex)
-                {
+                {                
                     //The edge going from the new vertex is the next edge of the edge going to the vertex
                     HalfEdge3 edgeFromV = edgeToV.nextEdge;
+
 
                     //To
                     QEM_Edge QEM_edgeToV = halfEdge_QEM_Lookup[edgeToV];
@@ -258,6 +243,7 @@ namespace Habrador_Computational_Geometry
                     QEM_edgeToV.UpdateEdge(edgeToV, Q1_edgeToV, Q2_edgeToV);
 
                     sorted_QEM_edges.UpdateItem(QEM_edgeToV);
+
 
                     //From
                     QEM_Edge QEM_edgeFromV = halfEdge_QEM_Lookup[edgeFromV];
@@ -288,18 +274,6 @@ namespace Habrador_Computational_Geometry
 
 
             return meshData;
-        }
-
-
-
-        //Remove a single QEM error edge given the half-edge belonging to that QEM error edge 
-        private static void RemoveHalfEdgeFromQEMEdges(HalfEdge3 e, HashSet<QEM_Edge> QEM_edges, Dictionary<HalfEdge3, QEM_Edge> halfEdge_QEM_Lookup)
-        {
-            QEM_Edge QEM_edge_ToRemove = halfEdge_QEM_Lookup[e];
-
-            QEM_edges.Remove(QEM_edge_ToRemove);
-
-            halfEdge_QEM_Lookup.Remove(e);
         }
 
 
