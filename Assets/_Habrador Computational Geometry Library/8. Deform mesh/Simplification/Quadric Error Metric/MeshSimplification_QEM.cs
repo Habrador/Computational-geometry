@@ -12,9 +12,10 @@ namespace Habrador_Computational_Geometry
         //- Sometimes at the end of a simplification process, the QEM is NaN because the normal of the triangle has length 0 because two vertices are at the same position. This has maybe to do with "mesh inversion." The reports says that you should compare the normal of each neighboring face before and after the contraction. If the normal flips, undo the contraction or penalize it. The temp solution to solve this problem is to set the matrix to zero matrix if the normal is NaN
         //- The algorithm can also join vertices that are within ||v1 - v2|| < distance, so test to add that. It should merge the hole in the bunny
         //- Maybe there's a faster (and simpler) way by using unique edges instead of double the calculations for an edge going in the opposite direction?
-        //- A major bottleneck is finding edges going to a specific vertex. The problem is that if there are holes in the mesh, we can't just rotate around the vertex to find the edges - we have to search through ALL edges
+        //- A major bottleneck is finding edges going to a specific vertex. The problem is that if there are holes in the mesh, we can't just rotate around the vertex to find the edges - we have to search through ALL edges. In the regular mesh structure, we have a list of all vertices, so moving a vertex would be fast if we moved it in that list, so all edges should reference a vertex in a list?
         //- Is edgesToContract the correct way to stop the algorithm? Maybe it should be number of vertices in the final mesh?
         //- Visualize the error by using some color scale.
+        //- Some times when we contract an edge we end up with invalid triangles, such as triangles with area 0. Are all these automatically removed if we weigh each error with triangle area? Or do we need to check that the triangulation is valid after contracting an edge?
 
 
 

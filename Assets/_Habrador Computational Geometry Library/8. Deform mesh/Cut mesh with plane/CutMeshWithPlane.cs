@@ -12,6 +12,7 @@ namespace Habrador_Computational_Geometry
     //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway.  
     //- When cutting triangles - always cut edges from outside -> inside. If you cut one from outside and the other from inside, the result is not the same because of floating point issues, which may cause trouble when finding opposite edges
     //- Use the cut-edge to analyze how many holes we have. If we have just one hole, we don't need to flood-fill and thus we don't need to convert the mesh to the half-edge data structure. But it might be problematic to merge small edges if we are not on the half-edge data structure...
+    //- Input should be half-edge, not mesh. If we want to cut a mesh multiple times, then we would have to convert from mesh to half-edge multiple times. Converting to half-edge is a bottleneck. 
     public static class CutMeshWithPlane 
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane

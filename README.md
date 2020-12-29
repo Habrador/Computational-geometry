@@ -350,15 +350,15 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 	* Replicate the algorithm from twitter where you can take a photo of the world and then place the geometry in the photo wherever you want (https://twitter.com/mattstark256)
 * Voronoi: 
 	* Fortune's algorithm
-	* Voronoi: point-by-point
+	* Point-by-point
+	* From a set of points in 3d space
 * Convex polygon-polygon intersection with SAT
 * Irregular grid (Oskar Stålberg style)
 
 
 
 ## Stuff to fix
-
-* Optimize Constrained Delaunay - there's a faster method to find edges that intersects with the constrained edge. I also think the method where triangles within the constrain is removed can be faster. 
+ 
 * Make a test scene to test that the "find which triangle a point is in by triangulation walk" is working
 * The Delaunay algorithm "flip edges" might have problems with colinear points
 * Remove or clarify the conversions between 2d and 3d

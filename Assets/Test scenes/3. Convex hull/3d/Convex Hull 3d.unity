@@ -535,7 +535,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 966710373}
-  m_Mesh: {fileID: 1790517902}
+  m_Mesh: {fileID: 1590658625}
 --- !u!4 &966710376
 Transform:
   m_ObjectHideFlags: 0
@@ -680,7 +680,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!43 &1790517902
+--- !u!43 &1590658625
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
