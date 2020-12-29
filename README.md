@@ -180,7 +180,7 @@ You triangulate the points by using a "bad" triangulation method (which is in th
 
 **Constrained triangulation** 
 
-You add the constraints to the points and generate a Delaunay triangulation by using one of the above methods. Use this triangulation to find which edges interesect with the constraints. Then you flip these edges until they no longer interesect with the constraint. You finally remove the triangles that are "inside" of the constraint. It can handle several holes and a single hull, but not holes-in-holes. If you really need a hole-in-hole you can always run the algorithm twice and then merge the output. A similar algorithm is triangulation by Ear Clipping, but I believe this one is more robust.     
+You add the constraints to the points and generate a Delaunay triangulation by using one of the above methods. Use this triangulation to find which edges interesect with the constraints. Then you flip these edges until they no longer interesect with the constraint. You finally remove the triangles that are "inside" of the constraint. It can handle several holes and a single hull, but not holes-in-holes. If you really need a hole-in-hole you can always run the algorithm twice and then merge the output. A similar algorithm is triangulation by Ear Clipping, but I believe this one is more robust. A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=Z-1ExrWMTfA      
 
 ![Triangulation Delaunay constrained](/_media/triangulation-delaunay-constrained.png?raw=true)	
 
