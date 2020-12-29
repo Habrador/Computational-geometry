@@ -29,7 +29,8 @@ public class VisualizerController3D : MonoBehaviour
     public HashSet<HalfEdgeFace3> meshData;
 
 
-    void Start()
+
+    void Awake()
 	{
         pointObj.SetActive(false);
         pointActiveObj.SetActive(false); 
@@ -39,7 +40,7 @@ public class VisualizerController3D : MonoBehaviour
 
         //StartConvexHull();
 
-        StartMeshSimplification();
+        //StartMeshSimplification();
     }
 
 
@@ -120,10 +121,10 @@ public class VisualizerController3D : MonoBehaviour
             return;
         }
 
-        return; 
+        //return; 
 
         //Display the mesh with lines
-        Gizmos.color = Color.gray;
+        Gizmos.color = Color.black;
 
         foreach (HalfEdgeFace3 f in meshData)
         {
@@ -155,6 +156,8 @@ public class VisualizerController3D : MonoBehaviour
         Mesh mesh = myMesh.ConvertToUnityMesh(generateNormals: true);
 
         mf.mesh = mesh;
+
+        //Debug.Log(mesh.triangles.Length);
     }
 
     public void DisplayMeshMain(HashSet<HalfEdgeFace3> meshData)
@@ -168,6 +171,38 @@ public class VisualizerController3D : MonoBehaviour
 
         DisplayMesh(meshDataUnNormalized, displayMeshHere);
 
+        //Normalize again
+        //meshData = normalizer.Normalize(meshDataUnNormalized);
+    }
+
+    public void DisplayMeshMain(HalfEdgeData2 meshData, Normalizer2 normalizer)
+    {
+        //UnNormalize and to 3d
+        HalfEdgeData3 meshDataUnNormalized_3d = new HalfEdgeData3();
+
+
+        //We dont want to modify the original data
+        //HalfEdgeData2 meshDataUnNormalized = normalizer.UnNormalize(meshData);
+
+        HashSet<HalfEdgeFace2> faces_2d = meshData.faces;
+
+        foreach (HalfEdgeFace2 f in faces_2d)
+        {
+            MyVector2 p1 = f.edge.v.position;
+            MyVector2 p2 = f.edge.nextEdge.v.position;
+            MyVector2 p3 = f.edge.nextEdge.nextEdge.v.position;
+
+            p1 = normalizer.UnNormalize(p1);
+            p2 = normalizer.UnNormalize(p2);
+            p3 = normalizer.UnNormalize(p3);
+
+            meshDataUnNormalized_3d.AddTriangle(p1.ToMyVector3_Yis3D(), p2.ToMyVector3_Yis3D(), p3.ToMyVector3_Yis3D());
+        }
+
+        this.meshData = meshDataUnNormalized_3d.faces;
+
+        DisplayMesh(meshDataUnNormalized_3d.faces, displayMeshHere);
+        
         //Normalize again
         //meshData = normalizer.Normalize(meshDataUnNormalized);
     }
