@@ -21,6 +21,11 @@ public class VisualizeConstrainedDelaunay : MonoBehaviour
 	{
         visualizeController = GetComponent<VisualizerController3D>();
 
+        //Get the random points
+        HashSet<Vector2> randomPoints = TestAlgorithmsHelpMethods.GenerateRandomPoints2D(0, halfSquareSize: 6f, numberOfPoints: 25);
+
+        //To MyVector2
+        HashSet<MyVector2> randomPoints_2d = new HashSet<MyVector2>(randomPoints.Select(x => x.ToMyVector2()));
 
         //Hull
         List<Vector3> hullPoints = TestAlgorithmsHelpMethods.GetPointsFromParent(hullConstraintParent);
@@ -47,7 +52,7 @@ public class VisualizeConstrainedDelaunay : MonoBehaviour
         //We should use all points, including the constraints because the hole may be outside of the random points
         List<MyVector2> allPoints = new List<MyVector2>();
 
-        //allPoints.AddRange(randomPoints_2d);
+        allPoints.AddRange(randomPoints_2d);
 
         allPoints.AddRange(hullPoints_2d);
 
@@ -57,6 +62,8 @@ public class VisualizeConstrainedDelaunay : MonoBehaviour
         }
 
         Normalizer2 normalizer = new Normalizer2(allPoints);
+
+        HashSet<MyVector2> randomPoints_2d_normalized = normalizer.Normalize(randomPoints_2d);
 
         List<MyVector2> hullPoints_2d_normalized = normalizer.Normalize(hullPoints_2d);
 
@@ -71,7 +78,7 @@ public class VisualizeConstrainedDelaunay : MonoBehaviour
 
 
 
-        StartCoroutine(GenerateConstrainedDelaunayLoop(null, hullPoints_2d_normalized, allHolePoints_2d_normalized, shouldRemoveTriangles: true, new HalfEdgeData2(), normalizer));
+        StartCoroutine(GenerateConstrainedDelaunayLoop(randomPoints_2d_normalized, hullPoints_2d_normalized, allHolePoints_2d_normalized, shouldRemoveTriangles: true, new HalfEdgeData2(), normalizer));
     }
 
 
@@ -114,7 +121,7 @@ public class VisualizeConstrainedDelaunay : MonoBehaviour
 
         visualizeController.DisplayMeshMain(triangleData, normalizer);
 
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(3f);
 
 
         
@@ -299,7 +306,7 @@ public class VisualizeConstrainedDelaunay : MonoBehaviour
 
                 visualizeController.DisplayMeshMain(triangleData, normalizer);
 
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(0.5f);
 
 
                 //The new diagonal is defined by the vertices
@@ -388,7 +395,7 @@ public class VisualizeConstrainedDelaunay : MonoBehaviour
 
                     visualizeController.DisplayMeshMain(triangleData, normalizer);
 
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSeconds(0.5f);
                 }
             }
 
@@ -438,7 +445,7 @@ public class VisualizeConstrainedDelaunay : MonoBehaviour
 
             visualizeController.DisplayMeshMain(triangleData, normalizer);
 
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
