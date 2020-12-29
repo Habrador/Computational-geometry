@@ -218,6 +218,18 @@ public class VisualizerController3D : MonoBehaviour
         meshData = normalizer.Normalize(meshDataUnNormalized);
     }
 
+    public void DisplayMeshOtherUnNormalized(HashSet<HalfEdgeFace3> meshDataUnNormalized)
+    {
+        displayOtherMeshHere.gameObject.SetActive(true);
+
+        DisplayMesh(meshDataUnNormalized, displayOtherMeshHere);
+    }
+
+    public void HideMeshOther()
+    {
+        displayOtherMeshHere.gameObject.SetActive(false);
+    }
+
 
     //Display active point
     public void DisplayActivePoint(MyVector3 pos)
