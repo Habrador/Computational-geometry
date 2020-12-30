@@ -18,7 +18,7 @@ namespace Habrador_Computational_Geometry
         //Otherwise it should return the new meshes
         //meshTrans is needed so we can transform the cut plane to the mesh's local space 
         //halfEdgeMeshData should thus be in local space
-        public static List<HalfEdgeData3> CutMesh(Transform meshTrans, HalfEdgeData3 halfEdgeMeshData, OrientedPlane3 orientedCutPlaneGlobal)
+        public static HashSet<HalfEdgeData3> CutMesh(Transform meshTrans, HalfEdgeData3 halfEdgeMeshData, OrientedPlane3 orientedCutPlaneGlobal)
         {
             //Validate the input data
             if (meshTrans == null)
@@ -54,108 +54,85 @@ namespace Habrador_Computational_Geometry
             HalfEdgeData3 newMeshO = new HalfEdgeData3();
             HalfEdgeData3 newMeshI = new HalfEdgeData3();
 
-            //The data belonging to the original mesh
-            Vector3[] vertices = mesh.vertices;
-            int[] triangles = mesh.triangles;
-            Vector3[] normals = mesh.normals;
-
             //Save the new edges we add when cutting triangles that intersects with the plane
-            //Need to be edges so we can later connect them with each other to fill the hole
+            //Needs to be edges so we can later connect them with each other to fill the hole
             //And to remove small triangles
+            //We only need to save the outside edges, because we can identify the inside edges because each edge has an opposite edge
             HashSet<HalfEdge3> newEdgesO = new HashSet<HalfEdge3>();
-            HashSet<HalfEdge3> newEdgesI = new HashSet<HalfEdge3>();
-
 
             //Transform the plane from global space to local space of the mesh
             MyVector3 planePosLocal = meshTrans.InverseTransformPoint(cutPlaneGlobal.pos.ToVector3()).ToMyVector3();
             MyVector3 planeNormalLocal = meshTrans.InverseTransformDirection(cutPlaneGlobal.normal.ToVector3()).ToMyVector3();
 
-            Plane3 cutPlane = new Plane3(planePosLocal, planeNormalLocal);
+            Plane3 cutPlaneLocal = new Plane3(planePosLocal, planeNormalLocal);
 
 
             //Loop through all triangles in the original mesh
-            for (int i = 0; i < triangles.Length; i += 3)
+            HashSet<HalfEdgeFace3> triangles = halfEdgeMeshData.faces;
+
+            foreach (HalfEdgeFace3 triangle in triangles)
             {
-                //Get the triangle data we need
-                int triangleIndex1 = triangles[i + 0];
-                int triangleIndex2 = triangles[i + 1];
-                int triangleIndex3 = triangles[i + 2];
-
-                //Positions
-                Vector3 p1_unity = vertices[triangleIndex1];
-                Vector3 p2_unity = vertices[triangleIndex2];
-                Vector3 p3_unity = vertices[triangleIndex3];
-
-                MyVector3 p1 = p1_unity.ToMyVector3();
-                MyVector3 p2 = p2_unity.ToMyVector3();
-                MyVector3 p3 = p3_unity.ToMyVector3();
-
-                //Normals
-                MyVector3 n1 = normals[triangleIndex1].ToMyVector3();
-                MyVector3 n2 = normals[triangleIndex2].ToMyVector3();
-                MyVector3 n3 = normals[triangleIndex3].ToMyVector3();
-
-                //To make it easier to send data to methods
-                MyMeshVertex v1 = new MyMeshVertex(p1, n1);
-                MyMeshVertex v2 = new MyMeshVertex(p2, n2);
-                MyMeshVertex v3 = new MyMeshVertex(p3, n3);
-
+                //The verts in this triangles
+                HalfEdgeVertex3 v1 = triangle.edge.v;
+                HalfEdgeVertex3 v2 = triangle.edge.nextEdge.v;
+                HalfEdgeVertex3 v3 = triangle.edge.nextEdge.nextEdge.v;
 
                 //First check on which side of the plane these vertices are
                 //If they are all on one side we dont have to cut the triangle
-                bool is_p1_front = _Geometry.IsPointOutsidePlane(v1.position, cutPlane);
-                bool is_p2_front = _Geometry.IsPointOutsidePlane(v2.position, cutPlane);
-                bool is_p3_front = _Geometry.IsPointOutsidePlane(v3.position, cutPlane);
+                bool is_p1_outside = _Geometry.IsPointOutsidePlane(v1.position, cutPlaneLocal);
+                bool is_p2_outside = _Geometry.IsPointOutsidePlane(v2.position, cutPlaneLocal);
+                bool is_p3_outside = _Geometry.IsPointOutsidePlane(v3.position, cutPlaneLocal);
 
 
                 //Build triangles belonging to respective mesh
 
                 //All are outside the plane
-                if (is_p1_front && is_p2_front && is_p3_front)
+                if (is_p1_outside && is_p2_outside && is_p3_outside)
                 {
-                    AddTriangleToMesh(v1, v2, v3, newMeshO, newEdges: null);
+                    newMeshO.AddTriangle(triangle, findOppositeEdge: false);
                 }
                 //All are inside the plane
-                else if (!is_p1_front && !is_p2_front && !is_p3_front)
+                else if (!is_p1_outside && !is_p2_outside && !is_p3_outside)
                 {
-                    AddTriangleToMesh(v1, v2, v3, newMeshI, newEdges: null);
+                    newMeshI.AddTriangle(triangle, findOppositeEdge: false);
                 }
                 //The vertices are on different sides of the plane, so we need to cut the triangle into 3 new triangles
                 else
                 {
                     //We get 6 cases where each vertex is on its own in front or in the back of the plane
-                    
+
+
                     //p1 is outside
-                    if (is_p1_front && !is_p2_front && !is_p3_front)
+                    if (is_p1_outside && !is_p2_outside && !is_p3_outside)
                     {
-                        CutTriangleOneOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesI, newEdgesO, cutPlane);
+                        CutTriangleOneOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
                     }
                     //p1 is inside
-                    else if (!is_p1_front && is_p2_front && is_p3_front)
+                    else if (!is_p1_outside && is_p2_outside && is_p3_outside)
                     {
-                        CutTriangleTwoOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesI, newEdgesO, cutPlane);
+                        CutTriangleTwoOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
                     }
 
                     //p2 is outside
-                    else if (!is_p1_front && is_p2_front && !is_p3_front)
+                    else if (!is_p1_outside && is_p2_outside && !is_p3_outside)
                     {
-                        CutTriangleOneOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesI, newEdgesO, cutPlane);
+                        CutTriangleOneOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
                     }
                     //p2 is inside
-                    else if (is_p1_front && !is_p2_front && is_p3_front)
+                    else if (is_p1_outside && !is_p2_outside && is_p3_outside)
                     {
-                        CutTriangleTwoOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesI, newEdgesO, cutPlane);
+                        CutTriangleTwoOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
                     }
 
                     //p3 is outside
-                    else if (!is_p1_front && !is_p2_front && is_p3_front)
+                    else if (!is_p1_outside && !is_p2_outside && is_p3_outside)
                     {
-                        CutTriangleOneOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesI, newEdgesO, cutPlane);
+                        CutTriangleOneOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
                     }
                     //p3 is inside
-                    else if (is_p1_front && is_p2_front && !is_p3_front)
+                    else if (is_p1_outside && is_p2_outside && !is_p3_outside)
                     {
-                        CutTriangleTwoOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesI, newEdgesO, cutPlane);
+                        CutTriangleTwoOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
                     }
 
                     //Something is strange if we end up here...
@@ -179,7 +156,7 @@ namespace Habrador_Computational_Geometry
             newMeshO.ConnectAllEdgesSlow();
             newMeshI.ConnectAllEdgesSlow();
 
-            //Display all edges which have no opposite
+            //Display all edges which have no opposite for debugging
             DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshO.edges, meshTrans, Color.white);
             DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshI.edges, meshTrans, Color.white);
 
@@ -194,37 +171,20 @@ namespace Habrador_Computational_Geometry
 
 
             //Fill the holes in the mesh
-            HashSet<Hole> allHoles = FillHoles(newEdgesI, newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+            //HashSet<Hole> allHoles = FillHoles(newEdgesI, newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
 
 
             //Connect the holes with respective mesh
-            AddHolesToMeshes(newMeshesO, newMeshesI, allHoles);
+            //AddHolesToMeshes(newMeshesO, newMeshesI, allHoles);
+
+            
+            //Combine before return
+            HashSet<HalfEdgeData3> allNewMeshes = newMeshesO;
+
+            allNewMeshes.UnionWith(newMeshesI);
 
 
-            //Finally generate standardized Unity meshes
-            List<Mesh> cuttedUnityMeshes = new List<Mesh>();
-
-            foreach (HalfEdgeData3 meshData in newMeshesO)
-            {
-                MyMesh myMesh = meshData.ConvertToMyMesh("Outside mesh", MyMesh.MeshStyle.HardAndSoftEdges);
-
-                Mesh unityMesh = myMesh.ConvertToUnityMesh(generateNormals: false);
-
-                cuttedUnityMeshes.Add(unityMesh);
-            }
-
-            foreach (HalfEdgeData3 meshData in newMeshesI)
-            {
-                MyMesh myMesh = meshData.ConvertToMyMesh("Inside mesh", MyMesh.MeshStyle.HardAndSoftEdges);
-
-                Mesh unityMesh = myMesh.ConvertToUnityMesh(generateNormals: false);
-
-                cuttedUnityMeshes.Add(unityMesh);
-            }
-
-
-
-            return cuttedUnityMeshes;
+            return allNewMeshes;
         }
 
 
@@ -466,8 +426,8 @@ namespace Habrador_Computational_Geometry
                     MyMeshVertex v3_O = new MyMeshVertex(p3Mesh.ToMyVector3(), -planeNormal);
 
                     //Now we can finally add this triangle to the half-edge data structure
-                    AddTriangleToMesh(v1_I, v2_I, v3_I, holeMeshI, null);
-                    AddTriangleToMesh(v1_O, v3_O, v2_O, holeMeshO, null);
+                    //AddTriangleToMesh(v1_I, v2_I, v3_I, holeMeshI, null);
+                    //AddTriangleToMesh(v1_O, v3_O, v2_O, holeMeshO, null);
                 }
 
                 //We also need an edge belonging to the mesh (not hole mesh) to easier merge mesh with hole
@@ -612,14 +572,19 @@ namespace Habrador_Computational_Geometry
 
         //Cut a triangle where one vertex is outside and the other vertices are inside
         //Make sure they are sorted clockwise: O1-I1-I2
-        //F means that this vertex is outside of the plane
-        private static void CutTriangleOneOutside(MyMeshVertex O1, MyMeshVertex I1, MyMeshVertex I2, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, HashSet<HalfEdge3> newEdgesI, HashSet<HalfEdge3> newEdgesO, Plane3 cutPlane)
+        //O means that this vertex is outside of the plane
+        private static void CutTriangleOneOutside(HalfEdgeVertex3 O1, HalfEdgeVertex3 I1, HalfEdgeVertex3 I2, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, HashSet<HalfEdge3> newEdgesO, Plane3 cutPlane)
         {
+            //
+            // Find where we should cut this triangle and the normal at those positions 
+            //
+
             //Cut the triangle by using edge-plane intersection
-            //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
+            //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane
+            //The edges should always go from outside to inside, or we may end up with floating point precision issues
             Edge3 e_O1I1 = new Edge3(O1.position, I1.position);
-            //Edge3 e_B1B2 = new Edge3(B1, B2); //Not needed because never intersects with the plane
-            Edge3 e_I2O1 = new Edge3(I2.position, O1.position);
+            //Edge3 e_I1I2 = new Edge3(I1, I2); //Not needed because never intersects with the plane
+            Edge3 e_I2O1 = new Edge3(O1.position, I2.position);
 
             //The positions of the intersection vertices
             MyVector3 pos_O1I1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_O1I1);
@@ -638,31 +603,82 @@ namespace Habrador_Computational_Geometry
             normal_O1I1 = MyVector3.Normalize(normal_O1I1);
             normal_I2O1 = MyVector3.Normalize(normal_I2O1);
 
-            //The intersection vertices
-            MyMeshVertex v_O1I1 = new MyMeshVertex(pos_O1I1, normal_O1I1);
-            MyMeshVertex v_I2O1 = new MyMeshVertex(pos_I2O1, normal_I2O1);
 
 
-            //Form 3 new triangles
-            //Outside
-            AddTriangleToMesh(v_O1I1, v_I2O1, O1, newMeshO, newEdgesO);
-            //Inside
-            AddTriangleToMesh(v_O1I1, I1, I2, newMeshI, null);
-            AddTriangleToMesh(v_I2O1, v_O1I1, I2, newMeshI, newEdgesI);
+            //
+            // Form 3 new triangles
+            //
+
+            //All vertices in the polygon (clockwise order) from which we will build three triangles
+            MyMeshVertex vO1 = new MyMeshVertex(O1.position, O1.normal);
+            MyMeshVertex vO1I1 = new MyMeshVertex(pos_O1I1, normal_O1I1);
+            MyMeshVertex vI1 = new MyMeshVertex(I1.position, I1.normal);
+            MyMeshVertex vI2 = new MyMeshVertex(I2.position, I2.normal);
+            MyMeshVertex vI2O1 = new MyMeshVertex(pos_I2O1, normal_I2O1);
+
+            //The 3 original half-edges (a vertex points to an edge going from it)
+            HalfEdge3 halfEdge_O1I1 = O1.edge;
+            HalfEdge3 halfEdge_I1I2 = I1.edge; //This edge will keep it's opposite edge because we don't cut it
+            HalfEdge3 halfEdge_I2O1 = I1.edge;
+
+            //New outside triangle
+            HalfEdgeFace3 triangleO_1 = AddNewTriangleToMesh(vO1, vO1I1, vI2O1, newMeshO);
+
+            //New inside triangles
+            HalfEdgeFace3 triangleI_1 = AddNewTriangleToMesh(vO1I1, vI1, vI2, newMeshI);
+
+            HalfEdgeFace3 triangleI_2 = AddNewTriangleToMesh(vO1I1, vI2, vI2O1, newMeshI);
+
+
+            //
+            // Connect whatever we can connect
+            //
+
+            //From the outside triangle, we have to save the cut edge
+            //AddNewTriangleToMesh(v1, v2, v3) methods returns a triangle which references and edge point TO v1
+            //So the cutEdge should be
+            HalfEdge3 outerCutEdge = triangleO_1.edge.nextEdge.nextEdge;
+
+            //Save it
+            newEdgesO.Add(outerCutEdge);
+
+            //We also need to connect the new meshes with each other by using the cut edge'
+            //This will make it simpler to add hole meshes and merge small edges
+            HalfEdge3 innerCutEdge = triangleI_2.edge;
+
+            innerCutEdge.oppositeEdge = outerCutEdge;
+            outerCutEdge.oppositeEdge = innerCutEdge;
+
+            //We also have an edge that didnt change because it wasn't cut I1-I2
+            //So make sure its opposite edges are connected in the correct way
+            HalfEdge3 newHalfEdge_I1I2 = triangleI_1.edge.nextEdge.nextEdge;
+
+            //If the original edge going in this direction has an opposite edge
+            if (halfEdge_I1I2.oppositeEdge != null)
+            {
+                newHalfEdge_I1I2.oppositeEdge = halfEdge_I1I2.oppositeEdge;
+
+                halfEdge_I1I2.oppositeEdge.oppositeEdge = newHalfEdge_I1I2;
+            }
         }
 
 
 
         //Cut a triangle where two vertices are inside and the other vertex is outside
         //Make sure they are sorted clockwise: O1-O2-I1
-        //F means that this vertex is outside the plane
-        private static void CutTriangleTwoOutside(MyMeshVertex O1, MyMeshVertex O2, MyMeshVertex I1, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, HashSet<HalfEdge3> newEdgesI, HashSet<HalfEdge3> newEdgesO, Plane3 cutPlane)
+        //O means that this vertex is outside the plane
+        private static void CutTriangleTwoOutside(HalfEdgeVertex3 O1, HalfEdgeVertex3 O2, HalfEdgeVertex3 I1, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, HashSet<HalfEdge3> newEdgesO, Plane3 cutPlane)
         {
+            //
+            // Find where we should cut this triangle and the normal at those positions 
+            //
+
             //Cut the triangle by using edge-plane intersection
+            //The edges should always go from outside to inside, or we may end up with floating point precision issues
             //Triangles in Unity are ordered clockwise, so form edges that intersects with the plane:
             Edge3 e_O2I1 = new Edge3(O2.position, I1.position);
             //Edge3 e_F1F2 = new Edge3(F1, F2); //Not needed because never intersects with the plane
-            Edge3 e_I1O1 = new Edge3(I1.position, O1.position);
+            Edge3 e_I1O1 = new Edge3(O1.position, I1.position);
 
             //The positions of the intersection vertices
             MyVector3 pos_O2I1 = _Intersections.GetLinePlaneIntersectionPoint(cutPlane, e_O2I1);
@@ -681,17 +697,66 @@ namespace Habrador_Computational_Geometry
             normal_O2I1 = MyVector3.Normalize(normal_O2I1);
             normal_I1O1 = MyVector3.Normalize(normal_I1O1);
 
-            //The intersection vertices
-            MyMeshVertex v_O2I1 = new MyMeshVertex(pos_O2I1, normal_O2I1);
+
+
+            //
+            // Form 3 new triangles
+            //
+
+            //All vertices in the polygon (clockwise order) from which we will build three triangles
+            MyMeshVertex vO1 = new MyMeshVertex(O1.position, O1.normal);
+            MyMeshVertex vO2 = new MyMeshVertex(O2.position, O2.normal);
+            MyMeshVertex vO2I1 = new MyMeshVertex(pos_O2I1, normal_O2I1);
+            MyMeshVertex vI1 = new MyMeshVertex(I1.position, I1.normal);
             MyMeshVertex v_I1O1 = new MyMeshVertex(pos_I1O1, normal_I1O1);
 
 
-            //Form 3 new triangles
-            //Outside
-            AddTriangleToMesh(v_O2I1, v_I1O1, O2, newMeshO, newEdgesO);
-            AddTriangleToMesh(O2, v_I1O1, O1, newMeshO, null);
-            //Inside
-            AddTriangleToMesh(v_I1O1, v_O2I1, I1, newMeshI, newEdgesI);
+            //The 3 original half-edges (a vertex points to an edge going from it)
+            HalfEdge3 halfEdge_O1O2 = O1.edge; //This edge will keep it's opposite edge because we don't cut it
+            HalfEdge3 halfEdge_O2I1 = O2.edge; 
+            HalfEdge3 halfEdge_I1O1 = I1.edge;
+
+
+            //New outside triangles
+            HalfEdgeFace3 triangleO_1 = AddNewTriangleToMesh(vO1, vO2, vO2I1, newMeshO);
+
+            HalfEdgeFace3 triangleO_2 = AddNewTriangleToMesh(vO1, vO2I1, v_I1O1, newMeshO);
+
+            //New inside triangle
+            HalfEdgeFace3 triangleI_1 = AddNewTriangleToMesh(vO2I1, vI1, v_I1O1, newMeshI);
+
+
+
+            //
+            // Connect whatever we can connect
+            //
+
+            //From the outside triangle, we have to save the cut edge
+            //AddNewTriangleToMesh(v1, v2, v3) methods returns a triangle which references and edge point TO v1
+            //So the cutEdge should be
+            HalfEdge3 outerCutEdge = triangleO_2.edge.nextEdge.nextEdge;
+
+            //Save it
+            newEdgesO.Add(outerCutEdge);
+
+            //We also need to connect the new meshes with each other by using the cut edge'
+            //This will make it simpler to add hole meshes and merge small edges
+            HalfEdge3 innerCutEdge = triangleI_1.edge;
+
+            innerCutEdge.oppositeEdge = outerCutEdge;
+            outerCutEdge.oppositeEdge = innerCutEdge;
+
+            //We also have an edge that didnt change because it wasn't cut I1-I2
+            //So make sure its opposite edges are connected in the correct way
+            HalfEdge3 newHalfEdge_O1O2 = triangleO_1.edge.nextEdge;
+
+            //If the original edge going in this direction has an opposite edge
+            if (halfEdge_O1O2.oppositeEdge != null)
+            {
+                newHalfEdge_O1O2.oppositeEdge = halfEdge_O1O2.oppositeEdge;
+
+                halfEdge_O1O2.oppositeEdge.oppositeEdge = newHalfEdge_O1O2;
+            }
         }
 
 
@@ -699,7 +764,7 @@ namespace Habrador_Computational_Geometry
         //Help method to build a triangle and add it to a mesh
         //v1-v2-v3 should be sorted clock-wise
         //v1-v2 should be the cut edge (if we have a cut edge), and we know this triangle has a cut edge if newEdges != null
-        private static void AddTriangleToMesh(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, HalfEdgeData3 mesh, HashSet<HalfEdge3> newEdges)
+        private static HalfEdgeFace3 AddNewTriangleToMesh(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, HalfEdgeData3 mesh)
         {
             //Create three new vertices
             HalfEdgeVertex3 half_v1 = new HalfEdgeVertex3(v1.position, v1.normal);
@@ -752,12 +817,7 @@ namespace Habrador_Computational_Geometry
             mesh.faces.Add(f);
 
 
-            //Save the new edge
-            if (newEdges != null)
-            {
-                //We know the knew edge goes from v1 to v2, so we should save the half-edge that points to v2
-                newEdges.Add(e_to_v2);
-            }
+            return f;
         }
 
 

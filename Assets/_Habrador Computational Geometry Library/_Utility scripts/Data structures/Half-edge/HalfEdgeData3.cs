@@ -373,6 +373,20 @@ namespace Habrador_Computational_Geometry
             return f;
         }
 
+        //Is useful if we for example already have half-edge data and want to split it into different meshes
+        public void AddTriangle(HalfEdgeFace3 f, bool findOppositeEdge = false)
+        {
+            faces.Add(f);
+
+            edges.Add(f.edge);
+            edges.Add(f.edge.nextEdge);
+            edges.Add(f.edge.nextEdge.nextEdge);
+
+            verts.Add(f.edge.v);
+            verts.Add(f.edge.nextEdge.v);
+            verts.Add(f.edge.nextEdge.nextEdge.v);
+        }
+
         //v1-v2-v3 should be clock-wise which is Unity standard
         public HalfEdgeFace3 AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, bool findOppositeEdge = false)
         {

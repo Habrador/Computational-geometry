@@ -74,7 +74,9 @@ public class CutMeshWithPlaneController : MonoBehaviour
             timer.Start();
 
             //Should return null (if we couldn't cut the mesh because the mesh didn't intersect with the plane)
-            List<Mesh> cutMeshes = CutMeshWithPlane.CutMesh(childTransToCut, cutPlane);
+            HalfEdgeData3 halfEdgeMeshData = childTransToCut.GetComponent<CutMesh>().halfEdge3DataStructure;
+
+            HashSet<HalfEdgeData3> cutMeshes = CutMeshWithPlane.CutMesh(childTransToCut, halfEdgeMeshData, cutPlane);
 
             timer.Stop();
 
@@ -98,17 +100,29 @@ public class CutMeshWithPlaneController : MonoBehaviour
             //The transform will now be in global space
             childTransToCut.parent = null;
 
+            timer.Restart();
 
             //Create new game objects with the new meshes
-            foreach (Mesh newMesh in cutMeshes)
+            foreach (HalfEdgeData3 newHalfEdgeMesh in cutMeshes)
             {
                 GameObject newObj = Instantiate(childTransToCut.gameObject);
 
                 newObj.transform.parent = meshesToCutParentTrans;
 
-                newObj.GetComponent<MeshFilter>().mesh = newMesh;
+                //Cache the half-edge data in case we want to cut the mesh again
+                childTransToCut.GetComponent<CutMesh>().halfEdge3DataStructure = newHalfEdgeMesh;
+
+                //Convert from half-edge to unity mesh
+                MyMesh myMesh = newHalfEdgeMesh.ConvertToMyMesh("Cutted mesh", MyMesh.MeshStyle.HardAndSoftEdges);
+
+                Mesh unityMesh = myMesh.ConvertToUnityMesh(generateNormals: false);
+
+                newObj.GetComponent<MeshFilter>().mesh = unityMesh;
             }
 
+            timer.Stop();
+
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to generate the unity meshes");
 
             //Hide the original one
             childTransToCut.gameObject.SetActive(false);
