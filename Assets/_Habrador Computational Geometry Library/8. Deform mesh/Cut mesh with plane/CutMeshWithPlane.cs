@@ -13,7 +13,7 @@ namespace Habrador_Computational_Geometry
 
     //- Time measurements for optimizations (bunny):
     //- AABB-plane test: 0.004 s
-    //- Separate meshes into outside/inside plane: 0.023 s of which pos-plane takes 0.002 s
+    //- Separate meshes into outside/inside plane: 0.02 s of which AddTriangle() is the slowest
     //- Connect opposite edges: 0.003
     //- Find mesh islands: 0.02
     public static class CutMeshWithPlane 
@@ -80,9 +80,11 @@ namespace Habrador_Computational_Geometry
             Plane3 cutPlaneLocal = new Plane3(planePosLocal, planeNormalLocal);
 
 
+            timer.Restart();
+
             //Loop through all triangles in the mesh
             HashSet<HalfEdgeFace3> triangles = halfEdgeMeshData.faces;
-
+            
             foreach (HalfEdgeFace3 triangle in triangles)
             {
                 //The verts in this triangles
@@ -96,7 +98,6 @@ namespace Habrador_Computational_Geometry
                 bool is_p3_outside = _Geometry.IsPointOutsidePlane(v3.position, cutPlaneLocal);
 
                 
-
                 //Build triangles belonging to respective mesh
 
                 //All are outside the plane (no cut needed)
@@ -112,7 +113,7 @@ namespace Habrador_Computational_Geometry
                 //The vertices are on different sides of the plane, so we need to cut the triangle into 3 new triangles
                 else
                 {
-                    //We get 6 cases where each vertex is on its own in front or in the back of the plane
+                    //We get 6 cases where each vertex is on its own outside or inside the plane
 
 
                     //p1 is outside
@@ -202,7 +203,7 @@ namespace Habrador_Computational_Geometry
 
                     //Remove the connection
                     e.oppositeEdge = null;
-                    eOpposite = null;
+                    eOpposite.oppositeEdge = null;
                 }
             }
 
@@ -648,7 +649,7 @@ namespace Habrador_Computational_Geometry
             normal_O1I1 = MyVector3.Normalize(normal_O1I1);
             normal_I2O1 = MyVector3.Normalize(normal_I2O1);
 
-
+            
 
             //
             // Form 3 new triangles
@@ -742,7 +743,7 @@ namespace Habrador_Computational_Geometry
             normal_O2I1 = MyVector3.Normalize(normal_O2I1);
             normal_I1O1 = MyVector3.Normalize(normal_I1O1);
 
-
+            
 
             //
             // Form 3 new triangles
