@@ -30,5 +30,25 @@ namespace Habrador_Computational_Geometry
                 Debug.DrawLine(p1, p2, color, timer);
             }
         }
+
+
+
+        public static void DisplayEdges(HashSet<HalfEdge3> edges, Transform trans, Color color, float timer = 20f)
+        {
+            foreach (HalfEdge3 e in edges)
+            {
+                Vector3 p1 = e.v.position.ToVector3();
+                Vector3 p2 = e.prevEdge.v.position.ToVector3();
+
+                //Local to global space
+                if (trans != null)
+                {
+                    p1 = trans.TransformPoint(p1);
+                    p2 = trans.TransformPoint(p2);
+                }
+
+                Debug.DrawLine(p1, p2, color, timer);
+            }
+        }
     }
 }
