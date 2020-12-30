@@ -33,7 +33,7 @@ namespace Habrador_Computational_Geometry
 
 
 
-    //Oriented plane which is needed if we want to transform between coordinate systems
+    //Oriented plane which is needed if we want to transform between coordinate systems, or do we???
     public class OrientedPlane3
     {
         public Transform planeTrans;

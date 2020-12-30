@@ -9,61 +9,42 @@ namespace Habrador_Computational_Geometry
     //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes
     //- Normalize the data to 0-1 to avoid floating point precision issues
     //- Submeshes should be avoided because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
-    //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway.  
+    //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway!  
     //- When cutting triangles - always cut edges from outside -> inside. If you cut one from outside and the other from inside, the result is not the same because of floating point issues, which may cause trouble when finding opposite edges
-    //- Use the cut-edge to analyze how many holes we have. If we have just one hole, we don't need to flood-fill and thus we don't need to convert the mesh to the half-edge data structure. But it might be problematic to merge small edges if we are not on the half-edge data structure...
-    //- Input should be half-edge, not mesh. If we want to cut a mesh multiple times, then we would have to convert from mesh to half-edge multiple times. Converting to half-edge is a bottleneck. 
+    //- Use the cut-edge to analyze how many holes we have. If we have just one hole, we don't need to flood-fill and thus we don't need to convert the mesh to the half-edge data structure. But it might be problematic to merge small edges if we are not on the half-edge data structure... 
     public static class CutMeshWithPlane 
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
-        //Otherwise it should return two new meshes
+        //Otherwise it should return the new meshes
         //meshTrans is needed so we can transform the cut plane to the mesh's local space 
-        public static List<Mesh> CutMesh(Transform meshTrans, OrientedPlane3 orientedCutPlaneGlobal)
+        //halfEdgeMeshData should thus be in local space
+        public static List<HalfEdgeData3> CutMesh(Transform meshTrans, HalfEdgeData3 halfEdgeMeshData, OrientedPlane3 orientedCutPlaneGlobal)
         {
             //Validate the input data
             if (meshTrans == null)
             {
-                Debug.Log("There's transform to cut");
+                Debug.Log("There's no transform to cut");
 
                 return null;
             }
 
-            Mesh mesh = meshTrans.GetComponent<MeshFilter>().mesh;
-
-            if (mesh == null)
+            if (halfEdgeMeshData == null)
             {
                 Debug.Log("There's no mesh to cut");
 
                 return null;
             }
 
-
             //The plane with just a normal
             Plane3 cutPlaneGlobal = orientedCutPlaneGlobal.Plane3;
 
             //First check if the AABB of the mesh is intersecting with the plane
             //Otherwise we can't cut the mesh, so its a waste of time
+            bool isIntersecting = IsMeshAABBIntersectingWithPlane(meshTrans, cutPlaneGlobal);
 
-            //To get the AABB in world space we need to use the mesh renderer
-            MeshRenderer mr = meshTrans.GetComponent<MeshRenderer>();
-
-            if (mr != null)
+            if (!isIntersecting)
             {
-                AABB3 aabb = new AABB3(mr.bounds);
-
-                //The corners of this box 
-                HashSet<MyVector3> corners = aabb.GetCorners();
-
-                if (corners != null && corners.Count > 1)
-                {
-                    //The points are in world space so use the plane in world space
-                    if (ArePointsOnOneSideOfPlane(new List<MyVector3>(corners), cutPlaneGlobal))
-                    {
-                        Debug.Log("This mesh can't be cut because its AABB doesnt intersect with the plane");
-                    
-                        return null;
-                    }
-                }
+                return null;
             }
 
 
@@ -777,6 +758,45 @@ namespace Habrador_Computational_Geometry
                 //We know the knew edge goes from v1 to v2, so we should save the half-edge that points to v2
                 newEdges.Add(e_to_v2);
             }
+        }
+
+
+
+        //
+        // Speed up calculations by first checking if the mesh's AABB is intersecting with the plane
+        //
+        private static bool IsMeshAABBIntersectingWithPlane(Transform meshTrans, Plane3 cutPlaneGlobal)
+        {
+            //To get the AABB in world space we can use the mesh renderer
+            MeshRenderer mr = meshTrans.GetComponent<MeshRenderer>();
+
+            if (mr == null)
+            {
+                Debug.Log("A mesh renderer is not attached so we can speed up the performance :(");
+
+                //So we have to return true because we don't know
+
+                return true;
+            }
+
+
+            AABB3 aabb = new AABB3(mr.bounds);
+
+            //The corners of this box 
+            HashSet<MyVector3> corners = aabb.GetCorners();
+
+            if (corners != null && corners.Count > 1)
+            {
+                //The points are in world space so use the plane in world space
+                if (ArePointsOnOneSideOfPlane(new List<MyVector3>(corners), cutPlaneGlobal))
+                {
+                    Debug.Log("This mesh can't be cut because its AABB doesnt intersect with the plane");
+
+                    return false;
+                }
+            }
+
+            return true;
         }
 
 

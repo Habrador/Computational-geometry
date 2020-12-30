@@ -13,9 +13,33 @@ public class CutMeshWithPlaneController : MonoBehaviour
 
 
     void Start()
-	{
-        
-	}
+    {
+        //Step 1 is to convert all meshes to the half-edge data structure and cache the result, which will improve performance
+        List<Transform> transformsToCut = GetChildTransformsWithMeshAttached(meshesToCutParentTrans);
+
+        foreach (Transform childTransToCut in transformsToCut)
+        {
+            //Only cut active gameobjects
+            if (!childTransToCut.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            //We know a mesh (and thus a mesh filter) is attached so we don't need to check that
+            Mesh meshToCut = childTransToCut.GetComponent<MeshFilter>().sharedMesh;
+
+            //Convert from unity mesh to our mesh
+            MyMesh myMeshToCut = new MyMesh(meshToCut); 
+
+            //Convert to half-edge data structure
+            HalfEdgeData3 halfEdgeMeshData = new HalfEdgeData3(myMeshToCut, HalfEdgeData3.ConnectOppositeEdges.Fast);
+
+            //Don't convert to global space, it's faster to convert the plane to local space
+            CutMesh cutMesh = childTransToCut.gameObject.AddComponent<CutMesh>();
+
+            cutMesh.halfEdge3DataStructure = halfEdgeMeshData;
+        }
+    }
 
     
 
