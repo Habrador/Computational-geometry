@@ -8,10 +8,8 @@ namespace Habrador_Computational_Geometry
     //TODO:
     //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes
     //- Normalize the data to 0-1 to avoid floating point precision issues
-    //- Submeshes should be avoided because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
+    //- Submeshes should be avoided anyway because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
     //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway!  
-    //- When cutting triangles - always cut edges from outside -> inside. If you cut one from outside and the other from inside, the result is not the same because of floating point issues, which may cause trouble when finding opposite edges
-    //- Use the cut-edge to analyze how many holes we have. If we have just one hole, we don't need to flood-fill and thus we don't need to convert the mesh to the half-edge data structure. But it might be problematic to merge small edges if we are not on the half-edge data structure... 
     public static class CutMeshWithPlane 
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
@@ -152,11 +150,12 @@ namespace Habrador_Computational_Geometry
 
 
             //Find opposite edges to each edge
-            //This is a slow process, so should be done only if the mesh is intersecting with the plane
-            newMeshO.ConnectAllEdgesSlow();
-            newMeshI.ConnectAllEdgesSlow();
+            //Most edges should already have an opposite edge, but we need to connected some of the new edges with each other
+            newMeshO.ConnectAllEdgesFast();
+            newMeshI.ConnectAllEdgesFast();
 
             //Display all edges which have no opposite for debugging
+            //Remember that this will NOT display the holes because the hole-edges are connected across the border
             DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshO.edges, meshTrans, Color.white);
             DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshI.edges, meshTrans, Color.white);
 
