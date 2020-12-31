@@ -10,17 +10,16 @@ namespace Habrador_Computational_Geometry
     //- Normalize the data to 0-1 to avoid floating point precision issues
     //- Submeshes should be avoided anyway because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
     //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway! 
-    //- Can we use DOTS to improve performance?
+    //- Can we use DOTS to improve performance? Several algorithms can be done in parallell
 
     //- Time measurements for optimizations (bunny):
-    //- AABB-plane test: 0.004
-    //- Separate meshes into outside/inside plane: 0.02
-    //- Connect opposite edges: 0.003
+    //- AABB-plane test: 0.005
+    //- Separate meshes into outside/inside plane: 0.017
+    //- Connect opposite edges: 0.004
     //- Remove small edges: 
-    //- Identify holes:
-    //- Generate holes meshes:
+    //- Identify and fill holes: 0.015
     //- Find mesh islands: 0.012
-    //- Connect hole with mesh: 
+    //- Connect hole with mesh: 0.001
     public static class CutMeshWithPlane 
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
@@ -85,7 +84,7 @@ namespace Habrador_Computational_Geometry
             //Needs to be edges so we can later connect them with each other to fill the hole
             //And to remove small triangles
             //We only need to save the outside edges, because we can identify the inside edges because each edge has an opposite edge
-            HashSet<HalfEdge3> newEdgesO = new HashSet<HalfEdge3>();
+            HashSet<HalfEdge3> cutEdgesO = new HashSet<HalfEdge3>();
 
             //Transform the plane from global space to local space of the mesh
             //which is faster than transforming the mesh from local space to global space 
@@ -95,7 +94,7 @@ namespace Habrador_Computational_Geometry
             Plane3 cutPlaneLocal = new Plane3(planePosLocal, planeNormalLocal);
             
             //This new meshes might have islands (and thus be not connected) but we check for that later
-            SeparateMeshWithPlane(halfEdgeMeshData, newMeshO, newMeshI, cutPlaneLocal, newEdgesO);
+            SeparateMeshWithPlane(halfEdgeMeshData, newMeshO, newMeshI, cutPlaneLocal, cutEdgesO);
 
             //Generate new meshes is only needed if the old mesh intersected with the plane
             if (newMeshO.faces.Count == 0 || newMeshI.faces.Count == 0)
@@ -108,7 +107,7 @@ namespace Habrador_Computational_Geometry
 
 
             //
-            // Find opposite edges to each edge
+            // Find opposite edge to each edge
             //
             timer.Restart();
 
@@ -125,8 +124,8 @@ namespace Habrador_Computational_Geometry
             //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshO.edges, meshTrans, Color.white);
             //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshI.edges, meshTrans, Color.white);
 
-            //This will display the hole
-            DebugHalfEdge.DisplayEdges(newEdgesO, meshTrans, Color.white);
+            //This will display the hole(s)
+            //DebugHalfEdge.DisplayEdges(cutEdgesO, meshTrans, Color.white);
 
 
 
@@ -147,7 +146,7 @@ namespace Habrador_Computational_Geometry
             //
             timer.Restart();
 
-            //HashSet<Hole> allHoles = FillHoles(newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+            HashSet<CutMeshHole> allHoles = FillHoles(cutEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
 
             Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to identify and fill holes");
 
@@ -157,7 +156,7 @@ namespace Habrador_Computational_Geometry
             // Separate the meshes (they are still connected in the half-edge data structure at the cut edge)
             //
             
-            foreach (HalfEdge3 e in newEdgesO)
+            foreach (HalfEdge3 e in cutEdgesO)
             {
                 if (e.oppositeEdge != null)
                 {
@@ -190,7 +189,7 @@ namespace Habrador_Computational_Geometry
 
             //It should be faster to do this after identifying each mesh island 
             //because that process requires flood-filling which is slower the more triangles each mesh has
-            //AddHolesToMeshes(newMeshesO, newMeshesI, allHoles);
+            AddHolesToMeshes(newMeshesO, newMeshesI, allHoles);
 
             Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds match hole with mesh");
 
@@ -215,7 +214,7 @@ namespace Habrador_Computational_Geometry
         //
         // Separates a mesh by a plane
         //
-        private static void SeparateMeshWithPlane(HalfEdgeData3 halfEdgeMeshData, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, Plane3 cutPlaneLocal, HashSet<HalfEdge3> newEdgesO)
+        private static void SeparateMeshWithPlane(HalfEdgeData3 halfEdgeMeshData, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, Plane3 cutPlaneLocal, HashSet<HalfEdge3> cutEdgesO)
         {
             //Loop through all triangles in the mesh
             HashSet<HalfEdgeFace3> triangles = halfEdgeMeshData.faces;
@@ -254,34 +253,34 @@ namespace Habrador_Computational_Geometry
                     //p1 is outside
                     if (is_p1_outside && !is_p2_outside && !is_p3_outside)
                     {
-                        CutTriangleOneOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
+                        CutTriangleOneOutside(v1, v2, v3, newMeshO, newMeshI, cutEdgesO, cutPlaneLocal);
                     }
                     //p1 is inside
                     else if (!is_p1_outside && is_p2_outside && is_p3_outside)
                     {
-                        CutTriangleTwoOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
+                        CutTriangleTwoOutside(v2, v3, v1, newMeshO, newMeshI, cutEdgesO, cutPlaneLocal);
                     }
 
                     //p2 is outside
                     else if (!is_p1_outside && is_p2_outside && !is_p3_outside)
                     {
-                        CutTriangleOneOutside(v2, v3, v1, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
+                        CutTriangleOneOutside(v2, v3, v1, newMeshO, newMeshI, cutEdgesO, cutPlaneLocal);
                     }
                     //p2 is inside
                     else if (is_p1_outside && !is_p2_outside && is_p3_outside)
                     {
-                        CutTriangleTwoOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
+                        CutTriangleTwoOutside(v3, v1, v2, newMeshO, newMeshI, cutEdgesO, cutPlaneLocal);
                     }
 
                     //p3 is outside
                     else if (!is_p1_outside && !is_p2_outside && is_p3_outside)
                     {
-                        CutTriangleOneOutside(v3, v1, v2, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
+                        CutTriangleOneOutside(v3, v1, v2, newMeshO, newMeshI, cutEdgesO, cutPlaneLocal);
                     }
                     //p3 is inside
                     else if (is_p1_outside && is_p2_outside && !is_p3_outside)
                     {
-                        CutTriangleTwoOutside(v1, v2, v3, newMeshO, newMeshI, newEdgesO, cutPlaneLocal);
+                        CutTriangleTwoOutside(v1, v2, v3, newMeshO, newMeshI, cutEdgesO, cutPlaneLocal);
                     }
 
                     //Something is strange if we end up here...
@@ -296,7 +295,7 @@ namespace Habrador_Computational_Geometry
 
 
         //We have holes and we have meshes with empty holes, this will pair them together
-        private static void AddHolesToMeshes(HashSet<HalfEdgeData3> newMeshesO, HashSet<HalfEdgeData3> newMeshesI, HashSet<Hole> allHoles)
+        private static void AddHolesToMeshes(HashSet<HalfEdgeData3> newMeshesO, HashSet<HalfEdgeData3> newMeshesI, HashSet<CutMeshHole> allHoles)
         {
             //This may happen if the original mesh has holes in it and the plane intersects one of those holes. 
             //Then we can't identify the hole as closed and we can't repair the hole anyway 
@@ -305,7 +304,7 @@ namespace Habrador_Computational_Geometry
                 return;
             }
         
-            foreach (Hole hole in allHoles)
+            foreach (CutMeshHole hole in allHoles)
             {
                 HalfEdge3 holeEdgeI = hole.holeEdgeI;
                 HalfEdge3 holeEdgeO = hole.holeEdgeO;
@@ -471,7 +470,7 @@ namespace Habrador_Computational_Geometry
         //
 
         //Fill the hole (or holes) in the mesh
-        private static HashSet<Hole> FillHoles(HashSet<HalfEdge3> holeEdgesO, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal)
+        private static HashSet<CutMeshHole> FillHoles(HashSet<HalfEdge3> holeEdgesO, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal)
         {
             if (holeEdgesO == null)
             {
@@ -483,7 +482,7 @@ namespace Habrador_Computational_Geometry
 
             //Find all separate holes
             HashSet<List<HalfEdge3>> allHoles = IdentifySeparateHoles(holeEdgesO);
-
+            
             if (allHoles.Count == 0)
             {
                 Debug.LogWarning("Couldn't identify any holes even though we have hole edges");
@@ -494,15 +493,12 @@ namespace Habrador_Computational_Geometry
             //Debug
             //foreach (List<HalfEdge3> hole in allHoles)
             //{
-            //    foreach (HalfEdge3 e in hole)
-            //    {
-            //        Debug.DrawLine(meshTrans.TransformPoint(e.v.position.ToVector3()), Vector3.zero, Color.white, 5f);
-            //    }
+            //    DebugHalfEdge.DisplayEdges(new HashSet<HalfEdge3>(hole), meshTrans, Color.white);
             //}
 
 
             //Fill the hole with a mesh
-            HashSet<Hole> holeMeshes = new HashSet<Hole>();
+            HashSet<CutMeshHole> allHoleMeshes = new HashSet<CutMeshHole>();
 
             foreach (List<HalfEdge3> hole in allHoles)
             {
@@ -511,7 +507,7 @@ namespace Habrador_Computational_Geometry
 
                 //Transform vertices to local position of the cut plane to make it easier to triangulate with Ear Clipping
                 //Ear CLipping wants vertices in 2d
-                List<MyVector2> sortedEdges_2D = new List<MyVector2>();
+                List<MyVector2> sortedVertices_2D = new List<MyVector2>();
 
                 Transform planeTrans = orientedCutPlane.planeTrans;
 
@@ -528,19 +524,23 @@ namespace Habrador_Computational_Geometry
                     //Y is normal direction so should be 0
                     MyVector2 p2D = new MyVector2(pPlaneSpace.x, pPlaneSpace.z);
 
-                    sortedEdges_2D.Add(p2D);
+                    sortedVertices_2D.Add(p2D);
                 }
 
 
                 //Triangulate with Ear Clipping
-                HashSet<Triangle2> triangles = _EarClipping.Triangulate(sortedEdges_2D, null, optimizeTriangles: false);
+
+                //Need to reverse to standardize with ear clipping
+                sortedVertices_2D.Reverse();
+
+                HashSet<Triangle2> triangles = _EarClipping.Triangulate(sortedVertices_2D, null, optimizeTriangles: false);
 
                 //Debug.Log($"Number of triangles from Ear Clipping: {triangles.Count}");
 
                 //Transform vertices to mesh space and half-edge data structure
                 foreach (Triangle2 t in triangles)
                 {
-                    //3d space
+                    //2d to 3d space
                     Vector3 p1 = new Vector3(t.p1.x, 0f, t.p1.y);
                     Vector3 p2 = new Vector3(t.p2.x, 0f, t.p2.y);
                     Vector3 p3 = new Vector3(t.p3.x, 0f, t.p3.y);
@@ -560,50 +560,31 @@ namespace Habrador_Computational_Geometry
                     MyMeshVertex v2_I = new MyMeshVertex(p2Mesh.ToMyVector3(), planeNormal);
                     MyMeshVertex v3_I = new MyMeshVertex(p3Mesh.ToMyVector3(), planeNormal);
 
-                    //For inside mesh
+                    //For outside mesh
                     MyMeshVertex v1_O = new MyMeshVertex(p1Mesh.ToMyVector3(), -planeNormal);
                     MyMeshVertex v2_O = new MyMeshVertex(p2Mesh.ToMyVector3(), -planeNormal);
                     MyMeshVertex v3_O = new MyMeshVertex(p3Mesh.ToMyVector3(), -planeNormal);
 
                     //Now we can finally add this triangle to the half-edge data structure
-                    //AddTriangleToMesh(v1_I, v2_I, v3_I, holeMeshI, null);
-                    //AddTriangleToMesh(v1_O, v3_O, v2_O, holeMeshO, null);
+                    holeMeshI.AddTriangle(v1_I, v2_I, v3_I);
+                    holeMeshO.AddTriangle(v1_O, v3_O, v2_O);
                 }
 
-                //We also need an edge belonging to the mesh (not hole mesh) to easier merge mesh with hole
-                //The hole edges were generated for the Inside mesh
-                HalfEdge3 holeEdgeI = hole[0];
+                //Connect the opposite edges
+                holeMeshI.ConnectAllEdgesFast();
+                holeMeshO.ConnectAllEdgesFast();
 
-                //But we also need an edge for the Outside mesh
-                bool foundCorrespondingEdge = false;
+                //We also need to save an edge belonging to the mesh to easier merge mesh with hole
+                //The hole edges were generated by using edges in the outside mesh
+                HalfEdge3 holeEdgeO = hole[0];
+                HalfEdge3 holeEdgeI = holeEdgeO.oppositeEdge;
 
-                MyVector3 eGoingTo = holeEdgeI.v.position;
-                MyVector3 eGoingFrom = holeEdgeI.prevEdge.v.position;
+                CutMeshHole newHole = new CutMeshHole(holeMeshI, holeMeshO, holeEdgeI, holeEdgeO);
 
-                foreach (HalfEdge3 holeEdgeO in holeEdgesO)
-                {
-                    MyVector3 eOppsiteGoingTo = holeEdgeO.v.position;
-                    MyVector3 eOppsiteGoingFrom = holeEdgeO.prevEdge.v.position;
-
-                    if (eOppsiteGoingTo.Equals(eGoingFrom) && eOppsiteGoingFrom.Equals(eGoingTo))
-                    {
-                        Hole newHoleMesh = new Hole(holeMeshI, holeMeshO, holeEdgeI, holeEdgeO);
-
-                        holeMeshes.Add(newHoleMesh);
-
-                        foundCorrespondingEdge = true;
-
-                        break;
-                    }
-                }
-
-                if (!foundCorrespondingEdge)
-                {
-                    Debug.Log("Couldnt find opposite edge in hole, so no hole was added");
-                }
+                allHoleMeshes.Add(newHole);
             }
 
-            return holeMeshes;
+            return allHoleMeshes;
         }
 
 
@@ -611,11 +592,14 @@ namespace Habrador_Computational_Geometry
         //We might end up with multiple holes, so we need to identify all of them
         //Input is just a list of all edges that form the hole(s)
         //The output list is sorted so we can walk around the hole
-        private static HashSet<List<HalfEdge3>> IdentifySeparateHoles(HashSet<HalfEdge3> cutEdges)
+        private static HashSet<List<HalfEdge3>> IdentifySeparateHoles(HashSet<HalfEdge3> cutEdgesOriginal)
         {
             HashSet<List<HalfEdge3>> allHoles = new HashSet<List<HalfEdge3>>();
 
-            //Alternative create a linked list, which should identify all holes automatically?
+            //Alternatively create a linked list, which should identify all holes automatically?
+
+            //Clone the list with cut edges because we need it to be intact
+            HashSet<HalfEdge3> cutEdges = new HashSet<HalfEdge3>(cutEdgesOriginal);
 
             //Faster to just pick a start edge
             HalfEdge3 startEdge = cutEdges.FakePop();
