@@ -16,7 +16,7 @@ namespace Habrador_Computational_Geometry
     //- AABB-plane test: 0.004 s
     //- Separate meshes into outside/inside plane: 0.02 s of which AddTriangle() is the slowest
     //- Connect opposite edges: 0.003
-    //- Find mesh islands: 0.02
+    //- Find mesh islands: 0.03
     public static class CutMeshWithPlane 
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
@@ -192,8 +192,12 @@ namespace Habrador_Computational_Geometry
             //RemoveSmallTriangles(F_Mesh, newEdges);
 
 
-            //Fill the holes in the mesh
-            //HashSet<Hole> allHoles = FillHoles(newEdgesI, newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+            timer.Restart();
+
+            //Identify all holes and fill them with a flat mesh
+            HashSet<Hole> allHoles = FillHoles(newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to identify and fill holes");
 
 
             //Separate the meshes (they are still connected at their cut edge)
@@ -237,6 +241,7 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //We have holes and we have meshes with empty holes, this will pair them together
         private static void AddHolesToMeshes(HashSet<HalfEdgeData3> newMeshesO, HashSet<HalfEdgeData3> newMeshesI, HashSet<Hole> allHoles)
         {
             //This may happen if the original mesh has holes in it and the plane intersects one of those holes. 
@@ -275,46 +280,59 @@ namespace Habrador_Computational_Geometry
 
 
 
-        //Separate a mesh by its islands (if it has islands)
+        //
+        // Separate a mesh by its islands (if it has islands)
+        //
+
         private static HashSet<HalfEdgeData3> SeparateMeshIslands(HalfEdgeData3 meshData)
         {
+            //System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+            
             HashSet<HalfEdgeData3> meshIslands = new HashSet<HalfEdgeData3>();
 
             HashSet<HalfEdgeFace3> allFaces = meshData.faces;
-
+            
 
             //Separate by flood-filling
 
+            //Reset the bool (which might be true if we have done operations on this mesh before)
+            //This takes 0 seconds
+            foreach (HalfEdgeFace3 f in allFaces)
+            {
+                f.hasVisisted = false;
+            }
+            
             //Faces belonging to a separate island
             HashSet<HalfEdgeFace3> facesOnThisIsland = new HashSet<HalfEdgeFace3>();
 
-            //Faces we havent flodded from yet
+            //Faces we havent flooded from yet
             Queue<HalfEdgeFace3> facesToFloodFrom = new Queue<HalfEdgeFace3>();
 
-            //Add a first face to the queue
+            //Add a first face to the queue to start the flooding
             HalfEdgeFace3 firstFace = allFaces.FakePop();
 
             facesToFloodFrom.Enqueue(firstFace);
 
             int numberOfIslands = 0;
 
+            //Help list to make it flooding from triangle easier 
             List<HalfEdge3> edges = new List<HalfEdge3>();
 
             int safety = 0;
-
+            
             while (true)
             {
                 //If the queue is empty, it means we have flooded this island
                 if (facesToFloodFrom.Count == 0)
                 {
                     numberOfIslands += 1;
-
+                    
                     //Generate the new half-edge data structure from the faces that belong to this island
                     HalfEdgeData3 meshIsland = HalfEdgeData3.GenerateHalfEdgeDataFromFaces(facesOnThisIsland);
-
+                   
                     meshIslands.Add(meshIsland);
 
-                    //We still have faces to visit, so they must be on a new island
+                    //We still have triangles to visit, so they must be on a new island, so restart
                     if (allFaces.Count > 0)
                     {
                         facesOnThisIsland = new HashSet<HalfEdgeFace3>();
@@ -324,6 +342,7 @@ namespace Habrador_Computational_Geometry
 
                         facesToFloodFrom.Enqueue(firstFace);
                     }
+                    //No more triangles to visit, so we have identified all islands! 
                     else
                     {
                         Debug.Log($"This mesh has {numberOfIslands} islands");
@@ -331,35 +350,47 @@ namespace Habrador_Computational_Geometry
                         break;
                     }
                 }
-            
+
+                //Pick a triangle to flood from 
                 HalfEdgeFace3 f = facesToFloodFrom.Dequeue();
+
+                f.hasVisisted = true;
 
                 facesOnThisIsland.Add(f);
 
-                //Remove from the original mesh so we can identify if we need to start at a new island
+                //Remove from the original mesh so we can identify that we have found all islands
                 allFaces.Remove(f);
-
-                //Find neighboring faces 
+                
+                //Find neighboring triangles 
                 edges.Clear();
 
                 edges.Add(f.edge);
                 edges.Add(f.edge.nextEdge);
                 edges.Add(f.edge.nextEdge.nextEdge);
-
+                
                 foreach (HalfEdge3 e in edges)
                 {
+                    //We cant flood across this edge if it doesn't have a neighbor
                     if (e.oppositeEdge != null)
                     {
                         HalfEdgeFace3 fNeighbor = e.oppositeEdge.face;
 
-                        //If we haven't seen this face before
-                        if (!facesOnThisIsland.Contains(fNeighbor) && !facesToFloodFrom.Contains(fNeighbor))
+                        //If we haven't visited this triangle before...
+                        if (!fNeighbor.hasVisisted)
                         {
                             facesToFloodFrom.Enqueue(fNeighbor);
-                        }
-                    }
 
-                    //Here we could mabe save all edges with no opposite, meaning its an edge at the hole 
+                            fNeighbor.hasVisisted = true;
+                        }
+
+                        //This is 0.02 seconds slower for the bunny
+                        //if (!facesOnThisIsland.Contains(fNeighbor) && !facesToFloodFrom.Contains(fNeighbor))
+                        //{
+                        //    //...we will flood from it in the near future
+                        //    facesToFloodFrom.Enqueue(fNeighbor);
+                        //}
+
+                    } 
                 }
                 
 
@@ -373,15 +404,23 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
+            
+            
+            //Debug.Log($"Whatever we timed took {timer.ElapsedMilliseconds / 1000f} seconds");
+
             return meshIslands;
         }
 
 
 
+        //
+        // Identify holes and fill holes with mesh
+        //
+
         //Fill the hole (or holes) in the mesh
-        private static HashSet<Hole> FillHoles(HashSet<HalfEdge3> holeEdgesI, HashSet<HalfEdge3> holeEdgesO, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal)
+        private static HashSet<Hole> FillHoles(HashSet<HalfEdge3> holeEdgesO, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal)
         {
-            if (holeEdgesI == null || holeEdgesI.Count == 0)
+            if (holeEdgesO == null)
             {
                 Debug.Log("This mesh has no hole");
 
@@ -390,7 +429,7 @@ namespace Habrador_Computational_Geometry
 
 
             //Find all separate holes
-            HashSet<List<HalfEdge3>> allHoles = IdentifySeparateHoles(holeEdgesI);
+            HashSet<List<HalfEdge3>> allHoles = IdentifySeparateHoles(holeEdgesO);
 
             if (allHoles.Count == 0)
             {
@@ -618,6 +657,10 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //
+        // Cut triangle into 3 triangles
+        //
+
         //Cut a triangle where one vertex is outside and the other vertices are inside
         //Make sure they are sorted clockwise: O1-I1-I2
         //O means that this vertex is outside of the plane
@@ -812,6 +855,7 @@ namespace Habrador_Computational_Geometry
         //
         // Speed up calculations by first checking if the mesh's AABB is intersecting with the plane
         //
+
         private static bool IsMeshAABBIntersectingWithPlane(Transform meshTrans, Plane3 cutPlaneGlobal)
         {
             //To get the AABB in world space we can use the mesh renderer

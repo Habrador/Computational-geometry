@@ -715,6 +715,8 @@ namespace Habrador_Computational_Geometry
         //If you need the vertices, you can use this edge
         public HalfEdge3 edge;
 
+        //Flood-filling is a common operation, and this face should improve the performance
+        public bool hasVisisted;
 
 
         public HalfEdgeFace3(HalfEdge3 edge)
