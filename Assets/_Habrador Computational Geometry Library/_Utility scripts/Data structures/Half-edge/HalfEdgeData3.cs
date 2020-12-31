@@ -9,11 +9,11 @@ namespace Habrador_Computational_Geometry
     // http://graphics.stanford.edu/courses/cs248-18-spring-content/lectures/07_geometryprocessing/07_geometryprocessing_slides.pdf
 
     //3D space
-    //TODO: An idea is to keep the original lists and then the half-edge data structure is references these lists
-    //making it easier to change vertex positions, etc? Then we only need to compare 2 ints when comparing edge directions, which should be faster than comparing 6 floats
-    //So instead of point at a Vector3, each vertex should point at a position in a list of all vertices 
-    //This should also prevent floatig point problems when using the position as key in a dictionary
-    //TODO: Make sure the methods are more general - they are not only working on triangles
+    //TODO: 
+    // - An idea is to keep the original lists and then the half-edge data structure is references these lists making it easier to change vertex positions, etc? Then we only need to compare 2 ints when comparing edge directions, which should be faster than comparing 6 floats. So instead of point at a Vector3, each vertex should point at a position in a list of all vertices. This should also prevent floatig point problems when using the position as key in a dictionary
+    //- Make sure the methods are more general - they are now only working on triangles
+    //- COmbine some methods with 2d version: Flip edge is working in the same way in both 2d and 3d
+    //- Convert to MyMesh should maybe be in MyMesh class
     public class HalfEdgeData3
     {
         //Should be called verts because have the same #letters as faces, edges, so makes it pretty
@@ -152,6 +152,11 @@ namespace Habrador_Computational_Geometry
         //This method takes rough 0.1 seconds for the bunny, while the slow method takes 1.6 seconds
         public void ConnectAllEdgesFast()
         {
+            ConnectAllEdgesFast(this.edges);
+        }
+
+        public void ConnectAllEdgesFast(HashSet<HalfEdge3> myEdges)
+        {
             //Create the lookup table
             //Important in this case that Edge3 is a struct
             Dictionary<Edge3, HalfEdge3> edgeLookup = new Dictionary<Edge3, HalfEdge3>();
@@ -159,7 +164,7 @@ namespace Habrador_Computational_Geometry
             //We can also maybe create a list of all edges which are not connected, so we don't have to search through all edges again?
             //List<HalfEdge3> unconnectedEdges = new List<HalfEdge3>();
 
-            foreach (HalfEdge3 e in edges)
+            foreach (HalfEdge3 e in myEdges)
             {
                 //Dont add it if its opposite is not null
                 //Sometimes we run this method if just a few edges are not connected
@@ -177,7 +182,7 @@ namespace Habrador_Computational_Geometry
             }
 
             //Connect edges
-            foreach (HalfEdge3 e in edges)
+            foreach (HalfEdge3 e in myEdges)
             {
                 //This edge is already connected
                 //Is faster to first do a null check
@@ -216,7 +221,7 @@ namespace Habrador_Computational_Geometry
         //If no opposite edge exists, it means it has no neighbor which is possible if there's a hole
         public void TryFindOppositeEdge(HalfEdge3 e)
         {
-            TryFindOppositeEdge(e, edges);
+            TryFindOppositeEdge(e, this.edges);
         }
 
 

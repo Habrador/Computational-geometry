@@ -10,6 +10,7 @@ namespace Habrador_Computational_Geometry
     //- Normalize the data to 0-1 to avoid floating point precision issues
     //- Submeshes should be avoided anyway because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
     //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway! 
+    //- Can we use DOTS to improve performance?
 
     //- Time measurements for optimizations (bunny):
     //- AABB-plane test: 0.004 s
@@ -171,6 +172,7 @@ namespace Habrador_Computational_Geometry
 
             //Find opposite edges to each edge
             //Most edges should already have an opposite edge, but we need to connected some of the new edges with each other
+            //This can maybe be improved because we know which edges have no connection and we could just search through those
             newMeshO.ConnectAllEdgesFast();
             newMeshI.ConnectAllEdgesFast();
 
