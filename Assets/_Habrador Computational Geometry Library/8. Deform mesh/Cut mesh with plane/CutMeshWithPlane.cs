@@ -13,10 +13,13 @@ namespace Habrador_Computational_Geometry
     //- Can we use DOTS to improve performance?
 
     //- Time measurements for optimizations (bunny):
-    //- AABB-plane test: 0.004 s
-    //- Separate meshes into outside/inside plane: 0.02 s of which AddTriangle() is the slowest
+    //- AABB-plane test: 0.004
+    //- Separate meshes into outside/inside plane: 0.02
     //- Connect opposite edges: 0.003
-    //- Find mesh islands: 0.03
+    //- Identify holes:
+    //- Generate holes meshes:
+    //- Find mesh islands: 0.012
+    //- Connect hole with mesh: 
     public static class CutMeshWithPlane 
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
@@ -195,12 +198,12 @@ namespace Habrador_Computational_Geometry
             timer.Restart();
 
             //Identify all holes and fill them with a flat mesh
-            HashSet<Hole> allHoles = FillHoles(newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+            //HashSet<Hole> allHoles = FillHoles(newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
 
             Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to identify and fill holes");
 
 
-            //Separate the meshes (they are still connected at their cut edge)
+            //Separate the meshes (they are still connected in the half-edge data structure at the cut edge)
             foreach (HalfEdge3 e in newEdgesO)
             {
                 if (e.oppositeEdge != null)
@@ -389,7 +392,6 @@ namespace Habrador_Computational_Geometry
                         //    //...we will flood from it in the near future
                         //    facesToFloodFrom.Enqueue(fNeighbor);
                         //}
-
                     } 
                 }
                 
