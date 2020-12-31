@@ -16,6 +16,7 @@ namespace Habrador_Computational_Geometry
     //- AABB-plane test: 0.004
     //- Separate meshes into outside/inside plane: 0.02
     //- Connect opposite edges: 0.003
+    //- Remove small edges: 
     //- Identify holes:
     //- Generate holes meshes:
     //- Find mesh islands: 0.012
@@ -26,9 +27,12 @@ namespace Habrador_Computational_Geometry
         //Otherwise it should return the new meshes
         //meshTrans is needed so we can transform the cut plane to the mesh's local space 
         //halfEdgeMeshData should thus be in local space
-        public static HashSet<HalfEdgeData3> CutMesh(Transform meshTrans, HalfEdgeData3 halfEdgeMeshData, OrientedPlane3 orientedCutPlaneGlobal)
+        public static List<HalfEdgeData3> CutMesh(Transform meshTrans, HalfEdgeData3 halfEdgeMeshData, OrientedPlane3 orientedCutPlaneGlobal)
         {
-            //Validate the input data
+            //
+            // Validate the input data
+            //
+
             if (meshTrans == null)
             {
                 Debug.Log("There's no transform to cut");
@@ -43,16 +47,19 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
-
+            //Used only for finding optimization problems
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
+
+
+            //
+            // Check if the AABB of the mesh is intersecting with the plane. Otherwise we can't cut the mesh, so its a waste of time
+            //
             timer.Start();
 
             //The plane with just a normal
             Plane3 cutPlaneGlobal = orientedCutPlaneGlobal.Plane3;
 
-            //First check if the AABB of the mesh is intersecting with the plane
-            //Otherwise we can't cut the mesh, so its a waste of time
             bool isIntersecting = IsMeshAABBIntersectingWithPlane(meshTrans, cutPlaneGlobal);
 
             if (!isIntersecting)
@@ -62,12 +69,15 @@ namespace Habrador_Computational_Geometry
 
             Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to do the AABB-plane intersection test");
 
+
+
+            //
+            // Separate the old mesh into two new meshes (or just one if the mesh is not intersecting with the plane)
+            //
             timer.Restart();
 
-
-
             //The two meshes we might end up with after the cut
-            //One is in front of the plane and another is in back of the plane
+            //One is "outside" of the plane and another is "inside" the plane
             HalfEdgeData3 newMeshO = new HalfEdgeData3();
             HalfEdgeData3 newMeshI = new HalfEdgeData3();
 
@@ -78,30 +88,151 @@ namespace Habrador_Computational_Geometry
             HashSet<HalfEdge3> newEdgesO = new HashSet<HalfEdge3>();
 
             //Transform the plane from global space to local space of the mesh
+            //which is faster than transforming the mesh from local space to global space 
             MyVector3 planePosLocal = meshTrans.InverseTransformPoint(cutPlaneGlobal.pos.ToVector3()).ToMyVector3();
             MyVector3 planeNormalLocal = meshTrans.InverseTransformDirection(cutPlaneGlobal.normal.ToVector3()).ToMyVector3();
 
             Plane3 cutPlaneLocal = new Plane3(planePosLocal, planeNormalLocal);
+            
+            //This new meshes might have islands (and thus be not connected) but we check for that later
+            SeparateMeshWithPlane(halfEdgeMeshData, newMeshO, newMeshI, cutPlaneLocal, newEdgesO);
+
+            //Generate new meshes is only needed if the old mesh intersected with the plane
+            if (newMeshO.faces.Count == 0 || newMeshI.faces.Count == 0)
+            {
+                return null;
+            }
+
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to separate the meshes");
 
 
+
+            //
+            // Find opposite edges to each edge
+            //
             timer.Restart();
 
+            //Most edges should already have an opposite edge, but we need to connected some of the new triangles edges with each other
+            //This can maybe be improved because we know which edges have no connection and we could just search through those
+            newMeshO.ConnectAllEdgesFast();
+            newMeshI.ConnectAllEdgesFast();
+
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to connect the opposite edges");
+
+
+            //Display all edges which have no opposite for debugging
+            //Remember that this will NOT display the holes because the hole-edges are connected across the border
+            //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshO.edges, meshTrans, Color.white);
+            //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshI.edges, meshTrans, Color.white);
+
+            //This will display the hole
+            DebugHalfEdge.DisplayEdges(newEdgesO, meshTrans, Color.white);
+
+
+
+            //
+            // Remove small triangles at the seam where we did the cut
+            //
+            timer.Restart();
+
+            //The small edges may cause shading issues and the fewer edges we have the faster it will take to fill the holes
+            //RemoveSmallTriangles(F_Mesh, newEdges);
+
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to remove small edges");
+
+
+
+            //
+            // Identify all holes and fill the holes
+            //
+            timer.Restart();
+
+            //HashSet<Hole> allHoles = FillHoles(newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to identify and fill holes");
+
+
+
+            //
+            // Separate the meshes (they are still connected in the half-edge data structure at the cut edge)
+            //
+            
+            foreach (HalfEdge3 e in newEdgesO)
+            {
+                if (e.oppositeEdge != null)
+                {
+                    HalfEdge3 eOpposite = e.oppositeEdge;
+
+                    //Remove the connection
+                    e.oppositeEdge = null;
+                    eOpposite.oppositeEdge = null;
+                }
+            }
+
+
+
+            //
+            // Split each mesh into separate meshes if the original mesh is not connected, meaning it has islands
+            //
+            timer.Restart();
+
+            HashSet<HalfEdgeData3> newMeshesO = SeparateMeshIslands(newMeshO);
+            HashSet<HalfEdgeData3> newMeshesI = SeparateMeshIslands(newMeshI);
+
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to find mesh islands");
+
+
+
+            //
+            // Connect each hole mesh with respective mesh
+            //
+            timer.Restart();
+
+            //It should be faster to do this after identifying each mesh island 
+            //because that process requires flood-filling which is slower the more triangles each mesh has
+            //AddHolesToMeshes(newMeshesO, newMeshesI, allHoles);
+
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds match hole with mesh");
+
+
+
+            //
+            // Combine the inside and outside meshes
+            //
+
+            List<HalfEdgeData3> allNewMeshes = new List<HalfEdgeData3>();
+
+            allNewMeshes.AddRange(newMeshesO);
+            allNewMeshes.AddRange(newMeshesI);
+
+            
+
+            return allNewMeshes;
+        }
+
+
+
+        //
+        // Separates a mesh by a plane
+        //
+        private static void SeparateMeshWithPlane(HalfEdgeData3 halfEdgeMeshData, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, Plane3 cutPlaneLocal, HashSet<HalfEdge3> newEdgesO)
+        {
             //Loop through all triangles in the mesh
             HashSet<HalfEdgeFace3> triangles = halfEdgeMeshData.faces;
-            
+
             foreach (HalfEdgeFace3 triangle in triangles)
             {
                 //The verts in this triangles
                 HalfEdgeVertex3 v1 = triangle.edge.v;
                 HalfEdgeVertex3 v2 = triangle.edge.nextEdge.v;
                 HalfEdgeVertex3 v3 = triangle.edge.nextEdge.nextEdge.v;
-                
+
                 //Check on which side of the plane these vertices are
                 bool is_p1_outside = _Geometry.IsPointOutsidePlane(v1.position, cutPlaneLocal);
                 bool is_p2_outside = _Geometry.IsPointOutsidePlane(v2.position, cutPlaneLocal);
                 bool is_p3_outside = _Geometry.IsPointOutsidePlane(v3.position, cutPlaneLocal);
 
-                
+
                 //Build triangles belonging to respective mesh
 
                 //All are outside the plane (no cut needed)
@@ -160,86 +291,6 @@ namespace Habrador_Computational_Geometry
                     }
                 }
             }
-
-
-            //Generate the new meshes only needed the old mesh intersected with the plane
-            if (newMeshO.verts.Count == 0 || newMeshI.verts.Count == 0)
-            {
-                return null;
-            }
-
-
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to separate the meshes");
-
-            timer.Restart();
-
-            //Find opposite edges to each edge
-            //Most edges should already have an opposite edge, but we need to connected some of the new edges with each other
-            //This can maybe be improved because we know which edges have no connection and we could just search through those
-            newMeshO.ConnectAllEdgesFast();
-            newMeshI.ConnectAllEdgesFast();
-
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to connect the opposite edges");
-
-
-            //Display all edges which have no opposite for debugging
-            //Remember that this will NOT display the holes because the hole-edges are connected across the border
-            //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshO.edges, meshTrans, Color.white);
-            //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshI.edges, meshTrans, Color.white);
-
-            //This will display the hole
-            DebugHalfEdge.DisplayEdges(newEdgesO, meshTrans, Color.white);
-
-
-            //Remove small triangles at the seam where we did the cut because they will cause shading issues if the surface is smooth
-            //RemoveSmallTriangles(F_Mesh, newEdges);
-
-
-            timer.Restart();
-
-            //Identify all holes and fill them with a flat mesh
-            //HashSet<Hole> allHoles = FillHoles(newEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
-
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to identify and fill holes");
-
-
-            //Separate the meshes (they are still connected in the half-edge data structure at the cut edge)
-            foreach (HalfEdge3 e in newEdgesO)
-            {
-                if (e.oppositeEdge != null)
-                {
-                    HalfEdge3 eOpposite = e.oppositeEdge;
-
-                    //Remove the connection
-                    e.oppositeEdge = null;
-                    eOpposite.oppositeEdge = null;
-                }
-            }
-
-
-            timer.Restart();
-
-            //Split each mesh into separate meshes if the original mesh is not connected, meaning it has islands
-            HashSet<HalfEdgeData3> newMeshesO = SeparateMeshIslands(newMeshO);
-            HashSet<HalfEdgeData3> newMeshesI = SeparateMeshIslands(newMeshI);
-
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to find mesh islands");
-
-
-            //Connect the holes with respective mesh
-            //AddHolesToMeshes(newMeshesO, newMeshesI, allHoles);
-
-
-            timer.Restart();
-            
-            //Combine before return
-            HashSet<HalfEdgeData3> allNewMeshes = newMeshesO;
-
-            allNewMeshes.UnionWith(newMeshesI);
-
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to combined the final meshes");
-
-            return allNewMeshes;
         }
 
 
