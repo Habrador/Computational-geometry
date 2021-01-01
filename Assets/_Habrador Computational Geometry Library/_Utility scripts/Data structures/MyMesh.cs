@@ -51,14 +51,24 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //Add triangles (oriented clock-wise) to the mesh
+        public void AddTriangles(HashSet<Triangle3<MyMeshVertex>> triangles, MeshStyle meshStyle)
+        {
+
+        }
+
+
+
         //Add a triangle (oriented clock-wise) to the mesh
         public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, MeshStyle meshStyle)
         {
-            int index1 = AddVertexAndReturnIndex(v1, meshStyle);
-            int index2 = AddVertexAndReturnIndex(v2, meshStyle);
-            int index3 = AddVertexAndReturnIndex(v3, meshStyle);
+            int index_1 = AddVertexAndReturnIndex(v1, meshStyle);
+            int index_2 = AddVertexAndReturnIndex(v2, meshStyle);
+            int index_3 = AddVertexAndReturnIndex(v3, meshStyle);
 
-            AddTrianglePositions(index1, index2, index3);
+            triangles.Add(index_1);
+            triangles.Add(index_2);
+            triangles.Add(index_3);
         }
 
 
@@ -88,7 +98,7 @@ namespace Habrador_Computational_Geometry
                             return vertexPosInList;
                         }
                         
-                        //Sometimes we dont have a normal to compare
+                        //If we want only soft edges we don't need to compare the normal
                         if (meshStyle == MeshStyle.SoftEdges)
                         {
                             vertexPosInList = i;
@@ -106,31 +116,6 @@ namespace Habrador_Computational_Geometry
             vertexPosInList = vertices.Count - 1;
 
             return vertexPosInList;
-        }
-
-
-
-        //Add a normal at a certain index
-        //Run this after adding a vertex
-        //public void AddNormal(MyVector3 normal, int index)
-        //{
-        //    //If the index is larger than how many values in list, add at last pos
-        //    //So if index is 1 we want to add the normal to the second pos in the list
-        //    //Otherwise the normal should already exist
-        //    if (normals.Count <= index)
-        //    {
-        //        normals.Add(normal);
-        //    }
-        //}
-
-
-
-        //Add triangle
-        public void AddTrianglePositions(int index_1, int index_2, int index_3)
-        {
-            triangles.Add(index_1);
-            triangles.Add(index_2);
-            triangles.Add(index_3);
         }
 
 

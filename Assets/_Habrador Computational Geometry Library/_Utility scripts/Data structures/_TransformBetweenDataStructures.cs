@@ -152,7 +152,7 @@ namespace Habrador_Computational_Geometry
 
         //Version 1. Check that each vertex exists only once in the final mesh
         //Make sure the triangles have the correct orientation
-        public static Mesh Triangle3ToCompressedMesh(HashSet<Triangle3> triangles)
+        public static Mesh Triangle3ToCompressedMesh(HashSet<Triangle3<MyVector3>> triangles)
         {
             if (triangles == null)
             {
@@ -164,7 +164,7 @@ namespace Habrador_Computational_Geometry
             //A hashset will make it fast to check if a vertex already exists in the collection
             HashSet<MyVector3> uniqueVertices = new HashSet<MyVector3>();
 
-            foreach (Triangle3 t in triangles)
+            foreach (Triangle3<MyVector3> t in triangles)
             {
                 MyVector3 v1 = t.p1;
                 MyVector3 v2 = t.p2;
@@ -199,7 +199,7 @@ namespace Habrador_Computational_Geometry
                 vector2Positons.Add(meshVertices[i], i);
             }
 
-            foreach (Triangle3 t in triangles)
+            foreach (Triangle3<MyVector3> t in triangles)
             {
                 MyVector3 v1 = t.p1;
                 MyVector3 v2 = t.p2;
@@ -238,7 +238,7 @@ namespace Habrador_Computational_Geometry
 
         //Version 2. Don't check for duplicate vertices, which can be good if we want a low-poly style mesh
         //Make sure the triangles have the correct orientation
-        public static Mesh Triangle3ToMesh(HashSet<Triangle3> triangles)
+        public static Mesh Triangle3ToMesh(HashSet<Triangle3<MyVector3>> triangles)
         {
             //Create the list with all vertices and triangles
             List<MyVector3> meshVertices = new List<MyVector3>();
@@ -248,7 +248,7 @@ namespace Habrador_Computational_Geometry
 
             int arrayPos = 0;
 
-            foreach (Triangle3 t in triangles)
+            foreach (Triangle3<MyVector3> t in triangles)
             {
                 MyVector3 v1 = t.p1;
                 MyVector3 v2 = t.p2;
@@ -294,11 +294,11 @@ namespace Habrador_Computational_Geometry
         public static Mesh Triangles2ToMesh(HashSet<Triangle2> triangles, bool useCompressedMesh, float meshHeight = 0f)
         {
             //2d to 3d
-            HashSet<Triangle3> triangles_3d = new HashSet<Triangle3>();
+            HashSet<Triangle3<MyVector3>> triangles_3d = new HashSet<Triangle3<MyVector3>>();
 
             foreach (Triangle2 t in triangles)
             {
-                triangles_3d.Add(new Triangle3(t.p1.ToMyVector3_Yis3D(meshHeight), t.p2.ToMyVector3_Yis3D(meshHeight), t.p3.ToMyVector3_Yis3D(meshHeight)));
+                triangles_3d.Add(new Triangle3<MyVector3>(t.p1.ToMyVector3_Yis3D(meshHeight), t.p2.ToMyVector3_Yis3D(meshHeight), t.p3.ToMyVector3_Yis3D(meshHeight)));
             }
 
             //To mesh

@@ -191,7 +191,7 @@ namespace Habrador_Computational_Geometry
             //because that process requires flood-filling which is slower the more triangles each mesh has
             AddHolesToMeshes(newMeshesO, newMeshesI, allHoles);
 
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds match hole with mesh");
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to match hole with mesh");
 
 
 
