@@ -9,8 +9,8 @@ namespace Habrador_Computational_Geometry
     //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes
     //- Normalize the data to 0-1 to avoid floating point precision issues
     //- Submeshes should be avoided anyway because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
-    //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway! 
-    //- Can we use DOTS to improve performance? Several algorithms can be done in parallell
+    //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway! Maybe we can fix that by finding a better way to identify the different holes
+    //- Can we use DOTS to improve performance? Several sub-algorithms can be done in parallell
 
     //- Time measurements for optimizations (bunny):
     //- AABB-plane test: 0.005
@@ -470,7 +470,7 @@ namespace Habrador_Computational_Geometry
         //
 
         //Fill the hole (or holes) in the mesh
-        private static HashSet<CutMeshHole> FillHoles(HashSet<HalfEdge3> holeEdgesO, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormal)
+        private static HashSet<CutMeshHole> FillHoles(HashSet<HalfEdge3> holeEdgesO, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormalLocal)
         {
             if (holeEdgesO == null)
             {
@@ -530,14 +530,14 @@ namespace Habrador_Computational_Geometry
 
                 //Triangulate with Ear Clipping
 
-                //Need to reverse to standardize with ear clipping
+                //Need to reverse to standardize for the Ear Elipping algorithm
                 sortedVertices_2D.Reverse();
 
                 HashSet<Triangle2> triangles = _EarClipping.Triangulate(sortedVertices_2D, null, optimizeTriangles: false);
 
                 //Debug.Log($"Number of triangles from Ear Clipping: {triangles.Count}");
 
-                //Transform vertices to mesh space and half-edge data structure
+                //Transform triangles to mesh space and half-edge data structure
                 foreach (Triangle2 t in triangles)
                 {
                     //2d to 3d space
@@ -556,14 +556,14 @@ namespace Habrador_Computational_Geometry
                     Vector3 p3Mesh = meshTrans.InverseTransformPoint(p3Global);
 
                     //For inside mesh
-                    MyMeshVertex v1_I = new MyMeshVertex(p1Mesh.ToMyVector3(), planeNormal);
-                    MyMeshVertex v2_I = new MyMeshVertex(p2Mesh.ToMyVector3(), planeNormal);
-                    MyMeshVertex v3_I = new MyMeshVertex(p3Mesh.ToMyVector3(), planeNormal);
+                    MyMeshVertex v1_I = new MyMeshVertex(p1Mesh.ToMyVector3(), planeNormalLocal);
+                    MyMeshVertex v2_I = new MyMeshVertex(p2Mesh.ToMyVector3(), planeNormalLocal);
+                    MyMeshVertex v3_I = new MyMeshVertex(p3Mesh.ToMyVector3(), planeNormalLocal);
 
                     //For outside mesh
-                    MyMeshVertex v1_O = new MyMeshVertex(p1Mesh.ToMyVector3(), -planeNormal);
-                    MyMeshVertex v2_O = new MyMeshVertex(p2Mesh.ToMyVector3(), -planeNormal);
-                    MyMeshVertex v3_O = new MyMeshVertex(p3Mesh.ToMyVector3(), -planeNormal);
+                    MyMeshVertex v1_O = new MyMeshVertex(p1Mesh.ToMyVector3(), -planeNormalLocal);
+                    MyMeshVertex v2_O = new MyMeshVertex(p2Mesh.ToMyVector3(), -planeNormalLocal);
+                    MyMeshVertex v3_O = new MyMeshVertex(p3Mesh.ToMyVector3(), -planeNormalLocal);
 
                     //Now we can finally add this triangle to the half-edge data structure
                     holeMeshI.AddTriangle(v1_I, v2_I, v3_I);
@@ -591,12 +591,16 @@ namespace Habrador_Computational_Geometry
 
         //We might end up with multiple holes, so we need to identify all of them
         //Input is just a list of all edges that form the hole(s)
-        //The output list is sorted so we can walk around the hole
+        //The output list is sorted so we can walk around the hole (if there was no empty hole in the mesh we cut)
+        //Should return a list of half-edges because makes it faster to identify hole-mesh
         private static HashSet<List<HalfEdge3>> IdentifySeparateHoles(HashSet<HalfEdge3> cutEdgesOriginal)
         {
             HashSet<List<HalfEdge3>> allHoles = new HashSet<List<HalfEdge3>>();
 
             //Alternatively create a linked list, which should identify all holes automatically?
+            //Which is better because this is currently failing because the hole may not be connected around if there's an empty hole in the mesh
+            //Should return a list of half-edges because makes ut faster to identify hole-mesh
+            //Can maybe borrow the half-edge data structure and set the opposite edge to the edge in the mesh...
 
             //Clone the list with cut edges because we need it to be intact
             HashSet<HalfEdge3> cutEdges = new HashSet<HalfEdge3>(cutEdgesOriginal);
