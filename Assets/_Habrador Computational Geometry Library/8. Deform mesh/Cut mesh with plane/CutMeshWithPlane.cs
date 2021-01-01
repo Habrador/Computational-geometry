@@ -26,7 +26,7 @@ namespace Habrador_Computational_Geometry
         //Otherwise it should return the new meshes
         //meshTrans is needed so we can transform the cut plane to the mesh's local space 
         //halfEdgeMeshData should thus be in local space
-        public static List<HalfEdgeData3> CutMesh(Transform meshTrans, HalfEdgeData3 halfEdgeMeshData, OrientedPlane3 orientedCutPlaneGlobal)
+        public static List<HalfEdgeData3> CutMesh(Transform meshTrans, HalfEdgeData3 halfEdgeMeshData, OrientedPlane3 orientedCutPlaneGlobal, bool fillHoles)
         {
             //
             // Validate the input data
@@ -144,11 +144,16 @@ namespace Habrador_Computational_Geometry
             //
             // Identify all holes and fill the holes
             //
-            timer.Restart();
+            HashSet<CutMeshHole> allHoles = null;
 
-            HashSet<CutMeshHole> allHoles = FillHoles(cutEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+            if (fillHoles)
+            {
+                timer.Restart();
 
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to identify and fill holes");
+                allHoles = FillHoles(cutEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+
+                Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to identify and fill holes");
+            }
 
 
 
@@ -185,13 +190,16 @@ namespace Habrador_Computational_Geometry
             //
             // Connect each hole mesh with respective mesh
             //
-            timer.Restart();
+            if (fillHoles)
+            {
+                timer.Restart();
 
-            //It should be faster to do this after identifying each mesh island 
-            //because that process requires flood-filling which is slower the more triangles each mesh has
-            AddHolesToMeshes(newMeshesO, newMeshesI, allHoles);
+                //It should be faster to do this after identifying each mesh island 
+                //because that process requires flood-filling which is slower the more triangles each mesh has
+                AddHolesToMeshes(newMeshesO, newMeshesI, allHoles);
 
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to match hole with mesh");
+                Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to match hole with mesh");
+            }
 
 
 

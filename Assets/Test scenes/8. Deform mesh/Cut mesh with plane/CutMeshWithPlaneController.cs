@@ -76,7 +76,7 @@ public class CutMeshWithPlaneController : MonoBehaviour
             //Should return null (if we couldn't cut the mesh because the mesh didn't intersect with the plane)
             HalfEdgeData3 halfEdgeMeshData = childTransToCut.GetComponent<CutMesh>().halfEdge3DataStructure;
 
-            List<HalfEdgeData3> cutMeshes = CutMeshWithPlane.CutMesh(childTransToCut, halfEdgeMeshData, cutPlane);
+            List<HalfEdgeData3> cutMeshes = CutMeshWithPlane.CutMesh(childTransToCut, halfEdgeMeshData, cutPlane, fillHoles: true);
 
             timer.Stop();
 

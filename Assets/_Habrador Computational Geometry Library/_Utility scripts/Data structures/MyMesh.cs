@@ -63,10 +63,11 @@ namespace Habrador_Computational_Geometry
                 }
             }
             //If we have many triangles and want both soft- and hard edges, then adding triangle by triangle is very slow
+            //because we to search for both position and normal 
             else
             {
                 //...so we have to use a lookup table where we store position and normal, which may cause floating-point precision issues
-                //Maybe we could avoid this if the half-edge data structure pointed to positions in a list...
+                //Maybe we could avoid this if the half-edge data structure pointed to positions in a list???
                 Dictionary<MyMeshVertex, int> vertexLookup = new Dictionary<MyMeshVertex, int>();
 
                 foreach (Triangle3<MyMeshVertex> triangle in trianglesToAdd)
