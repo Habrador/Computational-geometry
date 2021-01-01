@@ -52,9 +52,56 @@ namespace Habrador_Computational_Geometry
 
 
         //Add triangles (oriented clock-wise) to the mesh
-        public void AddTriangles(HashSet<Triangle3<MyMeshVertex>> triangles, MeshStyle meshStyle)
+        public void AddTriangles(HashSet<Triangle3<MyMeshVertex>> trianglesToAdd, MeshStyle meshStyle)
         {
+            //Soft edges is maybe slow as well???
+            if (meshStyle == MeshStyle.HardEdges || meshStyle == MeshStyle.SoftEdges)
+            {
+                foreach (Triangle3<MyMeshVertex> triangle in trianglesToAdd)
+                {
+                    AddTriangle(triangle.p1, triangle.p2, triangle.p3, meshStyle);
+                }
+            }
+            //If we have many triangles and want both soft- and hard edges, then adding triangle by triangle is very slow
+            else
+            {
+                //...so we have to use a lookup table where we store position and normal, which may cause floating-point precision issues
+                //Maybe we could avoid this if the half-edge data structure pointed to positions in a list...
+                Dictionary<MyMeshVertex, int> vertexLookup = new Dictionary<MyMeshVertex, int>();
 
+                foreach (Triangle3<MyMeshVertex> triangle in trianglesToAdd)
+                {
+                    MyMeshVertex v1 = triangle.p1;
+                    MyMeshVertex v2 = triangle.p2;
+                    MyMeshVertex v3 = triangle.p3;
+
+                    AddVertexFromLookup(v1, vertexLookup);
+                    AddVertexFromLookup(v2, vertexLookup);
+                    AddVertexFromLookup(v3, vertexLookup);
+                }
+            }
+        }
+
+        //Help method to above
+        private void AddVertexFromLookup(MyMeshVertex v, Dictionary<MyMeshVertex, int> vertexLookup)
+        {
+            int index = -1;
+
+            bool indexExists = vertexLookup.TryGetValue(v, out index);
+
+            if (!indexExists)
+            {
+                vertices.Add(v.position);
+                normals.Add(v.normal);
+
+                triangles.Add(vertices.Count - 1);
+
+                vertexLookup.Add(v, vertices.Count - 1);
+            }
+            else
+            {
+                triangles.Add(index);
+            }
         }
 
 

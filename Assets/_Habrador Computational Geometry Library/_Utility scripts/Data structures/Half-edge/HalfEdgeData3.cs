@@ -239,7 +239,25 @@ namespace Habrador_Computational_Geometry
         public MyMesh ConvertToMyMesh(string meshName, MyMesh.MeshStyle meshStyle)
         {
             MyMesh myMesh = new MyMesh(meshName);
-        
+
+            //Loop through each triangle
+            //foreach (HalfEdgeFace3 f in faces)
+            //{
+            //    //These have been stored clock-wise, which is what a mesh wants
+            //    HalfEdgeVertex3 v1 = f.edge.v;
+            //    HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
+            //    HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
+
+            //    //Standardize
+            //    MyMeshVertex my_v1 = new MyMeshVertex(v1.position, v1.normal);
+            //    MyMeshVertex my_v2 = new MyMeshVertex(v2.position, v2.normal);
+            //    MyMeshVertex my_v3 = new MyMeshVertex(v3.position, v3.normal);
+
+            //    myMesh.AddTriangle(my_v1, my_v2, my_v3, meshStyle);
+            //}
+
+            HashSet<Triangle3<MyMeshVertex>> triangles = new HashSet<Triangle3<MyMeshVertex>>();
+
             //Loop through each triangle
             foreach (HalfEdgeFace3 f in faces)
             {
@@ -253,8 +271,12 @@ namespace Habrador_Computational_Geometry
                 MyMeshVertex my_v2 = new MyMeshVertex(v2.position, v2.normal);
                 MyMeshVertex my_v3 = new MyMeshVertex(v3.position, v3.normal);
 
-                myMesh.AddTriangle(my_v1, my_v2, my_v3, meshStyle);
+                Triangle3<MyMeshVertex> triangle = new Triangle3<MyMeshVertex>(my_v1, my_v2, my_v3);
+
+                triangles.Add(triangle);
             }
+
+            myMesh.AddTriangles(triangles, meshStyle);
 
             return myMesh;
         }
