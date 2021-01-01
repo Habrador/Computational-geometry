@@ -97,7 +97,7 @@ public class CutMeshWithPlaneController : MonoBehaviour
             //and these old parent objects might have had some scale, etc
             //This might change in the future but then we would have to locate the correct parent-child, which might be messy?
             Transform oldChildParent = childTransToCut.parent;
-            //The transform will now be in global space
+            //The transform of the mesh we want to cut will now be in global space, so its scale etc might have changed
             childTransToCut.parent = null;
 
             timer.Restart();
@@ -124,10 +124,12 @@ public class CutMeshWithPlaneController : MonoBehaviour
 
             Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to generate the unity meshes");
 
-            //Hide the original one
+
+            //Hide the original one if we cut the mesh (we didn't reach thid far down if we didnt cut the mesh)
             childTransToCut.gameObject.SetActive(false);
 
-            //And make sure the original one has the previous parent
+            //And make sure the original mesh is in local space (if it had a parent)
+            //We earlier transformed it to global space
             childTransToCut.parent = oldChildParent;
         }
     }

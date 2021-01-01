@@ -8,13 +8,12 @@ namespace Habrador_Computational_Geometry
     //TODO:
     //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes
     //- Normalize the data to 0-1 to avoid floating point precision issues
-    //- Submeshes should be avoided anyway because of performance, so ignore those. Use uv to illustrate where the cut is. If you need to illustrate the cut with a different material, you can return two meshes and use the one that was part of the originl mesh to generate the convex hull 
     //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway! Maybe we can fix that by finding a better way to identify the different holes
-    //- Can we use DOTS to improve performance? Several sub-algorithms can be done in parallell
+    //- Can we use DOTS/GPU/threads to improve performance? Several sub-algorithms can be done in parallell
 
     //- Time measurements for optimizations (bunny):
     //- AABB-plane test: 0.005
-    //- Separate meshes into outside/inside plane: 0.017
+    //- Separate meshes into outside/inside plane: 0.01
     //- Connect opposite edges: 0.004
     //- Remove small edges: 
     //- Identify and fill holes: 0.015
@@ -23,6 +22,7 @@ namespace Habrador_Computational_Geometry
     public static class CutMeshWithPlane 
     {
         //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
+        //Cant handle sub-meshes, but they should be avoided anyway because of performance reasons!
         //Otherwise it should return the new meshes
         //meshTrans is needed so we can transform the cut plane to the mesh's local space 
         //halfEdgeMeshData should thus be in local space
@@ -63,6 +63,8 @@ namespace Habrador_Computational_Geometry
 
             if (!isIntersecting)
             {
+                Debug.Log("This mesh's AABB didn't intersect with the plane, so we couldn't cut it.");
+            
                 return null;
             }
 
@@ -96,13 +98,15 @@ namespace Habrador_Computational_Geometry
             //This new meshes might have islands (and thus be not connected) but we check for that later
             SeparateMeshWithPlane(halfEdgeMeshData, newMeshO, newMeshI, cutPlaneLocal, cutEdgesO);
 
-            //Generate new meshes is only needed if the old mesh intersected with the plane
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to separate the meshes");
+
+            //Generate new meshes only if the old mesh intersected with the plane
             if (newMeshO.faces.Count == 0 || newMeshI.faces.Count == 0)
             {
+                Debug.Log("This mesh didn't intersect with the plane, so we couldn't cut it.");
+            
                 return null;
             }
-
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to separate the meshes");
 
 
 
