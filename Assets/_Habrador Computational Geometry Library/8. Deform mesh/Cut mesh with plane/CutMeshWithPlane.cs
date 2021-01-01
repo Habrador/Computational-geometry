@@ -484,6 +484,8 @@ namespace Habrador_Computational_Geometry
         //Fill the hole (or holes) in the mesh
         private static HashSet<CutMeshHole> FillHoles(HashSet<HalfEdge3> holeEdgesO, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormalLocal)
         {
+            //System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+        
             if (holeEdgesO == null)
             {
                 Debug.Log("This mesh has no hole");
@@ -491,9 +493,10 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
-
+           
             //Find all separate holes
             HashSet<List<HalfEdge3>> allHoles = IdentifySeparateHoles(holeEdgesO);
+            
             
             if (allHoles.Count == 0)
             {
@@ -508,6 +511,7 @@ namespace Habrador_Computational_Geometry
             //    DebugHalfEdge.DisplayEdges(new HashSet<HalfEdge3>(hole), meshTrans, Color.white);
             //}
 
+            //timer.Start();
 
             //Fill the hole with a mesh
             HashSet<CutMeshHole> allHoleMeshes = new HashSet<CutMeshHole>();
@@ -596,6 +600,10 @@ namespace Habrador_Computational_Geometry
                 allHoleMeshes.Add(newHole);
             }
 
+            //timer.Stop();
+
+            //Debug.Log($"Whatever we timed took {timer.ElapsedMilliseconds / 1000f} seconds");
+
             return allHoleMeshes;
         }
 
@@ -605,105 +613,201 @@ namespace Habrador_Computational_Geometry
         //Input is just a list of all edges that form the hole(s)
         //The output list is sorted so we can walk around the hole (if there was no empty hole in the mesh we cut)
         //Should return a list of half-edges because makes it faster to identify hole-mesh
-        private static HashSet<List<HalfEdge3>> IdentifySeparateHoles(HashSet<HalfEdge3> cutEdgesOriginal)
+        //If there were holes in the original mesh, then we may end up with strange meshes when we try to fill the holes we made
+        private static HashSet<List<HalfEdge3>> IdentifySeparateHoles(HashSet<HalfEdge3> holeEdgesOriginal)
         {
+            //System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+
+
             HashSet<List<HalfEdge3>> allHoles = new HashSet<List<HalfEdge3>>();
 
-            //Alternatively create a linked list, which should identify all holes automatically?
-            //Which is better because this is currently failing because the hole may not be connected around if there's an empty hole in the mesh
-            //Should return a list of half-edges because makes ut faster to identify hole-mesh
-            //Can maybe borrow the half-edge data structure and set the opposite edge to the edge in the mesh...
-
             //Clone the list with cut edges because we need it to be intact
-            HashSet<HalfEdge3> cutEdges = new HashSet<HalfEdge3>(cutEdgesOriginal);
-
-            //Faster to just pick a start edge
-            HalfEdge3 startEdge = cutEdges.FakePop();
-
-            //Add it back so we can stop the algorithm
-            cutEdges.Add(startEdge);
+            HashSet<HalfEdge3> holeEdges = new HashSet<HalfEdge3>();
 
 
-            List<HalfEdge3> sortedHoleEdges = new List<HalfEdge3>() { startEdge };
-            //The first edge is needed to stop the algorithm, so don't remove it!
-            //cutEdges.Remove(startEdge);
+            //We can borrow the half-edge data structure to make a linked list
+            //Set the opposite edge to the actual hole edge in the mesh so we can identify where the edge starts and which original edge it corresponds to
+            foreach (HalfEdge3 edge in holeEdgesOriginal)
+            {
+                HalfEdge3 newEdge = new HalfEdge3(edge.v);
+
+                newEdge.oppositeEdge = edge;
+
+                holeEdges.Add(newEdge);
+            }
+
+            //timer.Start();
+
+            //Loop through all edges and find which edge comes next and which edge comes before
+            //and when the loop is done all edges should be connected (if there are no holes)
+            //We could maybe use a lookup table isntead of searching through all edges???
+            foreach (HalfEdge3 edge in holeEdges)
+            {
+                bool hasFoundPreviousEdge = false;
+                bool hasFoundNextEdge = false;
+
+                //This edge might have already been connected to other edges earlier in the loop
+                if (edge.nextEdge != null && edge.prevEdge != null)
+                {
+                    continue;
+                }
+            
+                foreach (HalfEdge3 edgeOther in holeEdges)
+                {
+                    //Dont compare with itself
+                    if (edge == edgeOther)
+                    {
+                        continue;
+                    }
 
 
-            //Then we can use the cutEdges to find our way around the hole's edge
-            //We cant use the half-edge data structure because multiple edges may start at a vertex
-            int safety = 0;
+                    //Try find next edge
+                    if (edgeOther.prevEdge == null && !hasFoundNextEdge)
+                    {
+                        //If the edge ends where edgeOther starts
+                        if (edge.v.position.Equals(edgeOther.oppositeEdge.prevEdge.v.position))
+                        {
+                            edge.nextEdge = edgeOther;
+                            edgeOther.prevEdge = edge;
+
+                            hasFoundNextEdge = true;
+                        }
+                    }
+
+
+                    //Try find previous edge
+                    if (edgeOther.nextEdge == null && !hasFoundPreviousEdge)
+                    {
+                        //If the edge starts where edgeOther ends
+                        if (edge.oppositeEdge.prevEdge.v.position.Equals(edgeOther.v.position))
+                        {
+                            edge.prevEdge = edgeOther;
+                            edgeOther.nextEdge = edge;
+
+                            hasFoundPreviousEdge = true;
+                        }
+                    }
+
+                    //We have found both edges so we don't need to search anymore
+                    if (hasFoundNextEdge && hasFoundPreviousEdge)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            //timer.Stop();
+
+            //We need to find all edges that starts at a hole
+            HashSet<HalfEdge3> edgesThatStartsAtHole = new HashSet<HalfEdge3>();
+
+            foreach (HalfEdge3 edge in holeEdges)
+            {
+                if (edge.prevEdge == null)
+                {
+                    edgesThatStartsAtHole.Add(edge);
+                }
+            }
+
+            Debug.Log($"Edges that starts at a hole: {edgesThatStartsAtHole.Count}");
+
+
+            //Now we need to separate the linked lists to lists where one edge comes after the other
+            //Also remember to put in the actual hole edge and not the fake-edge we used to generate linked lists!!!
+
+            //First add the hole edges that start at a hole in the mesh which is not the hole we created
+            foreach (HalfEdge3 edge in edgesThatStartsAtHole)
+            {
+                List<HalfEdge3> thisHole = new List<HalfEdge3>();
+
+                HalfEdge3 currentEdge = edge;
+
+                int safety = 0;
+
+                do
+                {
+                    thisHole.Add(currentEdge.oppositeEdge);
+
+                    holeEdges.Remove(currentEdge);
+
+                    currentEdge = currentEdge.nextEdge;
+
+                    safety += 1;
+
+                    if (safety > 50000)
+                    {
+                        Debug.Log("Stuck in infinite loop when generate holes that start at a hole");
+
+                        break;
+                    }
+                }
+                while (currentEdge != null);
+
+                allHoles.Add(thisHole);
+            }
+
+            //Debug.Log(holeEdges.Count);
+           
+            //Then find the holes that loops all the way around
+            int safety2 = 0;
 
             while (true)
             {
-                //Find an edge that starts at the last sorted cut edge
-                HalfEdge3 nextEdge = null;
+                List<HalfEdge3> thisHole = new List<HalfEdge3>();
 
-                MyVector3 lastPos = sortedHoleEdges[sortedHoleEdges.Count - 1].v.position;
+                //Pick a start edge
+                HalfEdge3 currentEdge = holeEdges.FakePop();
 
-                foreach (HalfEdge3 e in cutEdges)
+                //Save so we can stop the algorithm
+                HalfEdge3 startEdge = currentEdge;
+
+                int safety3 = 0;
+
+                do
                 {
-                    //A half-edge points to a vertex, so we want and edge going from the last vertex
-                    if (e.prevEdge.v.position.Equals(lastPos))
-                    {
-                        nextEdge = e;
+                    thisHole.Add(currentEdge.oppositeEdge);
+                    
+                    holeEdges.Remove(currentEdge);
+                   
+                    currentEdge = currentEdge.nextEdge;
 
-                        cutEdges.Remove(nextEdge);
+                    safety3 += 1;
+
+                    if (safety3 > 50000)
+                    {
+                        Debug.Log("Stuck in infinite loop when generate holes that start at a hole");
 
                         break;
                     }
                 }
+                while (currentEdge != startEdge);
+
+                allHoles.Add(thisHole);
+
+                //Debug.Log($"Found hole with {thisHole.Count} edges");
 
 
-                if (nextEdge == null)
+                if (holeEdges.Count == 0)
                 {
-                    Debug.Log("Could not find a next edge when filling the hole");
+                    Debug.Log($"The mesh has {allHoles.Count} holes");
 
                     break;
                 }
-                //The hole is back where it started
-                else if (nextEdge == startEdge)
+
+
+                safety2 += 1;
+                
+                if (safety2 > 50000)
                 {
-                    //Debug.Log($"Number of edges to fill this hole: {sortedHoleEdges.Count}");
-
-                    allHoles.Add(sortedHoleEdges);
-
-                    //We have another hole
-                    if (cutEdges.Count > 0)
-                    {
-                        startEdge = cutEdges.FakePop();
-
-                        //Add it back so we can stop the algorithm
-                        cutEdges.Add(startEdge);
-
-                        //Start over with a new list
-                        sortedHoleEdges = new List<HalfEdge3>() { startEdge };
-                    }
-                    //No more holes
-                    else
-                    {
-                        Debug.Log($"The mesh has {allHoles.Count} holes");
-                    
-                        break;
-                    }
-                }
-                else
-                {
-                    sortedHoleEdges.Add(nextEdge);
-                }
-
-
-
-                safety += 1;
-
-                if (safety > 20000)
-                {
-                    Debug.Log("Stuck in infinite loop when finding connected cut edges");
-
-                    //Debug.Log(sortedHoleEdges.Count);
+                    Debug.Log("Stuck in infinite loop when generate hole edges");
 
                     break;
                 }
             }
+
+
+            //Debug.Log($"Whatever we timed took {timer.ElapsedMilliseconds / 1000f} seconds");
+
 
             return allHoles;
         }
