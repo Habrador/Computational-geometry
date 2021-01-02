@@ -7,12 +7,11 @@ namespace Habrador_Computational_Geometry
     //Cut a meth with a plane
     //TODO:
     //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes
-    //- Normalize the data to 0-1 to avoid floating point precision issues
-    //- Is obviously generating an odd result if the mesh we cut has holes in it, and the plane intersects with one of those holes
+    //- Normalize the data to 0-1 to avoid floating point precision issues, which is needed to make it easier to remove small edges. If all meshes have the same range, it's easier to define small edge
     //- Can we use DOTS/GPU/threads to improve performance? Several sub-algorithms can be done in parallell
 
     //- Time measurements for optimizations (bunny):
-    //- AABB-plane test: 0.005
+    //- AABB-plane test: 0.003
     //- Separate meshes into outside/inside plane: 0.01
     //- Connect opposite edges: 0.004
     //- Remove small edges: 
@@ -21,11 +20,17 @@ namespace Habrador_Computational_Geometry
     //- Connect hole with mesh: 0.001
     public static class CutMeshWithPlane 
     {
-        //Should return null if the mesh couldn't be cut because it doesn't intersect with the plane
-        //Cant handle sub-meshes, but they should be avoided anyway because of performance reasons!
-        //Otherwise it should return the new meshes
-        //meshTrans is needed so we can transform the cut plane to the mesh's local space 
-        //halfEdgeMeshData should thus be in local space
+        /// <summary>
+        /// Cuts a mesh with a plane
+        /// Returns null if the mesh couldn't be cut because it doesn't intersect with the plane
+        /// Cant handle sub-meshes, but they should be avoided anyway because of performance reasons!
+        /// Is generating an odd result if the mesh we cut has holes in it, and the plane intersects with one of those holes
+        /// </summary>
+        /// <param name="meshTrans">The transform the mesh is attached to, so we can transform the cut plane to local space</param>
+        /// <param name="halfEdgeMeshData">The mesh on the half-edge form in local space</param>
+        /// <param name="orientedCutPlaneGlobal">The plane we use to cut the mesh</param>
+        /// <param name="fillHoles">If we should fill the holes in the mesh, which is obviously not possible if we cut a plane</param>
+        /// <returns></returns>
         public static List<HalfEdgeData3> CutMesh(Transform meshTrans, HalfEdgeData3 halfEdgeMeshData, OrientedPlane3 orientedCutPlaneGlobal, bool fillHoles)
         {
             //
@@ -1015,34 +1020,41 @@ namespace Habrador_Computational_Geometry
 
         private static bool IsMeshAABBIntersectingWithPlane(Transform meshTrans, Plane3 cutPlaneGlobal)
         {
+            //System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
+    
+
             //To get the AABB in world space we can use the mesh renderer
             MeshRenderer mr = meshTrans.GetComponent<MeshRenderer>();
 
+            
             if (mr == null)
             {
-                Debug.Log("A mesh renderer is not attached so we can speed up the performance :(");
+                Debug.Log("A mesh renderer is not attached so we can't speed up the performance :(");
 
                 //So we have to return true because we don't know
 
                 return true;
             }
 
-
+            
             AABB3 aabb = new AABB3(mr.bounds);
-
+            
             //The corners of this box 
-            HashSet<MyVector3> corners = aabb.GetCorners();
-
+            List<MyVector3> corners = aabb.GetCorners();
+            
             if (corners != null && corners.Count > 1)
             {
                 //The points are in world space so use the plane in world space
-                if (ArePointsOnOneSideOfPlane(new List<MyVector3>(corners), cutPlaneGlobal))
+                if (ArePointsOnOneSideOfPlane(corners, cutPlaneGlobal))
                 {
                     Debug.Log("This mesh can't be cut because its AABB doesnt intersect with the plane");
 
                     return false;
                 }
             }
+            
+
+            //Debug.Log($"Whatever we timed in AABB-plane took {timer.ElapsedMilliseconds / 1000f} seconds");
 
             return true;
         }
@@ -1055,11 +1067,13 @@ namespace Habrador_Computational_Geometry
             //First check the first point
             bool isInFront = _Geometry.IsPointOutsidePlane(points[0], plane);
 
+            //Then check the rest of the points
             for (int i = 1; i < points.Count; i++)
             {
                 bool isOtherOutside = _Geometry.IsPointOutsidePlane(points[i], plane);
 
                 //We have found a point which is not at the same side of the plane as the first point
+                //So the AABB is intersecting with the plane
                 if (isInFront != isOtherOutside)
                 {
                     return false;
