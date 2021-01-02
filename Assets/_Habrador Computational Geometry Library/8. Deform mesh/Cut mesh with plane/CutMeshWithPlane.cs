@@ -6,17 +6,17 @@ namespace Habrador_Computational_Geometry
 {
     //Cut a meth with a plane
     //TODO:
-    //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes
+    //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes. This should also improve performance, the fewer edges we have around the hole, the faster it is to fill it
     //- Normalize the data to 0-1 to avoid floating point precision issues, which is needed to make it easier to remove small edges. If all meshes have the same range, it's easier to define small edge
     //- Can we use DOTS/GPU/threads to improve performance? Several sub-algorithms can be done in parallell
 
-    //- Time measurements for optimizations (bunny):
+    //Time measurements for optimizations (bunny):
     //- AABB-plane test: 0.003
     //- Separate meshes into outside/inside plane: 0.01
     //- Connect opposite edges: 0.004
     //- Remove small edges: 
     //- Identify and fill holes: 0.015
-    //- Find mesh islands: 0.012
+    //- Find mesh islands: 0.015
     //- Connect hole with mesh: 0.001
     public static class CutMeshWithPlane 
     {
@@ -144,7 +144,7 @@ namespace Habrador_Computational_Geometry
             timer.Restart();
 
             //The small edges may cause shading issues and the fewer edges we have the faster it will take to fill the holes
-            //RemoveSmallTriangles(F_Mesh, newEdges);
+            //RemoveSmallTriangles(newEdgesO, 0.001f);
 
             Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to remove small edges");
 
@@ -489,6 +489,12 @@ namespace Habrador_Computational_Geometry
         //Fill the hole (or holes) in the mesh
         private static HashSet<CutMeshHole> FillHoles(HashSet<HalfEdge3> holeEdgesO, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormalLocal)
         {
+            //Time measurements for optimizations (bunny):
+            //- Separate holes: 0.003
+            //- Hole edges to 2d space: 0
+            //- Ear clipping algorithm: 0.006
+            //- Triangles from 2d space to half-edge: 0.003
+
             //System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
         
             if (holeEdgesO == null)
@@ -498,11 +504,16 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
-           
-            //Find all separate holes
+
+            //
+            // Find all separate holes
+            //
+            //timer.Start();
+            
             HashSet<List<HalfEdge3>> allHoles = IdentifySeparateHoles(holeEdgesO);
-            
-            
+
+            //timer.Stop();
+
             if (allHoles.Count == 0)
             {
                 Debug.LogWarning("Couldn't identify any holes even though we have hole edges");
@@ -516,7 +527,6 @@ namespace Habrador_Computational_Geometry
             //    DebugHalfEdge.DisplayEdges(new HashSet<HalfEdge3>(hole), meshTrans, Color.white);
             //}
 
-            //timer.Start();
 
             //Fill the hole with a mesh
             HashSet<CutMeshHole> allHoleMeshes = new HashSet<CutMeshHole>();
@@ -527,7 +537,9 @@ namespace Habrador_Computational_Geometry
                 HalfEdgeData3 holeMeshO = new HalfEdgeData3();
 
                 //Transform vertices to local position of the cut plane to make it easier to triangulate with Ear Clipping
-                //Ear CLipping wants vertices in 2d
+                //Ear Clipping wants vertices in 2d
+                //timer.Start();
+
                 List<MyVector2> sortedVertices_2D = new List<MyVector2>();
 
                 Transform planeTrans = orientedCutPlane.planeTrans;
@@ -548,17 +560,27 @@ namespace Habrador_Computational_Geometry
                     sortedVertices_2D.Add(p2D);
                 }
 
+                //timer.Stop();
+
 
                 //Triangulate with Ear Clipping
 
                 //Need to reverse to standardize for the Ear Elipping algorithm
                 sortedVertices_2D.Reverse();
-
+                
+                
+                //timer.Start();
+                
                 HashSet<Triangle2> triangles = _EarClipping.Triangulate(sortedVertices_2D, null, optimizeTriangles: false);
+
+                //timer.Stop();
 
                 //Debug.Log($"Number of triangles from Ear Clipping: {triangles.Count}");
 
+
                 //Transform triangles to mesh space and half-edge data structure
+                //timer.Start();
+
                 foreach (Triangle2 t in triangles)
                 {
                     //2d to 3d space
@@ -595,6 +617,9 @@ namespace Habrador_Computational_Geometry
                 holeMeshI.ConnectAllEdgesFast();
                 holeMeshO.ConnectAllEdgesFast();
 
+                //timer.Stop();
+
+
                 //We also need to save an edge belonging to the mesh to easier merge mesh with hole
                 //The hole edges were generated by using edges in the outside mesh
                 HalfEdge3 holeEdgeO = hole[0];
@@ -605,9 +630,7 @@ namespace Habrador_Computational_Geometry
                 allHoleMeshes.Add(newHole);
             }
 
-            //timer.Stop();
-
-            //Debug.Log($"Whatever we timed took {timer.ElapsedMilliseconds / 1000f} seconds");
+            //Debug.Log($"Whatever we timed in fill holes took {timer.ElapsedMilliseconds / 1000f} seconds");
 
             return allHoleMeshes;
         }
