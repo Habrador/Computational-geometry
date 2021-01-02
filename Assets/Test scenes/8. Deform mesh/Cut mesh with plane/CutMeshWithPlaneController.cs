@@ -122,9 +122,10 @@ public class CutMeshWithPlaneController : MonoBehaviour
                 //Cache the half-edge data in case we want to cut the mesh again
                 transformToCut.GetComponent<CutMesh>().halfEdge3DataStructure = newHalfEdgeMesh;
 
-                //Convert from half-edge to unity mesh
+                //Convert from Half-Edge to MyMesh
                 MyMesh myMesh = newHalfEdgeMesh.ConvertToMyMesh("Cutted mesh", MyMesh.MeshStyle.HardAndSoftEdges);
 
+                //Convert from MyMesh to unity Mesh 
                 Mesh unityMesh = myMesh.ConvertToUnityMesh(generateNormals: false);
 
                 //Attach the mesh to the new gameobject
@@ -133,7 +134,7 @@ public class CutMeshWithPlaneController : MonoBehaviour
 
             timer.Stop();
 
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to generate the unity meshes");
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to generate the unity meshes from the half-edges");
 
 
             //Hide the original one if we cut the mesh (we didn't reach thid far down if we didnt cut the mesh)

@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace Habrador_Computational_Geometry
 {
     //Cut a meth with a plane
     //TODO:
     //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes. This should also improve performance, the fewer edges we have around the hole, the faster it is to fill it
-    //- Normalize the data to 0-1 to avoid floating point precision issues, which is needed to make it easier to remove small edges. If all meshes have the same range, it's easier to define small edge
     //- Can we use DOTS/GPU/threads to improve performance? Several sub-algorithms can be done in parallell
+    //- Figure out why we need to unnormalize when converting from mesh space to plane space. Maybe easier to just use the plane in local pos when converting???
 
     //Time measurements for optimizations (bunny):
     //- AABB-plane test: 0.003
@@ -78,6 +79,50 @@ namespace Habrador_Computational_Geometry
 
 
             //
+            // Transform the plane from global to local space of the mesh, which is faster than transforming the mesh from local to global space 
+            //
+
+            MyVector3 planePosLocal = meshTrans.InverseTransformPoint(cutPlaneGlobal.pos.ToVector3()).ToMyVector3();
+            MyVector3 planeNormalLocal = meshTrans.InverseTransformDirection(cutPlaneGlobal.normal.ToVector3()).ToMyVector3();
+
+            Plane3 cutPlaneLocal = new Plane3(planePosLocal, planeNormalLocal);
+
+
+
+            //
+            // Normalize to 0-1
+            //
+            
+            //Will make it easier to remove small edges if all meshes have the same range, because easier to define "small" edge
+            List<MyVector3> allPoints = new List<MyVector3>();
+
+            HashSet<HalfEdgeVertex3> verts = halfEdgeMeshData.verts;
+
+            foreach (HalfEdgeVertex3 v in verts)
+            {
+                allPoints.Add(v.position);
+            }
+
+            //Also add the plane
+            allPoints.Add(cutPlaneLocal.pos);
+
+            Normalizer3 normalizer = new Normalizer3(allPoints);
+
+            //Normalize everything
+            cutPlaneLocal.pos = normalizer.Normalize(cutPlaneLocal.pos);
+
+            foreach (HalfEdgeVertex3 v in verts)
+            {
+                v.position = normalizer.Normalize(v.position);
+            }
+
+            //meshTrans.position = normalizer.Normalize(meshTrans.position.ToMyVector3()).ToVector3();
+
+            //orientedCutPlaneGlobal.planeTrans.position = normalizer.Normalize(orientedCutPlaneGlobal.planeTrans.position.ToMyVector3()).ToVector3();
+            //Debug.Log(meshTrans.localScale);
+
+
+            //
             // Separate the old mesh into two new meshes (or just one if the mesh is not intersecting with the plane)
             //
             timer.Restart();
@@ -92,13 +137,6 @@ namespace Habrador_Computational_Geometry
             //And to remove small triangles
             //We only need to save the outside edges, because we can identify the inside edges because each edge has an opposite edge
             HashSet<HalfEdge3> cutEdgesO = new HashSet<HalfEdge3>();
-
-            //Transform the plane from global space to local space of the mesh
-            //which is faster than transforming the mesh from local space to global space 
-            MyVector3 planePosLocal = meshTrans.InverseTransformPoint(cutPlaneGlobal.pos.ToVector3()).ToMyVector3();
-            MyVector3 planeNormalLocal = meshTrans.InverseTransformDirection(cutPlaneGlobal.normal.ToVector3()).ToMyVector3();
-
-            Plane3 cutPlaneLocal = new Plane3(planePosLocal, planeNormalLocal);
             
             //This new meshes might have islands (and thus be not connected) but we check for that later
             SeparateMeshWithPlane(halfEdgeMeshData, newMeshO, newMeshI, cutPlaneLocal, cutEdgesO);
@@ -159,7 +197,7 @@ namespace Habrador_Computational_Geometry
             {
                 timer.Restart();
 
-                allHoles = FillHoles(cutEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal);
+                allHoles = FillHoles(cutEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal, normalizer);
 
                 Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to identify and fill holes");
             }
@@ -221,7 +259,25 @@ namespace Habrador_Computational_Geometry
             allNewMeshes.AddRange(newMeshesO);
             allNewMeshes.AddRange(newMeshesI);
 
-            
+
+
+            //
+            // UnNormalize
+            //
+
+            foreach (HalfEdgeData3 data in allNewMeshes)
+            {
+                HashSet<HalfEdgeVertex3> vertsNormalized = data.verts;
+
+                foreach (HalfEdgeVertex3 v in vertsNormalized)
+                {
+                    v.position = normalizer.UnNormalize(v.position);
+                }
+            }
+
+            //meshTrans.position = normalizer.UnNormalize(meshTrans.position.ToMyVector3()).ToVector3();
+
+            //orientedCutPlaneGlobal.planeTrans.position = normalizer.UnNormalize(orientedCutPlaneGlobal.planeTrans.position.ToMyVector3()).ToVector3();
 
             return allNewMeshes;
         }
@@ -487,7 +543,7 @@ namespace Habrador_Computational_Geometry
         //
 
         //Fill the hole (or holes) in the mesh
-        private static HashSet<CutMeshHole> FillHoles(HashSet<HalfEdge3> holeEdgesO, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormalLocal)
+        private static HashSet<CutMeshHole> FillHoles(HashSet<HalfEdge3> holeEdgesO, OrientedPlane3 orientedCutPlane, Transform meshTrans, MyVector3 planeNormalLocal, Normalizer3 normalizer)
         {
             //Time measurements for optimizations (bunny):
             //- Separate holes: 0.003
@@ -548,6 +604,9 @@ namespace Habrador_Computational_Geometry
                 {
                     MyVector3 pMeshSpace = e.v.position;
 
+                    //Now we need to unnormalize because there's something odd going on when converting between spaces
+                    pMeshSpace = normalizer.UnNormalize(pMeshSpace);
+
                     //Mesh space to Global space
                     Vector3 pGlobalSpace = meshTrans.TransformPoint(pMeshSpace.ToVector3());
 
@@ -567,13 +626,20 @@ namespace Habrador_Computational_Geometry
 
                 //Need to reverse to standardize for the Ear Elipping algorithm
                 sortedVertices_2D.Reverse();
-                
-                
+
+                //We also need to normalize the points for the Ear Clipping
+                Normalizer2 normalizer2D = new Normalizer2(sortedVertices_2D);
+
+                List<MyVector2> sortedVertices_2D_normalized = normalizer2D.Normalize(sortedVertices_2D);
+
                 //timer.Start();
-                
-                HashSet<Triangle2> triangles = _EarClipping.Triangulate(sortedVertices_2D, null, optimizeTriangles: false);
+
+                HashSet<Triangle2> triangles_normalized = _EarClipping.Triangulate(sortedVertices_2D_normalized, null, optimizeTriangles: false);
 
                 //timer.Stop();
+
+                //Unnormalize
+                HashSet<Triangle2> triangles = normalizer2D.UnNormalize(triangles_normalized);
 
                 //Debug.Log($"Number of triangles from Ear Clipping: {triangles.Count}");
 
@@ -594,19 +660,24 @@ namespace Habrador_Computational_Geometry
                     Vector3 p3Global = planeTrans.TransformPoint(p3);
 
                     //Global space to Mesh space
-                    Vector3 p1Mesh = meshTrans.InverseTransformPoint(p1Global);
-                    Vector3 p2Mesh = meshTrans.InverseTransformPoint(p2Global);
-                    Vector3 p3Mesh = meshTrans.InverseTransformPoint(p3Global);
+                    Vector3 p1MeshVec3 = meshTrans.InverseTransformPoint(p1Global);
+                    Vector3 p2MeshVec3 = meshTrans.InverseTransformPoint(p2Global);
+                    Vector3 p3MeshVec3 = meshTrans.InverseTransformPoint(p3Global);
+
+                    //Normalize and to MyVector3
+                    MyVector3 p1Mesh = normalizer.Normalize(p1MeshVec3.ToMyVector3());
+                    MyVector3 p2Mesh = normalizer.Normalize(p2MeshVec3.ToMyVector3());
+                    MyVector3 p3Mesh = normalizer.Normalize(p3MeshVec3.ToMyVector3());
 
                     //For inside mesh
-                    MyMeshVertex v1_I = new MyMeshVertex(p1Mesh.ToMyVector3(), planeNormalLocal);
-                    MyMeshVertex v2_I = new MyMeshVertex(p2Mesh.ToMyVector3(), planeNormalLocal);
-                    MyMeshVertex v3_I = new MyMeshVertex(p3Mesh.ToMyVector3(), planeNormalLocal);
+                    MyMeshVertex v1_I = new MyMeshVertex(p1Mesh, planeNormalLocal);
+                    MyMeshVertex v2_I = new MyMeshVertex(p2Mesh, planeNormalLocal);
+                    MyMeshVertex v3_I = new MyMeshVertex(p3Mesh, planeNormalLocal);
 
                     //For outside mesh
-                    MyMeshVertex v1_O = new MyMeshVertex(p1Mesh.ToMyVector3(), -planeNormalLocal);
-                    MyMeshVertex v2_O = new MyMeshVertex(p2Mesh.ToMyVector3(), -planeNormalLocal);
-                    MyMeshVertex v3_O = new MyMeshVertex(p3Mesh.ToMyVector3(), -planeNormalLocal);
+                    MyMeshVertex v1_O = new MyMeshVertex(p1Mesh, -planeNormalLocal);
+                    MyMeshVertex v2_O = new MyMeshVertex(p2Mesh, -planeNormalLocal);
+                    MyMeshVertex v3_O = new MyMeshVertex(p3Mesh, -planeNormalLocal);
 
                     //Now we can finally add this triangle to the half-edge data structure
                     holeMeshI.AddTriangle(v1_I, v2_I, v3_I);
