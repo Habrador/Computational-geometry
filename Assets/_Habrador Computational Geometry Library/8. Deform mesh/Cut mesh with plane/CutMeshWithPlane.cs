@@ -8,7 +8,7 @@ namespace Habrador_Computational_Geometry
     //TODO:
     //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes
     //- Normalize the data to 0-1 to avoid floating point precision issues
-    //- Is failing if the mesh we cut has holes in it at the bottom, and the mesh intersects with one of those holes. But that's not a problem because then we can't fill the hole anyway! Maybe we can fix that by finding a better way to identify the different holes
+    //- Is obviously generating an odd result if the mesh we cut has holes in it, and the plane intersects with one of those holes
     //- Can we use DOTS/GPU/threads to improve performance? Several sub-algorithms can be done in parallell
 
     //- Time measurements for optimizations (bunny):

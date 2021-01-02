@@ -365,7 +365,6 @@ If we are going from A to B, how do we know if we have passed B? Measuring just 
 * Ear Clipping with holes-in-holes
 * Fix point-in-polygon floating point precision issues (see Geometric Tools for Computer Graphics). Can also be used to improve Ear Clipping because uses the same idea
 * Ear Clipping should use half-edge data structure, making it easier to flip triangles and is more standardized
-* Improve performance of cut-mesh-with-plane
 * Theres a faster way to find which edges intersect with a constraint in Constrained Delaunay
 
 
