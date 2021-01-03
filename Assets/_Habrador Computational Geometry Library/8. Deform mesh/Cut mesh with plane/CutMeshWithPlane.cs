@@ -289,6 +289,8 @@ namespace Habrador_Computational_Geometry
         //
         // Remove small triangles
         //
+
+        //We could maybe use the ideas from mesh simplification to identify edges to remove?
         private static void RemoveSmallTriangles(HashSet<HalfEdge3> cutEdgesO, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI)
         {
             //Remove all edges shorter than this length
@@ -297,22 +299,11 @@ namespace Habrador_Computational_Geometry
 
             float maxLengthSqr = maxLength * maxLength;
 
-            //To make this work we need to temporarily disconnect the meshes from each other
-
             int numberOfEdgesRemoved = 0;
 
-            int safety = 0;
-
-            //foreach (HalfEdge3 e in cutEdgesO)
-            //{
-            //    if (e.face == null)
-            //    {
-            //        Debug.Log("Found null face");
-            //    }
-            //}
-
-
             HashSet<HalfEdge3> removedEdges = new HashSet<HalfEdge3>();
+
+            int safety = 0;
 
             while (true)
             {
@@ -320,11 +311,12 @@ namespace Habrador_Computational_Geometry
                 {
                     float distanceSqr = e.LengthSqr();
 
+                    //Is this edge small?
                     if (distanceSqr < maxLengthSqr)
                     {
                         MyVector3 mergePosition = (e.v.position + e.prevEdge.v.position) * 0.5f;
 
-                        //Ignore that the normal might change when we move the vertex
+                        //Ignore that the normal might change when we move the vertices
                         //Because we move only a small distance, the normal should be the same
                         //This will also make it easier to handle hard edges
 
@@ -333,16 +325,13 @@ namespace Habrador_Computational_Geometry
 
                         e.oppositeEdge = null;
 
+                        //And disconnect the opposite from this edge if it had an opposite edge
                         if (eOpposite != null)
                         {
                             eOpposite.oppositeEdge = null;
 
-                            //Debug.Log(eOpposite.face);
-
                             newMeshI.ContractTriangleHalfEdge(eOpposite, mergePosition);
                         }
-
-                        //Debug.Log(e.face);
 
                         newMeshO.ContractTriangleHalfEdge(e, mergePosition);
 
@@ -353,14 +342,14 @@ namespace Habrador_Computational_Geometry
                 }
 
 
-                //If there are no more small edges, we don't have to search anymore
+                //If we found no small edges, we don't have to search anymore
                 if (removedEdges.Count == 0)
                 {
                     break;
                 }
 
 
-                //Have to remove edges because otherwise it will send null edges to the merge edge method
+                //Remove the edges we merged from the list of all edges
                 foreach (HalfEdge3 e in removedEdges)
                 {
                     cutEdgesO.Remove(e);
