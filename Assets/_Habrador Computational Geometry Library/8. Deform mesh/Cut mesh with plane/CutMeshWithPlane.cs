@@ -7,16 +7,15 @@ namespace Habrador_Computational_Geometry
 {
     //Cut a meth with a plane
     //TODO:
-    //- Remove small edges on the cut edge to get a better triangulation by measuring the length of each edge. This should also fix problem with ugly normals. They are also causing trouble when we identify hole-edges, so sometimes we get small triangles as separate meshes. This should also improve performance, the fewer edges we have around the hole, the faster it is to fill it
     //- Can we use DOTS/GPU/threads to improve performance? Several sub-algorithms can be done in parallell
-    //- Figure out why we need to unnormalize when converting from mesh space to plane space. Maybe easier to just use the plane in local pos when converting???
+    //- Figure out why we need to unnormalize when converting from mesh space to plane space. Maybe easier to just use the plane in local pos when converting...
 
-    //Time measurements for optimizations (bunny):
+    //Time measurements for optimizations (bunny) total time: 0.07
     //- AABB-plane test: 0.003
-    //- Separate meshes into outside/inside plane: 0.01
+    //- Separate meshes into outside/inside plane: 0.015
     //- Connect opposite edges: 0.004
-    //- Remove small edges: 
-    //- Identify and fill holes: 0.015
+    //- Remove small edges: 0.015
+    //- Identify and fill holes: 0.02
     //- Find mesh islands: 0.015
     //- Connect hole with mesh: 0.001
     public static class CutMeshWithPlane 
@@ -182,7 +181,7 @@ namespace Habrador_Computational_Geometry
             timer.Restart();
 
             //The small edges may cause shading issues and the fewer edges we have the faster it will take to fill the holes
-            //RemoveSmallTriangles(newEdgesO, 0.001f);
+            RemoveSmallTriangles(cutEdgesO, newMeshO, newMeshI);
 
             Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to remove small edges");
 
@@ -280,6 +279,105 @@ namespace Habrador_Computational_Geometry
             //orientedCutPlaneGlobal.planeTrans.position = normalizer.UnNormalize(orientedCutPlaneGlobal.planeTrans.position.ToMyVector3()).ToVector3();
 
             return allNewMeshes;
+        }
+
+
+
+        //
+        // Remove small triangles
+        //
+        private static void RemoveSmallTriangles(HashSet<HalfEdge3> cutEdgesO, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI)
+        {
+            //Remove all edges shorter than this length
+            //Remember we have normalized all values to be 0-1
+            float maxLength = 0.01f;
+
+            float maxLengthSqr = maxLength * maxLength;
+
+            //To make this work we need to temporarily disconnect the meshes from each other
+
+            int numberOfEdgesRemoved = 0;
+
+            int safety = 0;
+
+            //foreach (HalfEdge3 e in cutEdgesO)
+            //{
+            //    if (e.face == null)
+            //    {
+            //        Debug.Log("Found null face");
+            //    }
+            //}
+
+
+            HashSet<HalfEdge3> removedEdges = new HashSet<HalfEdge3>();
+
+            while (true)
+            {
+                foreach (HalfEdge3 e in cutEdgesO)
+                {
+                    float distanceSqr = e.LengthSqr();
+
+                    if (distanceSqr < maxLengthSqr)
+                    {
+                        MyVector3 mergePosition = (e.v.position + e.prevEdge.v.position) * 0.5f;
+
+                        //Ignore that the normal might change when we move the vertex
+                        //Because we move only a small distance, the normal should be the same
+                        //This will also make it easier to handle hard edges
+
+                        //Disconnect the edge from its opposite
+                        HalfEdge3 eOpposite = e.oppositeEdge;
+
+                        e.oppositeEdge = null;
+
+                        if (eOpposite != null)
+                        {
+                            eOpposite.oppositeEdge = null;
+
+                            //Debug.Log(eOpposite.face);
+
+                            newMeshI.ContractTriangleHalfEdge(eOpposite, mergePosition);
+                        }
+
+                        //Debug.Log(e.face);
+
+                        newMeshO.ContractTriangleHalfEdge(e, mergePosition);
+
+                        numberOfEdgesRemoved += 1;
+
+                        removedEdges.Add(e);
+                    }
+                }
+
+
+                //If there are no more small edges, we don't have to search anymore
+                if (removedEdges.Count == 0)
+                {
+                    break;
+                }
+
+
+                //Have to remove edges because otherwise it will send null edges to the merge edge method
+                foreach (HalfEdge3 e in removedEdges)
+                {
+                    cutEdgesO.Remove(e);
+                }
+
+                removedEdges.Clear();
+
+
+                safety += 1;
+
+                if (safety > 50000)
+                {
+                    Debug.Log("Stuck in infinite loop when removing small edges");
+                
+                    break;
+                }
+            }
+
+
+            Debug.Log($"Removed {numberOfEdgesRemoved} small edges");
         }
 
 
@@ -613,7 +711,7 @@ namespace Habrador_Computational_Geometry
                     //Global space to Plane space
                     Vector3 pPlaneSpace = planeTrans.InverseTransformPoint(pGlobalSpace);
 
-                    //Y is normal direction so should be 0
+                    //y is normal direction so should be 0
                     MyVector2 p2D = new MyVector2(pPlaneSpace.x, pPlaneSpace.z);
 
                     sortedVertices_2D.Add(p2D);
@@ -634,7 +732,7 @@ namespace Habrador_Computational_Geometry
 
                 //timer.Start();
 
-                HashSet<Triangle2> triangles_normalized = _EarClipping.Triangulate(sortedVertices_2D_normalized, null, optimizeTriangles: false);
+                HashSet<Triangle2> triangles_normalized = _EarClipping.Triangulate(sortedVertices_2D_normalized, allHoleVertices: null, optimizeTriangles: false);
 
                 //timer.Stop();
 
@@ -649,35 +747,38 @@ namespace Habrador_Computational_Geometry
 
                 foreach (Triangle2 t in triangles)
                 {
+                    //TODO: We dont need to translate it back if we create a lookup table with vertex in 2d space and vertex in 3d space'
+                    //We didn't add any new vertices... and many of these are doubles as well
+                
                     //2d to 3d space
                     Vector3 p1 = new Vector3(t.p1.x, 0f, t.p1.y);
                     Vector3 p2 = new Vector3(t.p2.x, 0f, t.p2.y);
                     Vector3 p3 = new Vector3(t.p3.x, 0f, t.p3.y);
 
                     //Plane space to Global space
-                    Vector3 p1Global = planeTrans.TransformPoint(p1);
-                    Vector3 p2Global = planeTrans.TransformPoint(p2);
-                    Vector3 p3Global = planeTrans.TransformPoint(p3);
+                    p1 = planeTrans.TransformPoint(p1);
+                    p2 = planeTrans.TransformPoint(p2);
+                    p3 = planeTrans.TransformPoint(p3);
 
                     //Global space to Mesh space
-                    Vector3 p1MeshVec3 = meshTrans.InverseTransformPoint(p1Global);
-                    Vector3 p2MeshVec3 = meshTrans.InverseTransformPoint(p2Global);
-                    Vector3 p3MeshVec3 = meshTrans.InverseTransformPoint(p3Global);
+                    p1 = meshTrans.InverseTransformPoint(p1);
+                    p2 = meshTrans.InverseTransformPoint(p2);
+                    p3 = meshTrans.InverseTransformPoint(p3);
 
                     //Normalize and to MyVector3
-                    MyVector3 p1Mesh = normalizer.Normalize(p1MeshVec3.ToMyVector3());
-                    MyVector3 p2Mesh = normalizer.Normalize(p2MeshVec3.ToMyVector3());
-                    MyVector3 p3Mesh = normalizer.Normalize(p3MeshVec3.ToMyVector3());
+                    MyVector3 p1MyVec3 = normalizer.Normalize(p1.ToMyVector3());
+                    MyVector3 p2MyVec3 = normalizer.Normalize(p2.ToMyVector3());
+                    MyVector3 p3MyVec3 = normalizer.Normalize(p3.ToMyVector3());
 
                     //For inside mesh
-                    MyMeshVertex v1_I = new MyMeshVertex(p1Mesh, planeNormalLocal);
-                    MyMeshVertex v2_I = new MyMeshVertex(p2Mesh, planeNormalLocal);
-                    MyMeshVertex v3_I = new MyMeshVertex(p3Mesh, planeNormalLocal);
+                    MyMeshVertex v1_I = new MyMeshVertex(p1MyVec3, planeNormalLocal);
+                    MyMeshVertex v2_I = new MyMeshVertex(p2MyVec3, planeNormalLocal);
+                    MyMeshVertex v3_I = new MyMeshVertex(p3MyVec3, planeNormalLocal);
 
                     //For outside mesh
-                    MyMeshVertex v1_O = new MyMeshVertex(p1Mesh, -planeNormalLocal);
-                    MyMeshVertex v2_O = new MyMeshVertex(p2Mesh, -planeNormalLocal);
-                    MyMeshVertex v3_O = new MyMeshVertex(p3Mesh, -planeNormalLocal);
+                    MyMeshVertex v1_O = new MyMeshVertex(p1MyVec3, -planeNormalLocal);
+                    MyMeshVertex v2_O = new MyMeshVertex(p2MyVec3, -planeNormalLocal);
+                    MyMeshVertex v3_O = new MyMeshVertex(p3MyVec3, -planeNormalLocal);
 
                     //Now we can finally add this triangle to the half-edge data structure
                     holeMeshI.AddTriangle(v1_I, v2_I, v3_I);

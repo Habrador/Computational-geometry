@@ -618,7 +618,7 @@ namespace Habrador_Computational_Geometry
 
                 if (oppositeEdge == null)
                 {
-                    Debug.LogWarning("We cant rotate around this vertex because there are holes in the mesh");
+                    //Debug.LogWarning("We cant rotate around this vertex because there are holes in the mesh");
 
                     //Better to clear than to null or we have to create a new hashset when filling it the brute force way 
                     allEdgesGoingToVertex.Clear();
@@ -765,7 +765,7 @@ namespace Habrador_Computational_Geometry
             return length;
         }
 
-        public float SqrLength()
+        public float LengthSqr()
         {
             //The edge points TO a vertex
             MyVector3 p2 = v.position;

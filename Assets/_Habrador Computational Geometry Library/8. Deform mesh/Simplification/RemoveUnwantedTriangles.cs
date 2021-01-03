@@ -98,13 +98,13 @@ namespace Habrador_Computational_Geometry
                 HalfEdge3 e3 = triangle.edge.nextEdge.nextEdge;
 
                 //We want e1 to be the shortest and e3 to be the longest
-                if (e1.SqrLength() > e3.SqrLength()) (e1, e3) = (e3, e1);
+                if (e1.LengthSqr() > e3.LengthSqr()) (e1, e3) = (e3, e1);
 
-                if (e1.SqrLength() > e2.SqrLength()) (e1, e2) = (e2, e1);
+                if (e1.LengthSqr() > e2.LengthSqr()) (e1, e2) = (e2, e1);
 
                 //e1 is now the shortest edge, so we just need to check the second and third
 
-                if (e2.SqrLength() > e3.SqrLength()) (e2, e3) = (e3, e2);
+                if (e2.LengthSqr() > e3.LengthSqr()) (e2, e3) = (e3, e2);
 
 
                 //The ratio between the shortest and longest edge
