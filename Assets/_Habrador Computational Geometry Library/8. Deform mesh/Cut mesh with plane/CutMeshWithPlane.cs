@@ -10,7 +10,7 @@ namespace Habrador_Computational_Geometry
     //- Can we use DOTS/GPU/threads to improve performance? Several sub-algorithms can be done in parallell
     //- Figure out why we need to unnormalize when converting from mesh space to plane space. Maybe easier to just use the plane in local pos when converting...
 
-    //Time measurements for optimizations (bunny) total time: 0.07
+    //Time measurements for optimizations (bunny) total time: 0.08
     //- AABB-plane test: 0.003
     //- Separate meshes into outside/inside plane: 0.015
     //- Connect opposite edges: 0.004
@@ -33,6 +33,9 @@ namespace Habrador_Computational_Geometry
         /// <returns></returns>
         public static List<HalfEdgeData3> CutMesh(Transform meshTrans, HalfEdgeData3 halfEdgeMeshData, OrientedPlane3 orientedCutPlaneGlobal, bool fillHoles)
         {
+            bool measureTime = false;
+        
+
             //
             // Validate the input data
             //
@@ -59,7 +62,7 @@ namespace Habrador_Computational_Geometry
             //
             // Check if the AABB of the mesh is intersecting with the plane. Otherwise we can't cut the mesh, so its a waste of time
             //
-            timer.Start();
+            if (measureTime) timer.Start();
 
             //The plane with just a normal
             Plane3 cutPlaneGlobal = orientedCutPlaneGlobal.Plane3;
@@ -73,7 +76,7 @@ namespace Habrador_Computational_Geometry
                 return null;
             }
 
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to do the AABB-plane intersection test");
+            if (measureTime) Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to do the AABB-plane intersection test");
 
 
 
@@ -124,7 +127,7 @@ namespace Habrador_Computational_Geometry
             //
             // Separate the old mesh into two new meshes (or just one if the mesh is not intersecting with the plane)
             //
-            timer.Restart();
+            if (measureTime) timer.Restart();
 
             //The two meshes we might end up with after the cut
             //One is "outside" of the plane and another is "inside" the plane
@@ -140,7 +143,7 @@ namespace Habrador_Computational_Geometry
             //This new meshes might have islands (and thus be not connected) but we check for that later
             SeparateMeshWithPlane(halfEdgeMeshData, newMeshO, newMeshI, cutPlaneLocal, cutEdgesO);
 
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to separate the meshes");
+            if (measureTime) Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to separate the meshes");
 
             //Generate new meshes only if the old mesh intersected with the plane
             if (newMeshO.faces.Count == 0 || newMeshI.faces.Count == 0)
@@ -155,14 +158,14 @@ namespace Habrador_Computational_Geometry
             //
             // Find opposite edge to each edge
             //
-            timer.Restart();
+            if (measureTime) timer.Restart();
 
             //Most edges should already have an opposite edge, but we need to connected some of the new triangles edges with each other
             //This can maybe be improved because we know which edges have no connection and we could just search through those
             newMeshO.ConnectAllEdgesFast();
             newMeshI.ConnectAllEdgesFast();
 
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to connect the opposite edges");
+            if (measureTime) Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to connect the opposite edges");
 
 
             //Display all edges which have no opposite for debugging
@@ -178,12 +181,12 @@ namespace Habrador_Computational_Geometry
             //
             // Remove small triangles at the seam where we did the cut
             //
-            timer.Restart();
+            if (measureTime) timer.Restart();
 
             //The small edges may cause shading issues and the fewer edges we have the faster it will take to fill the holes
             RemoveSmallTriangles(cutEdgesO, newMeshO, newMeshI);
 
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to remove small edges");
+            if (measureTime) Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to remove small edges");
 
 
 
@@ -194,11 +197,11 @@ namespace Habrador_Computational_Geometry
 
             if (fillHoles)
             {
-                timer.Restart();
+                if (measureTime) timer.Restart();
 
                 allHoles = FillHoles(cutEdgesO, orientedCutPlaneGlobal, meshTrans, planeNormalLocal, normalizer);
 
-                Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to identify and fill holes");
+                if (measureTime) Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to identify and fill holes");
             }
 
 
@@ -224,12 +227,12 @@ namespace Habrador_Computational_Geometry
             //
             // Split each mesh into separate meshes if the original mesh is not connected, meaning it has islands
             //
-            timer.Restart();
+            if (measureTime) timer.Restart();
 
             HashSet<HalfEdgeData3> newMeshesO = SeparateMeshIslands(newMeshO);
             HashSet<HalfEdgeData3> newMeshesI = SeparateMeshIslands(newMeshI);
 
-            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to find mesh islands");
+            if (measureTime) Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to find mesh islands");
 
 
 
@@ -238,13 +241,13 @@ namespace Habrador_Computational_Geometry
             //
             if (fillHoles)
             {
-                timer.Restart();
+                if (measureTime) timer.Restart();
 
                 //It should be faster to do this after identifying each mesh island 
                 //because that process requires flood-filling which is slower the more triangles each mesh has
                 AddHolesToMeshes(newMeshesO, newMeshesI, allHoles);
 
-                Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to match hole with mesh");
+                if (measureTime) Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to match hole with mesh");
             }
 
 
@@ -290,7 +293,7 @@ namespace Habrador_Computational_Geometry
         {
             //Remove all edges shorter than this length
             //Remember we have normalized all values to be 0-1
-            float maxLength = 0.01f;
+            float maxLength = 0.001f;
 
             float maxLengthSqr = maxLength * maxLength;
 
@@ -377,7 +380,7 @@ namespace Habrador_Computational_Geometry
             }
 
 
-            Debug.Log($"Removed {numberOfEdgesRemoved} small edges");
+            //Debug.Log($"Removed {numberOfEdgesRemoved} small edges");
         }
 
 
@@ -569,7 +572,7 @@ namespace Habrador_Computational_Geometry
                     //No more triangles to visit, so we have identified all islands! 
                     else
                     {
-                        Debug.Log($"This mesh has {numberOfIslands} islands");
+                        //Debug.Log($"This mesh has {numberOfIslands} islands");
                     
                         break;
                     }
@@ -909,7 +912,7 @@ namespace Habrador_Computational_Geometry
                 }
             }
 
-            Debug.Log($"Edges that starts at a hole: {edgesThatStartsAtHole.Count}");
+            //Debug.Log($"Edges that starts at a hole: {edgesThatStartsAtHole.Count}");
 
 
             //Now we need to separate the linked lists to lists where one edge comes after the other
@@ -989,7 +992,7 @@ namespace Habrador_Computational_Geometry
 
                 if (holeEdges.Count == 0)
                 {
-                    Debug.Log($"The mesh has {allHoles.Count} holes");
+                    //Debug.Log($"The mesh has {allHoles.Count} holes");
 
                     break;
                 }
