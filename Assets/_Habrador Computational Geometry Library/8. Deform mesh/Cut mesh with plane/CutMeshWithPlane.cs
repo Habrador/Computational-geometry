@@ -12,7 +12,7 @@ namespace Habrador_Computational_Geometry
 
     //Time measurements for optimizations (bunny) total time: 0.08
     //- AABB-plane test: 0.003
-    //- Separate meshes into outside/inside plane: 0.015
+    //- Separate meshes into outside/inside plane: 0.015 
     //- Connect opposite edges: 0.004
     //- Remove small edges: 0.015
     //- Identify and fill holes: 0.02
@@ -383,6 +383,8 @@ namespace Habrador_Computational_Geometry
         //
         // Separates a mesh by a plane
         //
+
+        //Performance can maybe be improved by the fact that some triangles are sharing vertices, so first check all vertices if they are outside/inside the plane and then for each triangle, find the vertices in some data structure...
         private static void SeparateMeshWithPlane(HalfEdgeData3 halfEdgeMeshData, HalfEdgeData3 newMeshO, HalfEdgeData3 newMeshI, Plane3 cutPlaneLocal, HashSet<HalfEdge3> cutEdgesO)
         {
             //Loop through all triangles in the mesh
@@ -399,6 +401,8 @@ namespace Habrador_Computational_Geometry
                 bool is_p1_outside = _Geometry.IsPointOutsidePlane(v1.position, cutPlaneLocal);
                 bool is_p2_outside = _Geometry.IsPointOutsidePlane(v2.position, cutPlaneLocal);
                 bool is_p3_outside = _Geometry.IsPointOutsidePlane(v3.position, cutPlaneLocal);
+
+                //Do we need to take into account if a vertex is on the plane???
 
 
                 //Build triangles belonging to respective mesh
