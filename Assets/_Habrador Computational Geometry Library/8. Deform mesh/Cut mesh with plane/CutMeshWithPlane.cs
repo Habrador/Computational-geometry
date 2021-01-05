@@ -15,7 +15,7 @@ namespace Habrador_Computational_Geometry
     //- Separate meshes into outside/inside plane: 0.015 
     //- Connect opposite edges: 0.004
     //- Remove small edges: 0.015
-    //- Identify and fill holes: 0.02
+    //- Identify and fill holes: 0.025
     //- Find mesh islands: 0.015
     //- Connect hole with mesh: 0.004
     public static class CutMeshWithPlane 
@@ -504,15 +504,16 @@ namespace Habrador_Computational_Geometry
             }
 
             //But now we also need to connect the opposite edges of the hole edges with the opposite edges of the mesh edges
-            //We can't use the fast method because when we unnormalize after ear clipping, then the positions are changing slightly
+            //This assumes we "reset" the vertices in the hole mesh after generating the hole, or we have floating point
+            //precision issues from the normalizations
             foreach (HalfEdgeData3 mesh in newMeshesO)
             {
-                mesh.ConnectAllEdgesSlow();
+                mesh.ConnectAllEdgesFast();
             }
 
             foreach (HalfEdgeData3 mesh in newMeshesI)
             {
-                mesh.ConnectAllEdgesSlow();
+                mesh.ConnectAllEdgesFast();
             }
         }
 
@@ -763,7 +764,10 @@ namespace Habrador_Computational_Geometry
                 {
                     //TODO: We dont need to translate it back if we create a lookup table with vertex in 2d space and vertex in 3d space'
                     //We didn't add any new vertices... and many of these are doubles as well
-                
+                    //Another problem is that when we normalized for Ear Clipping and the un-normalized, 
+                    //the vertex is no longer exactly the same as it was before (there's a very small difference)
+                    //This will later cause trouble when we go from half-edge to unity mesh in an optimized way
+
                     //2d to 3d space
                     Vector3 p1 = new Vector3(t.p1.x, 0f, t.p1.y);
                     Vector3 p2 = new Vector3(t.p2.x, 0f, t.p2.y);
@@ -783,6 +787,38 @@ namespace Habrador_Computational_Geometry
                     MyVector3 p1MyVec3 = normalizer.Normalize(p1.ToMyVector3());
                     MyVector3 p2MyVec3 = normalizer.Normalize(p2.ToMyVector3());
                     MyVector3 p3MyVec3 = normalizer.Normalize(p3.ToMyVector3());
+
+                    //When we normalized for Ear Clipping and the un-normalized, 
+                    //the vertex is no longer exactly the same as it was before (there's a very small difference)
+                    //This will later cause trouble when we go from half-edge to unity mesh in an optimized way
+                    //This is a fast operation, so is fine for now
+                    foreach (HalfEdge3 e in hole)
+                    {
+                        if (e.v.position.Equals(p1MyVec3))
+                        {
+                            p1MyVec3 = e.v.position;
+
+                            break;
+                        }
+                    }
+                    foreach (HalfEdge3 e in hole)
+                    {
+                        if (e.v.position.Equals(p2MyVec3))
+                        {
+                            p2MyVec3 = e.v.position;
+
+                            break;
+                        }
+                    }
+                    foreach (HalfEdge3 e in hole)
+                    {
+                        if (e.v.position.Equals(p3MyVec3))
+                        {
+                            p3MyVec3 = e.v.position;
+
+                            break;
+                        }
+                    }
 
                     //For inside mesh
                     MyMeshVertex v1_I = new MyMeshVertex(p1MyVec3, planeNormalLocal);
