@@ -17,7 +17,7 @@ namespace Habrador_Computational_Geometry
     //- Remove small edges: 0.015
     //- Identify and fill holes: 0.02
     //- Find mesh islands: 0.015
-    //- Connect hole with mesh: 0.001
+    //- Connect hole with mesh: 0.004
     public static class CutMeshWithPlane 
     {
         /// <summary>
@@ -491,6 +491,17 @@ namespace Habrador_Computational_Geometry
                         mesh.MergeMesh(hole.holeMeshI);
                     }
                 }
+            }
+
+            //But now we also need to connect the opposite edges of the hole edges with the opposite edges of the mesh edges
+            foreach (HalfEdgeData3 mesh in newMeshesO)
+            {
+                mesh.ConnectAllEdgesFast();
+            }
+
+            foreach (HalfEdgeData3 mesh in newMeshesI)
+            {
+                mesh.ConnectAllEdgesFast();
             }
         }
 

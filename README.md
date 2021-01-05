@@ -164,14 +164,14 @@ You have some points you want to triangulate, you follow the steps:
 
 ### 4.4 Delaunay triangulation
 
-**"point-by-point" method** 
+**"Incremental" method** 
 
-You generate a big triangle around all points you want to triangulate. Then you add each point one after the other. The triangle the point ends up in is split into three new triangles. After the split you restore the Delaunay triangulation by flipping edges. When all points have been added you remove the remains of the first big triangle. A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=YNQR5tH-s40  
+You generate a big triangle around all points you want to triangulate. Then you add each point one after the other. The triangle the point ends up in is split into three new triangles. After the split you restore the Delaunay triangulation by flipping edges. When all points have been added you remove the remainings of the first big triangle. This method is also known as the Bowyer–Watson algorithm. A visualization of this algorithm can be found here: https://www.youtube.com/watch?v=YNQR5tH-s40  
 
 ![Triangulation Delaunay point-by-point](/_media/triangulation-delaunay-point-by-point.png?raw=true)	
 
 
-**"flip edges" method** 
+**"Flip edges" method** 
 
 You triangulate the points by using a "bad" triangulation method (which is in this case either "visible edge" or "point-by-point" from above). Then you go through all edges and check if the edge should be flipped to make a better triangle. When no more edges can be flipped you are done! A visualization of this algorithm can be found: https://www.youtube.com/watch?v=-d7Nb4fxL5s and https://www.youtube.com/watch?v=lR_SzgEkDwk
 
