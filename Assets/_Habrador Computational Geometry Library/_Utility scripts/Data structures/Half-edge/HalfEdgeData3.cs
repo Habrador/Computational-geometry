@@ -97,12 +97,27 @@ namespace Habrador_Computational_Geometry
         //And when it is connected we don't need to test if it's pointing at the vertex when seaching for opposite edges
         public void ConnectAllEdgesSlow()
         {
+            //First find all edges with no connection
+            HashSet<HalfEdge3> edgesWithNoOppositeConnection = new HashSet<HalfEdge3>();
+            
             foreach (HalfEdge3 e in edges)
             {
                 if (e.oppositeEdge == null)
                 {
-                    TryFindOppositeEdge(e);
+                    edgesWithNoOppositeConnection.Add(e);
                 }
+            }
+
+
+            foreach (HalfEdge3 e in edgesWithNoOppositeConnection)
+            {
+                //This means we have assigned this opposite edge because it belonged to an opposite edge of an edge we already iterated over
+                if (e.oppositeEdge != null)
+                {
+                    continue;
+                }
+            
+                TryFindOppositeEdge(e, edgesWithNoOppositeConnection);
             }
         }
 

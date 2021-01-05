@@ -33,7 +33,7 @@ namespace Habrador_Computational_Geometry
         /// <returns></returns>
         public static List<HalfEdgeData3> CutMesh(Transform meshTrans, HalfEdgeData3 halfEdgeMeshData, OrientedPlane3 orientedCutPlaneGlobal, bool fillHoles)
         {
-            bool measureTime = false;
+            bool measureTime = true;
         
 
             //
@@ -174,7 +174,7 @@ namespace Habrador_Computational_Geometry
             //DebugHalfEdge.DisplayEdgesWithNoOpposite(newMeshI.edges, meshTrans, Color.white);
 
             //This will display the hole(s)
-            //DebugHalfEdge.DisplayEdges(cutEdgesO, meshTrans, Color.white);
+            //DebugHalfEdge.DisplayEdges(cutEdgesO, meshTrans, Color.white, normalizer);
 
 
 
@@ -209,7 +209,7 @@ namespace Habrador_Computational_Geometry
             //
             // Separate the meshes (they are still connected in the half-edge data structure at the cut edge)
             //
-            
+
             foreach (HalfEdge3 e in cutEdgesO)
             {
                 if (e.oppositeEdge != null)
@@ -249,6 +249,12 @@ namespace Habrador_Computational_Geometry
 
                 if (measureTime) Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to match hole with mesh");
             }
+
+            //Debug
+            //foreach (HalfEdgeData3 data in newMeshesO)
+            //{
+            //    DebugHalfEdge.DisplayEdgesWithNoOpposite(data.edges, meshTrans, Color.white, normalizer);
+            //}
 
 
 
@@ -494,14 +500,15 @@ namespace Habrador_Computational_Geometry
             }
 
             //But now we also need to connect the opposite edges of the hole edges with the opposite edges of the mesh edges
+            //We can't use the fast method because when we unnormalize after ear clipping, then the positions are changing slightly
             foreach (HalfEdgeData3 mesh in newMeshesO)
             {
-                mesh.ConnectAllEdgesFast();
+                mesh.ConnectAllEdgesSlow();
             }
 
             foreach (HalfEdgeData3 mesh in newMeshesI)
             {
-                mesh.ConnectAllEdgesFast();
+                mesh.ConnectAllEdgesSlow();
             }
         }
 
