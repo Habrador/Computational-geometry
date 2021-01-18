@@ -5,14 +5,14 @@ using UnityEngine;
 namespace Habrador_Computational_Geometry
 {
     //3d space
-    public struct Triangle3
+    public struct Triangle3<T>
     {
         //Corners
-        public MyVector3 p1;
-        public MyVector3 p2;
-        public MyVector3 p3;
+        public T p1;
+        public T p2;
+        public T p3;
 
-        public Triangle3(MyVector3 p1, MyVector3 p2, MyVector3 p3)
+        public Triangle3(T p1, T p2, T p3)
         {
             this.p1 = p1;
             this.p2 = p2;

@@ -21,11 +21,11 @@ public class GenerateMeshController : MonoBehaviour
             //Convert the triangles to a mesh
 
             //2d to 3d
-            HashSet<Triangle3> grid_3d = new HashSet<Triangle3>();
+            HashSet<Triangle3<MyVector3>> grid_3d = new HashSet<Triangle3<MyVector3>>();
 
             foreach (Triangle2 t in grid)
             {
-                Triangle3 t_3d = new Triangle3(t.p1.ToMyVector3_Yis3D(), t.p2.ToMyVector3_Yis3D(), t.p3.ToMyVector3_Yis3D());
+                Triangle3<MyVector3> t_3d = new Triangle3<MyVector3>(t.p1.ToMyVector3_Yis3D(), t.p2.ToMyVector3_Yis3D(), t.p3.ToMyVector3_Yis3D());
 
                 grid_3d.Add(t_3d);
             }

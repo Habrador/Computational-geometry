@@ -122,11 +122,11 @@ public class TriangulatePointsController : MonoBehaviour
             triangles_2d = HelpMethods.OrientTrianglesClockwise(triangles_2d);
 
             //From 2d to 3d
-            HashSet<Triangle3> triangles_3d = new HashSet<Triangle3>();
+            HashSet<Triangle3<MyVector3>> triangles_3d = new HashSet<Triangle3<MyVector3>>();
 
             foreach (Triangle2 t in triangles_2d)
             {
-                triangles_3d.Add(new Triangle3(t.p1.ToMyVector3_Yis3D(), t.p2.ToMyVector3_Yis3D(), t.p3.ToMyVector3_Yis3D()));
+                triangles_3d.Add(new Triangle3<MyVector3>(t.p1.ToMyVector3_Yis3D(), t.p2.ToMyVector3_Yis3D(), t.p3.ToMyVector3_Yis3D()));
             }
 
             triangulatedMesh = _TransformBetweenDataStructures.Triangle3ToCompressedMesh(triangles_3d);

@@ -13,29 +13,10 @@ public class CutMeshWithPlaneController : MonoBehaviour
 
 
     void Start()
-	{
-        
-	}
-
-    
-
-    void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            CutMesh();
-        }
-    }
-
-
-
-    private void CutMesh()
-    {
+        //Step 1 is to convert all meshes to the half-edge data structure and cache the result, which will improve performance
         List<Transform> transformsToCut = GetChildTransformsWithMeshAttached(meshesToCutParentTrans);
 
-        //Plane3 cutPlane = new Plane3(cutPlaneTrans.position.ToMyVector3(), cutPlaneTrans.up.ToMyVector3());
-        OrientedPlane3 cutPlane = new OrientedPlane3(cutPlaneTrans);
-        
         foreach (Transform childTransToCut in transformsToCut)
         {
             //Only cut active gameobjects
@@ -44,13 +25,64 @@ public class CutMeshWithPlaneController : MonoBehaviour
                 continue;
             }
 
-            //Cut the mesh
+            //We know a mesh (and thus a mesh filter) is attached so we don't need to check that
+            Mesh meshToCut = childTransToCut.GetComponent<MeshFilter>().sharedMesh;
+
+            //Convert from unity mesh to our mesh
+            MyMesh myMeshToCut = new MyMesh(meshToCut); 
+
+            //Convert to half-edge data structure
+            HalfEdgeData3 halfEdgeMeshData = new HalfEdgeData3(myMeshToCut, HalfEdgeData3.ConnectOppositeEdges.Fast);
+
+            //Don't convert to global space, it's faster to convert the plane to local space
+            CutMesh cutMesh = childTransToCut.gameObject.AddComponent<CutMesh>();
+
+            cutMesh.halfEdge3DataStructure = halfEdgeMeshData;
+        }
+    }
+
+    
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            List<Transform> transformsToCut = GetChildTransformsWithMeshAttached(meshesToCutParentTrans);
+
+            //Plane3 cutPlane = new Plane3(cutPlaneTrans.position.ToMyVector3(), cutPlaneTrans.up.ToMyVector3());
+            OrientedPlane3 cutPlane = new OrientedPlane3(cutPlaneTrans);
+
+            CutMesh(transformsToCut, cutPlane);
+        }
+    }
+
+
+
+    private void CutMesh(List<Transform> transformsToCut, OrientedPlane3 cutPlane)
+    {        
+        foreach (Transform transformToCut in transformsToCut)
+        {
+            //Only cut active gameobjects
+            if (!transformToCut.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
+
+
+            //
+            // Cut the mesh
+            //
             timer.Start();
 
-            //Should return null (if we couldn't cut the mesh because the mesh didn't intersect with the plane)
-            List<Mesh> cutMeshes = CutMeshWithPlane.CutMesh(childTransToCut, cutPlane);
+            //Input to cut mesh is the mesh transformed to the half-edge data structure (in local space)
+            HalfEdgeData3 halfEdgeMeshData = transformToCut.GetComponent<CutMesh>().halfEdge3DataStructure;
+
+            //Returns null if we couldn't cut the mesh (because the mesh didn't intersect with the plane)
+            List<HalfEdgeData3> cutMeshes = CutMeshWithPlane.CutMesh(transformToCut, halfEdgeMeshData, cutPlane, fillHoles: true);
 
             timer.Stop();
 
@@ -67,30 +99,51 @@ public class CutMeshWithPlaneController : MonoBehaviour
             Debug.Log($"Number of new meshes after cut: {cutMeshes.Count}");
 
 
+
+            //
+            // Generate a mesh from the half-edge data structure and attach it to a copy of the gameobject we cut
+            //
+            timer.Restart();
+
             //Make sure the new object has the correct transform because it might have been a child to other gameobjects when we found it
             //and these old parent objects might have had some scale, etc
             //This might change in the future but then we would have to locate the correct parent-child, which might be messy?
-            Transform oldChildParent = childTransToCut.parent;
-            //The transform will now be in global space
-            childTransToCut.parent = null;
-
+            Transform oldChildParent = transformToCut.parent;
+            //The transform of the mesh we want to cut will now be in global space, so its scale etc might have changed
+            transformToCut.parent = null;
 
             //Create new game objects with the new meshes
-            foreach (Mesh newMesh in cutMeshes)
+            foreach (HalfEdgeData3 newHalfEdgeMesh in cutMeshes)
             {
-                GameObject newObj = Instantiate(childTransToCut.gameObject);
+                GameObject newObj = Instantiate(transformToCut.gameObject);
 
                 newObj.transform.parent = meshesToCutParentTrans;
 
-                newObj.GetComponent<MeshFilter>().mesh = newMesh;
+                //Cache the half-edge data in case we want to cut the mesh again
+                transformToCut.GetComponent<CutMesh>().halfEdge3DataStructure = newHalfEdgeMesh;
+
+                //Convert from Half-Edge to MyMesh
+                MyMesh myMesh = newHalfEdgeMesh.ConvertToMyMesh("Cutted mesh", MyMesh.MeshStyle.HardAndSoftEdges);
+
+                //Convert from MyMesh to unity Mesh 
+                Mesh unityMesh = myMesh.ConvertToUnityMesh(generateNormals: false);
+
+                //Attach the mesh to the new gameobject
+                newObj.GetComponent<MeshFilter>().mesh = unityMesh;
             }
 
+            timer.Stop();
 
-            //Hide the original one
-            childTransToCut.gameObject.SetActive(false);
+            Debug.Log($"It took {timer.ElapsedMilliseconds / 1000f} seconds to generate the unity meshes from the half-edges");
 
-            //And make sure the original one has the previous parent
-            childTransToCut.parent = oldChildParent;
+
+            //Hide the original one if we cut the mesh (we didn't reach thid far down if we didnt cut the mesh)
+            transformToCut.gameObject.SetActive(false);
+
+            //And make sure the original mesh is in local space (if it had a parent)
+            //We earlier transformed it to global space
+            //This doesnt really matter because the mesh is hidden anyway...
+            transformToCut.parent = oldChildParent;
         }
     }
 

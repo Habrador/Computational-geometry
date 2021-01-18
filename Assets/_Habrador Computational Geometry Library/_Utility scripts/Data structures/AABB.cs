@@ -208,7 +208,7 @@ namespace Habrador_Computational_Geometry
 
 
         //Get all corners of the box
-        public HashSet<MyVector3> GetCorners()
+        public List<MyVector3> GetCorners()
         {
             //Get the corners
             //top is y-axis, front is z-axis, and right is x-axis
@@ -223,7 +223,7 @@ namespace Habrador_Computational_Geometry
             MyVector3 bottomBL = new MyVector3(min.x, min.y, min.z);
 
 
-            HashSet<MyVector3> corners = new HashSet<MyVector3>()
+            List<MyVector3> corners = new List<MyVector3>()
             {
                 topFR,
                 topFL,

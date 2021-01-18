@@ -9,11 +9,11 @@ namespace Habrador_Computational_Geometry
     // http://graphics.stanford.edu/courses/cs248-18-spring-content/lectures/07_geometryprocessing/07_geometryprocessing_slides.pdf
 
     //3D space
-    //TODO: An idea is to keep the original lists and then the half-edge data structure is references these lists
-    //making it easier to change vertex positions, etc? Then we only need to compare 2 ints when comparing edge directions, which should be faster than comparing 6 floats
-    //So instead of point at a Vector3, each vertex should point at a position in a list of all vertices 
-    //This should also prevent floatig point problems when using the position as key in a dictionary
-    //TODO: Make sure the methods are more general - they are not only working on triangles
+    //TODO: 
+    // - An idea is to keep the original lists and then the half-edge data structure is references these lists making it easier to change vertex positions, etc? Then we only need to compare 2 ints when comparing edge directions, which should be faster than comparing 6 floats. So instead of point at a Vector3, each vertex should point at a position in a list of all vertices. This should also prevent floatig point problems when using the position as key in a dictionary
+    //- Make sure the methods are more general - they are now only working on triangles
+    //- COmbine some methods with 2d version: Flip edge is working in the same way in both 2d and 3d
+    //- Convert to MyMesh should maybe be in MyMesh class
     public class HalfEdgeData3
     {
         //Should be called verts because have the same #letters as faces, edges, so makes it pretty
@@ -44,6 +44,7 @@ namespace Habrador_Computational_Geometry
 
         //Convert from MyMesh (which is face-vertex data structure) to half-edge data structure
         //In the half-edge data structure, each edge has an opposite edge, which may have to be connected
+        //You can connect these in a fast way only if there are no floating point precision issues
         public HalfEdgeData3(MyMesh mesh, ConnectOppositeEdges connectOppositeEdges) : this()
         {
             //Loop through all triangles in the mesh
@@ -73,8 +74,8 @@ namespace Habrador_Computational_Geometry
                 AddTriangle(v1, v2, v3);
             }
 
-            //The fast method is only working if there are no floating point precision issues
-            //So all vertices at the same position are actually at the same position
+            
+            //Find opposite edges to each edge
             if (connectOppositeEdges == ConnectOppositeEdges.Fast)
             {
                 ConnectAllEdgesFast();
@@ -88,48 +89,6 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Get a list with unique edges
-        //
-
-        //Currently we have two half-edges for each edge, making it time consuming to go through them 
-        //But it's also time consuming to create this list so make sure you measure time which is better
-        public HashSet<HalfEdge3> GetUniqueEdges()
-        {
-            HashSet<HalfEdge3> uniqueEdges = new HashSet<HalfEdge3>();
-
-            foreach (HalfEdge3 e in edges)
-            {
-                MyVector3 p1 = e.v.position;
-                MyVector3 p2 = e.prevEdge.v.position;
-
-                bool isInList = false;
-
-                //TODO: Use a dictionary to make this searcg faster
-                foreach (HalfEdge3 uniqueEdge in uniqueEdges)
-                {
-                    MyVector3 p1_test = uniqueEdge.v.position;
-                    MyVector3 p2_test = uniqueEdge.prevEdge.v.position;
-
-                    if ((p1.Equals(p1_test) && p2.Equals(p2_test)) || (p2.Equals(p1_test) && p1.Equals(p2_test)))
-                    {
-                        isInList = true;
-
-                        break;
-                    }
-                }
-
-                if (!isInList)
-                {
-                    uniqueEdges.Add(e);
-                }
-            }
-
-            return uniqueEdges;
-        }
-
-
-
-        //
         // Find opposite edge to edge 
         //
 
@@ -138,12 +97,29 @@ namespace Habrador_Computational_Geometry
         //And when it is connected we don't need to test if it's pointing at the vertex when seaching for opposite edges
         public void ConnectAllEdgesSlow()
         {
+            //First find all edges with no connection (which will improve performance if only a few edges are missing opposites)
+            HashSet<HalfEdge3> edgesWithNoOppositeConnection = new HashSet<HalfEdge3>();
+            
             foreach (HalfEdge3 e in edges)
             {
                 if (e.oppositeEdge == null)
                 {
-                    TryFindOppositeEdge(e);
+                    edgesWithNoOppositeConnection.Add(e);
                 }
+            }
+
+
+            //Then find the opposite edges
+            foreach (HalfEdge3 e in edgesWithNoOppositeConnection)
+            {
+                //This means we have aleady assigned this opposite edge 
+                //because it belonged to an opposite edge of an edge we already iterated over
+                if (e.oppositeEdge != null)
+                {
+                    continue;
+                }
+            
+                TryFindOppositeEdge(e, edgesWithNoOppositeConnection);
             }
         }
 
@@ -152,6 +128,11 @@ namespace Habrador_Computational_Geometry
         //This method takes rough 0.1 seconds for the bunny, while the slow method takes 1.6 seconds
         public void ConnectAllEdgesFast()
         {
+            ConnectAllEdgesFast(this.edges);
+        }
+
+        public void ConnectAllEdgesFast(HashSet<HalfEdge3> myEdges)
+        {
             //Create the lookup table
             //Important in this case that Edge3 is a struct
             Dictionary<Edge3, HalfEdge3> edgeLookup = new Dictionary<Edge3, HalfEdge3>();
@@ -159,7 +140,7 @@ namespace Habrador_Computational_Geometry
             //We can also maybe create a list of all edges which are not connected, so we don't have to search through all edges again?
             //List<HalfEdge3> unconnectedEdges = new List<HalfEdge3>();
 
-            foreach (HalfEdge3 e in edges)
+            foreach (HalfEdge3 e in myEdges)
             {
                 //Dont add it if its opposite is not null
                 //Sometimes we run this method if just a few edges are not connected
@@ -177,7 +158,7 @@ namespace Habrador_Computational_Geometry
             }
 
             //Connect edges
-            foreach (HalfEdge3 e in edges)
+            foreach (HalfEdge3 e in myEdges)
             {
                 //This edge is already connected
                 //Is faster to first do a null check
@@ -216,7 +197,7 @@ namespace Habrador_Computational_Geometry
         //If no opposite edge exists, it means it has no neighbor which is possible if there's a hole
         public void TryFindOppositeEdge(HalfEdge3 e)
         {
-            TryFindOppositeEdge(e, edges);
+            TryFindOppositeEdge(e, this.edges);
         }
 
 
@@ -267,19 +248,37 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Convert to mesh
+        // Convert half-edge triangles to MyMesh
         //
 
-        //We know we have stored triangles in the data structure
+        //Is only working if we have stored triangles in the data structure!
         //shareVertices means that we want a smooth surface where some vertices are shared between triangles
         public MyMesh ConvertToMyMesh(string meshName, MyMesh.MeshStyle meshStyle)
         {
             MyMesh myMesh = new MyMesh(meshName);
-        
+
+            //Loop through each triangle
+            //foreach (HalfEdgeFace3 f in faces)
+            //{
+            //    //These have been stored clock-wise, which is what a mesh wants
+            //    HalfEdgeVertex3 v1 = f.edge.v;
+            //    HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
+            //    HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
+
+            //    //Standardize
+            //    MyMeshVertex my_v1 = new MyMeshVertex(v1.position, v1.normal);
+            //    MyMeshVertex my_v2 = new MyMeshVertex(v2.position, v2.normal);
+            //    MyMeshVertex my_v3 = new MyMeshVertex(v3.position, v3.normal);
+
+            //    myMesh.AddTriangle(my_v1, my_v2, my_v3, meshStyle);
+            //}
+
+            HashSet<Triangle3<MyMeshVertex>> triangles = new HashSet<Triangle3<MyMeshVertex>>();
+
             //Loop through each triangle
             foreach (HalfEdgeFace3 f in faces)
             {
-                //These should have been stored clock-wise
+                //These have been stored clock-wise, which is what a mesh wants
                 HalfEdgeVertex3 v1 = f.edge.v;
                 HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
                 HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
@@ -289,32 +288,12 @@ namespace Habrador_Computational_Geometry
                 MyMeshVertex my_v2 = new MyMeshVertex(v2.position, v2.normal);
                 MyMeshVertex my_v3 = new MyMeshVertex(v3.position, v3.normal);
 
-                myMesh.AddTriangle(my_v1, my_v2, my_v3, meshStyle);
+                Triangle3<MyMeshVertex> triangle = new Triangle3<MyMeshVertex>(my_v1, my_v2, my_v3);
+
+                triangles.Add(triangle);
             }
 
-            return myMesh;
-        }
-
-        //We have just the faces (which we know are triangles)
-        public static MyMesh ConvertToMyMesh(string meshName, HashSet<HalfEdgeFace3> faces, MyMesh.MeshStyle meshStyle)
-        {
-            MyMesh myMesh = new MyMesh(meshName);
-
-            //Loop through each triangle
-            foreach (HalfEdgeFace3 f in faces)
-            {
-                //These should have been stored clock-wise
-                HalfEdgeVertex3 v1 = f.edge.v;
-                HalfEdgeVertex3 v2 = f.edge.nextEdge.v;
-                HalfEdgeVertex3 v3 = f.edge.nextEdge.nextEdge.v;
-
-                //Standardize
-                MyMeshVertex my_v1 = new MyMeshVertex(v1.position, v1.normal);
-                MyMeshVertex my_v2 = new MyMeshVertex(v2.position, v2.normal);
-                MyMeshVertex my_v3 = new MyMeshVertex(v3.position, v3.normal);
-
-                myMesh.AddTriangle(my_v1, my_v2, my_v3, meshStyle);
-            }
+            myMesh.AddTriangles(triangles, meshStyle);
 
             return myMesh;
         }
@@ -356,7 +335,7 @@ namespace Habrador_Computational_Geometry
 
 
         //
-        // Add a triangle to this mesh
+        // Add a triangle to the data structure
         //
 
         //We dont have a normal so we have to calculate it, so make sure v1-v2-v3 is clock-wise
@@ -372,6 +351,7 @@ namespace Habrador_Computational_Geometry
 
             return f;
         }
+
 
         //v1-v2-v3 should be clock-wise which is Unity standard
         public HalfEdgeFace3 AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, bool findOppositeEdge = false)
@@ -439,6 +419,21 @@ namespace Habrador_Computational_Geometry
             this.faces.Add(f);
 
             return f;
+        }
+
+
+        //Is useful if we for example already have half-edge data and want to split it into different meshes
+        public void AddTriangle(HalfEdgeFace3 f, bool findOppositeEdge = false)
+        {
+            faces.Add(f);
+
+            edges.Add(f.edge);
+            edges.Add(f.edge.nextEdge);
+            edges.Add(f.edge.nextEdge.nextEdge);
+
+            verts.Add(f.edge.v);
+            verts.Add(f.edge.nextEdge.v);
+            verts.Add(f.edge.nextEdge.nextEdge.v);
         }
 
 
@@ -584,7 +579,9 @@ namespace Habrador_Computational_Geometry
 
 
 
-    //A position
+    //
+    // A position in the half-edge data structure
+    //
     public class HalfEdgeVertex3
     {
         //The position of the vertex
@@ -599,7 +596,6 @@ namespace Habrador_Computational_Geometry
         //Each vertex references an half-edge that starts at this point
         //Might seem strange because each halfEdge references a vertex the edge is going to?
         public HalfEdge3 edge;
-
 
 
         public HalfEdgeVertex3(MyVector3 position)
@@ -639,7 +635,7 @@ namespace Habrador_Computational_Geometry
 
                 if (oppositeEdge == null)
                 {
-                    Debug.LogWarning("We cant rotate around this vertex because there are holes in the mesh");
+                    //Debug.LogWarning("We cant rotate around this vertex because there are holes in the mesh");
 
                     //Better to clear than to null or we have to create a new hashset when filling it the brute force way 
                     allEdgesGoingToVertex.Clear();
@@ -689,6 +685,10 @@ namespace Habrador_Computational_Geometry
 
 
 
+    //
+    // A face in the half-edge data structure
+    //
+
     //This face could be a triangle or whatever we need
     public class HalfEdgeFace3
     {
@@ -696,13 +696,14 @@ namespace Habrador_Computational_Geometry
         //If you need the vertices, you can use this edge
         public HalfEdge3 edge;
 
+        //Flood-filling is a common operation, and this bool should improve the performance
+        public bool hasVisisted;
 
 
         public HalfEdgeFace3(HalfEdge3 edge)
         {
             this.edge = edge;
         }
-
 
 
         //Get all edges that make up this face
@@ -738,7 +739,10 @@ namespace Habrador_Computational_Geometry
 
 
 
-    //An edge going in a direction
+    //
+    // An edge in the half-edge data structure
+    //
+
     public class HalfEdge3
     {
         //The vertex it points TO
@@ -760,12 +764,10 @@ namespace Habrador_Computational_Geometry
         public HalfEdge3 prevEdge;
 
 
-
         public HalfEdge3(HalfEdgeVertex3 v)
         {
             this.v = v;
         }
-
 
 
         //The length of this edge
@@ -780,7 +782,7 @@ namespace Habrador_Computational_Geometry
             return length;
         }
 
-        public float SqrLength()
+        public float LengthSqr()
         {
             //The edge points TO a vertex
             MyVector3 p2 = v.position;

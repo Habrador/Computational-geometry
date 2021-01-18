@@ -311,17 +311,17 @@ namespace Habrador_Computational_Geometry
 
 
         //HashSet<Triangle3>
-        public HashSet<Triangle3> UnNormalize(HashSet<Triangle3> normalized)
+        public HashSet<Triangle3<MyVector3>> UnNormalize(HashSet<Triangle3<MyVector3>> normalized)
         {
-            HashSet<Triangle3> unNormalized = new HashSet<Triangle3>();
+            HashSet<Triangle3<MyVector3>> unNormalized = new HashSet<Triangle3<MyVector3>>();
 
-            foreach (Triangle3 t in normalized)
+            foreach (Triangle3<MyVector3> t in normalized)
             {
                 MyVector3 p1 = UnNormalize(t.p1);
                 MyVector3 p2 = UnNormalize(t.p2);
                 MyVector3 p3 = UnNormalize(t.p3);
 
-                Triangle3 tUnNormalized = new Triangle3(p1, p2, p3);
+                Triangle3<MyVector3> tUnNormalized = new Triangle3<MyVector3>(p1, p2, p3);
 
                 unNormalized.Add(tUnNormalized);
             }

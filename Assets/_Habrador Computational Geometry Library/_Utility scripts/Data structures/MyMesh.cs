@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Habrador_Computational_Geometry
 {
-    //Similar to Unity's mesh - known as face-vertex data structure 
+    //Similar to Unity's mesh (known as face-vertex data structure) 
     public class MyMesh
     {
         public List<MyVector3> vertices;
@@ -35,7 +35,6 @@ namespace Habrador_Computational_Geometry
         }
 
 
-
         public MyMesh(Mesh mesh_Unity)
         {
             //Standardize data
@@ -52,14 +51,72 @@ namespace Habrador_Computational_Geometry
 
 
 
+        //Add triangles (oriented clock-wise) to the mesh
+        public void AddTriangles(HashSet<Triangle3<MyMeshVertex>> trianglesToAdd, MeshStyle meshStyle)
+        {
+            //Soft edges is maybe slow as well???
+            if (meshStyle == MeshStyle.HardEdges || meshStyle == MeshStyle.SoftEdges)
+            {
+                foreach (Triangle3<MyMeshVertex> triangle in trianglesToAdd)
+                {
+                    AddTriangle(triangle.p1, triangle.p2, triangle.p3, meshStyle);
+                }
+            }
+            //If we have many triangles and want both soft- and hard edges, then adding triangle by triangle is very slow
+            //because we to search for both position and normal 
+            else
+            {
+                //...so we have to use a lookup table where we store position and normal, which may cause floating-point precision issues
+                //Maybe we could avoid this if the half-edge data structure pointed to positions in a list???
+                Dictionary<MyMeshVertex, int> vertexLookup = new Dictionary<MyMeshVertex, int>();
+
+                foreach (Triangle3<MyMeshVertex> triangle in trianglesToAdd)
+                {
+                    MyMeshVertex v1 = triangle.p1;
+                    MyMeshVertex v2 = triangle.p2;
+                    MyMeshVertex v3 = triangle.p3;
+
+                    AddVertexFromLookup(v1, vertexLookup);
+                    AddVertexFromLookup(v2, vertexLookup);
+                    AddVertexFromLookup(v3, vertexLookup);
+                }
+            }
+        }
+
+        //Help method to above
+        private void AddVertexFromLookup(MyMeshVertex v, Dictionary<MyMeshVertex, int> vertexLookup)
+        {
+            int index = -1;
+
+            bool indexExists = vertexLookup.TryGetValue(v, out index);
+
+            if (!indexExists)
+            {
+                vertices.Add(v.position);
+                normals.Add(v.normal);
+
+                triangles.Add(vertices.Count - 1);
+
+                vertexLookup.Add(v, vertices.Count - 1);
+            }
+            else
+            {
+                triangles.Add(index);
+            }
+        }
+
+
+
         //Add a triangle (oriented clock-wise) to the mesh
         public void AddTriangle(MyMeshVertex v1, MyMeshVertex v2, MyMeshVertex v3, MeshStyle meshStyle)
         {
-            int index1 = AddVertexAndReturnIndex(v1, meshStyle);
-            int index2 = AddVertexAndReturnIndex(v2, meshStyle);
-            int index3 = AddVertexAndReturnIndex(v3, meshStyle);
+            int index_1 = AddVertexAndReturnIndex(v1, meshStyle);
+            int index_2 = AddVertexAndReturnIndex(v2, meshStyle);
+            int index_3 = AddVertexAndReturnIndex(v3, meshStyle);
 
-            AddTrianglePositions(index1, index2, index3);
+            triangles.Add(index_1);
+            triangles.Add(index_2);
+            triangles.Add(index_3);
         }
 
 
@@ -89,7 +146,7 @@ namespace Habrador_Computational_Geometry
                             return vertexPosInList;
                         }
                         
-                        //Sometimes we dont have a normal to compare
+                        //If we want only soft edges we don't need to compare the normal
                         if (meshStyle == MeshStyle.SoftEdges)
                         {
                             vertexPosInList = i;
@@ -107,31 +164,6 @@ namespace Habrador_Computational_Geometry
             vertexPosInList = vertices.Count - 1;
 
             return vertexPosInList;
-        }
-
-
-
-        //Add a normal at a certain index
-        //Run this after adding a vertex
-        //public void AddNormal(MyVector3 normal, int index)
-        //{
-        //    //If the index is larger than how many values in list, add at last pos
-        //    //So if index is 1 we want to add the normal to the second pos in the list
-        //    //Otherwise the normal should already exist
-        //    if (normals.Count <= index)
-        //    {
-        //        normals.Add(normal);
-        //    }
-        //}
-
-
-
-        //Add triangle
-        public void AddTrianglePositions(int index_1, int index_2, int index_3)
-        {
-            triangles.Add(index_1);
-            triangles.Add(index_2);
-            triangles.Add(index_3);
         }
 
 

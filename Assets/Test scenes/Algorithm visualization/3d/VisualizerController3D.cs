@@ -151,11 +151,12 @@ public class VisualizerController3D : MonoBehaviour
     public void DisplayMesh(HashSet<HalfEdgeFace3> meshDataUnNormalized, MeshFilter mf)
     {
         //Generate a mesh
-        MyMesh myMesh = HalfEdgeData3.ConvertToMyMesh("Main visualization mesh", meshDataUnNormalized, MyMesh.MeshStyle.HardEdges);
+        //CURRENTLY BROKEN: convert faces to proper half-edge data instead to save a million special methods
+        //MyMesh myMesh = HalfEdgeData3.ConvertToMyMesh("Main visualization mesh", meshDataUnNormalized, MyMesh.MeshStyle.HardEdges);
 
-        Mesh mesh = myMesh.ConvertToUnityMesh(generateNormals: true);
+        //Mesh mesh = myMesh.ConvertToUnityMesh(generateNormals: true);
 
-        mf.mesh = mesh;
+        //mf.mesh = mesh;
 
         //Debug.Log(mesh.triangles.Length);
     }
