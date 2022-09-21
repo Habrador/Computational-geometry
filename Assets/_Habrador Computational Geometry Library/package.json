@@ -1,0 +1,35 @@
+{
+  "name": "com.habrador.computational-geometry",
+  "displayName": "[Library] Computational Geometry",
+  "author": {
+    "name": "Habrador",
+    "url": "https://www.habrador.com/"
+  },
+  "version": "1.0.0",
+  "unity": "2021.3",
+  "description": "Computational Geometry Unity library with implementations of intersection algorithms, triangulations like delaunay, voronoi diagrams, polygon clipping, bezier curves, ear clipping, convex hulls, mesh simplification, etc",
+  "keywords": [
+    "open-source",
+    "interpolation",
+    "bezier",
+    "unity3d",
+    "triangulation",
+    "quickhull",
+    "computational-geometry",
+    "convex-hull",
+    "voronoi",
+    "polygon-clipping",
+    "delaunay-triangulation",
+    "catmull-rom",
+    "marching-squares",
+    "jarvis-march",
+    "constrained-delaunay-triangulation",
+    "unity-library",
+    "intersections",
+    "mesh-simplification",
+    "ear-clipping",
+    "gift-wrapping"
+  ],
+  "license": "MIT"
+}
+
