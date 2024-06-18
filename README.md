@@ -273,7 +273,7 @@ A visualization of this algorithm can be found here: https://www.youtube.com/wat
 The fun part of computational geometry!
 
 
-**Cut mesh with plane**
+**Cut mesh with plane (todo)**
 
 If the new meshes are not connected, then it will separate the meshes, so you might end up with more than two meshes after the cut.  
 
